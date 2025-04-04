@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
-    target-branch: "master"  # or your default branch name
+    target-branch: "compose"  # default branch name
     labels:
       - "dependencies"
       - "android"
