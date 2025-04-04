@@ -1,10 +1,13 @@
-![CLauncher]()
+![CCLauncher]()
 
 
-# CLauncher | CL stands for ChoiceLess
+# CCLauncher | CLauncher rewritten for compose UI
+
 Only open applications that you had in mind, Instead of opening or seeing the apps before searching
 
 If you need to rename or hide any apps, you could show the apps and then perform those operations.
+
+Plan to add new features here and keep Clauncher as it is, with minor updates
 
 ## Install
 
@@ -14,7 +17,6 @@ If you need to rename or hide any apps, you could show the apps and then perform
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/app.clauncher)
 
-To maintain the simplicity of the original Olauncher, a few niche features are available but hidden.
 
 ##
 
