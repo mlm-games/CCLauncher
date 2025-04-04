@@ -1,5 +1,5 @@
 [versions]
-appcompat = "1.6.1"
+appcompat = "1.7.0"
 coreKtx = "1.10.1"
 gradle = "8.8.2"
 kotlinStdlib = "2.1.20"
