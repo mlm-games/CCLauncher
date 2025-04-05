@@ -1,19 +1,19 @@
 [versions]
 activityCompose = "1.10.1"
-appcompat = "1.6.1"
-coreKtx = "1.10.1"
+appcompat = "1.7.0"
+coreKtx = "1.15.0"
 datastorePreferences = "1.1.4"
 gradle = "8.8.2"
 androidGradlePlugin = "8.9.1"
 kotlinStdlib = "2.1.20"
 lifecycleExtensions = "2.2.0"
 lifecycleViewmodelCompose = "2.8.7"
-lifecycleViewmodelKtx = "2.6.1"
-material = "1.9.0"
+lifecycleViewmodelKtx = "2.8.7"
+material = "1.12.0"
 material3 = "1.0.0"
 navigationFragmentKtx = "2.8.9"
-recyclerview = "1.3.0"
-workRuntimeKtx = "2.8.1"
+recyclerview = "1.4.0"
+workRuntimeKtx = "2.10.0"
 kotlin = "2.0.0"
 material3Android = "1.3.1"
 constraintlayoutComposeAndroid = "1.1.1"
@@ -43,7 +43,7 @@ material3-android = { group = "androidx.compose.material3", name = "material3-an
 constraintlayout-compose-android = { group = "androidx.constraintlayout", name = "constraintlayout-compose-android", version.ref = "constraintlayoutComposeAndroid" }
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }  # Added for Android Gradle Plugin
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

@@ -1,3 +1,7 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -25,6 +29,37 @@ android {
 
         resourceConfigurations += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            isUniversalApk = false
+        }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as BaseVariantOutputImpl
+            val abiName = output.filters.find { it.filterType == "ABI" }?.identifier
+
+            if (abiName != null) {
+                val baseVersionCode = variant.versionCode
+                val abiVersionCode = when (abiName) {
+                    "x86" -> baseVersionCode - 3
+                    "x86_64" -> baseVersionCode - 2
+                    "armeabi-v7a" -> baseVersionCode - 1
+                    "arm64-v8a" -> baseVersionCode
+                    else -> baseVersionCode
+                }
+
+                (output as ApkVariantOutputImpl).versionCodeOverride = abiVersionCode
+                output.outputFileName = ("clauncher-${variant.versionName}-${abiName}.apk")
+            }
+        }
     }
 
     signingConfigs {

@@ -1,8 +1,8 @@
-name: bi-monthly Android App Deploy
+name: Android App Releases
 
 on:
   schedule:
-    - cron: '0 0 1 */2 *'
+    - cron: '0 0 1 */2 *'  # Every other month on the 1st
   workflow_dispatch:  # Manual trigger
 
 concurrency:
@@ -12,7 +12,8 @@ concurrency:
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'corretto'
-  BUILD_GRADLE_PATH: 'app/build.gradle.kts'  # Adjust path if necessary
+  BUILD_GRADLE_PATH: 'app/build.gradle.kts'
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=true"
 
 jobs:
   prepare-version:
@@ -23,12 +24,22 @@ jobs:
       old_version_name: ${{ steps.version.outputs.old_version_name }}
       version_name: ${{ steps.version.outputs.version_name }}
       base_version_code: ${{ steps.version.outputs.version_code }}
+      build_date: ${{ steps.version.outputs.build_date }}
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0  # Full history for better versioning
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'gradle'
       
       - id: version
+        name: Update Version Numbers
         run: |
           OLD_VERSION_CODE=$(grep "versionCode" $BUILD_GRADLE_PATH | head -1 | grep -oE '[0-9]+')
           OLD_VERSION_NAME=$(grep "versionName" $BUILD_GRADLE_PATH | head -1 | grep -oE '"([^"]+)"' | tr -d '"')
@@ -39,85 +50,80 @@ jobs:
           MINOR=$((VERSION_PARTS[2] + 1))
           VERSION_PARTS[2]=$MINOR
           NEW_VERSION_NAME="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+          
+          BUILD_DATE=$(date +'%Y%m%d')
 
           echo "old_version_name=$OLD_VERSION_NAME" >> $GITHUB_OUTPUT
           echo "version_name=$NEW_VERSION_NAME" >> $GITHUB_OUTPUT
           echo "version_code=$NEW_VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "BUILD_DATE=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
 
-          # Update build.gradle
-          sed -i "s/versionCode $OLD_VERSION_CODE/versionCode $NEW_VERSION_CODE/" $BUILD_GRADLE_PATH
-          sed -i "s/versionName \"$OLD_VERSION_NAME\"/versionName \"$NEW_VERSION_NAME\"/" $BUILD_GRADLE_PATH
+          # Update build.gradle.kts
+          sed -i "s/versionCode = $OLD_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" $BUILD_GRADLE_PATH
+          sed -i "s/versionName = \"$OLD_VERSION_NAME\"/versionName = \"$NEW_VERSION_NAME\"/" $BUILD_GRADLE_PATH
 
           echo "VERSION_NAME=$NEW_VERSION_NAME" >> $GITHUB_ENV
           echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
 
-          # Commit and push version update
+      - name: Commit Version Changes
+        run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git add $BUILD_GRADLE_PATH
-          git commit -m "Bump version to $NEW_VERSION_NAME (code: $NEW_VERSION_CODE) [skip ci]" || echo "No changes to commit"
-          git push --force
+          git commit -m "Bump version to ${{ steps.version.outputs.version_name }} (code: ${{ steps.version.outputs.version_code }}) [skip ci]" || echo "No changes to commit"
+          git push
 
   build-and-release:
     needs: prepare-version
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        arch: [arm64-v8a, armeabi-v7a, x86, x86_64]
-        include:
-          - arch: x86
-            version_offset: -3
-          - arch: x86_64
-            version_offset: -2
-          - arch: armeabi-v7a
-            version_offset: -1
-          - arch: arm64-v8a
-            version_offset: 0
-
+    
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'gradle'
           
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
         
-      - name: Update Version Code and Version Name for Architecture
+      - name: Update Version Code and Version Name if not updated before cloning
         run: |
-          ARCH_VERSION_CODE=$((${{needs.prepare-version.outputs.base_version_code}} + ${{matrix.version_offset}}))
-          sed -i "s/versionCode [0-9]*/versionCode $ARCH_VERSION_CODE/" $BUILD_GRADLE_PATH
-          sed -i "s/versionName \"${{needs.prepare-version.outputs.old_version_name}}\"/versionName \"${{needs.prepare-version.outputs.version_name}}\"/" $BUILD_GRADLE_PATH
+          sed -i "s/versionCode = [0-9]*/versionCode = ${{needs.prepare-version.outputs.base_version_code}}/" $BUILD_GRADLE_PATH
+          sed -i "s/versionName = \"${{needs.prepare-version.outputs.old_version_name}}\"/versionName = \"${{needs.prepare-version.outputs.version_name}}\"/" $BUILD_GRADLE_PATH
           
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" > release.keystore.asc
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSPHRASE }}" --batch release.keystore.asc > release.keystore
 
-      - name: Build APK for ${{ matrix.arch }}
+      - name: Build APKs for all architectures
         run: |
-          ./gradlew assembleRelease \
-            -PtargetAbi=${{ matrix.arch }} \
+          ./gradlew clean assembleRelease \
             -Pandroid.injected.signing.store.file=$PWD/release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.STORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      - name: Prepare APK
+      - name: Prepare APKs for release
         run: |
           mkdir -p artifacts
-          find app/build/outputs/apk/release/ -name "*${{ matrix.arch }}-release.apk" -exec cp {} artifacts/clauncher-${{ needs.prepare-version.outputs.version_name }}-${{ matrix.arch }}.apk \;
+          find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} artifacts/ \;
 
-      - name: Upload to Release
+      - name: Create GitHub Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/clauncher-${{ needs.prepare-version.outputs.version_name }}-${{ matrix.arch }}.apk
+          files: artifacts/*.apk
           name: "CLauncher ${{ needs.prepare-version.outputs.version_name }}"
           tag_name: "${{ needs.prepare-version.outputs.version_name }}"
           prerelease: false
@@ -125,7 +131,7 @@ jobs:
           body: |
             ## CLauncher Release ${{ needs.prepare-version.outputs.version_name }}
             
-            **Build Date**: ${{ needs.prepare-version.outputs.BUILD_DATE }}
+            **Build Date**: ${{ needs.prepare-version.outputs.build_date }}
             **Base Version Code**: ${{ needs.prepare-version.outputs.base_version_code }}
             
             ### 📝 Version Codes by Architecture
@@ -140,6 +146,3 @@ jobs:
             - x86 (32-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk
             - x86_64 (64-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk
           generate_release_notes: true
-
-      - name: Log build.gradle.kts
-        run: cat $BUILD_GRADLE_PATH
