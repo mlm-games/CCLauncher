@@ -20,6 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
@@ -175,7 +180,17 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
             else -> {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn( modifier = Modifier
+                    .fillMaxSize()
+                    .onKeyEvent { if (it.type == KeyEventType.KeyUp && it.key == Key.Enter) {
+                        println("Hi")
+                        onAppClick(appsToShow[0])
+                    }
+                        true
+                        //TODO: If user presses enter,
+                        // launch the first app in list directly, does not work yet?
+                    }
+                ) {
                     items(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
@@ -184,8 +199,6 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                             app = app,
                             showAppIcon = showAppNames,
                             onClick = {
-                                //TODO: If user presses enter,
-                                // launch the first app in list directly
                                 if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
                                     onAppClick(appsToShow[0])
                                 } else {
@@ -283,7 +296,7 @@ private fun AppListItem(
     app: AppModel,
     showAppIcon: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
