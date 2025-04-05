@@ -44,7 +44,7 @@ data class LauncherPreferences(
     val textSizeScale: Float = 1.0f,
     val useSystemFont: Boolean = true,
     val autoOpenFilteredApp: Boolean = true,
-    val showHiddenAppsOnSearch: Boolean = true,
+    val showHiddenAppsOnSearch: Boolean = false,
 
     val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
 

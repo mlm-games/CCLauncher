@@ -41,6 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
     val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
+    private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
+    val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
+
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
@@ -60,6 +63,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 updateSettingsScreenState(prefs)
             }
         }
+        viewModelScope.launch {
+            appRepository.appListAll.collect { apps ->
+                _appListAll.value = apps
+                updateAppDrawerState()
+            }
+        }
+
 
         // Observe app list changes
         viewModelScope.launch {
@@ -161,7 +171,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     swipeRightEnabled = prefs.swipeRightEnabled,
                     swipeLeftAppName = prefs.swipeLeftApp.label,
                     swipeRightAppName = prefs.swipeRightApp.label,
-                    swipeDownAction = prefs.swipeDownAction
+                    swipeDownAction = prefs.swipeDownAction,
+                    showHiddenAppsOnSearch = prefs.showHiddenAppsOnSearch,
+                    autoOpenFilteredApp = prefs.autoOpenFilteredApp
                 )
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to update settings: ${e.message}"
@@ -170,13 +182,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Load all apps
+     * Load all apps and visible apps
      */
     fun loadApps() {
         viewModelScope.launch {
             try {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
                 appRepository.loadApps()
+                appRepository.loadAllApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
@@ -463,7 +476,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val filteredApps = if (query.isBlank()) {
                     _appList.value
                 } else {
-                    _appList.value.filter {
+                    val listToFilter = if (prefsDataStore.preferences.first().showHiddenAppsOnSearch) _appListAll else _appList
+                    listToFilter.value.filter {
                         it.appLabel.contains(query, ignoreCase = true)
                     }
                 }

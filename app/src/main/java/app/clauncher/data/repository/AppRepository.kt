@@ -23,11 +23,25 @@ class AppRepository(
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     private val iconCache = IconCache(context)
 
+    private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
+    val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
+
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
     val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
+
+    suspend fun loadAllApps() {
+        withContext(Dispatchers.IO) {
+            try {
+                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = true)
+                _appListAll.value = apps
+            } catch (e: Exception) {
+                throw e
+            }
+        }
+    }
 
     /**
      * Load all visible apps

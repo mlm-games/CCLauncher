@@ -186,7 +186,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                             onClick = {
                                 //TODO: If user presses enter,
                                 // launch the first app in list directly
-                                if (appsToShow.size == 1 && searchQuery.isNotEmpty()) { //TODO: should execute on every character typed
+                                if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
                                     onAppClick(appsToShow[0])
                                 } else {
                                     onAppClick(app)
