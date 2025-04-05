@@ -25,7 +25,7 @@ jobs:
         id: auto-merge
         uses: dependabot/fetch-metadata@v2.2.0
         with:
-          github-token: "${{ secrets.GH_TOKEN }}"
+          github-token: "${{ env.GH_TOKEN }}"
           
       - name: Wait 5 minutes for other checks to complete
         run: sleep 300
