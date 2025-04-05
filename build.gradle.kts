@@ -6,7 +6,7 @@ plugins {
 //    kotlin("jvm") version "1.7.20" apply false // Example: kotlin("jvm") version "1.9.20" apply false
 }
 
-group = "app.clauncher"
+group = "app.cclauncher"
 version = "5.2.7"
 
 tasks.register("clean", Delete::class) {

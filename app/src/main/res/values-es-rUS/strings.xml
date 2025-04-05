@@ -6,7 +6,7 @@
     <string name="set_as_default_launcher_first">Primero pongalo como lanzador principal</string>
     <string name="app_text_color">Color del texto</string>
     <string name="double_tap_to_lock_screen">Tocar dos veces para bloquear</string>
-    <string name="admin_permission_message">Clauncher promete usar el permiso de la pantalla de bloqueo de manera responsable. Clauncher no recopila ni comparte ningún dato.</string>
+    <string name="admin_permission_message">CClauncher promete usar el permiso de la pantalla de bloqueo de manera responsable. CClauncher no recopila ni comparte ningún dato.</string>
     <string name="about">Acerca de</string>
     <string name="off">No</string>
     <string name="on">Sí</string>
@@ -56,22 +56,22 @@
     <string name="welcome_to_clauncher_settings">¡Bienvenido a la configuración!
         \n\nRecuerda, si tienes alguna pregunta, nuestra página Acerca de tiene la respuesta.</string>
     <string name="rate_us_message">Hola, no volverá a ver este mensaje.
-        \n\nSi le gusta Clauncher, ¿puede darnos una calificación de 5 estrellas? Nos ayuda a mejorar nuestra clasificación y nos hace felices. ¡Gracias!</string>
+        \n\nSi le gusta CClauncher, ¿puede darnos una calificación de 5 estrellas? Nos ayuda a mejorar nuestra clasificación y nos hace felices. ¡Gracias!</string>
     <string name="share_message">Hola, necesitamos su ayuda! El año pasado superamos el millón de descargas. Este año queremos llegar a un millón más pero no podemos hacerlo solos.
-        \n\n¿Sería tan amable de compartir Clauncher con sus amigos, por favor? ¡Gracias, y tenga un maravilloso día!</string>
-    <string name="keyboard_message">Hola, el teclado es la forma más rápida de encontrar y abrir aplicaciones en Clauncher. ¿Podemos pedirle que mantenga esto activado por unos días más y luego decidir? La decisión siempre es suya.</string>
+        \n\n¿Sería tan amable de compartir CClauncher con sus amigos, por favor? ¡Gracias, y tenga un maravilloso día!</string>
+    <string name="keyboard_message">Hola, el teclado es la forma más rápida de encontrar y abrir aplicaciones en CClauncher. ¿Podemos pedirle que mantenga esto activado por unos días más y luego decidir? La decisión siempre es suya.</string>
     <string name="digital_wellbeing_message">Si desea establecer límites de tiempo para determinadas aplicaciones, la función Bienestar Digital de Android puede ayudarle a hacerlo.
         \n\nBusque Bienestar Digital en la configuración de su teléfono y habilítelo.</string>
     <string name="app_usage_message">Para mostrar/ocultar el tiempo de pantalla en la pantalla de inicio, permita o deniegue el permiso de uso de la aplicación.
         \n\nNota: No se recopilan datos de uso de la aplicación. Todo se procesa en su dispositivo.</string>
-    <string name="accessibility_service_description">Se necesita el permiso de Accesibilidad para activar el bloqueo con doble toque. Cualquier dato recolectado por Clauncher no saldrá de su dispositivo.</string>
-    <string name="support_clauncher_for_free">Apoye Clauncher de forma gratuita utilizando nuestro enlace de afiliado de Amazon.</string>
+    <string name="accessibility_service_description">Se necesita el permiso de Accesibilidad para activar el bloqueo con doble toque. Cualquier dato recolectado por CClauncher no saldrá de su dispositivo.</string>
+    <string name="support_clauncher_for_free">Apoye CClauncher de forma gratuita utilizando nuestro enlace de afiliado de Amazon.</string>
     <string name="support_clauncher_message">Cada vez que compre algo usando nuestro enlace, obtenemos una pequeña comisión. Por favor, guarde el enlace y úselo cada vez que compre en línea. ¡Gracias!</string>
     <string name="open">Abrir enlace</string>
     <string name="copy">Copiar</string>
     <string name="close">Cerrar</string>
     <string name="not_now">Ahora no</string>
-    <string name="public_roadmap">Objetivos de Clauncher</string>
+    <string name="public_roadmap">Objetivos de CClauncher</string>
     <string name="instagram">Instagram</string>
     <string name="twitter">Twitter</string>
     <string name="roadmap">Objetivos</string>
@@ -79,14 +79,14 @@
     <string name="date_only">Sólo fecha</string>
     <string name="bottom_on">Abajo: Sí</string>
     <string name="bottom_off">Abajo: No</string>
-    <string name="please_set_clauncher_as_default_first">Por favor, primero configure Clauncher como su lanzador principal</string>
+    <string name="please_set_clauncher_as_default_first">Por favor, primero configure CClauncher como su lanzador principal</string>
     <string name="affiliate">Afiliar</string>
     <string name="tip_start_typing_for_rename">Consejo: Comience a escribir para poder RENOMBRAR la aplicación</string>
-    <string name="hidden_apps_message">Nota: Toque \'Clauncher\' en la parte superior de esta página de Configuración para encontrar sus aplicaciones ocultas. Más detalles disponibles en nuestra página Acerca de abajo.</string>
+    <string name="hidden_apps_message">Nota: Toque \'CClauncher\' en la parte superior de esta página de Configuración para encontrar sus aplicaciones ocultas. Más detalles disponibles en nuestra página Acerca de abajo.</string>
     <string name="swipe_down_for">Deslize el dedo hacia abajo para</string>
     <string name="search">Buscar</string>
     <string name="notifications">Notificaciones</string>
-    <string name="accessibility_disclosure">Active o desactive el servicio de accesibilidad de Clauncher en la configuración de su dispositivo para habilitar o deshabilitar esta función. Tenga en cuenta que este servicio solo se utiliza para permitirle apagar el dispositivo</string>
+    <string name="accessibility_disclosure">Active o desactive el servicio de accesibilidad de CClauncher en la configuración de su dispositivo para habilitar o deshabilitar esta función. Tenga en cuenta que este servicio solo se utiliza para permitirle apagar el dispositivo</string>
     <string name="accept">Aceptar</string>
     <string name="permission">Permiso</string>
     <string name="double_tap_lock">Tocar dos veces para bloquear</string>
@@ -99,7 +99,7 @@
     <string name="enabled">Activado</string>
     <string name="disabled">Desactivado</string>
     <string name="please_turn_on_double_tap_to_unlock">Active el doble toque para bloquear</string>
-    <string name="launcher_failed_to_lock_device">Clauncher no pudo bloquear el dispositivo. Comprueba la configuración de la aplicación.</string>
+    <string name="launcher_failed_to_lock_device">CClauncher no pudo bloquear el dispositivo. Comprueba la configuración de la aplicación.</string>
     <string name="long_press_to_select_app">Mantenga presionado para seleccionar la aplicación</string>
     <string name="unable_to_open_app">No se puede abrir la información de la aplicación</string>
     <string name="copied">Copiado</string>
@@ -113,19 +113,19 @@
     <string name="swipe_left_app_disabled">Deslizar a la izquierda - Desactivado</string>
     <string name="swipe_right_app_disabled">Deslizar a la derecha - Desactivado</string>
     <string name="change_to_your_preferred_wallpaper_in_settings">El fondo de pantalla se actualizará en breve</string>
-    <string name="clauncher_is_not_default_launcher">Clauncher no es el lanzador principal. La actualización diaria del fondo de pantalla puede fallar.</string>
+    <string name="clauncher_is_not_default_launcher">CClauncher no es el lanzador principal. La actualización diaria del fondo de pantalla puede fallar.</string>
     <string name="long_press_to_enable">Mantenga presionado para habilitar</string>
     <string name="no_hidden_apps">Sin aplicaciones ocultas</string>
     <string name="hidden_apps">Aplicaciones ocultas</string>
     <string name="adapter_show">demostrar</string>
     <string name="adapter_hide">esconder</string>
     <string name="are_you_using_your_phone_or_is_your_phone_using_you">¿Está usando su teléfono, o el teléfono lo usa a usted?</string>
-    <string name="about_clauncher">Acerca de Clauncher</string>
+    <string name="about_clauncher">Acerca de CClauncher</string>
     <string name="learn_more">Aprenda más</string>
     <string name="screen_time">Tiempo de pantalla</string>
     <string name="did_you_know">¿Sabía qué?</string>
     <string name="leave_a_review">Dejar un comentario</string>
-    <string name="review_message">Clauncher es y será siempre completamente gratuito. No tiene anuncios. No recopila datos. Lo más importante es que le ayuda a reducir el tiempo que pasa frente a la pantalla y a vivir una vida digital más saludable.
+    <string name="review_message">CClauncher es y será siempre completamente gratuito. No tiene anuncios. No recopila datos. Lo más importante es que le ayuda a reducir el tiempo que pasa frente a la pantalla y a vivir una vida digital más saludable.
         \n\nCreemos que cambiar a un lanzador mínimo es una excelente decisión. Aunque obviamente somos parciales, esperamos que disfrutes la experiencia. ¡No dude en compartir sus pensamientos con nosotros!</string>
     <string name="alignment_changed">Alineación cambiada ✅</string>
     <string name="home_screen">Pantalla de inicio</string>

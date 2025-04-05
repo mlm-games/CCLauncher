@@ -18,16 +18,16 @@
     <string name="cool">Fajny!</string>
     <string name="tip_start_typing_for_rename">Wskazówka: zacznij pisać by zmienić nazwę aplikacji</string>
     <string name="change_to_your_preferred_wallpaper_in_settings">Twoja tapeta zostanie wkrótce zaktualizowana</string>
-    <string name="clauncher_is_not_default_launcher">Clauncher nie jest domyślnym programem uruchamiającym. Codzienna aktualizacja tapety może się nie powieść.</string>
+    <string name="clauncher_is_not_default_launcher">CClauncher nie jest domyślnym programem uruchamiającym. Codzienna aktualizacja tapety może się nie powieść.</string>
     <string name="long_press_to_enable">Naciśnij długo, aby włączyć</string>
     <string name="no_hidden_apps">Brak ukrytych aplikacji</string>
     <string name="hidden_apps">Ukrytych aplikacji</string>
-    <string name="hidden_apps_message">Uwaga: Stuknij w „Clauncher” u góry tej strony ustawień, aby znaleźć ukryte aplikacje.
+    <string name="hidden_apps_message">Uwaga: Stuknij w „CClauncher” u góry tej strony ustawień, aby znaleźć ukryte aplikacje.
         \n\nWięcej informacji znajduje się na stronie Informacje poniżej.</string>
     <string name="swipe_down_for">Przesuń w dół, aby</string>
     <string name="search">Szukaj</string>
     <string name="notifications">Powiadomienia</string>
-    <string name="accessibility_disclosure">Włącz lub wyłącz usługę ułatwień dostępu Clauncher w ustawieniach swojego urządzenia, aby włączyć lub wyłączyć tę funkcję.
+    <string name="accessibility_disclosure">Włącz lub wyłącz usługę ułatwień dostępu CClauncher w ustawieniach swojego urządzenia, aby włączyć lub wyłączyć tę funkcję.
         \n\nNależy pamiętać, że ta usługa służy wyłącznie do wyłączania ekranu urządzenia za pomocą gestu dwukrotnego dotknięcia. Nasza usługa ułatwień dostępu nie gromadzi ani nie udostępnia żadnych danych.</string>
     <string name="accept">Akceptuj</string>
     <string name="permission">Uprawnienie</string>
@@ -51,7 +51,7 @@
     <string name="adapter_hide">Ukryj</string>
     <string name="app_text_color">Kolor tekstu</string>
     <string name="double_tap_to_lock_screen">Kliknij dwukrotnie, aby zablokować</string>
-    <string name="admin_permission_message">Clauncher obiecuje odpowiedzialnie korzystać z uprawnień blokady ekranu. Clauncher nie gromadzi ani nie udostępnia żadnych danych.</string>
+    <string name="admin_permission_message">CClauncher obiecuje odpowiedzialnie korzystać z uprawnień blokady ekranu. CClauncher nie gromadzi ani nie udostępnia żadnych danych.</string>
     <string name="about">Informacje</string>
     <string name="off">Nie</string>
     <string name="on">Tak</string>
@@ -88,22 +88,22 @@
     <string name="light">Jasny</string>
     <string name="welcome_to_clauncher_settings">Witamy w ustawieniach!
         \n\nPamiętaj, jeśli masz jakiekolwiek pytania, nasza strona „O nas” ma odpowiedź.</string>
-    <string name="rate_us_message">Hej, czy uważasz, że Clauncher jest przydatny? Jeśli tak, ocena 5 gwiazdek to najlepszy sposób, aby nas wesprzeć.\n\nDziękuję i więcej tego nie zobaczysz.</string>
+    <string name="rate_us_message">Hej, czy uważasz, że CClauncher jest przydatny? Jeśli tak, ocena 5 gwiazdek to najlepszy sposób, aby nas wesprzeć.\n\nDziękuję i więcej tego nie zobaczysz.</string>
     <string name="share_message">Cześć, potrzebujemy Twojej pomocy! W zeszłym roku przekroczyliśmy milion pobrań. W tym roku chcemy dotrzeć do kolejnego miliona, ale sami nie możemy tego zrobić.
-        \n\nCzy byłbyś tak miły i udostępnił Clauncher swoim znajomym? Dziękuję i życzę cudownego dnia!</string>
-    <string name="keyboard_message">Cześć, klawiatura to najszybszy sposób znajdowania i uruchamiania aplikacji w Clauncher. Czy możemy poprosić o pozostawienie tego włączonego jeszcze przez kilka dni, a następnie podjęcie decyzji?\n\nWybór zawsze należy do Ciebie.</string>
+        \n\nCzy byłbyś tak miły i udostępnił CClauncher swoim znajomym? Dziękuję i życzę cudownego dnia!</string>
+    <string name="keyboard_message">Cześć, klawiatura to najszybszy sposób znajdowania i uruchamiania aplikacji w CClauncher. Czy możemy poprosić o pozostawienie tego włączonego jeszcze przez kilka dni, a następnie podjęcie decyzji?\n\nWybór zawsze należy do Ciebie.</string>
     <string name="digital_wellbeing_message">Jeśli chcesz ustawić limity czasowe dla niektórych aplikacji, funkcja Cyfrowa równowaga w systemie Android może Ci w tym pomóc.
         \n\nWyszukaj opcję Cyfrowa równowaga w ustawieniach telefonu i włącz ją.</string>
     <string name="app_usage_message">Aby wyświetlić/ukryć czas ekranu na ekranie głównym, pozwól lub zabroń aplikacji na dostęp do danych o użyciu.
         \n\nUwaga: Nie są gromadzone żadne dane o użyciu aplikacji. Wszystko jest przetwarzane na Twoim urządzeniu.</string>
-    <string name="accessibility_service_description">Uprawnienia dostępu są wymagane, aby włączyć podwójne dotknięcie, aby zablokować. Wszelkie dane pozyskane przez Clauncher za pośrednictwem tej usługi nie opuszczą Twojego urządzenia.</string>
-    <string name="support_clauncher_for_free">Wesprzyj Clauncher za darmo, korzystając z naszego linku afiliacyjnego Amazon.</string>
+    <string name="accessibility_service_description">Uprawnienia dostępu są wymagane, aby włączyć podwójne dotknięcie, aby zablokować. Wszelkie dane pozyskane przez CClauncher za pośrednictwem tej usługi nie opuszczą Twojego urządzenia.</string>
+    <string name="support_clauncher_for_free">Wesprzyj CClauncher za darmo, korzystając z naszego linku afiliacyjnego Amazon.</string>
     <string name="support_clauncher_message">Za każdym razem, gdy kupujesz coś za pomocą naszego linku, otrzymujemy niewielką prowizję. Zapisz link i używaj go podczas zakupów online. Dziękuję!</string>
     <string name="open">Otwórz łącze</string>
     <string name="copy">Kopiuj</string>
     <string name="close">Zamknij</string>
     <string name="not_now">Nie teraz</string>
-    <string name="public_roadmap">Publiczna mapa drogowa Clauncher</string>
+    <string name="public_roadmap">Publiczna mapa drogowa CClauncher</string>
     <string name="instagram">Instagram</string>
     <string name="twitter">Twitter</string>
     <string name="roadmap">Mapa drogowa</string>
@@ -111,7 +111,7 @@
     <string name="date_only">Tylko data</string>
     <string name="bottom_on">Dół: włączony</string>
     <string name="bottom_off">Dół: wyłączone</string>
-    <string name="please_set_clauncher_as_default_first">Najpierw ustaw Clauncher jako domyślny program uruchamiający</string>
+    <string name="please_set_clauncher_as_default_first">Najpierw ustaw CClauncher jako domyślny program uruchamiający</string>
     <string name="affiliate">Przyłącz</string>
     <string name="app_not_found">Nie znaleziono aplikacji</string>
     <string name="unable_to_launch_app">Nie można uruchomić aplikacji</string>
@@ -121,12 +121,12 @@
     <string name="swipe_left_app_disabled">Gest Przesuń w lewo wyłączony</string>
     <string name="swipe_right_app_disabled">Gest Przesuń w prawo jest wyłączony</string>
     <string name="are_you_using_your_phone_or_is_your_phone_using_you">Czy używasz telefonu, czy telefon używa ciebie?</string>
-    <string name="about_clauncher">O Clauncher</string>
+    <string name="about_clauncher">O CClauncher</string>
     <string name="screen_time">Czas ekranowy</string>
     <string name="learn_more">Ucz się więcej</string>
     <string name="did_you_know">Czy wiedziałeś?</string>
     <string name="leave_a_review">Ucz się więcej</string>
-    <string name="review_message">Clauncher jest i zawsze będzie całkowicie darmowy. Nie zawiera reklam. Nie zbiera żadnych danych. Co najważniejsze, pomaga skrócić czas spędzany przed ekranem i prowadzić zdrowsze cyfrowe życie.
+    <string name="review_message">CClauncher jest i zawsze będzie całkowicie darmowy. Nie zawiera reklam. Nie zbiera żadnych danych. Co najważniejsze, pomaga skrócić czas spędzany przed ekranem i prowadzić zdrowsze cyfrowe życie.
         \n\nWierzymy, że przejście na minimalny program uruchamiający to doskonała decyzja. Chociaż jesteśmy oczywiście stronniczy, mamy nadzieję, że spodoba ci się to doświadczenie. Podziel się z nami swoimi przemyśleniami!</string>
     <string name="alignment_changed">Wyrównanie zmienione ✅</string>
     <string name="home_screen">Ekran główny</string>

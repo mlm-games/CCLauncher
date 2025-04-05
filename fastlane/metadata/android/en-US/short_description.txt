@@ -1,1 +1,1 @@
-Yet Another Olauncher Fork, But With All Apps Hidden
+Clauncher, rewritten using Compose

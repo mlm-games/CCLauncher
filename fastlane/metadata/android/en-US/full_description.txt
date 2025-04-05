@@ -1,3 +1,8 @@
+  
+  This is just Clauncher but written entirely in kotlin (using compose for UI). Most problems caused due to the migration have been fixed but there are some problems with the animation being too fast
+
+  Original Clauncher's readme below:
+  
   Yet another Olauncher Fork where apps are invisible by default, you only need to type which apps you want to open. It should reduce your screen time from opening apps you didn't plan on opening.
   
   Would recommend using a grey or black wallpaper (for immersion?, idk just recommending)

@@ -6,7 +6,7 @@
     <string name="set_as_default_launcher_first">Tetapkan sebagai peluncur default</string>
     <string name="app_text_color">Warna teks</string>
     <string name="double_tap_to_lock_screen">Ketuk dua kali untuk mengunci</string>
-    <string name="admin_permission_message">Clauncher berjanji untuk menggunakan izin layar kunci secara bertanggung jawab. Clauncher tidak mengumpulkan atau membagikan data apa pun.</string>
+    <string name="admin_permission_message">CClauncher berjanji untuk menggunakan izin layar kunci secara bertanggung jawab. CClauncher tidak mengumpulkan atau membagikan data apa pun.</string>
     <string name="about">Tentang</string>
     <string name="off">Mati</string>
     <string name="on">Nyala</string>
@@ -56,22 +56,22 @@
     <string name="welcome_to_clauncher_settings">Selamat datang di pengaturan!
         \n\nIngat, jika Anda memiliki pertanyaan, halaman Tentang kami memiliki jawabannya.</string>
     <string name="rate_us_message">Hai, Anda tidak akan melihat pesan ini lagi.
-        \n\nJika Anda menyukai Clauncher, bisakah Anda memberi kami peringkat bintang 5? Ini membantu kami meningkatkan peringkat kami dan membuat kami bahagia. Terima kasih!</string>
+        \n\nJika Anda menyukai CClauncher, bisakah Anda memberi kami peringkat bintang 5? Ini membantu kami meningkatkan peringkat kami dan membuat kami bahagia. Terima kasih!</string>
     <string name="share_message">Hai, kami membutuhkan bantuan Anda! Tahun lalu kami melampaui satu juta unduhan. Tahun ini kami ingin menjangkau satu juta orang lagi tetapi kami tidak dapat melakukannya sendiri.
-        \n\nMaukah Anda berbaik hati membagikan Clauncher kepada teman-teman Anda? Terima kasih dan semoga harimu menyenangkan!</string>
-    <string name="keyboard_message">Hai, keyboard adalah cara tercepat untuk menemukan dan meluncurkan aplikasi di Clauncher. Bisakah kami meminta Anda untuk mengaktifkannya selama beberapa hari lagi dan kemudian memutuskan?           Pilihan selalu menjadi milik Anda.</string>
+        \n\nMaukah Anda berbaik hati membagikan CClauncher kepada teman-teman Anda? Terima kasih dan semoga harimu menyenangkan!</string>
+    <string name="keyboard_message">Hai, keyboard adalah cara tercepat untuk menemukan dan meluncurkan aplikasi di CClauncher. Bisakah kami meminta Anda untuk mengaktifkannya selama beberapa hari lagi dan kemudian memutuskan?           Pilihan selalu menjadi milik Anda.</string>
     <string name="digital_wellbeing_message">Jika Anda ingin menetapkan batas waktu untuk aplikasi tertentu, fitur Digital Wellbeing Android dapat membantu Anda melakukannya.
         \n\nSilakan cari Digital Wellbeing di pengaturan ponsel Anda dan aktifkan.</string>
     <string name="app_usage_message">Untuk menampilkan/menyembunyikan waktu layar di layar utama, izinkan atau tolak izin penggunaan aplikasi.
         \n\nCatatan: Tidak ada data penggunaan aplikasi yang dikumpulkan. Semua diproses di perangkat Anda.</string>
-    <string name="accessibility_service_description">Izin aksesibilitas diperlukan untuk mengaktifkan ketuk dua kali untuk mengunci. Data apa pun yang diperoleh Clauncher melalui layanan ini tidak akan meninggalkan perangkat Anda.</string>
-    <string name="support_clauncher_for_free">Dukung Clauncher secara gratis dengan menggunakan tautan afiliasi Amazon kami.</string>
+    <string name="accessibility_service_description">Izin aksesibilitas diperlukan untuk mengaktifkan ketuk dua kali untuk mengunci. Data apa pun yang diperoleh CClauncher melalui layanan ini tidak akan meninggalkan perangkat Anda.</string>
+    <string name="support_clauncher_for_free">Dukung CClauncher secara gratis dengan menggunakan tautan afiliasi Amazon kami.</string>
     <string name="support_clauncher_message">Setiap kali Anda membeli sesuatu menggunakan tautan kami, kami mendapat komisi kecil. Harap simpan tautan dan gunakan setiap kali Anda berbelanja online.\nTerima kasih!</string>
     <string name="open">Buka tautan</string>
     <string name="copy">Salin</string>
     <string name="close">Tutup</string>
     <string name="not_now">Tidak sekarang</string>
-    <string name="public_roadmap">Peta jalan publik Clauncher</string>
+    <string name="public_roadmap">Peta jalan publik CClauncher</string>
     <string name="instagram">Instagram</string>
     <string name="twitter">Twitter</string>
     <string name="roadmap">Peta jalan</string>
@@ -79,14 +79,14 @@
     <string name="date_only">Tanggal saja</string>
     <string name="bottom_on">Bawah: Nyala</string>
     <string name="bottom_off">Bawah: Mati</string>
-    <string name="please_set_clauncher_as_default_first">Silakan atur Clauncher sebagai peluncur default Anda terlebih dahulu</string>
+    <string name="please_set_clauncher_as_default_first">Silakan atur CClauncher sebagai peluncur default Anda terlebih dahulu</string>
     <string name="affiliate">Afiliasi</string>
     <string name="tip_start_typing_for_rename">Tip: Mulailah mengetik untuk opsi RENAME aplikasi</string>
-    <string name="hidden_apps_message">Catatan: Ketuk \'Clauncher\' di bagian atas halaman Pengaturan ini untuk menemukan aplikasi tersembunyi Anda.\n\nRincian lebih lanjut tersedia di halaman Tentang kami di bawah ini.</string>
+    <string name="hidden_apps_message">Catatan: Ketuk \'CClauncher\' di bagian atas halaman Pengaturan ini untuk menemukan aplikasi tersembunyi Anda.\n\nRincian lebih lanjut tersedia di halaman Tentang kami di bawah ini.</string>
     <string name="swipe_down_for">Geser ke bawah untuk</string>
     <string name="search">Cari</string>
     <string name="notifications">Notifikasi</string>
-    <string name="accessibility_disclosure">Harap aktifkan atau nonaktifkan layanan aksesibilitas Clauncher di pengaturan perangkat Anda untuk mengaktifkan atau menonaktifkan fitur ini.\n\nHarap perhatikan bahwa layanan ini hanya digunakan untuk memungkinkan Anda mematikan layar perangkat menggunakan gerakan ketuk dua kali. Layanan aksesibilitas kami tidak mengumpulkan atau membagikan data apa pun.</string>
+    <string name="accessibility_disclosure">Harap aktifkan atau nonaktifkan layanan aksesibilitas CClauncher di pengaturan perangkat Anda untuk mengaktifkan atau menonaktifkan fitur ini.\n\nHarap perhatikan bahwa layanan ini hanya digunakan untuk memungkinkan Anda mematikan layar perangkat menggunakan gerakan ketuk dua kali. Layanan aksesibilitas kami tidak mengumpulkan atau membagikan data apa pun.</string>
     <string name="accept">Terima</string>
     <string name="permission">Izin</string>
     <string name="double_tap_lock">Ketuk dua kali untuk mengunci</string>
@@ -99,7 +99,7 @@
     <string name="enabled">Diaktifkan</string>
     <string name="disabled">Dinonaktifkan</string>
     <string name="please_turn_on_double_tap_to_unlock">Harap aktifkan ketuk dua kali untuk mengunci</string>
-    <string name="launcher_failed_to_lock_device">Clauncher gagal mengunci perangkat.\nSilakan periksa pengaturan aplikasi Anda.</string>
+    <string name="launcher_failed_to_lock_device">CClauncher gagal mengunci perangkat.\nSilakan periksa pengaturan aplikasi Anda.</string>
     <string name="long_press_to_select_app">Tekan lama untuk memilih aplikasi</string>
     <string name="unable_to_open_app">Tidak dapat membuka info aplikasi</string>
     <string name="copied">Disalin</string>
@@ -113,19 +113,19 @@
     <string name="swipe_left_app_disabled">Aplikasi geser ke kiri dinonaktifkan</string>
     <string name="swipe_right_app_disabled">Aplikasi geser ke kanan dinonaktifkan</string>
     <string name="change_to_your_preferred_wallpaper_in_settings">Wallpaper Anda akan segera diperbarui</string>
-    <string name="clauncher_is_not_default_launcher">Clauncher bukan peluncur default.\nPembaruan wallpaper harian mungkin gagal.</string>
+    <string name="clauncher_is_not_default_launcher">CClauncher bukan peluncur default.\nPembaruan wallpaper harian mungkin gagal.</string>
     <string name="long_press_to_enable">Tekan lama untuk mengaktifkan</string>
     <string name="no_hidden_apps">Aplikasi tersembunyi tidak ada</string>
     <string name="hidden_apps">Aplikasi tersembunyi</string>
     <string name="adapter_show">perlihatkan</string>
     <string name="adapter_hide">sembunyikan</string>
     <string name="are_you_using_your_phone_or_is_your_phone_using_you">Apakah Anda menggunakan ponsel Anda, atau ponsel Anda menggunakan Anda?</string>
-    <string name="about_clauncher">Tentang Clauncher</string>
+    <string name="about_clauncher">Tentang CClauncher</string>
     <string name="learn_more">Pelajari lebih lanjut</string>
     <string name="screen_time">Waktu layar</string>
     <string name="did_you_know">Tahukah kamu?</string>
     <string name="leave_a_review">Tinggalkan ulasan</string>
-    <string name="review_message">Clauncher sepenuhnya gratis dan akan selalu gratis. Tidak ada iklan. Tidak mengumpulkan data pribadi. Yang terpenting, ini membantu Anda mengurangi waktu pemakaian perangkat dan menjalani kehidupan digital yang lebih sehat.
+    <string name="review_message">CClauncher sepenuhnya gratis dan akan selalu gratis. Tidak ada iklan. Tidak mengumpulkan data pribadi. Yang terpenting, ini membantu Anda mengurangi waktu pemakaian perangkat dan menjalani kehidupan digital yang lebih sehat.
         \n\nKami percaya bahwa beralih ke peluncur minimal adalah keputusan yang sangat baik. Meskipun kami jelas-jelas bias, kami harap Anda menikmati pengalaman ini. Jangan ragu untuk berbagi pemikiran Anda dengan kami!</string>
     <string name="alignment_changed">Penyelarasan diubah ✅</string>
     <string name="home_screen">Layar beranda</string>

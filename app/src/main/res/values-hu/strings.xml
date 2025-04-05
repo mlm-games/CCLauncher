@@ -5,7 +5,7 @@
     <string name="set_as_default_launcher_first">Beállítás alapértelmezett indítóként</string>
     <string name="app_text_color">Szövegszín</string>
     <string name="double_tap_to_lock_screen">Dupla koppintás a képernyő lezárásához</string>
-    <string name="admin_permission_message">Az Clauncher vállalja, hogy felelősségteljesen használja a képernyő lezárásához szükséges engedélyt. Az Clauncher nem gyűjt vagy oszt meg semmilyen adatot.</string>
+    <string name="admin_permission_message">Az CClauncher vállalja, hogy felelősségteljesen használja a képernyő lezárásához szükséges engedélyt. Az CClauncher nem gyűjt vagy oszt meg semmilyen adatot.</string>
     <string name="about">Névjegy</string>
     <string name="off">Ki</string>
     <string name="on">Be</string>
@@ -54,18 +54,18 @@
     <string name="welcome_to_clauncher_settings">Üdvözöljük a beállításokban!
         \n\nNe feledje, ha bármilyen kérdése van, az „Rólunk” oldalunk tartalmazza a választ.</string>
     <string name="rate_us_message">Üdv, ezt az üzenetet nem fogja újra látni.
-        \n\nHa tetszik az Clauncher, kérjük, adjon nekünk 5 csillagos értékelést! Ez segít javítani a helyezésünket, és nagyon boldoggá tesz minket. Köszönjük!</string>
+        \n\nHa tetszik az CClauncher, kérjük, adjon nekünk 5 csillagos értékelést! Ez segít javítani a helyezésünket, és nagyon boldoggá tesz minket. Köszönjük!</string>
     <string name="share_message">A segítségére van szükségünk! Tavaly átléptük az egymillió letöltést. Idén egy millióval többet szeretnénk elérni, de egyedül nem tudjuk megtenni.
-        \n\nAz Clauncher-nek emberekre van szüksége, az embereknek pedig az Clauncher-re. Köszönettel vennénk, ha megosztaná másokkal is az Claunchert!</string>
+        \n\nAz CClauncher-nek emberekre van szüksége, az embereknek pedig az CClauncher-re. Köszönettel vennénk, ha megosztaná másokkal is az Claunchert!</string>
     <!--    <string name="share_message">Az Ön havi emlékeztetője - használja Ön a telefonját, és ne a telefonja Önt! Csak így tovább! Nagyszerűen csinálja!-->
-    <!--        \n\nHa van egy kis ideje, kérjük, ossza meg másokkal is az Clauncher-t. Az Clauncher-nek szüksége van emberekre. De ami még fontosabb, az embereknek szüksége van az Clauncher-re..</string>-->
+    <!--        \n\nHa van egy kis ideje, kérjük, ossza meg másokkal is az CClauncher-t. Az CClauncher-nek szüksége van emberekre. De ami még fontosabb, az embereknek szüksége van az CClauncher-re..</string>-->
     <string name="keyboard_message">Üdv, a billentyűzet a leggyorsabb módja az alkalmazások megtalálásához és elindításához az Clauncherben. Megkérhetjük, hogy hagyja bekapcsolva még néhány napig, és utána döntsön?
         \n\nA választás mindig az Öné.</string>
     <string name="digital_wellbeing_message">Ha időkorlátokat szeretne beállítani bizonyos alkalmazásokhoz, az Android Digital Wellbeing funkciója segíthet ebben.
         \n\nKeresse meg a Digitális jólét elemet a telefon beállításai között, és engedélyezze.</string>
     <string name="app_usage_message">A képernyőidő megjelenítéséhez/elrejtéséhez a kezdőképernyőn engedélyezze vagy tagadja meg az alkalmazás használati engedélyét.
         \n\nMegjegyzés: Nem gyűjtünk alkalmazás-használati adatokat. Minden az Ön eszközén kerül feldolgozásra.</string>
-    <string name="accessibility_service_description">A hozzáférhetőségi engedély szükséges a dupla koppintás általi zároláshoz. Az Clauncher által ezen a szolgáltatáson keresztül megszerzett adatok nem hagyják el a készüléket.</string>
+    <string name="accessibility_service_description">A hozzáférhetőségi engedély szükséges a dupla koppintás általi zároláshoz. Az CClauncher által ezen a szolgáltatáson keresztül megszerzett adatok nem hagyják el a készüléket.</string>
     <string name="support_clauncher_for_free">Támogasson minket ingyenesen az Amazon affiliate linkünk használatával.</string>
     <string name="support_clauncher_message">Minden alkalommal, amikor vásárol valamit a linkünket használva, egy kis jutalékot kapunk. Kérjük, mentse el a linket, és használja fel, amikor csak online vásárol.
         \n\nKöszönjük!</string>
@@ -73,7 +73,7 @@
     <string name="copy">Másolás</string>
     <string name="close">Bezárás</string>
     <string name="not_now">Később</string>
-    <string name="public_roadmap">Clauncher nyilvános ütemterv</string>
+    <string name="public_roadmap">CClauncher nyilvános ütemterv</string>
     <string name="instagram">Instagram</string>
     <string name="twitter">A fejlesztő</string>
     <string name="roadmap">Ütemterv</string>
@@ -81,15 +81,15 @@
     <string name="date_only">Csak dátum</string>
     <string name="bottom_on">Alsó: Be</string>
     <string name="bottom_off">Alsó: Ki</string>
-    <string name="please_set_clauncher_as_default_first">Kérjük, állítsa be az Clauncher-t alapértelmezett indítóként</string>
+    <string name="please_set_clauncher_as_default_first">Kérjük, állítsa be az CClauncher-t alapértelmezett indítóként</string>
     <string name="affiliate">Affiliate</string>
     <string name="tip_start_typing_for_rename">Tipp: Kezdjen el gépelni az alkalmazás ÁTNEVEZÉSE opcióhoz</string>
-    <string name="hidden_apps_message">Megjegyzés: A rejtett alkalmazások megtalálásához érintse meg az "Clauncher" elemet ennek a beállítás oldalnak a tetején.
+    <string name="hidden_apps_message">Megjegyzés: A rejtett alkalmazások megtalálásához érintse meg az "CClauncher" elemet ennek a beállítás oldalnak a tetején.
     \n\nTöbb részlet elérhető az alábbi, Névjegy oldalon.</string>
     <string name="swipe_down_for">Simítson lefelé a következőért</string>
     <string name="search">Keresés</string>
     <string name="notifications">Értesítések</string>
-    <string name="accessibility_disclosure">Kérjük, kapcsolja be vagy ki az Clauncher hozzáférhetőségi szolgáltatását az eszköz beállításaiban, hogy engedélyezze vagy letiltsa ezt a funkciót.
+    <string name="accessibility_disclosure">Kérjük, kapcsolja be vagy ki az CClauncher hozzáférhetőségi szolgáltatását az eszköz beállításaiban, hogy engedélyezze vagy letiltsa ezt a funkciót.
     \n\nKérjük, vegye figyelembe, hogy ezt a szolgáltatást csak a dupla koppintással történő képernyőzárás engedélyezésére használjuk. A hozzáférhetőségi szolgáltatásunk nem gyűjt vagy oszt meg semmilyen adatot.</string>
     <string name="accept">Elfogad</string>
     <string name="permission">Engedély</string>
@@ -103,7 +103,7 @@
     <string name="enabled">Engedélyezve</string>
     <string name="disabled">Letiltva</string>
     <string name="please_turn_on_double_tap_to_unlock">Kérjük, kapcsolja be a dupla koppintást a lezáráshoz</string>
-    <string name="launcher_failed_to_lock_device">Az Clauncher nem tudta lezárni az eszközt.\nKérjük, ellenőrizze az alkalmazás beállításait.</string>
+    <string name="launcher_failed_to_lock_device">Az CClauncher nem tudta lezárni az eszközt.\nKérjük, ellenőrizze az alkalmazás beállításait.</string>
     <string name="long_press_to_select_app">Hosszan nyomva tartás az alkalmazás kiválasztásához</string>
     <string name="unable_to_open_app">Nem lehet megnyitni az alkalmazás infóit</string>
     <string name="copied">Másolva</string>
@@ -117,19 +117,19 @@
     <string name="swipe_left_app_disabled">Balra simítva indítható alkalmazás letiltva</string>
     <string name="swipe_right_app_disabled">Jobbra simítva indítható alkalmazás letiltva</string>
     <string name="change_to_your_preferred_wallpaper_in_settings">A háttérkép hamarosan frissülni fog</string>
-    <string name="clauncher_is_not_default_launcher">Az Clauncher nem az alapértelmezett indító.\nA napi háttérkép frissítés sikertelen lehet.</string>
+    <string name="clauncher_is_not_default_launcher">Az CClauncher nem az alapértelmezett indító.\nA napi háttérkép frissítés sikertelen lehet.</string>
     <string name="long_press_to_enable">Hosszan nyomva tartás az engedélyezéshez</string>
     <string name="no_hidden_apps">Nincsenek rejtett alkalmazások</string>
     <string name="hidden_apps">Rejtett alkalmazások</string>
     <string name="adapter_show">Mutasd!</string>
     <string name="adapter_hide">Rejtsd el!</string>
     <string name="are_you_using_your_phone_or_is_your_phone_using_you">Ön használja a telefonját, vagy a telefonja használja Önt?</string>
-    <string name="about_clauncher">Az Clauncher-ről</string>
+    <string name="about_clauncher">Az CClauncher-ről</string>
     <string name="screen_time">Képernyőidő</string>
     <string name="learn_more">Tudjon meg többet</string>
     <string name="did_you_know">Tudta?</string>
     <string name="leave_a_review">Hagyjon véleményt</string>
-    <string name="review_message">Az Clauncher teljesen ingyenes és mindig is az lesz. Nincsenek hirdetései, nem gyűjt adatokat, és segít csökkenteni a képernyő előtt töltött időt egy egészségesebb digitális élet végett.
+    <string name="review_message">Az CClauncher teljesen ingyenes és mindig is az lesz. Nincsenek hirdetései, nem gyűjt adatokat, és segít csökkenteni a képernyő előtt töltött időt egy egészségesebb digitális élet végett.
         \n\nÚgy gondoljuk, hogy egy minimális indítóra váltás kiváló döntés, és reméljük, hogy élvezni fogja. Ossza meg másokkal is tapasztalatait!</string>
     <string name="alignment_changed">Az igazítás megváltozott ✅</string>
     <string name="home_screen">Kezdőképernyő</string>

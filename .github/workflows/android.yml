@@ -124,12 +124,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*.apk
-          name: "CLauncher ${{ needs.prepare-version.outputs.version_name }}"
+          name: "CCLauncher ${{ needs.prepare-version.outputs.version_name }}"
           tag_name: "${{ needs.prepare-version.outputs.version_name }}"
           prerelease: false
           fail_on_unmatched_files: false
           body: |
-            ## CLauncher Release ${{ needs.prepare-version.outputs.version_name }}
+            ## CCLauncher Release ${{ needs.prepare-version.outputs.version_name }}
             
             **Build Date**: ${{ needs.prepare-version.outputs.build_date }}
             **Base Version Code**: ${{ needs.prepare-version.outputs.base_version_code }}
@@ -141,8 +141,8 @@ jobs:
             - x86: ${{ needs.prepare-version.outputs.base_version_code }} - 3
             
             ### 📦 Available APKs
-            - ARM64 (64-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk
-            - ARM (32-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk
-            - x86 (32-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk
-            - x86_64 (64-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk
+            - ARM64 (64-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk
+            - ARM (32-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk
+            - x86 (32-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk
+            - x86_64 (64-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk
           generate_release_notes: true

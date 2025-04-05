@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.clauncher"
+        applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 35
         versionCode = 400
@@ -57,7 +57,7 @@ android {
                 }
 
                 (output as ApkVariantOutputImpl).versionCodeOverride = abiVersionCode
-                output.outputFileName = ("clauncher-${variant.versionName}-${abiName}.apk")
+                output.outputFileName = ("cclauncher-${variant.versionName}-${abiName}.apk")
             }
         }
     }
@@ -102,7 +102,7 @@ android {
         kotlinCompilerExtensionVersion = "2.0.0"
     }
 
-    namespace = "app.clauncher"
+    namespace = "app.cclauncher"
 
 
     dependenciesInfo {
