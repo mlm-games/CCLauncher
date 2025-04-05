@@ -27,6 +27,7 @@ class PermissionManager(private val context: Context) {
                 context.packageName
             ) == AppOpsManager.MODE_ALLOWED
         } else {
+            @Suppress("DEPRECATION")
             appOps.checkOpNoThrow(
                 AppOpsManager.OPSTR_GET_USAGE_STATS,
                 android.os.Process.myUid(),

@@ -12,7 +12,7 @@ concurrency:
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'corretto'
-  BUILD_GRADLE_PATH: 'app/build.gradle'  # Adjust path if necessary
+  BUILD_GRADLE_PATH: 'app/build.gradle.kts'  # Adjust path if necessary
 
 jobs:
   prepare-version:
@@ -141,5 +141,5 @@ jobs:
             - x86_64 (64-bit): clauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk
           generate_release_notes: true
 
-      - name: Log build.gradle
+      - name: Log build.gradle.kts
         run: cat $BUILD_GRADLE_PATH

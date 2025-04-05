@@ -4,11 +4,13 @@ appcompat = "1.6.1"
 coreKtx = "1.10.1"
 datastorePreferences = "1.1.4"
 gradle = "8.8.2"
+androidGradlePlugin = "8.9.1"
 kotlinStdlib = "2.1.10"
 lifecycleExtensions = "2.2.0"
 lifecycleViewmodelCompose = "2.8.7"
 lifecycleViewmodelKtx = "2.6.1"
 material = "1.9.0"
+material3 = "1.0.0"
 navigationFragmentKtx = "2.8.9"
 recyclerview = "1.3.0"
 workRuntimeKtx = "2.8.1"
@@ -28,19 +30,20 @@ lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", ver
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Android" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationFragmentKtx" }
 navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
-runtime = { module = "androidx.compose.runtime:runtime" }
-ui = { module = "androidx.compose.ui:ui" }
-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+material3 = { module = "androidx.compose.material3:material3" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 constraintlayout-compose-android = { group = "androidx.constraintlayout", name = "constraintlayout-compose-android", version.ref = "constraintlayoutComposeAndroid" }
 
 [plugins]
-org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }  # Added for Android Gradle Plugin
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
