@@ -206,6 +206,9 @@ class PrefsDataStore(private val context: Context) {
     val appTheme: Flow<Int> = preferences.map { it.appTheme }
     val textSizeScale: Flow<Float> = preferences.map { it.textSizeScale }
     val plainWallpaper: Flow<Boolean> = preferences.map { it.plainWallpaper }
+    val useDynamicTheme: Flow<Boolean> = preferences.map { it.useDynamicTheme }
+
+
 
     suspend fun updatePreference(update: (LauncherPreferences) -> LauncherPreferences) {
         val currentPrefs = preferences.first()

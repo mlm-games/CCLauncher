@@ -215,7 +215,7 @@ fun CLauncherTheme(
         else -> isSystemInDarkTheme() // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
     }
 
-    val dynamicColor = prefsDataStore.preferences.collectAsState(initial = null).value?.useDynamicTheme == true
+    val dynamicColor = prefsDataStore.useDynamicTheme.collectAsState(initial = false).value == true
 
 
     val colorScheme = when {
