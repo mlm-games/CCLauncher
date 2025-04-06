@@ -54,22 +54,22 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF1976D2),          // Blue
-    onPrimary = Color(0xFFFFFFFF),        // White text
+    onPrimary = Color(0xFFE0E0E0),        // light-gray text
     primaryContainer = Color(0xFFE3F2FD), // Light blue
     onPrimaryContainer = Color(0xFF0D47A1), // Dark blue
 
     secondary = Color(0xFF388E3C),        // Green
-    onSecondary = Color(0xFFFFFFFF),      // White text
+    onSecondary = Color(0xFFE0E0E0),
     secondaryContainer = Color(0xFFE8F5E9), // Light green
     onSecondaryContainer = Color(0xFF1B5E20), // Dark green
 
     tertiary = Color(0xFFE65100),         // Orange
-    onTertiary = Color(0xFFFFFFFF),       // White
+    onTertiary = Color(0xFFE0E0E0),       // White
 
     background = Color(0xFFF5F5F5),       // Light
     onBackground = Color(0xFF212121),
 
-    surface = Color(0xFFFFFFFF),
+    surface = Color(0xFFE0E0E0),
     onSurface = Color(0xFF212121),
 
     surfaceVariant = Color(0xFFEEEEEE),

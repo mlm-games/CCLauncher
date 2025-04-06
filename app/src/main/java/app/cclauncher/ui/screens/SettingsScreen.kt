@@ -15,12 +15,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
+import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.dialogs.AlignmentPickerDialog
 import app.cclauncher.ui.dialogs.DateTimeVisibilityDialog
@@ -256,6 +258,13 @@ fun SettingsScreen(
                             }
                         }
                     )
+
+                    SettingsAction (
+                        title = "Use a Plain Wallpaper",
+                        onClick = {
+                            setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        }
+                    )
                 }
             }
 
@@ -328,6 +337,7 @@ fun SettingsScreen(
                         }
                     )
 
+                    @Suppress("USELESS_ELVIS")
                     SettingsItem(
                         title = "Swipe Left App",
                         subtitle = if (uiState.swipeLeftEnabled) uiState.swipeLeftAppName ?: "Not set" else "Disabled",
@@ -356,6 +366,7 @@ fun SettingsScreen(
                         }
                     )
 
+                    @Suppress("USELESS_ELVIS")
                     SettingsItem(
                         title = "Swipe Right App",
                         subtitle = if (uiState.swipeRightEnabled) uiState.swipeRightAppName ?: "Not set" else "Disabled",
@@ -521,5 +532,69 @@ fun SettingsToggle(
                 onCheckedChange(it)
             }
         )
+    }
+}
+
+@Composable
+fun SettingsAction(
+    title: String,
+    description: String? = null,
+    icon: ImageVector? = null,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Icon if provided
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(end = 16.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else 0.5f)
+            )
+        }
+
+        // Title and description
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f)
+            )
+
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 0.7f else 0.5f)
+                )
+            }
+        }
+
+        // "Set" button
+        Button(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.padding(start = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        ) {
+            Text("Set")
+        }
     }
 }
