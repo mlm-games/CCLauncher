@@ -20,11 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
@@ -110,12 +105,15 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
         )
 
-        // Search field
+            // Search field
+        val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+
         AppDrawerSearch(
-            searchQuery = searchQuery,
-            onSearchChanged = { query -> searchQuery = query },
-            modifier = Modifier.focusRequester(focusRequester)
-        )
+                searchQuery = searchQuery,
+                onSearchChanged = { query -> searchQuery = query },
+                modifier = Modifier.focusRequester(focusRequester)
+                    .clickable {onAppClick(appsToShow[0])} // If user presses enter, it opens the first app in list
+            )
 
         when {
             // Loading state
@@ -180,17 +178,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
             else -> {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-                LazyColumn( modifier = Modifier
-                    .fillMaxSize()
-                    .onKeyEvent { if (it.type == KeyEventType.KeyUp && it.key == Key.Enter) {
-                        println("Hi")
-                        onAppClick(appsToShow[0])
-                    }
-                        true
-                        //TODO: If user presses enter,
-                        // launch the first app in list directly, does not work yet?
-                    }
-                ) {
+                LazyColumn( modifier = Modifier.fillMaxSize()) {
                     items(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
