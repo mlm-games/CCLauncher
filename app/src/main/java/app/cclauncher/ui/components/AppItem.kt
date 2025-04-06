@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.components
+package app.cclauncher.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image

@@ -1,6 +1,7 @@
-package app.cclauncher.ui.state
+package app.cclauncher.ui
 
 import android.os.UserHandle
+import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.graphics.ImageBitmap
 import app.cclauncher.data.AppModel
@@ -12,7 +13,7 @@ import app.cclauncher.data.Constants
 data class HomeScreenUiState(
     val homeAppsNum: Int = 0,
     val dateTimeVisibility: Int = Constants.DateTime.ON,
-    val homeAlignment: Int = android.view.Gravity.CENTER,
+    val homeAlignment: Int = Gravity.CENTER,
     val homeBottomAlignment: Boolean = false,
     val homeApps: List<AppModel?> = emptyList(),
     val isLoading: Boolean = false,
@@ -46,7 +47,7 @@ data class SettingsScreenUiState(
     val useSystemFont: Boolean = true,
     val autoOpenFilteredApp : Boolean = true,
     val showHiddenAppsOnSearch : Boolean = false,
-    val homeAlignment: Int = android.view.Gravity.CENTER,
+    val homeAlignment: Int = Gravity.CENTER,
     val homeBottomAlignment: Boolean = false,
     val statusBar: Boolean = false,
     val dateTimeVisibility: Int = Constants.DateTime.ON,
@@ -66,9 +67,9 @@ data class SettingsScreenUiState(
     }
 
     val alignmentText: String get() = when(homeAlignment) {
-        android.view.Gravity.START -> "Left"
-        android.view.Gravity.CENTER -> "Center"
-        android.view.Gravity.END -> "Right"
+        Gravity.START -> "Left"
+        Gravity.CENTER -> "Center"
+        Gravity.END -> "Right"
         else -> "Center"
     }
 

@@ -1,10 +1,9 @@
-package app.cclauncher.ui.compose.screens
+package app.cclauncher.ui.screens
 
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -22,16 +21,16 @@ import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
-import app.cclauncher.ui.compose.BackHandler
-import app.cclauncher.ui.compose.dialogs.AlignmentPickerDialog
-import app.cclauncher.ui.compose.dialogs.DateTimeVisibilityDialog
-import app.cclauncher.ui.compose.dialogs.NumberPickerDialog
-import app.cclauncher.ui.compose.dialogs.SwipeDownActionDialog
-import app.cclauncher.ui.compose.dialogs.TextSizeDialog
-import app.cclauncher.ui.compose.dialogs.ThemePickerDialog
-import app.cclauncher.ui.compose.util.updateStatusBarVisibility
-import app.cclauncher.ui.events.AppSelectionType
-import app.cclauncher.ui.events.UiEvent
+import app.cclauncher.ui.BackHandler
+import app.cclauncher.ui.dialogs.AlignmentPickerDialog
+import app.cclauncher.ui.dialogs.DateTimeVisibilityDialog
+import app.cclauncher.ui.dialogs.NumberPickerDialog
+import app.cclauncher.ui.dialogs.SwipeDownActionDialog
+import app.cclauncher.ui.dialogs.TextSizeDialog
+import app.cclauncher.ui.dialogs.ThemePickerDialog
+import app.cclauncher.ui.util.updateStatusBarVisibility
+import app.cclauncher.ui.AppSelectionType
+import app.cclauncher.ui.UiEvent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

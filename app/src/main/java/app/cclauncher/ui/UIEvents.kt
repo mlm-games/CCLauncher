@@ -1,4 +1,4 @@
-package app.cclauncher.ui.events
+package app.cclauncher.ui
 
 import app.cclauncher.data.AppModel
 import kotlinx.coroutines.flow.MutableSharedFlow

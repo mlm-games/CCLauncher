@@ -1,5 +1,6 @@
-package app.cclauncher.ui.compose
+package app.cclauncher.ui
 
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.*
@@ -8,13 +9,11 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
-import app.cclauncher.ui.compose.screens.AppDrawerScreen
-import app.cclauncher.ui.compose.screens.HiddenAppsScreen
-import app.cclauncher.ui.compose.screens.HomeScreen
-import app.cclauncher.ui.compose.screens.SettingsScreen
-import app.cclauncher.ui.compose.util.SystemUIController
-import app.cclauncher.ui.events.AppSelectionType
-import app.cclauncher.ui.events.UiEvent
+import app.cclauncher.ui.screens.AppDrawerScreen
+import app.cclauncher.ui.screens.HiddenAppsScreen
+import app.cclauncher.ui.screens.HomeScreen
+import app.cclauncher.ui.screens.SettingsScreen
+import app.cclauncher.ui.util.SystemUIController
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -51,7 +50,7 @@ fun CLauncherNavigation(
                 }
                 is UiEvent.ShowToast -> {
                     // Show toast message
-                    android.widget.Toast.makeText(context, event.message, android.widget.Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
                 is UiEvent.NavigateToAppSelection -> {
                     // Store selection type and show dialog

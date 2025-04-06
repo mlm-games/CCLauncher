@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.util
+package app.cclauncher.ui.util
 
 import android.app.Activity
 import android.os.Build

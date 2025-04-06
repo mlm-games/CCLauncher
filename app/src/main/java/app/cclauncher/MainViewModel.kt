@@ -7,10 +7,10 @@ import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.getUserHandleFromString
-import app.cclauncher.ui.events.UiEvent
-import app.cclauncher.ui.state.AppDrawerUiState
-import app.cclauncher.ui.state.HomeScreenUiState
-import app.cclauncher.ui.state.SettingsScreenUiState
+import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.AppDrawerUiState
+import app.cclauncher.ui.HomeScreenUiState
+import app.cclauncher.ui.SettingsScreenUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

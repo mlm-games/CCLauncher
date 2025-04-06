@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.util
+package app.cclauncher.ui.util
 
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.Modifier

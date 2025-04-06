@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.screens
+package app.cclauncher.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
-import app.cclauncher.ui.compose.components.AppItem
+import app.cclauncher.ui.components.AppItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

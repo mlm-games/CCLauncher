@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.dialogs
+package app.cclauncher.ui.dialogs
 
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate

@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.screens
+package app.cclauncher.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -29,9 +30,8 @@ import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
-import app.cclauncher.ui.compose.AppDrawerSearch
-import app.cclauncher.ui.compose.BackHandler
-import app.cclauncher.ui.compose.util.detectSwipeGestures
+import app.cclauncher.ui.BackHandler
+import app.cclauncher.ui.util.detectSwipeGestures
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -342,4 +342,34 @@ private fun ContextMenuItem(
             style = MaterialTheme.typography.bodyLarge
         )
     }
+}
+
+@Composable
+fun AppDrawerSearch(
+    searchQuery: String,
+    onSearchChanged: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var isFocused by remember { mutableStateOf(false) }
+
+    TextField(
+        value = searchQuery,
+        onValueChange = onSearchChanged,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .onFocusChanged {
+                isFocused = it.isFocused
+                if (isFocused) {
+                    keyboardController?.show()
+                }
+            },
+        placeholder = { Text("Search apps...") },
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent
+        )
+    )
 }

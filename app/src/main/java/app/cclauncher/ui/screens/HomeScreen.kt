@@ -1,4 +1,4 @@
-package app.cclauncher.ui.compose.screens
+package app.cclauncher.ui.screens
 
 import android.view.Gravity
 import androidx.compose.foundation.clickable
@@ -20,9 +20,9 @@ import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
 import app.cclauncher.helper.openAlarmApp
 import app.cclauncher.helper.openCalendar
-import app.cclauncher.ui.compose.util.detectSwipeGestures
-import app.cclauncher.ui.events.AppSelectionType
-import app.cclauncher.ui.events.UiEvent
+import app.cclauncher.ui.util.detectSwipeGestures
+import app.cclauncher.ui.AppSelectionType
+import app.cclauncher.ui.UiEvent
 import java.text.SimpleDateFormat
 import java.util.*
 

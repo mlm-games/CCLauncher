@@ -1,14 +1,10 @@
-package app.cclauncher.ui.mapper
+package app.cclauncher.ui
 
 import android.content.Context
-import android.os.UserHandle
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.HomeAppPreference
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.helper.isPackageInstalled
-import app.cclauncher.ui.state.AppUiModel
-import app.cclauncher.ui.state.HomeAppUiModel
-import app.cclauncher.ui.state.HomeScreenUiState
 
 /**
  * Mapper functions for converting between domain models and UI models
