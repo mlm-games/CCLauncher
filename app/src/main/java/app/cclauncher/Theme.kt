@@ -79,6 +79,8 @@ private val LightColorScheme = lightColorScheme(
     onError = Color(0xFFFFFFFF)
 )
 
+
+
 private fun defaultTypography() = Typography(
     displayLarge = TextStyle(
         fontWeight = FontWeight.Normal,
@@ -197,7 +199,6 @@ fun scaledTypography(scaleFactor: Float): Typography {
 
 @Composable
 fun CLauncherTheme(
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
 
@@ -213,6 +214,9 @@ fun CLauncherTheme(
         AppCompatDelegate.MODE_NIGHT_NO -> false
         else -> isSystemInDarkTheme() // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
     }
+
+    val dynamicColor = prefsDataStore.preferences.collectAsState(initial = null).value?.useDynamicTheme == true
+
 
     val colorScheme = when {
          dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

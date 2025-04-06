@@ -286,6 +286,7 @@ private fun AppListItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -313,6 +314,7 @@ private fun AppListItem(
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
     }

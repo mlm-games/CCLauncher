@@ -165,6 +165,7 @@ private fun DateTimeSection(
             Text(
                 text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentDate),
                 style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { onTimeClick() },
@@ -178,6 +179,7 @@ private fun DateTimeSection(
             Text(
                 text = dateText,
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { onDateClick() },
@@ -222,6 +224,7 @@ private fun HomeApps(
                     Text(
                         text = app.appLabel,
                         style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = when (alignment) {
                             Gravity.START -> TextAlign.Start
                             Gravity.END -> TextAlign.End
@@ -240,7 +243,8 @@ private fun HomeApps(
             } else {
                 Text(
                     text = "•••",
-//                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = when (alignment) {
                         Gravity.START -> TextAlign.Start
                         Gravity.END -> TextAlign.End

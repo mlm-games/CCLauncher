@@ -43,6 +43,7 @@ data class LauncherPreferences(
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
     val textSizeScale: Float = 1.0f,
     val useSystemFont: Boolean = true,
+    val useDynamicTheme : Boolean = false,
     val autoOpenFilteredApp: Boolean = true,
     val showHiddenAppsOnSearch: Boolean = false,
 
@@ -99,6 +100,7 @@ class PrefsDataStore(private val context: Context) {
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val TEXT_SIZE_SCALE = floatPreferencesKey("TEXT_SIZE_SCALE")
         val USE_SYSTEM_FONT = booleanPreferencesKey("USE_SYSTEM_FONT")
+        val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
 
@@ -155,6 +157,7 @@ class PrefsDataStore(private val context: Context) {
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
             textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
             useSystemFont = prefs[USE_SYSTEM_FONT] != false,
+            useDynamicTheme = prefs[USE_DYNAMIC_THEME] == true,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] != false,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] == true,
 
@@ -232,6 +235,8 @@ class PrefsDataStore(private val context: Context) {
                 prefs[AUTO_SHOW_KEYBOARD] = updatedPrefs.autoShowKeyboard
             if (currentPrefs.useSystemFont != updatedPrefs.useSystemFont)
                 prefs[USE_SYSTEM_FONT] = updatedPrefs.useSystemFont
+            if (currentPrefs.useDynamicTheme != updatedPrefs.useDynamicTheme)
+                prefs[USE_DYNAMIC_THEME] = updatedPrefs.useDynamicTheme
             if (currentPrefs.autoOpenFilteredApp != updatedPrefs.autoOpenFilteredApp)
                 prefs[AUTO_OPEN_FILTERED_APP] = updatedPrefs.autoOpenFilteredApp
             if (currentPrefs.showHiddenAppsOnSearch != updatedPrefs.showHiddenAppsOnSearch)
@@ -375,6 +380,10 @@ class PrefsDataStore(private val context: Context) {
 
     suspend fun setUseSystemFont(value: Boolean) {
         updatePreference { it.copy(useSystemFont = value) }
+    }
+
+    suspend fun setUseDynamicTheme(value: Boolean) {
+        updatePreference { it.copy(useDynamicTheme = value) }
     }
 
     suspend fun setAutoOpenFilteredApp(value: Boolean) {

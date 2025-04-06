@@ -245,6 +245,17 @@ fun SettingsScreen(
                             }
                         }
                     )
+
+                    SettingsToggle(
+                        title = "Use Dynamic Theme",
+                        isChecked = uiState.useDynamicTheme,
+                        onCheckedChange = {
+                            coroutineScope.launch {
+                                viewModel.prefsDataStore.setUseDynamicTheme(it)
+                                viewModel.updateSettingsState()
+                            }
+                        }
+                    )
                 }
             }
 

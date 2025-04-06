@@ -106,9 +106,3 @@ object Navigation {
     const val SETTINGS = "settings"
     const val HIDDEN_APPS = "hiddenApps"
 }
-
-object Settings {
-    const val THEME_LIGHT = AppCompatDelegate.MODE_NIGHT_NO
-    const val THEME_DARK = AppCompatDelegate.MODE_NIGHT_YES
-    const val THEME_SYSTEM = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-}

@@ -107,6 +107,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             appTheme = prefs.appTheme,
             textSizeScale = prefs.textSizeScale,
             useSystemFont = prefs.useSystemFont,
+            useDynamicTheme = prefs.useDynamicTheme,
             homeAlignment = prefs.homeAlignment,
             homeBottomAlignment = prefs.homeBottomAlignment,
             statusBar = prefs.statusBar,
