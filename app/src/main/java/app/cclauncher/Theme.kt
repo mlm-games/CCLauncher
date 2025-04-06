@@ -1,6 +1,8 @@
-package app.cclauncher.ui.theme
+package app.cclauncher
 
+import android.app.Activity
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -9,13 +11,17 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import app.cclauncher.data.PrefsDataStore
 
 
@@ -191,8 +197,7 @@ fun scaledTypography(scaleFactor: Float): Typography {
 
 @Composable
 fun CLauncherTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, //TODO: add as an option in settingsScreen
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
 
@@ -201,6 +206,14 @@ fun CLauncherTheme(
 
     val textSizeScale = prefsDataStore.textSizeScale.collectAsState(initial = 1.0f)
 
+    val appTheme = prefsDataStore.appTheme.collectAsState(initial = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM).value
+
+    val darkTheme = when (appTheme) {
+        AppCompatDelegate.MODE_NIGHT_YES -> true
+        AppCompatDelegate.MODE_NIGHT_NO -> false
+        else -> isSystemInDarkTheme() // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    }
+
     val colorScheme = when {
          dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
              val context = LocalContext.current
@@ -208,6 +221,15 @@ fun CLauncherTheme(
          }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
     }
 
     val typography = scaledTypography(textSizeScale.value)

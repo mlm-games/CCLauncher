@@ -27,7 +27,6 @@ import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.helper.showLauncherSelector
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.util.updateStatusBarVisibility
-import app.cclauncher.ui.theme.CLauncherTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
