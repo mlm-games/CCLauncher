@@ -408,6 +408,41 @@ fun SettingsScreen(
             }
 
             item {
+                SettingsSection(title = "Widgets") {
+                    SettingsItem(
+                        title = "Manage Widgets",
+                        subtitle = "Add, remove, and configure widgets",
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.emitEvent(UiEvent.NavigateToWidgetManager)
+                            }
+                        }
+                    )
+
+                    SettingsAction(
+                        title = "Add Widget",
+                        description = "Add a widget to your home screen",
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
+                            }
+                        }
+                    )
+
+//                    SettingsToggle(
+//                        title = "Transparent Widget Background",
+//                        isChecked = uiState.transparentWidgetBackground,
+//                        onCheckedChange = {
+//                            coroutineScope.launch {
+//                                viewModel.prefsDataStore.setTransparentWidgetBackground(it)
+//                                viewModel.updateSettingsState()
+//                            }
+//                        }
+//                    )
+                }
+            }
+
+            item {
                 SettingsSection(title = "System") {
                     SettingsItem(
                         title = "Set as Default Launcher",

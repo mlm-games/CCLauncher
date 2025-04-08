@@ -47,6 +47,7 @@ data class LauncherPreferences(
     val autoOpenFilteredApp: Boolean = true,
     val showHiddenAppsOnSearch: Boolean = false,
     val doubleTapToLock: Boolean = false,
+    val externalWidgets: List<ExternalWidgetModel> = emptyList(),
 
     val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
 
@@ -430,4 +431,32 @@ class PrefsDataStore(private val context: Context) {
             it.copy(hiddenApps = updatedHiddenApps)
         }
     }
+
+    suspend fun addExternalWidget(widget: ExternalWidgetModel) {
+        updatePreference { prefs ->
+            val updatedWidgets = prefs.externalWidgets.toMutableList()
+            updatedWidgets.add(widget)
+            prefs.copy(externalWidgets = updatedWidgets)
+        }
+    }
+
+    suspend fun updateExternalWidget(widget: ExternalWidgetModel) {
+        updatePreference { prefs ->
+            val updatedWidgets = prefs.externalWidgets.toMutableList()
+            val index = updatedWidgets.indexOfFirst { it.id == widget.id }
+            if (index != -1) {
+                updatedWidgets[index] = widget
+            }
+            prefs.copy(externalWidgets = updatedWidgets)
+        }
+    }
+
+    suspend fun removeExternalWidget(widgetId: String) {
+        updatePreference { prefs ->
+            val updatedWidgets = prefs.externalWidgets.filter { it.id != widgetId }
+            prefs.copy(externalWidgets = updatedWidgets)
+        }
+    }
+
 }
+

@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val appContext = application.applicationContext
+    internal val appContext = application.applicationContext
     val prefsDataStore = PrefsDataStore(appContext)
     private val appRepository = AppRepository(appContext, prefsDataStore)
     private val permissionManager = PermissionManager(appContext)
@@ -513,6 +513,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+
+    fun configureExistingWidget(widget: ExternalWidgetModel) {
+        // Emit event to navigate to widget configuration screen
+        viewModelScope.launch {
+            _eventsFlow.emit(UiEvent.NavigateToWidgetConfig(widget))
+        }
+    }
+
+    /**
+     * Add an external widget to preferences
+     */
+    fun addExternalWidget(widget: ExternalWidgetModel) {
+        viewModelScope.launch {
+            prefsDataStore.addExternalWidget(widget)
+        }
+    }
+
+    /**
+     * Update an existing external widget
+     */
+    fun updateExternalWidget(widget: ExternalWidgetModel) {
+        viewModelScope.launch {
+            prefsDataStore.updateExternalWidget(widget)
+        }
+    }
+
+    /**
+     * Remove an external widget from preferences
+     */
+    fun removeExternalWidget(widgetId: String) {
+        viewModelScope.launch {
+            prefsDataStore.removeExternalWidget(widgetId)
+        }
+    }
+
+    /**
+     * Set whether widget backgrounds should be transparent
+     */
+    fun setTransparentWidgetBackground(transparent: Boolean) {
+//        viewModelScope.launch {
+//            prefsDataStore.setTransparentWidgetBackground(transparent)
+//        }
     }
 
     /**

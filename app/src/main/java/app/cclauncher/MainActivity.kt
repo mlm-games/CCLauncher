@@ -1,6 +1,8 @@
 package app.cclauncher
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -21,12 +23,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
 import app.cclauncher.data.PrefsDataStore
+import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.helper.showLauncherSelector
 import app.cclauncher.ui.CLauncherNavigation
+import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -34,10 +38,40 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
+    private val widgetHelper by lazy { WidgetHelper(this) }
+
+    val widgetRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            if (appWidgetId != -1) {
+                // Check if widget needs configuration
+                if (widgetHelper.needsConfiguration(appWidgetId)) {
+                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                    configIntent?.let {
+                        configWidgetLauncher.launch(it)
+                    }
+                } else {
+                    // Widget added successfully, proceed to widget configuration screen
+                    viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+                }
+            }
+        }
+    }
+
+    val configWidgetLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (appWidgetId != -1) {
+            // Widget configured successfully, proceed to widget configuration screen
+            viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-//        window.setDecorFitsSystemWindows(false)
+        //        window.setDecorFitsSystemWindows(false)
 
         // Use hardware acceleration
         window.setFlags(
@@ -104,6 +138,30 @@ class MainActivity : ComponentActivity() {
         initObservers()
         viewModel.loadApps()
     }
+
+    fun addExternalWidget(providerInfo: AppWidgetProviderInfo) {
+        val appWidgetId = widgetHelper.allocateAppWidgetId()
+
+        // Try to bind the widget
+        if (!widgetHelper.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo)) {
+            // If binding not allowed, request permission
+            val bindIntent = widgetHelper.createBindWidgetIntent(appWidgetId, providerInfo)
+            widgetRequestLauncher.launch(bindIntent)
+        } else {
+            // Widget binding succeeded
+            if (widgetHelper.needsConfiguration(appWidgetId)) {
+                // If widget needs configuration, launch config activity
+                val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                configIntent?.let {
+                    configWidgetLauncher.launch(it)
+                }
+            } else {
+                // No config needed, proceed to widget size config
+                viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+            }
+        }
+    }
+
 
     private fun initObservers() {
         lifecycleScope.launch {
