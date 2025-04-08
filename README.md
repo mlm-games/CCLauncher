@@ -7,7 +7,7 @@ Only open applications that you had in mind, Instead of opening or seeing the ap
 
 If you need to rename or hide any apps, you could show the apps and then perform those operations.
 
-Not planning to keep this as minimal as the original ( CClauncher will be as it is, with minor updates)
+Not planning to keep this as minimal as the original ( Clauncher will be as it is, with minor updates)
 
 ## Install
 
