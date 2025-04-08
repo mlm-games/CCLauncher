@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,6 +36,15 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+//        window.setDecorFitsSystemWindows(false)
+
+        // Use hardware acceleration
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
+
         val prefsDataStore = PrefsDataStore(this)
         lifecycleScope.launch {
             val appTheme = prefsDataStore.appTheme.first()
@@ -76,7 +86,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(FLAG_LAYOUT_NO_LIMITS)
 
         setContent {
-            val preferences by prefsDataStore.preferences.collectAsState(initial = null)
+//            val preferences by prefsDataStore.preferences.collectAsState(initial = null)
 
             CLauncherTheme {
                 var currentScreen by remember { mutableStateOf(Navigation.HOME) }
