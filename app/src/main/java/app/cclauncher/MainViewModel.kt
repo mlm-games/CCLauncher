@@ -1,10 +1,12 @@
 package app.cclauncher
 
 import android.app.Application
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
+import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
@@ -116,7 +118,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             swipeRightEnabled = prefs.swipeRightEnabled,
             swipeLeftAppName = prefs.swipeLeftApp.label,
             swipeRightAppName = prefs.swipeRightApp.label,
-            swipeDownAction = prefs.swipeDownAction
+            swipeDownAction = prefs.swipeDownAction,
+            doubleTapToLock = prefs.doubleTapToLock,
         )
     }
 
@@ -174,7 +177,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     swipeRightAppName = prefs.swipeRightApp.label,
                     swipeDownAction = prefs.swipeDownAction,
                     showHiddenAppsOnSearch = prefs.showHiddenAppsOnSearch,
-                    autoOpenFilteredApp = prefs.autoOpenFilteredApp
+                    autoOpenFilteredApp = prefs.autoOpenFilteredApp,
+                    useDynamicTheme = prefs.useDynamicTheme,
+                    doubleTapToLock = prefs.doubleTapToLock
                 )
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to update settings: ${e.message}"
@@ -326,6 +331,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ))
         }
     }
+
+    fun lockScreen() {
+        viewModelScope.launch {
+            val prefs = prefsDataStore.preferences.first()
+            if (prefs.doubleTapToLock) {
+                // Use accessibility service to lock screen
+                val intent = Intent(appContext, MyAccessibilityService::class.java)
+                intent.action = "LOCK_SCREEN"
+                appContext.startService(intent)
+            }
+        }
+    }
+
 
     /**
      * Update home screen alignment

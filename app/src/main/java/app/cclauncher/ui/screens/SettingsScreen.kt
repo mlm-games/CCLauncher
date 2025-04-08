@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -390,6 +391,19 @@ fun SettingsScreen(
                         subtitle = uiState.swipeDownText,
                         onClick = { showSwipeDownPicker = true }
                     )
+
+                    SettingsToggle(
+                        title = "Double Tap to Lock Screen",
+                        isChecked = uiState.doubleTapToLock,
+                        onCheckedChange = {
+                            coroutineScope.launch {
+                                viewModel.prefsDataStore.setDoubleTapToLock(it)
+                                viewModel.updateSettingsState()
+                                if (uiState.doubleTapToLock) Toast.makeText(context, "Enable accessibility permission for the functionality.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+
                 }
             }
 

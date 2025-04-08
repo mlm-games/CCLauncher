@@ -57,6 +57,7 @@ data class SettingsScreenUiState(
     val swipeLeftAppName: String = "Camera",
     val swipeRightAppName: String = "Phone",
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
+    val doubleTapToLock: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 ) {

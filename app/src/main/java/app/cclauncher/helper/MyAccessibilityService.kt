@@ -15,7 +15,11 @@ import kotlinx.coroutines.launch
 class MyAccessibilityService : AccessibilityService() {
     private val serviceScope = CoroutineScope(Dispatchers.Main)
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "LOCK_SCREEN") {
+            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+        }
         return START_STICKY
     }
 

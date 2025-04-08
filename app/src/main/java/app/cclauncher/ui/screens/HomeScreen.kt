@@ -75,7 +75,10 @@ fun HomeScreen(
             )
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = { /* Lock phone functionality */ },
+                    onDoubleTap = {if (viewModel.settingsScreenState.value.doubleTapToLock) {
+                        viewModel.lockScreen()
+                        }
+                    },
                     onLongPress = { onNavigateToSettings() },
                     onTap = { /* Check for messages */ }
                 )

@@ -46,6 +46,7 @@ data class LauncherPreferences(
     val useDynamicTheme : Boolean = false,
     val autoOpenFilteredApp: Boolean = true,
     val showHiddenAppsOnSearch: Boolean = false,
+    val doubleTapToLock: Boolean = false,
 
     val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
 
@@ -103,7 +104,7 @@ class PrefsDataStore(private val context: Context) {
         val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
-
+        val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
 
         val APP_NAME_KEYS = List(8) { stringPreferencesKey("APP_NAME_${it+1}") }
         val APP_PACKAGE_KEYS = List(8) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
@@ -160,6 +161,7 @@ class PrefsDataStore(private val context: Context) {
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] == true,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] != false,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] == true,
+            doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] == true,
 
             homeApps = List(8) { i ->
                 HomeAppPreference(
@@ -252,6 +254,8 @@ class PrefsDataStore(private val context: Context) {
                 prefs[HOME_BOTTOM_ALIGNMENT] = updatedPrefs.homeBottomAlignment
             if (currentPrefs.statusBar != updatedPrefs.statusBar)
                 prefs[STATUS_BAR] = updatedPrefs.statusBar
+            if (currentPrefs.doubleTapToLock != updatedPrefs.doubleTapToLock)
+                prefs[DOUBLE_TAP_TO_LOCK] = updatedPrefs.doubleTapToLock
 
             currentPrefs.homeApps.forEachIndexed { i, oldApp ->
                 val newApp = updatedPrefs.homeApps[i]
@@ -343,10 +347,6 @@ class PrefsDataStore(private val context: Context) {
         updatePreference { it.copy(hiddenApps = value) }
     }
 
-    suspend fun setHiddenAppsUpdated(value: Boolean) {
-        updatePreference { it.copy(hiddenAppsUpdated = value) }
-    }
-
     suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
         updatePreference {
             val newHomeApps = it.homeApps.toMutableList()
@@ -413,8 +413,8 @@ class PrefsDataStore(private val context: Context) {
         updatePreference { it.copy(swipeRightEnabled = value) }
     }
 
-    suspend fun setPlainWallpaper(value: Boolean) {
-        updatePreference { it.copy(plainWallpaper = value) }
+    suspend fun setDoubleTapToLock(enabled: Boolean) {
+        updatePreference { it.copy(doubleTapToLock = enabled) }
     }
 
 
