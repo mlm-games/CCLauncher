@@ -2,11 +2,13 @@ package app.cclauncher.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 /**
  * Model for external widgets from other apps
  */
 @Parcelize
+@Serializable
 data class ExternalWidgetModel(
     val id: String = "",
     val appWidgetId: Int = -1,
@@ -16,7 +18,7 @@ data class ExternalWidgetModel(
     val previewImage: ByteArray? = null,
     val position: Int = 0,
     val width: Int = 1,  // Width in grid cells
-    val height: Int = 1, // Height in grid cells
+    val height: Int = 1, // in grid cells
     val config: WidgetConfig = WidgetConfig()
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {

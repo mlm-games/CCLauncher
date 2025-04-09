@@ -1,12 +1,16 @@
 package app.cclauncher.data
 
 import android.content.Context
+import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.*
+import kotlinx.serialization.json.Json
 
 // Extension property for Context to access the DataStore instance
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher")
@@ -107,6 +111,8 @@ class PrefsDataStore(private val context: Context) {
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
 
+        val EXTERNAL_WIDGETS = stringPreferencesKey("EXTERNAL_WIDGETS")
+
         val APP_NAME_KEYS = List(8) { stringPreferencesKey("APP_NAME_${it+1}") }
         val APP_PACKAGE_KEYS = List(8) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
         val APP_ACTIVITY_CLASS_NAME_KEYS = List(8) { stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_${it+1}") }
@@ -127,6 +133,10 @@ class PrefsDataStore(private val context: Context) {
         val CALENDAR_APP_PACKAGE = stringPreferencesKey("CALENDAR_APP_PACKAGE")
         val CALENDAR_APP_USER = stringPreferencesKey("CALENDAR_APP_USER")
         val CALENDAR_APP_CLASS_NAME = stringPreferencesKey("CALENDAR_APP_CLASS_NAME")
+
+        private val gson = Gson()
+        private val widgetListType = object : TypeToken<List<ExternalWidgetModel>>() {}.type
+
     }
 
     val preferences: Flow<LauncherPreferences> = context.dataStore.data.map { prefs ->
@@ -197,7 +207,18 @@ class PrefsDataStore(private val context: Context) {
                 packageName = prefs[CALENDAR_APP_PACKAGE] ?: "",
                 activityClassName = prefs[CALENDAR_APP_CLASS_NAME],
                 userString = prefs[CALENDAR_APP_USER] ?: ""
-            )
+            ),
+            externalWidgets = try {
+                val widgetsString = prefs[EXTERNAL_WIDGETS]
+                if (widgetsString.isNullOrEmpty()) {
+                    emptyList()
+                } else {
+                    gson.fromJson<List<ExternalWidgetModel>>(widgetsString, widgetListType)
+                }
+            } catch (e: Exception) {
+                Log.e("PrefsDataStore", "Error deserializing widgets: ${e.message}")
+                emptyList()
+            }
         )
     }.distinctUntilChanged()
 
@@ -257,8 +278,17 @@ class PrefsDataStore(private val context: Context) {
                 prefs[STATUS_BAR] = updatedPrefs.statusBar
             if (currentPrefs.doubleTapToLock != updatedPrefs.doubleTapToLock)
                 prefs[DOUBLE_TAP_TO_LOCK] = updatedPrefs.doubleTapToLock
+            if (currentPrefs.externalWidgets != updatedPrefs.externalWidgets) {
+                try {
+                    val widgetsString = gson.toJson(updatedPrefs.externalWidgets, widgetListType)
+                    prefs[EXTERNAL_WIDGETS] = widgetsString
+                } catch (e: Exception) {
+                    Log.e("PrefsDataStore", "Error serializing widgets: ${e.message}")
+                }
+            }
 
-            currentPrefs.homeApps.forEachIndexed { i, oldApp ->
+
+                currentPrefs.homeApps.forEachIndexed { i, oldApp ->
                 val newApp = updatedPrefs.homeApps[i]
                 if (oldApp != newApp) {
                     prefs[APP_NAME_KEYS[i]] = newApp.label
@@ -457,6 +487,7 @@ class PrefsDataStore(private val context: Context) {
             prefs.copy(externalWidgets = updatedWidgets)
         }
     }
+
 
 }
 

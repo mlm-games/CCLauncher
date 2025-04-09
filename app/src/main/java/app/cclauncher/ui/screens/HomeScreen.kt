@@ -4,6 +4,7 @@ import android.view.Gravity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +24,8 @@ import app.cclauncher.helper.openCalendar
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.components.widgets.ExternalWidget
+import androidx.compose.foundation.lazy.items
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,6 +87,47 @@ fun HomeScreen(
                 )
             }
     ) {
+        val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = when (uiState.homeAlignment) {
+                Gravity.START -> Alignment.Start
+                Gravity.END -> Alignment.End
+                else -> Alignment.CenterHorizontally
+            }
+        ) {
+            // widgets at the top if there are any
+            preferences?.externalWidgets?.let { widgets ->
+                if (widgets.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(widgets) { widget ->
+                            ExternalWidget(
+                                widget = widget,
+                                editMode = false
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+            // Flexible space that pushes content down or centers it
+            if (uiState.homeBottomAlignment) {
+                Spacer(modifier = Modifier.weight(1f))
+            } else {
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
+        }
+
         // date/time and homeApps column
         Column(
             modifier = Modifier

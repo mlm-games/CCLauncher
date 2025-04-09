@@ -47,7 +47,7 @@ fun ExternalWidget(
         modifier = Modifier
             .width(widgetWidth)
             .height(widgetHeight)
-            .padding(8.dp)
+            .padding(4.dp)
             .clip(RoundedCornerShape(config.cornerRadius.dp))
             .background(Color(config.backgroundColor))
             .then(

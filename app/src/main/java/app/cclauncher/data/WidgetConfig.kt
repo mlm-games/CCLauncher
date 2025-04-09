@@ -2,11 +2,14 @@ package app.cclauncher.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 
 /**
  * Configuration options for widgets
  */
 @Parcelize
+@Serializable
 data class WidgetConfig(
     // Appearance settings
     val backgroundColor: Long = 0x33000000,  // Default: semi-transparent black
