@@ -26,6 +26,7 @@ import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.components.widgets.ExternalWidget
 import androidx.compose.foundation.lazy.items
+import app.cclauncher.ui.components.DraggableWidgetContainer
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -102,19 +103,19 @@ fun HomeScreen(
                 if (widgets.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(widgets) { widget ->
-                            ExternalWidget(
-                                widget = widget,
-                                editMode = false
-                            )
+                    DraggableWidgetContainer(
+                        widgets = widgets,
+                        editMode = false, // Set to true when in edit mode
+                        onWidgetsReordered = { reorderedWidgets ->
+                            viewModel.updateWidgetOrder(reorderedWidgets)
+                        },
+                        onConfigureWidget = { widget ->
+                            viewModel.emitEvent(UiEvent.NavigateToWidgetConfig(widget))
+                        },
+                        onRemoveWidget = { widgetId ->
+                            viewModel.removeExternalWidget(widgetId)
                         }
-                    }
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }

@@ -560,6 +560,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Update the order of widgets
+     */
+    fun updateWidgetOrder(widgets: List<ExternalWidgetModel>) {
+        viewModelScope.launch {
+            widgets.forEachIndexed { index, widget ->
+                val updatedWidget = widget.copy(position = index)
+                prefsDataStore.updateExternalWidget(updatedWidget)
+            }
+        }
+    }
+
+
+    /**
      * Reset launcher failed
      */
     fun setLauncherResetFailed(failed: Boolean) {

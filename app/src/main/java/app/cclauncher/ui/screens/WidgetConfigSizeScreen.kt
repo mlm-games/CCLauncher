@@ -58,6 +58,8 @@ fun WidgetConfigSizeScreen(
                 modifier = Modifier.weight(1f)
             )
 
+//            val currentPosition = viewModel.prefsDataStore.preferences.first().externalWidgets.size
+
             IconButton(
                 onClick = {
                     // Create widget model and save
@@ -69,6 +71,7 @@ fun WidgetConfigSizeScreen(
                         label = widgetInfo.loadLabel(viewModel.appContext.packageManager),
                         width = widthCells,
                         height = heightCells,
+//                        position = currentPosition,
                         config = WidgetConfig(
                             backgroundColor = backgroundColor.toLong(),
                             cornerRadius = cornerRadius,
