@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.ui.UiEvent
-import app.cclauncher.ui.components.widgets.ExternalWidget
+import app.cclauncher.ui.components.ExternalWidget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

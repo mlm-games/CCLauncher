@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
-import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.helper.WidgetHelper
-import app.cclauncher.ui.components.widgets.ExternalWidget
 
 @Composable
 fun WidgetContainer(

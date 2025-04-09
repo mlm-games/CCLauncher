@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
@@ -43,17 +44,21 @@ class MainActivity : ComponentActivity() {
     val widgetRequestLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
         if (result.resultCode == RESULT_OK) {
             val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
             if (appWidgetId != -1) {
                 // Check if widget needs configuration
                 if (widgetHelper.needsConfiguration(appWidgetId)) {
+                    Log.d("MainActivity", "Widget needs configuration after binding")
                     val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
                     configIntent?.let {
                         configWidgetLauncher.launch(it)
                     }
                 } else {
                     // Widget added successfully, proceed to widget configuration screen
+                    Log.d("MainActivity", "Proceeding to widget size config")
                     viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
                 }
             }
@@ -63,9 +68,11 @@ class MainActivity : ComponentActivity() {
     val configWidgetLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        Log.d("MainActivity", "Widget config result: ${result.resultCode}")
         val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
         if (appWidgetId != -1) {
             // Widget configured successfully, proceed to widget configuration screen
+            Log.d("MainActivity", "Proceeding to widget size config after configuration")
             viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
         }
     }
@@ -142,21 +149,28 @@ class MainActivity : ComponentActivity() {
     fun addExternalWidget(providerInfo: AppWidgetProviderInfo) {
         val appWidgetId = widgetHelper.allocateAppWidgetId()
 
+        // Log for debugging
+        Log.d("MainActivity", "Allocating widget ID: $appWidgetId for ${providerInfo.provider.packageName}")
+
         // Try to bind the widget
         if (!widgetHelper.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo)) {
             // If binding not allowed, request permission
+            Log.d("MainActivity", "Binding not allowed, requesting permission")
             val bindIntent = widgetHelper.createBindWidgetIntent(appWidgetId, providerInfo)
             widgetRequestLauncher.launch(bindIntent)
         } else {
             // Widget binding succeeded
+            Log.d("MainActivity", "Widget binding succeeded")
             if (widgetHelper.needsConfiguration(appWidgetId)) {
                 // If widget needs configuration, launch config activity
+                Log.d("MainActivity", "Widget needs configuration")
                 val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
                 configIntent?.let {
                     configWidgetLauncher.launch(it)
                 }
             } else {
                 // No config needed, proceed to widget size config
+                Log.d("MainActivity", "No config needed, proceeding to size config")
                 viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
             }
         }
@@ -227,4 +241,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Force hardware acceleration
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
+    }
+
 }

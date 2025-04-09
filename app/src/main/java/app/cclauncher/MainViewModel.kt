@@ -2,6 +2,7 @@ package app.cclauncher
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
@@ -516,19 +517,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun configureExistingWidget(widget: ExternalWidgetModel) {
-        // Emit event to navigate to widget configuration screen
-        viewModelScope.launch {
-            _eventsFlow.emit(UiEvent.NavigateToWidgetConfig(widget))
-        }
-    }
-
     /**
      * Add an external widget to preferences
      */
     fun addExternalWidget(widget: ExternalWidgetModel) {
         viewModelScope.launch {
-            prefsDataStore.addExternalWidget(widget)
+            try {
+                Log.d("MainViewModel", "Adding widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}")
+                prefsDataStore.addExternalWidget(widget)
+
+                // Emit event to navigate to home screen
+                _eventsFlow.emit(UiEvent.NavigateBack)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error adding widget: ${e.message}", e)
+                _errorMessage.value = "Failed to add widget: ${e.message}"
+            }
         }
     }
 
@@ -537,7 +540,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun updateExternalWidget(widget: ExternalWidgetModel) {
         viewModelScope.launch {
-            prefsDataStore.updateExternalWidget(widget)
+            try {
+                Log.d("MainViewModel", "Updating widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}")
+                prefsDataStore.updateExternalWidget(widget)
+
+                // Emit event to navigate to home screen
+                _eventsFlow.emit(UiEvent.NavigateBack)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error updating widget: ${e.message}", e)
+                _errorMessage.value = "Failed to update widget: ${e.message}"
+            }
         }
     }
 
@@ -546,17 +558,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun removeExternalWidget(widgetId: String) {
         viewModelScope.launch {
-            prefsDataStore.removeExternalWidget(widgetId)
+            try {
+                Log.d("MainViewModel", "Removing widget: id=$widgetId")
+                prefsDataStore.removeExternalWidget(widgetId)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error removing widget: ${e.message}", e)
+                _errorMessage.value = "Failed to remove widget: ${e.message}"
+            }
         }
-    }
-
-    /**
-     * Set whether widget backgrounds should be transparent
-     */
-    fun setTransparentWidgetBackground(transparent: Boolean) {
-//        viewModelScope.launch {
-//            prefsDataStore.setTransparentWidgetBackground(transparent)
-//        }
     }
 
     /**
@@ -564,15 +573,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun updateWidgetOrder(widgets: List<ExternalWidgetModel>) {
         viewModelScope.launch {
-            widgets.forEachIndexed { index, widget ->
-                val updatedWidget = widget.copy(position = index)
-                prefsDataStore.updateExternalWidget(updatedWidget)
+            try {
+                Log.d("MainViewModel", "Updating widget order for ${widgets.size} widgets")
+
+                // Update each widget with its new position
+                widgets.forEachIndexed { index, widget ->
+                    val updatedWidget = widget.copy(position = index)
+                    prefsDataStore.updateExternalWidget(updatedWidget)
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error updating widget order: ${e.message}", e)
+                _errorMessage.value = "Failed to update widget order: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Configure an existing widget
+     */
+    fun configureExistingWidget(widget: ExternalWidgetModel) {
+        viewModelScope.launch {
+            try {
+                Log.d("MainViewModel", "Configuring widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}")
+                _eventsFlow.emit(UiEvent.NavigateToWidgetConfig(widget))
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error navigating to widget config: ${e.message}", e)
+                _errorMessage.value = "Failed to configure widget: ${e.message}"
             }
         }
     }
 
 
-    /**
+
+
+
+                    /**
      * Reset launcher failed
      */
     fun setLauncherResetFailed(failed: Boolean) {
