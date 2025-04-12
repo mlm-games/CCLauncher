@@ -1,8 +1,10 @@
 package app.cclauncher
 
 import android.annotation.SuppressLint
+import android.app.role.RoleManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -219,6 +221,16 @@ class MainActivity : ComponentActivity() {
                 recreate()
             }
         }
+    }
+
+    fun requestDefaultLauncher(context: Context) {
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+//            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+//            val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
+//            launcher.launch(intent)
+//        } else {
+            context.startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+//        }
     }
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

@@ -1,8 +1,11 @@
 package app.cclauncher.ui.screens
 
 import android.app.Activity
+import android.app.role.RoleManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,6 +23,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
@@ -448,11 +452,9 @@ fun SettingsScreen(
                         title = "Set as Default Launcher",
                         subtitle = if (isClauncherDefault(context)) "CCLauncher is default" else "CCLauncher is not default",
                         onClick = {
-                            coroutineScope.launch {
-                                viewModel.emitEvent(UiEvent.ResetLauncher)
-                            }
+                            (context as? MainActivity)?.requestDefaultLauncher(context)
                         }
-                    )
+                )
 
                     SettingsItem(
                         title = "Hidden Apps",
