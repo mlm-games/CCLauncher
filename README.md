@@ -1,7 +1,7 @@
 ![CCLauncher]()
 
 
-# CCLauncher | CCLauncher rewritten for compose UI
+# CCLauncher | CLauncher rewritten for compose UI
 
 Only open applications that you had in mind, Instead of opening or seeing the apps before searching
 
