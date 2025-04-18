@@ -1,5 +1,5 @@
   
-  This is just Clauncher but written entirely in kotlin (using compose for UI). Most problems caused due to the migration have been fixed but there are some problems with the animation being too fast
+  This is just Clauncher but written entirely in kotlin (using compose for UI).
 
   Original Clauncher's readme below:
   
