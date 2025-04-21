@@ -98,6 +98,13 @@ object Constants {
     const val URL_CCLAUNCHER_GITHUB = "https://github.com/mlm-games/CCLauncher"
     const val URL_DUCK_SEARCH = ""
     const val WALLPAPER_WORKER_NAME = "WALLPAPER_WORKER_NAME"
+
+    // Need to add the comments below as tooltips when long-tap ig?
+    object SearchType {
+        const val CONTAINS = 0      // Default substring search
+        const val FUZZY = 1         // Fuzzy search (characters in order anywhere)
+        const val STARTS_WITH = 2   // Only match beginning of app names
+    }
 }
 
 object Navigation {
@@ -106,3 +113,5 @@ object Navigation {
     const val SETTINGS = "settings"
     const val HIDDEN_APPS = "hiddenApps"
 }
+
+
