@@ -88,10 +88,18 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .align(
-                    when (uiState.homeAlignment) {
-                        Gravity.START -> Alignment.CenterStart
-                        Gravity.END -> Alignment.CenterEnd
-                        else -> Alignment.Center
+                    when {
+                        // First determine vertical alignment based on homeBottomAlignment
+                        uiState.homeBottomAlignment -> when (uiState.homeAlignment) {
+                            Gravity.START -> Alignment.BottomStart
+                            Gravity.END -> Alignment.BottomEnd
+                            else -> Alignment.BottomCenter
+                        }
+                        else -> when (uiState.homeAlignment) {
+                            Gravity.START -> Alignment.CenterStart
+                            Gravity.END -> Alignment.CenterEnd
+                            else -> Alignment.Center
+                        }
                     }
                 )
                 .fillMaxWidth()
@@ -101,9 +109,7 @@ fun HomeScreen(
                 Gravity.END -> Alignment.End
                 else -> Alignment.CenterHorizontally
             },
-            verticalArrangement = if (uiState.homeBottomAlignment)
-                Arrangement.Bottom else Arrangement.Center
-        ) {
+            ) {
             if (uiState.showDateTime) {
                 DateTimeSection(
                     showTime = uiState.showTime,
