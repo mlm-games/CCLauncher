@@ -67,6 +67,7 @@ fun SettingsScreen(
             coroutineScope.launch {
                 viewModel.prefsDataStore.setHomeAppsNum(newValue)
                 viewModel.refreshHome(true)
+                viewModel.updateSettingsState()
             }
         }
     )
