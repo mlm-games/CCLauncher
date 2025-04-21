@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
+import app.cclauncher.data.Constants
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
 import app.cclauncher.helper.openAlarmApp
@@ -69,7 +70,13 @@ fun HomeScreen(
             .fillMaxSize()
             .detectSwipeGestures(
                 onSwipeUp = { onNavigateToAppDrawer() },
-                onSwipeDown = { expandNotificationDrawer(context) },
+                onSwipeDown = {
+                    when (viewModel.settingsScreenState.value.swipeDownAction) {
+                        Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
+                        else -> expandNotificationDrawer(context)
+                    }
+                },
                 onSwipeLeft = { viewModel.launchSwipeLeftApp() },
                 onSwipeRight = { viewModel.launchSwipeRightApp() }
             )

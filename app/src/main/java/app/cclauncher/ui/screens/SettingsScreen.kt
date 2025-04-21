@@ -129,7 +129,8 @@ fun SettingsScreen(
         onDismiss = { showSwipeDownPicker = false },
         onActionSelected = { action ->
             coroutineScope.launch {
-                viewModel.prefsDataStore.updatePreference { it.copy(swipeDownAction = action) }
+                viewModel.prefsDataStore.setSwipeDownAction(action)
+                viewModel.updateSettingsState()
             }
         }
     )

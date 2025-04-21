@@ -47,6 +47,7 @@ data class LauncherPreferences(
     val autoOpenFilteredApp: Boolean = true,
     val showHiddenAppsOnSearch: Boolean = false,
     val doubleTapToLock: Boolean = false,
+    val fuzzySearch: Boolean = true,
 
     val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
 
@@ -105,6 +106,7 @@ class PrefsDataStore(private val context: Context) {
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
+        val FUZZY_SEARCH = booleanPreferencesKey("FUZZY_SEARCH")
 
         val APP_NAME_KEYS = List(8) { stringPreferencesKey("APP_NAME_${it+1}") }
         val APP_PACKAGE_KEYS = List(8) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
@@ -162,6 +164,7 @@ class PrefsDataStore(private val context: Context) {
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] != false,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] == true,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] == true,
+            fuzzySearch = prefs[FUZZY_SEARCH] == true,
 
             homeApps = List(8) { i ->
                 HomeAppPreference(
@@ -256,6 +259,8 @@ class PrefsDataStore(private val context: Context) {
                 prefs[STATUS_BAR] = updatedPrefs.statusBar
             if (currentPrefs.doubleTapToLock != updatedPrefs.doubleTapToLock)
                 prefs[DOUBLE_TAP_TO_LOCK] = updatedPrefs.doubleTapToLock
+            if (currentPrefs.fuzzySearch != updatedPrefs.fuzzySearch)
+                prefs[FUZZY_SEARCH] = updatedPrefs.fuzzySearch
 
             currentPrefs.homeApps.forEachIndexed { i, oldApp ->
                 val newApp = updatedPrefs.homeApps[i]
@@ -413,9 +418,23 @@ class PrefsDataStore(private val context: Context) {
         updatePreference { it.copy(swipeRightEnabled = value) }
     }
 
+    suspend fun setSwipeDownAction(value: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[SWIPE_DOWN_ACTION] = value
+        }
+//        val updatedValue = context.dataStore.data.first()[SWIPE_DOWN_ACTION]
+//        println("DEBUG: Set swipe down action to $value, stored value is $updatedValue")
+    }
+
     suspend fun setDoubleTapToLock(enabled: Boolean) {
         updatePreference { it.copy(doubleTapToLock = enabled) }
     }
+
+    suspend fun setFuzzySearch(value: Boolean) {
+        updatePreference { it.copy(fuzzySearch = value) }
+    }
+
+
 
 
 
