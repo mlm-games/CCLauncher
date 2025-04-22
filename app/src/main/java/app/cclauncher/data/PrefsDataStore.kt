@@ -53,6 +53,8 @@ data class LauncherPreferences(
     val doubleTapToLock: Boolean = false,
     val externalWidgets: List<ExternalWidgetModel> = emptyList(),
 
+    val searchType: Int = Constants.SearchType.CONTAINS,
+
     val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
 
     val swipeLeftApp: AppPreference = AppPreference(label = "Camera"),
@@ -110,6 +112,7 @@ class PrefsDataStore(private val context: Context) {
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
+        val SEARCH_TYPE = intPreferencesKey("SEARCH_TYPE")
 
         val EXTERNAL_WIDGETS = stringPreferencesKey("EXTERNAL_WIDGETS")
 
@@ -173,6 +176,7 @@ class PrefsDataStore(private val context: Context) {
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] != false,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] == true,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] == true,
+            searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.CONTAINS,
 
             homeApps = List(8) { i ->
                 HomeAppPreference(
@@ -278,6 +282,10 @@ class PrefsDataStore(private val context: Context) {
                 prefs[STATUS_BAR] = updatedPrefs.statusBar
             if (currentPrefs.doubleTapToLock != updatedPrefs.doubleTapToLock)
                 prefs[DOUBLE_TAP_TO_LOCK] = updatedPrefs.doubleTapToLock
+
+            if (currentPrefs.searchType != updatedPrefs.searchType)
+                prefs[SEARCH_TYPE] = updatedPrefs.searchType
+
             if (currentPrefs.externalWidgets != updatedPrefs.externalWidgets) {
                 try {
                     val widgetsString = gson.toJson(updatedPrefs.externalWidgets, widgetListType)
@@ -286,6 +294,7 @@ class PrefsDataStore(private val context: Context) {
                     Log.e("PrefsDataStore", "Error serializing widgets: ${e.message}")
                 }
             }
+
 
 
                 currentPrefs.homeApps.forEachIndexed { i, oldApp ->
@@ -444,9 +453,23 @@ class PrefsDataStore(private val context: Context) {
         updatePreference { it.copy(swipeRightEnabled = value) }
     }
 
+    suspend fun setSwipeDownAction(value: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[SWIPE_DOWN_ACTION] = value
+        }
+//        val updatedValue = context.dataStore.data.first()[SWIPE_DOWN_ACTION]
+//        println("DEBUG: Set swipe down action to $value, stored value is $updatedValue")
+    }
+
     suspend fun setDoubleTapToLock(enabled: Boolean) {
         updatePreference { it.copy(doubleTapToLock = enabled) }
     }
+
+    suspend fun setSearchType(value: Int) {
+        updatePreference { it.copy(searchType = value) }
+    }
+
+
 
 
 

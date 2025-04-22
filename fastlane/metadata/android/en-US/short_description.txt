@@ -1,1 +1,1 @@
-Clauncher, rewritten using Compose
+Minimal home launcher, rewritten using Compose

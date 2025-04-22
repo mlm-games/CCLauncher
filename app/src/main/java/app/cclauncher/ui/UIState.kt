@@ -58,6 +58,7 @@ data class SettingsScreenUiState(
     val swipeRightAppName: String = "Phone",
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
     val doubleTapToLock: Boolean = false,
+    val searchType: Int = Constants.SearchType.CONTAINS,
     val isLoading: Boolean = false,
     val error: String? = null
 ) {
@@ -96,6 +97,13 @@ data class SettingsScreenUiState(
         Constants.SwipeDownAction.NOTIFICATIONS -> "Notifications"
         Constants.SwipeDownAction.SEARCH -> "Search"
         else -> "Notifications"
+    }
+
+    val searchTypeText: String get() = when(searchType) {
+        Constants.SearchType.CONTAINS -> "Contains"
+        Constants.SearchType.FUZZY -> "Fuzzy Match"
+        Constants.SearchType.STARTS_WITH -> "Starts With"
+        else -> "Contains"
     }
 }
 

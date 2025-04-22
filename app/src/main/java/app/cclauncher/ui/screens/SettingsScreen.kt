@@ -60,6 +60,7 @@ fun SettingsScreen(
     var showDateTimePicker by remember { mutableStateOf(false) }
     var showTextSizePicker by remember { mutableStateOf(false) }
     var showSwipeDownPicker by remember { mutableStateOf(false) }
+    var showSearchTypePicker by remember { mutableStateOf(false) }
 
     // Dialogs
     NumberPickerDialog(
@@ -71,6 +72,7 @@ fun SettingsScreen(
             coroutineScope.launch {
                 viewModel.prefsDataStore.setHomeAppsNum(newValue)
                 viewModel.refreshHome(true)
+                viewModel.updateSettingsState()
             }
         }
     )
@@ -132,7 +134,20 @@ fun SettingsScreen(
         onDismiss = { showSwipeDownPicker = false },
         onActionSelected = { action ->
             coroutineScope.launch {
-                viewModel.prefsDataStore.updatePreference { it.copy(swipeDownAction = action) }
+                viewModel.prefsDataStore.setSwipeDownAction(action)
+                viewModel.updateSettingsState()
+            }
+        }
+    )
+
+    SearchTypeDialog(
+        show = showSearchTypePicker,
+        currentType = uiState.searchType,
+        onDismiss = { showSearchTypePicker = false },
+        onTypeSelected = { type ->
+            coroutineScope.launch {
+                viewModel.prefsDataStore.setSearchType(type)
+                viewModel.updateSettingsState()
             }
         }
     )
@@ -223,6 +238,12 @@ fun SettingsScreen(
                                 viewModel.updateSettingsState()
                             }
                         }
+                    )
+
+                    SettingsItem(
+                        title = "Search Type",
+                        subtitle = uiState.searchTypeText,
+                        onClick = { showSearchTypePicker = true }
                     )
                 }
             }
@@ -648,4 +669,48 @@ fun SettingsAction(
             Text("Set")
         }
     }
+}
+
+@Composable
+fun SearchTypeDialog(
+    show: Boolean,
+    currentType: Int,
+    onDismiss: () -> Unit,
+    onTypeSelected: (Int) -> Unit
+) {
+    if (!show) return
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Search Type") },
+        text = {
+            Column {
+                RadioButton(
+                    selected = currentType == Constants.SearchType.CONTAINS,
+                    onClick = { onTypeSelected(Constants.SearchType.CONTAINS) },
+                    modifier = Modifier.padding(8.dp)
+                )
+                Text("Contains (match anywhere in app name)")
+
+                RadioButton(
+                    selected = currentType == Constants.SearchType.FUZZY,
+                    onClick = { onTypeSelected(Constants.SearchType.FUZZY) },
+                    modifier = Modifier.padding(8.dp)
+                )
+                Text("Fuzzy Match (characters in order anywhere)")
+
+                RadioButton(
+                    selected = currentType == Constants.SearchType.STARTS_WITH,
+                    onClick = { onTypeSelected(Constants.SearchType.STARTS_WITH) },
+                    modifier = Modifier.padding(8.dp)
+                )
+                Text("Starts With (match from beginning of app name)")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }

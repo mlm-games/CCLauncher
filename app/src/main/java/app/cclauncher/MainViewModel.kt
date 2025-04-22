@@ -121,6 +121,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             swipeRightAppName = prefs.swipeRightApp.label,
             swipeDownAction = prefs.swipeDownAction,
             doubleTapToLock = prefs.doubleTapToLock,
+            searchType = prefs.searchType,
         )
     }
 
@@ -180,7 +181,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     showHiddenAppsOnSearch = prefs.showHiddenAppsOnSearch,
                     autoOpenFilteredApp = prefs.autoOpenFilteredApp,
                     useDynamicTheme = prefs.useDynamicTheme,
-                    doubleTapToLock = prefs.doubleTapToLock
+                    doubleTapToLock = prefs.doubleTapToLock,
+                    searchType = prefs.searchType,
                 )
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to update settings: ${e.message}"
@@ -493,12 +495,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             try {
+                val prefs = prefsDataStore.preferences.first()
+                val searchType = prefs.searchType
+
                 val filteredApps = if (query.isBlank()) {
                     _appList.value
                 } else {
-                    val listToFilter = if (prefsDataStore.preferences.first().showHiddenAppsOnSearch) _appListAll else _appList
-                    listToFilter.value.filter {
-                        it.appLabel.contains(query, ignoreCase = true)
+                    val listToFilter = if (prefs.showHiddenAppsOnSearch) _appListAll else _appList
+
+                    when (searchType) {
+                        Constants.SearchType.FUZZY -> {
+                            // Fuzzy search implementation
+                            listToFilter.value.filter { app ->
+                                fuzzyMatch(app.appLabel, query)
+                            }
+                        }
+                        Constants.SearchType.STARTS_WITH -> {
+                            // Starts with implementation
+                            listToFilter.value.filter { app ->
+                                app.appLabel.startsWith(query, ignoreCase = true)
+                            }
+                        }
+                        else -> {
+                            // Default contains search
+                            listToFilter.value.filter { app ->
+                                app.appLabel.contains(query, ignoreCase = true)
+                            }
+                        }
                     }
                 }
 
@@ -517,6 +540,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    private fun fuzzyMatch(text: String, pattern: String): Boolean {
+        val textLower = text.lowercase()
+        val patternLower = pattern.lowercase()
+
+        var textIndex = 0
+        var patternIndex = 0
+
+        while (textIndex < textLower.length && patternIndex < patternLower.length) {
+            if (textLower[textIndex] == patternLower[patternIndex]) {
+                patternIndex++
+            }
+            textIndex++
+        }
+
+        return patternIndex == patternLower.length
+
+
     /**
      * Add an external widget to preferences
      */
@@ -533,6 +573,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _errorMessage.value = "Failed to add widget: ${e.message}"
             }
         }
+
     }
 
     /**

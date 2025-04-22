@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
+import app.cclauncher.data.Constants
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
@@ -80,7 +81,13 @@ fun HomeScreen(
             .fillMaxSize()
             .detectSwipeGestures(
                 onSwipeUp = { onNavigateToAppDrawer() },
-                onSwipeDown = { expandNotificationDrawer(context) },
+                onSwipeDown = {
+                    when (viewModel.settingsScreenState.value.swipeDownAction) {
+                        Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
+                        else -> expandNotificationDrawer(context)
+                    }
+                },
                 onSwipeLeft = { viewModel.launchSwipeLeftApp() },
                 onSwipeRight = { viewModel.launchSwipeRightApp() }
             )
@@ -217,10 +224,18 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .align(
-                    when (uiState.homeAlignment) {
-                        Gravity.START -> Alignment.CenterStart
-                        Gravity.END -> Alignment.CenterEnd
-                        else -> Alignment.Center
+                    when {
+                        // First determine vertical alignment based on homeBottomAlignment
+                        uiState.homeBottomAlignment -> when (uiState.homeAlignment) {
+                            Gravity.START -> Alignment.BottomStart
+                            Gravity.END -> Alignment.BottomEnd
+                            else -> Alignment.BottomCenter
+                        }
+                        else -> when (uiState.homeAlignment) {
+                            Gravity.START -> Alignment.CenterStart
+                            Gravity.END -> Alignment.CenterEnd
+                            else -> Alignment.Center
+                        }
                     }
                 )
                 .fillMaxWidth()
@@ -230,9 +245,7 @@ fun HomeScreen(
                 Gravity.END -> Alignment.End
                 else -> Alignment.CenterHorizontally
             },
-            verticalArrangement = if (uiState.homeBottomAlignment)
-                Arrangement.Bottom else Arrangement.Center
-        ) {
+            ) {
             if (uiState.showDateTime) {
                 DateTimeSection(
                     showTime = uiState.showTime,
