@@ -17,11 +17,11 @@ fun Activity.showLauncherSelector(requestCode: Int) {
     if (roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
         val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
         startActivityForResult(intent, requestCode)
-    } else
-        resetDefaultLauncher()
+    }
 }
 
-fun Context.resetDefaultLauncher() {
+
+//fun Context.resetDefaultLauncher() {
 //    try {
 //        val componentName = ComponentName(this, FakeHomeActivity::class.java)
 //        packageManager.setComponentEnabledSetting(
@@ -40,7 +40,7 @@ fun Context.resetDefaultLauncher() {
 //    } catch (e: Exception) {
 //        e.printStackTrace()
 //    }
-}
+//}
 
 
 fun Context.isEinkDisplay(): Boolean {

@@ -5,20 +5,19 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
+import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.data.Navigation
-import app.cclauncher.ui.screens.AppDrawerScreen
-import app.cclauncher.ui.screens.HiddenAppsScreen
-import app.cclauncher.ui.screens.HomeScreen
-import app.cclauncher.ui.screens.SettingsScreen
+import app.cclauncher.helper.WidgetHelper
+import app.cclauncher.ui.screens.*
 import app.cclauncher.ui.util.SystemUIController
 import kotlinx.coroutines.flow.collectLatest
 
@@ -38,6 +37,10 @@ fun CLauncherNavigation(
 
     var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
+
+    // Widget-related state
+    var currentWidgetId by remember { mutableStateOf(-1) }
+    var currentWidget by remember { mutableStateOf<ExternalWidgetModel?>(null) }
 
     // for UI events
     LaunchedEffect(key1 = viewModel) {
@@ -66,6 +69,22 @@ fun CLauncherNavigation(
                     // Navigate to app drawer with selection mode
                     onScreenChange(Navigation.APP_DRAWER)
                 }
+                is UiEvent.NavigateToWidgetPicker -> {
+                    onScreenChange(Navigation.WIDGET_PICKER)
+                }
+                is UiEvent.NavigateToWidgetManager -> {
+                    onScreenChange(Navigation.WIDGET_MANAGER)
+                }
+                is UiEvent.NavigateToWidgetSizeConfig -> {
+                    // Store the widget ID for the config screen
+                    currentWidgetId = event.appWidgetId
+                    onScreenChange(Navigation.WIDGET_CONFIG)
+                }
+                is UiEvent.NavigateToWidgetConfig -> {
+                    // Store the widget for editing
+                    currentWidget = event.widget
+                    onScreenChange(Navigation.WIDGET_EDIT)
+                }
                 else -> {
                     // Handle other events, presently nothing.
                 }
@@ -73,7 +92,7 @@ fun CLauncherNavigation(
         }
     }
 
-    // Main animation container
+    // Main animation container with content alignment for proper scaling
     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
@@ -82,153 +101,280 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     when (initialState) {
                         Navigation.APP_DRAWER -> {
-                            // App drawer to home: slide down
-                            slideInVertically(
-                                                        initialOffsetY = { -it },
-                                                        animationSpec = tween(300)
-                                                    ).togetherWith(
-                                slideOutVertically(
-                                                        targetOffsetY = { it },
-                                                        animationSpec = tween(300)
-                                                    )
-                            )
+                            // App drawer to home: slide down with fade and scale
+                            (slideInVertically(
+                                initialOffsetY = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeIn(animationSpec = tween(300)) +
+                                    scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                                    (slideOutVertically(
+                                        targetOffsetY = { it/5 },  // Reduced slide distance for subtlety
+                                        animationSpec = tween(300)
+                                    ) + fadeOut(animationSpec = tween(300)) +
+                                            scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
                         }
                         else -> {
-                            // Settings/Hidden apps to home: slide right
-                            slideInHorizontally(
-                                                        initialOffsetX = { -it },
-                                                        animationSpec = tween(300)
-                                                    ).togetherWith(
-                                slideOutHorizontally(
-                                                        targetOffsetX = { it },
-                                                        animationSpec = tween(300)
-                                                    )
-                            )
+                            // Settings/Hidden apps to home: slide right with fade and scale
+                            (slideInHorizontally(
+                                initialOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeIn(animationSpec = tween(300)) +
+                                    scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                                    (slideOutHorizontally(
+                                        targetOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                                        animationSpec = tween(300)
+                                    ) + fadeOut(animationSpec = tween(300)) +
+                                            scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
                         }
                     }
                 }
                 Navigation.APP_DRAWER -> {
-                    // Home to app drawer: slide up
-                    slideInVertically(
-                                        initialOffsetY = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
-                        slideOutVertically(
-                                        targetOffsetY = { -it },
-                                        animationSpec = tween(300)
-                                    )
-                    )
+                    // Home to app drawer: slide up with fade and scale
+                    (slideInVertically(
+                        initialOffsetY = { it/5 },  // Reduced slide distance for subtlety
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                            (slideOutVertically(
+                                targetOffsetY = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
                 }
                 Navigation.SETTINGS -> {
-                    // Home to settings: slide left
-                    slideInHorizontally(
-                                        initialOffsetX = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
-                        slideOutHorizontally(
-                                        targetOffsetX = { -it },
-                                        animationSpec = tween(300)
-                                    )
-                    )
+                    // Home to settings: slide left with fade and scale
+                    (slideInHorizontally(
+                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                            (slideOutHorizontally(
+                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
                 }
                 Navigation.HIDDEN_APPS -> {
-                    // Settings to hidden apps: slide left
-                    slideInHorizontally(
-                                        initialOffsetX = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
-                        slideOutHorizontally(
-                                        targetOffsetX = { -it },
-                                        animationSpec = tween(300)
-                                    )
-                    )
+                    // Settings to hidden apps: slide left with fade and scale
+                    (slideInHorizontally(
+                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                            (slideOutHorizontally(
+                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                }
+                // Widget screens animations
+                Navigation.WIDGET_PICKER, Navigation.WIDGET_MANAGER -> {
+                    // Settings to widget screens: slide left with fade and scale
+                    (slideInHorizontally(
+                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                            (slideOutHorizontally(
+                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                animationSpec = tween(300)
+                            ) + fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                }
+                Navigation.WIDGET_CONFIG, Navigation.WIDGET_EDIT -> {
+                    // Widget picker to config: zoom in with fade
+                    (fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.85f, animationSpec = tween(350))) with
+                            (fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 1.1f, animationSpec = tween(350)))
                 }
                 else -> {
-                    // Default animation
-                    fadeIn(animationSpec = tween(300)).togetherWith(fadeOut(animationSpec = tween(300)))
+                    // Default animation with fade and scale
+                    (fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
+                            (fadeOut(animationSpec = tween(300)) +
+                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
                 }
             }
-        }
+        },
+        contentAlignment = Alignment.Center  // Important for proper scaling
     ) { screen ->
-        // Render the appropriate screen based on current navigation state
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (screen) {
-                Navigation.HOME -> {
-                    HomeScreen(
-                        viewModel = viewModel,
-                        onNavigateToAppDrawer = {
-                            onScreenChange(Navigation.APP_DRAWER)
-                        },
-                        onNavigateToSettings = {
-                            onScreenChange(Navigation.SETTINGS)
-                        }
-                    )
-                }
-                Navigation.APP_DRAWER -> {
-                    AppDrawerScreen(
-                        viewModel = viewModel,
-                        onAppClick = { app ->
-                            // Check if we're in app selection mode
-                            if (currentSelectionType != null) {
-                                when (currentSelectionType) {
-                                    AppSelectionType.CLOCK_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CLOCK_APP)
-                                    AppSelectionType.CALENDAR_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CALENDAR_APP)
-                                    AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
-                                    AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
-                                    AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
-                                    AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
-                                    AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
-                                    AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
-                                    AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
-                                    AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
-                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
-                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
-                                    else -> {}
-                                }
-                                currentSelectionType = null
-                                onScreenChange(Navigation.HOME)
-                            } else {
-                                viewModel.launchApp(app)
-                                onScreenChange(Navigation.HOME)
+        // Render the appropriate screen with additional alpha transition
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            // Add a nested AnimatedVisibility for extra content alpha transitions
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(
+                    animationSpec = tween(150, delayMillis = 150)
+                ),
+                exit = fadeOut(
+                    animationSpec = tween(150)
+                )
+            ) {
+                when (screen) {
+                    Navigation.HOME -> {
+                        HomeScreen(
+                            viewModel = viewModel,
+                            onNavigateToAppDrawer = {
+                                onScreenChange(Navigation.APP_DRAWER)
+                            },
+                            onNavigateToSettings = {
+                                onScreenChange(Navigation.SETTINGS)
                             }
-                        },
-                        onSwipeDown = { onScreenChange(Navigation.HOME) },
-                        selectionMode = currentSelectionType != null,
-                        selectionTitle = when (currentSelectionType) {
-                            AppSelectionType.CLOCK_APP -> "Select Clock App"
-                            AppSelectionType.CALENDAR_APP -> "Select Calendar App"
-                            AppSelectionType.HOME_APP_1,
-                            AppSelectionType.HOME_APP_2,
-                            AppSelectionType.HOME_APP_3,
-                            AppSelectionType.HOME_APP_4,
-                            AppSelectionType.HOME_APP_5,
-                            AppSelectionType.HOME_APP_6,
-                            AppSelectionType.HOME_APP_7,
-                            AppSelectionType.HOME_APP_8 -> "Select Home App"
-                            AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
-                            AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
-                            null -> ""
-                        }
-                    )
-                }
-                Navigation.SETTINGS -> {
-                    SettingsScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.HOME)
-                        },
-                        onNavigateToHiddenApps = {
-                            onScreenChange(Navigation.HIDDEN_APPS)
-                        }
-                    )
-                }
-                Navigation.HIDDEN_APPS -> {
-                    HiddenAppsScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = {
+                        )
+                    }
+                    Navigation.APP_DRAWER -> {
+                        AppDrawerScreen(
+                            viewModel = viewModel,
+                            onAppClick = { app ->
+                                // Check if we're in app selection mode
+                                if (currentSelectionType != null) {
+                                    when (currentSelectionType) {
+                                        AppSelectionType.CLOCK_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CLOCK_APP)
+                                        AppSelectionType.CALENDAR_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CALENDAR_APP)
+                                        AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
+                                        AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
+                                        AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
+                                        AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
+                                        AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
+                                        AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
+                                        AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
+                                        AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
+                                        AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
+                                        AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                        else -> {}
+                                    }
+                                    currentSelectionType = null
+                                    onScreenChange(Navigation.HOME)
+                                } else {
+                                    viewModel.launchApp(app)
+                                    onScreenChange(Navigation.HOME)
+                                }
+                            },
+                            onSwipeDown = { onScreenChange(Navigation.HOME) },
+                            selectionMode = currentSelectionType != null,
+                            selectionTitle = when (currentSelectionType) {
+                                AppSelectionType.CLOCK_APP -> "Select Clock App"
+                                AppSelectionType.CALENDAR_APP -> "Select Calendar App"
+                                AppSelectionType.HOME_APP_1,
+                                AppSelectionType.HOME_APP_2,
+                                AppSelectionType.HOME_APP_3,
+                                AppSelectionType.HOME_APP_4,
+                                AppSelectionType.HOME_APP_5,
+                                AppSelectionType.HOME_APP_6,
+                                AppSelectionType.HOME_APP_7,
+                                AppSelectionType.HOME_APP_8 -> "Select Home App"
+                                AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
+                                AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+                                null -> ""
+                            }
+                        )
+                    }
+                    Navigation.SETTINGS -> {
+                        SettingsScreen(
+                            viewModel = viewModel,
+                            onNavigateBack = {
+                                onScreenChange(Navigation.HOME)
+                            },
+                            onNavigateToHiddenApps = {
+                                onScreenChange(Navigation.HIDDEN_APPS)
+                            }
+                        )
+                    }
+                    Navigation.HIDDEN_APPS -> {
+                        HiddenAppsScreen(
+                            viewModel = viewModel,
+                            onNavigateBack = {
+                                onScreenChange(Navigation.SETTINGS)
+                            }
+                        )
+                    }
+                    // Widget-related screens
+                    Navigation.WIDGET_PICKER -> {
+                        ExternalWidgetPickerScreen(
+                            viewModel = viewModel,
+                            onNavigateBack = {
+                                onScreenChange(Navigation.SETTINGS)
+                            },
+                            onWidgetSelected = { providerInfo ->
+                                // Call the MainActivity function to add a widget
+                                (context as? MainActivity)?.addExternalWidget(providerInfo)
+                            }
+                        )
+                    }
+                    Navigation.WIDGET_MANAGER -> {
+                        WidgetManagerScreen(
+                            viewModel = viewModel,
+                            onNavigateBack = {
+                                onScreenChange(Navigation.SETTINGS)
+                            },
+                            onAddWidget = {
+                                onScreenChange(Navigation.WIDGET_PICKER)
+                            }
+                        )
+                    }
+                    Navigation.WIDGET_CONFIG -> {
+                        if (currentWidgetId != -1) {
+                            val widgetHelper = WidgetHelper(context)
+                            val widgetInfo = widgetHelper.getWidgetInfo(currentWidgetId)
+                            if (widgetInfo != null) {
+                                WidgetConfigSizeScreen(
+                                    viewModel = viewModel,
+                                    widgetInfo = widgetInfo,
+                                    widgetId = currentWidgetId,
+                                    onNavigateBack = {
+                                        // If canceled, delete the widget
+                                        widgetHelper.deleteWidget(currentWidgetId)
+                                        onScreenChange(Navigation.SETTINGS)
+                                    },
+                                    onSaveWidget = { widget ->
+                                        viewModel.addExternalWidget(widget)
+                                        // Reset widget ID
+                                        currentWidgetId = -1
+                                        // Navigate to home to see the widget
+                                        onScreenChange(Navigation.HOME)
+                                    }
+                                )
+                            } else {
+                                // Widget info not found, go back
+                                onScreenChange(Navigation.SETTINGS)
+                            }
+                        } else {
+                            // No widget ID, go back
                             onScreenChange(Navigation.SETTINGS)
                         }
-                    )
+                    }
+                    Navigation.WIDGET_EDIT -> {
+                        currentWidget?.let { widget ->
+                            val widgetHelper = WidgetHelper(context)
+                            val widgetInfo = widgetHelper.getWidgetInfo(widget.appWidgetId)
+
+                            if (widgetInfo != null) {
+                                WidgetConfigSizeScreen(
+                                    viewModel = viewModel,
+                                    widgetInfo = widgetInfo,
+                                    widgetId = widget.appWidgetId,
+//                                    existingWidget = widget,
+                                    onNavigateBack = {
+                                        onScreenChange(Navigation.WIDGET_MANAGER)
+                                    },
+                                    onSaveWidget = { updatedWidget ->
+                                        viewModel.updateExternalWidget(updatedWidget)
+                                        // Reset current widget
+                                        currentWidget = null
+                                        // Navigate to home to see the updated widget
+                                        onScreenChange(Navigation.HOME)
+                                    }
+                                )
+                            } else {
+                                // Widget info not found, go back
+                                onScreenChange(Navigation.WIDGET_MANAGER)
+                            }
+                        } ?: onScreenChange(Navigation.WIDGET_MANAGER)
+                    }
                 }
             }
         }

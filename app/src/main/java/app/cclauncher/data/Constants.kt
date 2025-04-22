@@ -109,9 +109,13 @@ object Constants {
 
 object Navigation {
     const val HOME = "home"
-    const val APP_DRAWER = "appDrawer"
+    const val APP_DRAWER = "app_drawer"
     const val SETTINGS = "settings"
-    const val HIDDEN_APPS = "hiddenApps"
+    const val HIDDEN_APPS = "hidden_apps"
+    const val WIDGET_PICKER = "widget_picker"
+    const val WIDGET_MANAGER = "widget_manager"
+    const val WIDGET_CONFIG = "widget_config"
+    const val WIDGET_EDIT = "widget_edit"
 }
 
 
