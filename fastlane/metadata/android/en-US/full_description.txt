@@ -8,14 +8,16 @@
   Would recommend using a grey or black wallpaper (for immersion?, idk just recommending)
 
   FEATURES
+
   * No ads
   * FOSS forever
   * Clean, fast and lightweight
 
+
   HOW TO USE
+
   * Swipe up to see all the apps and quick search
   * Swipe down for notification drawer
   * Long press home apps to change them
   * <b>Important</b>: Long press on empty space to open settings
-  Once you open the settings, you'll see all the available options.
-  So basically, swipe and long press anywhere and you'll be fine.
+
