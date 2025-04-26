@@ -17,6 +17,7 @@ Not planning to keep this as minimal as the original ( Clauncher will be as it i
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/app.cclauncher)
 
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/inc.flide.vi8)
 
 ##
 
