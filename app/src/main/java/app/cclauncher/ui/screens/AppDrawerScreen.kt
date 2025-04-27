@@ -9,6 +9,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
@@ -81,22 +82,22 @@ fun AppDrawerScreen(
         }
     }
 
-//    if (selectionMode) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(MaterialTheme.colorScheme.primaryContainer)
-//                .padding(8.dp),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Text(
-//                text = "Select an app for $selectionTitle",
-//                style = MaterialTheme.typography.bodyMedium,
-//                color = MaterialTheme.colorScheme.onPrimaryContainer
-//            )
-//        }
-//    }
+    val scrollState = rememberLazyListState()
+    var lastScrollIndex by remember { mutableIntStateOf(0) }
+    var keyboardVisible by remember { mutableStateOf(autoShowKeyboard) }
 
+    LaunchedEffect(remember { derivedStateOf { scrollState.firstVisibleItemIndex } }) {
+        if (scrollState.firstVisibleItemIndex > lastScrollIndex) {
+            // Scrolling down
+            keyboardController?.hide()
+            keyboardVisible = false
+        } else if (scrollState.firstVisibleItemIndex < lastScrollIndex && scrollState.firstVisibleItemIndex == 0) {
+            // Scrolling up to the top
+            keyboardController?.show()
+            keyboardVisible = true
+        }
+        lastScrollIndex = scrollState.firstVisibleItemIndex
+    }
 
 Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
 
@@ -182,7 +183,10 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
             else -> {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-                LazyColumn( modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }

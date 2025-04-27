@@ -41,6 +41,7 @@ data class AppDrawerUiState(
 data class SettingsScreenUiState(
     val homeAppsNum: Int = 0,
     val showAppNames: Boolean = true,
+    val showAppIcons : Boolean = false,
     val autoShowKeyboard: Boolean = true,
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
     val textSizeScale: Float = 1.0f,

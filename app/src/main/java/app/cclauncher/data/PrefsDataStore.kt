@@ -23,10 +23,11 @@ data class LauncherPreferences(
     val lockMode: Boolean = false,
     val homeAppsNum: Int = 0,
     val showAppNames: Boolean = true,
+    val showAppIcons: Boolean = false,
     val autoShowKeyboard: Boolean = true,
     val keyboardMessage: Boolean = false,
     val plainWallpaper: Boolean = false,
-    val homeAlignment: Int = Gravity.START,
+    val homeAlignment: Int = Gravity.CENTER,
     val homeBottomAlignment: Boolean = false,
     val appLabelAlignment: Int = Gravity.START,
     val statusBar: Boolean = false,
@@ -50,7 +51,7 @@ data class LauncherPreferences(
 
     val searchType: Int = Constants.SearchType.CONTAINS,
 
-    val homeApps: List<HomeAppPreference> = List(8) { HomeAppPreference() },
+    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() },
 
     val swipeLeftApp: AppPreference = AppPreference(label = "Camera"),
     val swipeRightApp: AppPreference = AppPreference(label = "Phone"),
@@ -83,6 +84,7 @@ class PrefsDataStore(private val context: Context) {
         val LOCK_MODE = booleanPreferencesKey("LOCK_MODE")
         val HOME_APPS_NUM = intPreferencesKey("HOME_APPS_NUM")
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
+        val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
         val KEYBOARD_MESSAGE = booleanPreferencesKey("KEYBOARD_MESSAGE")
         val PLAIN_WALLPAPER = booleanPreferencesKey("PLAIN_WALLPAPER")
@@ -109,10 +111,10 @@ class PrefsDataStore(private val context: Context) {
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
         val SEARCH_TYPE = intPreferencesKey("SEARCH_TYPE")
 
-        val APP_NAME_KEYS = List(8) { stringPreferencesKey("APP_NAME_${it+1}") }
-        val APP_PACKAGE_KEYS = List(8) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
-        val APP_ACTIVITY_CLASS_NAME_KEYS = List(8) { stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_${it+1}") }
-        val APP_USER_KEYS = List(8) { stringPreferencesKey("APP_USER_${it+1}") }
+        val APP_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_NAME_${it+1}") }
+        val APP_PACKAGE_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
+        val APP_ACTIVITY_CLASS_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_${it+1}") }
+        val APP_USER_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_USER_${it+1}") }
 
         val APP_NAME_SWIPE_LEFT = stringPreferencesKey("APP_NAME_SWIPE_LEFT")
         val APP_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_NAME_SWIPE_RIGHT")
@@ -141,10 +143,11 @@ class PrefsDataStore(private val context: Context) {
             lockMode = prefs[LOCK_MODE] == true,
             homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
             showAppNames = prefs[SHOW_APP_NAMES] != false,
+            showAppIcons = prefs[SHOW_APP_ICONS] == true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] != false,
             keyboardMessage = prefs[KEYBOARD_MESSAGE] == true,
             plainWallpaper = prefs[PLAIN_WALLPAPER] == true,
-            homeAlignment = prefs[HOME_ALIGNMENT] ?: Gravity.START,
+            homeAlignment = prefs[HOME_ALIGNMENT] ?: Gravity.CENTER,
             homeBottomAlignment = prefs[HOME_BOTTOM_ALIGNMENT] == true,
             appLabelAlignment = prefs[APP_LABEL_ALIGNMENT] ?: Gravity.START,
             statusBar = prefs[STATUS_BAR] == true,
@@ -167,7 +170,7 @@ class PrefsDataStore(private val context: Context) {
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] == true,
             searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.CONTAINS,
 
-            homeApps = List(8) { i ->
+            homeApps = List(Constants.HomeAppCount.NUM) { i ->
                 HomeAppPreference(
                     label = prefs[APP_NAME_KEYS[i]] ?: "",
                     packageName = prefs[APP_PACKAGE_KEYS[i]] ?: "",
@@ -382,6 +385,11 @@ class PrefsDataStore(private val context: Context) {
     suspend fun setShowAppNames(value: Boolean) {
         updatePreference { it.copy(showAppNames = value) }
     }
+
+    suspend fun setShowAppIcons(value: Boolean) {
+        updatePreference { it.copy(showAppIcons = value) }
+    }
+
 
     suspend fun setAutoShowKeyboard(value: Boolean) {
         updatePreference { it.copy(autoShowKeyboard = value) }

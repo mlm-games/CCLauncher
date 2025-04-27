@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
+import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.dialogs.AlignmentPickerDialog
@@ -62,7 +63,7 @@ fun SettingsScreen(
     NumberPickerDialog(
         show = showNumberPicker,
         currentValue = uiState.homeAppsNum,
-        range = 0..8,
+        range = 0..Constants.HomeAppCount.NUM,
         onDismiss = { showNumberPicker = false },
         onValueSelected = { newValue ->
             coroutineScope.launch {
@@ -202,6 +203,16 @@ fun SettingsScreen(
                         }
                     )
 
+                    SettingsToggle(
+                        title = "Show App Icons",
+                        isChecked = uiState.showAppIcons,
+                        onCheckedChange = { newValue ->
+                            coroutineScope.launch {
+                                viewModel.prefsDataStore.setShowAppIcons(newValue)
+                                viewModel.updateSettingsState()
+                            }
+                        }
+                    )
 
                     SettingsToggle(
                         title = "Auto Show Keyboard",
@@ -334,6 +345,44 @@ fun SettingsScreen(
                             }
                         }
                     )
+
+//                    if (isTablet(context)) {
+//                        SettingsToggle(
+//                            title = "Multi-column Layout",
+//                            subtitle = "Show shortcuts in multiple columns (better for tablets)",
+//                            isChecked = uiState.useMultiColumnLayout,
+//                            onCheckedChange = { newValue ->
+//                                coroutineScope.launch {
+//                                    viewModel.prefsDataStore.setUseMultiColumnLayout(newValue)
+//                                    viewModel.updateSettingsState()
+//                                    (context as? Activity)?.recreate()
+//                                }
+//                            }
+//                        )
+//
+//                        if (uiState.useMultiColumnLayout) {
+//                            SettingsItem(
+//                                title = "Number of Columns",
+//                                subtitle = "${uiState.columnCount} columns",
+//                                onClick = { showColumnCountPicker = true }
+//                            )
+//                        }
+//                    }
+//
+//// Add a dialog for column count
+//                    NumberPickerDialog(
+//                        show = showColumnCountPicker,
+//                        currentValue = uiState.columnCount,
+//                        range = 2..4,
+//                        onDismiss = { showColumnCountPicker = false },
+//                        onValueSelected = { newValue ->
+//                            coroutineScope.launch {
+//                                viewModel.prefsDataStore.setColumnCount(newValue)
+//                                viewModel.updateSettingsState()
+//                                (context as? Activity)?.recreate()
+//                            }
+//                        }
+//                    )
 
 
 

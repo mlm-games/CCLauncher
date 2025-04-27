@@ -148,6 +148,14 @@ fun HomeScreen(
                         5 -> AppSelectionType.HOME_APP_6
                         6 -> AppSelectionType.HOME_APP_7
                         7 -> AppSelectionType.HOME_APP_8
+                        8 -> AppSelectionType.HOME_APP_9
+                        9 -> AppSelectionType.HOME_APP_10
+                        10 -> AppSelectionType.HOME_APP_11
+                        11 -> AppSelectionType.HOME_APP_12
+                        12 -> AppSelectionType.HOME_APP_13
+                        13 -> AppSelectionType.HOME_APP_14
+                        14 -> AppSelectionType.HOME_APP_15
+                        15 -> AppSelectionType.HOME_APP_16
                         else -> AppSelectionType.HOME_APP_1
                     }
                     viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))

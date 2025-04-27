@@ -70,7 +70,7 @@ suspend fun getAppsList(
 
         try {
             val hiddenApps = prefsDataStore.hiddenApps.first()
-            println("Hidden apps count: ${hiddenApps.size}")
+//            println("Hidden apps count: ${hiddenApps.size}")
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -95,7 +95,7 @@ suspend fun getAppsList(
 
                     val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
                     val isHidden = hiddenApps.contains(appKey)
-                    println("App: $appKey, isHidden: $isHidden")
+//                    println("App: $appKey, isHidden: $isHidden")
 
                     if (isHidden) {
                         if (includeHiddenApps) {

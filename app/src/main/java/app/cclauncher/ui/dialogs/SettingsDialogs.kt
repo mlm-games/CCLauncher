@@ -3,6 +3,7 @@ package app.cclauncher.ui.dialogs
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.*
@@ -40,7 +41,7 @@ fun BaseDialog(
 fun NumberPickerDialog(
     show: Boolean,
     currentValue: Int,
-    range: IntRange = 0..8,
+    range: IntRange = 0..16,
     onDismiss: () -> Unit,
     onValueSelected: (Int) -> Unit
 ) {
@@ -51,12 +52,12 @@ fun NumberPickerDialog(
             onDismissRequest = onDismiss,
             title = { Text("Select Number of Apps") },
             text = {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .selectableGroup()
                         .padding(vertical = 8.dp)
                 ) {
-                    range.forEach { number ->
+                    items(range.last) { number ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -580,58 +581,3 @@ fun TextSizeDialog(
         )
     }
 }
-
-
-//
-//@Composable
-//fun AppSelectionDialog(
-//    show: Boolean,
-//    title: String,
-//    apps: List<AppModel>,
-//    onDismiss: () -> Unit,
-//    onAppSelected: (AppModel) -> Unit
-//) {
-//    if (show) {
-//        AlertDialog(
-//            onDismissRequest = onDismiss,
-//            title = { Text(title) },
-//            text = {
-//                LazyColumn(
-//                    modifier = Modifier.heightIn(max = 300.dp)
-//                ) {
-//                    items(apps) { app ->
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .clickable {
-//                                    onAppSelected(app)
-//                                    onDismiss()
-//                                }
-//                                .padding(vertical = 8.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            app.appIcon?.let { icon ->
-//                                Image(
-//                                    bitmap = icon.asImageBitmap(),
-//                                    contentDescription = null,
-//                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                        .padding(end = 16.dp)
-//                                )
-//                            }
-//                            Text(
-//                                text = app.appLabel,
-//                                style = MaterialTheme.typography.bodyLarge
-//                            )
-//                        }
-//                    }
-//                }
-//            },
-//            confirmButton = {
-//                TextButton(onClick = onDismiss) {
-//                    Text("Cancel")
-//                }
-//            }
-//        )
-//    }
-//}

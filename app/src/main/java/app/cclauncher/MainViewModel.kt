@@ -105,6 +105,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _settingsScreenState.value = SettingsScreenUiState(
             homeAppsNum = prefs.homeAppsNum,
             showAppNames = prefs.showAppNames,
+            showAppIcons = prefs.showAppIcons,
             autoShowKeyboard = prefs.autoShowKeyboard,
             appTheme = prefs.appTheme,
             textSizeScale = prefs.textSizeScale,
@@ -164,6 +165,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _settingsScreenState.value = SettingsScreenUiState(
                     homeAppsNum = prefs.homeAppsNum,
                     showAppNames = prefs.showAppNames,
+                    showAppIcons = prefs.showAppIcons,
                     autoShowKeyboard = prefs.autoShowKeyboard,
                     appTheme = prefs.appTheme,
                     textSizeScale = prefs.textSizeScale,
@@ -258,12 +260,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FLAG_LAUNCH_APP, Constants.FLAG_HIDDEN_APPS -> {
                 launchApp(appModel)
             }
-            Constants.FLAG_SET_HOME_APP_1, Constants.FLAG_SET_HOME_APP_2,
-            Constants.FLAG_SET_HOME_APP_3, Constants.FLAG_SET_HOME_APP_4,
-            Constants.FLAG_SET_HOME_APP_5, Constants.FLAG_SET_HOME_APP_6,
-            Constants.FLAG_SET_HOME_APP_7, Constants.FLAG_SET_HOME_APP_8 -> {
-                setHomeApp(appModel, flag - Constants.FLAG_SET_HOME_APP_1)
-            }
             Constants.FLAG_SET_SWIPE_LEFT_APP -> {
                 setSwipeLeftApp(appModel)
             }
@@ -275,6 +271,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             Constants.FLAG_SET_CALENDAR_APP -> {
                 setCalendarApp(appModel)
+            }
+            Constants.FLAG_SET_HOME_APP_1, Constants.FLAG_SET_HOME_APP_2,
+            Constants.FLAG_SET_HOME_APP_3, Constants.FLAG_SET_HOME_APP_4,
+            Constants.FLAG_SET_HOME_APP_5, Constants.FLAG_SET_HOME_APP_6,
+            Constants.FLAG_SET_HOME_APP_7, Constants.FLAG_SET_HOME_APP_8,
+            Constants.FLAG_SET_HOME_APP_9, Constants.FLAG_SET_HOME_APP_10,
+            Constants.FLAG_SET_HOME_APP_11, Constants.FLAG_SET_HOME_APP_12,
+            Constants.FLAG_SET_HOME_APP_13, Constants.FLAG_SET_HOME_APP_14,
+            Constants.FLAG_SET_HOME_APP_15, Constants.FLAG_SET_HOME_APP_16 -> {
+                setHomeApp(appModel, flag - Constants.FLAG_SET_HOME_APP_1)
             }
         }
     }
@@ -399,7 +405,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Get home app model at specified position
      */
     fun getHomeAppModel(position: Int): AppModel? {
-        if (position < 1 || position > 8) return null
+        if (position < 1 || position > Constants.HomeAppCount.NUM) return null
 
         val homeApps = _homeScreenState.value.homeApps
         if (homeApps.size < position) return null
