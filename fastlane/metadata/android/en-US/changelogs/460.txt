@@ -1,0 +1,1 @@
+Added icons setting, made search bar more minimal, hide searchbar on scrolling down and vice versa, fix enter not opening the first app in list, scrolling down on search bar goes back to home screen, and other smaller changes, fix and add a maximum of 16 instead of 8 entries in home screen
