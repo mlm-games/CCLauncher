@@ -86,17 +86,19 @@ fun AppDrawerScreen(
     var lastScrollIndex by remember { mutableIntStateOf(0) }
     var keyboardVisible by remember { mutableStateOf(autoShowKeyboard) }
 
-    LaunchedEffect(remember { derivedStateOf { scrollState.firstVisibleItemIndex } }) {
-        if (scrollState.firstVisibleItemIndex > lastScrollIndex) {
-            // Scrolling down
-            keyboardController?.hide()
-            keyboardVisible = false
-        } else if (scrollState.firstVisibleItemIndex < lastScrollIndex && scrollState.firstVisibleItemIndex == 0) {
-            // Scrolling up to the top
-            keyboardController?.show()
-            keyboardVisible = true
-        }
-        lastScrollIndex = scrollState.firstVisibleItemIndex
+    LaunchedEffect(scrollState) {
+        snapshotFlow { scrollState.firstVisibleItemIndex }
+            .collect { currentIndex ->
+                if (currentIndex > lastScrollIndex) {
+                    // Scrolling down
+                    keyboardController?.hide()
+                    keyboardVisible = false
+                } else if (currentIndex < lastScrollIndex) {
+                    keyboardController?.show()
+                    keyboardVisible = true
+                }
+                lastScrollIndex = currentIndex
+            }
     }
 
 Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
