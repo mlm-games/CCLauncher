@@ -85,20 +85,29 @@ fun AppDrawerScreen(
     val scrollState = rememberLazyListState()
     var lastScrollIndex by remember { mutableIntStateOf(0) }
     var keyboardVisible by remember { mutableStateOf(autoShowKeyboard) }
+    var lastScrollOffset by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(scrollState) {
-        snapshotFlow { scrollState.firstVisibleItemIndex }
-            .collect { currentIndex ->
-                if (currentIndex > lastScrollIndex) {
-                    // Scrolling down
-                    keyboardController?.hide()
-                    keyboardVisible = false
-                } else if (currentIndex < lastScrollIndex) {
-                    keyboardController?.show()
-                    keyboardVisible = true
-                }
-                lastScrollIndex = currentIndex
+        snapshotFlow {
+            Pair(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset)
+        }.collect { (currentIndex, scrollOffset) ->
+            if (currentIndex > lastScrollIndex) {
+                // Scrolling down
+                keyboardController?.hide()
+                keyboardVisible = false
+            } else if (currentIndex < lastScrollIndex) {
+                // Scrolling up
+                keyboardController?.show()
+                keyboardVisible = true
+            } else if (currentIndex == 0 && scrollOffset < -50 && lastScrollOffset >= -50) {
+                // trying to scroll down further (overscroll)
+                // Go back to home screen (for some reason, only works with search bar)
+                onSwipeDown()
             }
+
+            lastScrollIndex = currentIndex
+            lastScrollOffset = scrollOffset
+        }
     }
 
 Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
