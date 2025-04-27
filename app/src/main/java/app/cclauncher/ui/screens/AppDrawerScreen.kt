@@ -122,9 +122,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
         )
     }
 
-            // Search field
-        val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-
+        // Search field
         AppDrawerSearch(
             searchQuery = searchQuery,
             onSearchChanged = { query -> searchQuery = query },

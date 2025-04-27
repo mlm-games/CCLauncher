@@ -21,7 +21,6 @@ import android.os.UserHandle
 import android.os.UserManager
 import android.provider.AlarmClock
 import android.provider.CalendarContract
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -33,11 +32,14 @@ import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import app.cclauncher.R
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.PrefsDataStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -45,10 +47,6 @@ import java.net.URL
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
-import androidx.core.net.toUri
-import androidx.core.graphics.createBitmap
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     if (message.isNullOrBlank()) return
@@ -304,24 +302,6 @@ fun expandNotificationDrawer(context: Context) {
         val statusBarManager = Class.forName("android.app.StatusBarManager")
         val method = statusBarManager.getMethod("expandNotificationsPanel")
         method.invoke(statusBarService)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-fun openDialerApp(context: Context) {
-    try {
-        val sendIntent = Intent(Intent.ACTION_DIAL)
-        context.startActivity(sendIntent)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-fun openCameraApp(context: Context) {
-    try {
-        val sendIntent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
-        context.startActivity(sendIntent)
     } catch (e: Exception) {
         e.printStackTrace()
     }
