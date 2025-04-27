@@ -100,10 +100,12 @@ fun AppDrawerScreen(
 
 Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
 
+    if (selectionMode) {
         TopAppBar(
-            title = { Text(if (selectionMode) selectionTitle else "Apps") },
+            title = { Text(selectionTitle) },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
         )
+    }
 
             // Search field
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
@@ -286,7 +288,6 @@ private fun AppListItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
