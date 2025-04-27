@@ -243,6 +243,8 @@ class PrefsDataStore(private val context: Context) {
                 prefs[HIDDEN_APPS] = updatedPrefs.hiddenApps
             if (currentPrefs.showAppNames != updatedPrefs.showAppNames)
                 prefs[SHOW_APP_NAMES] = updatedPrefs.showAppNames
+            if (currentPrefs.showAppIcons != updatedPrefs.showAppIcons)
+                prefs[SHOW_APP_ICONS] = updatedPrefs.showAppIcons
             if (currentPrefs.autoShowKeyboard != updatedPrefs.autoShowKeyboard)
                 prefs[AUTO_SHOW_KEYBOARD] = updatedPrefs.autoShowKeyboard
             if (currentPrefs.useSystemFont != updatedPrefs.useSystemFont)

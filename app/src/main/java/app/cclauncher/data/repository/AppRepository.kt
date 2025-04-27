@@ -35,7 +35,7 @@ class AppRepository(
     suspend fun loadAllApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = true)
+                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = true, includeAppIcons = true)
                 _appListAll.value = apps
             } catch (e: Exception) {
                 throw e
@@ -49,7 +49,7 @@ class AppRepository(
     suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = false)
+                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = false, includeAppIcons = true)
                 _appList.value = apps
             } catch (e: Exception) {
                 throw e

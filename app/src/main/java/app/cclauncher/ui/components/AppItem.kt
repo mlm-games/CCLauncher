@@ -30,7 +30,6 @@ fun AppItem(
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // I think this is not needed rn
         app.appIcon?.let { icon ->
             Image(
                 bitmap = icon,

@@ -62,6 +62,7 @@ fun AppDrawerScreen(
     val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
     val autoShowKeyboard = preferences?.autoShowKeyboard != false
     val showAppNames = preferences?.showAppNames != false
+    val showAppIcon = preferences?.showAppIcons != false
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
@@ -208,7 +209,8 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                     ) { app ->
                         AppListItem(
                             app = app,
-                            showAppIcon = showAppNames,
+                            showAppIcon = showAppIcon,
+                            showAppNames = showAppNames,
                             onClick = {
                                 if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
                                     onAppClick(appsToShow[0])
@@ -305,6 +307,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
 @Composable
 private fun AppListItem(
     app: AppModel,
+    showAppNames: Boolean,
     showAppIcon: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
@@ -329,7 +332,18 @@ private fun AppListItem(
             )
         }
 
-        val textLabelShown =  if (showAppIcon) app.appLabel else ""
+        val textLabelShown =  if (showAppNames) app.appLabel else ""
+
+//        if (showAppNames && app.appIcon != null) {
+//            androidx.compose.foundation.Image(
+//                bitmap = app.appIcon,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .padding(end = 16.dp)
+//            )
+//        }
+
 
         Text(
             text = textLabelShown,
