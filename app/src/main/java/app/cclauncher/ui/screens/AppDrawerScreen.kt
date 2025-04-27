@@ -114,7 +114,9 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                 searchQuery = searchQuery,
                 onSearchChanged = { query -> searchQuery = query },
                 modifier = Modifier.focusRequester(focusRequester)
-                    .clickable {onAppClick(appsToShow[0])} // If user presses enter, it opens the first app in list
+                    .clickable {
+                        if (appsToShow.isNotEmpty()) { onAppClick(appsToShow[0]) }
+                    } // If user presses enter, it opens the first app in list
             )
 
         when {
@@ -372,7 +374,9 @@ fun AppDrawerSearch(
         singleLine = true,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
+            focusedContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
         )
     )
 }
