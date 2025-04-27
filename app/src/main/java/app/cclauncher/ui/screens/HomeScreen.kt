@@ -134,7 +134,7 @@ fun HomeScreen(
 
             HomeApps(
                 homeAppsNum = uiState.homeAppsNum,
-                homeApps = uiState.homeApps.filterNotNull(),
+                homeApps = uiState.homeApps,
                 alignment = uiState.homeAlignment,
                 onAppClick = { app -> viewModel.launchApp(app) },
                 onAppLongPress = { position ->
@@ -218,7 +218,7 @@ private fun DateTimeSection(
 @Composable
 private fun HomeApps(
     homeAppsNum: Int,
-    homeApps: List<AppModel>,
+    homeApps: List<AppModel?>,
     alignment: Int,
     onAppClick: (AppModel) -> Unit,
     onAppLongPress: (Int) -> Unit
@@ -232,10 +232,15 @@ private fun HomeApps(
             else -> Alignment.CenterHorizontally
         }
     ) {
+        var nonNullAppIndex = 0
+        val nonNullHomeApps = homeApps.filterNotNull()
+
         // Generate app items based on homeAppsNum
         for (i in 0 until homeAppsNum) {
-            if (i < homeApps.size) {
-                val app = homeApps[i]
+            if (!homeApps[i]?.appPackage.isNullOrEmpty()) {
+                val app = nonNullHomeApps[nonNullAppIndex]
+                nonNullAppIndex++
+
                 val isInstalled = remember(app.appPackage, app.user) {
                     isPackageInstalled(
                         context,
@@ -282,3 +287,4 @@ private fun HomeApps(
         }
     }
 }
+//}

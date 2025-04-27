@@ -272,21 +272,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FLAG_SET_CALENDAR_APP -> {
                 setCalendarApp(appModel)
             }
-            Constants.FLAG_SET_HOME_APP_1, Constants.FLAG_SET_HOME_APP_2,
-            Constants.FLAG_SET_HOME_APP_3, Constants.FLAG_SET_HOME_APP_4,
-            Constants.FLAG_SET_HOME_APP_5, Constants.FLAG_SET_HOME_APP_6,
-            Constants.FLAG_SET_HOME_APP_7, Constants.FLAG_SET_HOME_APP_8,
-            Constants.FLAG_SET_HOME_APP_9, Constants.FLAG_SET_HOME_APP_10,
-            Constants.FLAG_SET_HOME_APP_11, Constants.FLAG_SET_HOME_APP_12,
-            Constants.FLAG_SET_HOME_APP_13, Constants.FLAG_SET_HOME_APP_14,
-            Constants.FLAG_SET_HOME_APP_15, Constants.FLAG_SET_HOME_APP_16 -> {
-                setHomeApp(appModel, flag - Constants.FLAG_SET_HOME_APP_1)
+            in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
+                val position = flag - Constants.FLAG_SET_HOME_APP_1
+                println("Setting home app at position $position from flag $flag")
+                setHomeApp(appModel, position)
             }
         }
     }
 
     private fun setHomeApp(app: AppModel, position: Int) {
         viewModelScope.launch {
+//            println("Setting home app at position: $position for app: ${app.appLabel}")
+
             prefsDataStore.setHomeApp(position, HomeAppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,

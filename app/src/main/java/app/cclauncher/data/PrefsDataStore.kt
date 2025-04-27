@@ -359,11 +359,16 @@ class PrefsDataStore(private val context: Context) {
     }
 
     suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
+//            println("Setting home app at position: $position for app: ${app.packageName}")
+
         updatePreference {
             val newHomeApps = it.homeApps.toMutableList()
-            if (position in 0 until newHomeApps.size) {
-                newHomeApps[position] = app
+
+            while (newHomeApps.size <= position) {
+                newHomeApps.add(HomeAppPreference())
             }
+            newHomeApps[position] = app
+
             it.copy(homeApps = newHomeApps)
         }
     }

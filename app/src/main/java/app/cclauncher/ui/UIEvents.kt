@@ -45,8 +45,6 @@ class EventsManager {
 }
 
 enum class AppSelectionType {
-    CLOCK_APP,
-    CALENDAR_APP,
     HOME_APP_1,
     HOME_APP_2,
     HOME_APP_3,
@@ -64,5 +62,7 @@ enum class AppSelectionType {
     HOME_APP_15,
     HOME_APP_16,
     SWIPE_LEFT_APP,
-    SWIPE_RIGHT_APP
+    SWIPE_RIGHT_APP,
+    CLOCK_APP,
+    CALENDAR_APP,
 }
