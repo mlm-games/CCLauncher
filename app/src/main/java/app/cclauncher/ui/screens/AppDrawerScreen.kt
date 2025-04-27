@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
@@ -24,6 +26,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -123,12 +126,15 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
         AppDrawerSearch(
-                searchQuery = searchQuery,
-                onSearchChanged = { query -> searchQuery = query },
-                modifier = Modifier.focusRequester(focusRequester)
-                    .clickable {
-                        if (appsToShow.isNotEmpty()) { onAppClick(appsToShow[0]) }
-                    } // If user presses enter, it opens the first app in list
+            searchQuery = searchQuery,
+            onSearchChanged = { query -> searchQuery = query },
+            modifier = Modifier.focusRequester(focusRequester),
+            onEnterPressed = {
+                val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+                if (appsToShow.isNotEmpty()) {
+                    onAppClick(appsToShow[0])
+                }
+            }
             )
 
         when {
@@ -215,7 +221,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                             onLongClick = {
                                 selectedApp = app
                                 showContextMenu = true
-                            }
+                            },
                         )
                     }
                 }
@@ -368,7 +374,8 @@ private fun ContextMenuItem(
 fun AppDrawerSearch(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEnterPressed: () -> Unit = {},
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
@@ -387,6 +394,15 @@ fun AppDrawerSearch(
             },
         placeholder = { Text("Search apps...") },
         singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                keyboardController?.hide()
+                onEnterPressed()
+            }
+        ),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
