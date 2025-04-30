@@ -129,7 +129,13 @@ Column(modifier = Modifier
         // Search field
         AppDrawerSearch(
             searchQuery = searchQuery,
-            onSearchChanged = { query -> searchQuery = query },
+            onSearchChanged = { query -> searchQuery = query
+                if (query.isEmpty()) {
+                    coroutineScope.launch {
+                        delay(10) // Updation delay
+                        scrollState.scrollToItem(0)
+                    }
+                } },
             modifier = Modifier.focusRequester(focusRequester),
             onEnterPressed = {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
