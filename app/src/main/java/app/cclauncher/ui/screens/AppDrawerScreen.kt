@@ -114,7 +114,10 @@ fun AppDrawerScreen(
         }
     }
 
-Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
+Column(modifier = Modifier
+    .fillMaxSize()
+    .detectSwipeGestures(onSwipeDown = onSwipeDown)
+    .statusBarsPadding()) {
 
     if (selectionMode) {
         TopAppBar(
