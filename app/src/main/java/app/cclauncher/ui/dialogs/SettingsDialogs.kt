@@ -102,6 +102,70 @@ fun NumberPickerDialog(
 }
 
 @Composable
+fun ColumnsPickerDialog(
+    show: Boolean,
+    currentValue: Int,
+    range: IntRange = 1..16,
+    onDismiss: () -> Unit,
+    onValueSelected: (Int) -> Unit
+) {
+    if (show) {
+        var selectedValue by remember { mutableIntStateOf(currentValue) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Select Number of Columns") },
+            text = {
+                LazyColumn(
+                    modifier = Modifier
+                        .selectableGroup()
+                        .padding(vertical = 8.dp)
+                ) {
+                    items(range.last) { number ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = number == selectedValue,
+                                    onClick = { selectedValue = number },
+                                    role = Role.RadioButton
+                                )
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = number == selectedValue,
+                                onClick = null
+                            )
+                            Text(
+                                text = number.toString(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onValueSelected(selectedValue)
+                        onDismiss()
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
 fun ThemePickerDialog(
     show: Boolean,
     currentTheme: Int,

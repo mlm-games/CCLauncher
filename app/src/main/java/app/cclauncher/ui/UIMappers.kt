@@ -102,6 +102,7 @@ fun AppModel.toHomeAppPreference(): HomeAppPreference {
  */
 fun mapToHomeScreenState(
     apps: List<AppModel>,
+    homeScreenColumns: Int,
     homeAppsNum: Int,
     dateTimeVisibility: Int,
     homeAlignment: Int,
@@ -110,6 +111,7 @@ fun mapToHomeScreenState(
 ): HomeScreenUiState {
     return HomeScreenUiState(
         homeAppsNum = homeAppsNum,
+        homeScreenColumns = homeScreenColumns,
         dateTimeVisibility = dateTimeVisibility,
         homeAlignment = homeAlignment,
         homeBottomAlignment = homeBottomAlignment,

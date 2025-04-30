@@ -163,7 +163,7 @@ fun HomeScreen(
                     }
                     viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
                 },
-                columns = if (!isTablet(context)) {1} else uiState.columns
+                columns = uiState.homeScreenColumns
 
             )
         }

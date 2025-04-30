@@ -12,7 +12,7 @@ import app.cclauncher.data.Constants
  */
 data class HomeScreenUiState(
     val homeAppsNum: Int = 0,
-    val columns: Int = 3,
+    val homeScreenColumns: Int = 1,
     val dateTimeVisibility: Int = Constants.DateTime.ON,
     val homeAlignment: Int = Gravity.CENTER,
     val homeBottomAlignment: Boolean = false,
@@ -41,6 +41,7 @@ data class AppDrawerUiState(
  */
 data class SettingsScreenUiState(
     val homeAppsNum: Int = 0,
+    val homeScreenColumns: Int = 1,
     val showAppNames: Boolean = true,
     val showAppIcons : Boolean = false,
     val autoShowKeyboard: Boolean = true,

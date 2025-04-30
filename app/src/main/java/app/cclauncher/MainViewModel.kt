@@ -92,6 +92,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateHomeScreenState(prefs: LauncherPreferences) {
         _homeScreenState.value = HomeScreenUiState(
             homeAppsNum = prefs.homeAppsNum,
+            homeScreenColumns = prefs.homeScreenColumns,
             dateTimeVisibility = prefs.dateTimeVisibility,
             homeAlignment = prefs.homeAlignment,
             homeBottomAlignment = prefs.homeBottomAlignment,
@@ -104,6 +105,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateSettingsScreenState(prefs: LauncherPreferences) {
         _settingsScreenState.value = SettingsScreenUiState(
             homeAppsNum = prefs.homeAppsNum,
+            homeScreenColumns = prefs.homeScreenColumns,
             showAppNames = prefs.showAppNames,
             showAppIcons = prefs.showAppIcons,
             autoShowKeyboard = prefs.autoShowKeyboard,
@@ -164,6 +166,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val prefs = prefsDataStore.preferences.first()
                 _settingsScreenState.value = SettingsScreenUiState(
                     homeAppsNum = prefs.homeAppsNum,
+                    homeScreenColumns = prefs.homeScreenColumns,
                     showAppNames = prefs.showAppNames,
                     showAppIcons = prefs.showAppIcons,
                     autoShowKeyboard = prefs.autoShowKeyboard,
@@ -386,6 +389,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 val currentCount = _homeScreenState.value.homeAppsNum
                 prefsDataStore.setHomeAppsNum(currentCount)
+
+                val homeScreenColumnCount = _homeScreenState.value.homeScreenColumns
+                prefsDataStore.setHomeScreenColumns(homeScreenColumnCount)
             }
         }
     }

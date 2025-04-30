@@ -22,6 +22,7 @@ data class LauncherPreferences(
     val userState: String = Constants.UserState.START,
     val lockMode: Boolean = false,
     val homeAppsNum: Int = 0,
+    val homeScreenColumns: Int = 1,
     val showAppNames: Boolean = true,
     val showAppIcons: Boolean = false,
     val autoShowKeyboard: Boolean = true,
@@ -83,6 +84,7 @@ class PrefsDataStore(private val context: Context) {
         val USER_STATE = stringPreferencesKey("USER_STATE")
         val LOCK_MODE = booleanPreferencesKey("LOCK_MODE")
         val HOME_APPS_NUM = intPreferencesKey("HOME_APPS_NUM")
+        val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
@@ -142,6 +144,7 @@ class PrefsDataStore(private val context: Context) {
             userState = prefs[USER_STATE] ?: Constants.UserState.START,
             lockMode = prefs[LOCK_MODE] == true,
             homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
+            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 1,
             showAppNames = prefs[SHOW_APP_NAMES] != false,
             showAppIcons = prefs[SHOW_APP_ICONS] == true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] != false,
@@ -209,6 +212,7 @@ class PrefsDataStore(private val context: Context) {
 
     val firstOpen: Flow<Boolean> = preferences.map { it.firstOpen }
     val homeAppsNum: Flow<Int> = preferences.map { it.homeAppsNum }
+    val homeScreenColumns: Flow<Int> = preferences.map { it.homeScreenColumns }
     val dateTimeVisibility: Flow<Int> = preferences.map { it.dateTimeVisibility }
     val homeAlignment: Flow<Int> = preferences.map { it.homeAlignment }
     val hiddenApps: Flow<Set<String>> = preferences.map { it.hiddenApps }
@@ -231,6 +235,8 @@ class PrefsDataStore(private val context: Context) {
                 prefs[FIRST_OPEN_TIME] = updatedPrefs.firstOpenTime
             if (currentPrefs.homeAppsNum != updatedPrefs.homeAppsNum)
                 prefs[HOME_APPS_NUM] = updatedPrefs.homeAppsNum
+            if (currentPrefs.homeScreenColumns != updatedPrefs.homeScreenColumns)
+                prefs[HOME_SCREEN_COLUMNS] = updatedPrefs.homeScreenColumns
             if (currentPrefs.dateTimeVisibility != updatedPrefs.dateTimeVisibility)
                 prefs[DATE_TIME_VISIBILITY] = updatedPrefs.dateTimeVisibility
             if (currentPrefs.homeAlignment != updatedPrefs.homeAlignment)
@@ -371,6 +377,11 @@ class PrefsDataStore(private val context: Context) {
 
             it.copy(homeApps = newHomeApps)
         }
+    }
+
+    suspend fun setHomeScreenColumns(value: Int) {
+
+        updatePreference { it.copy(homeScreenColumns = value) }
     }
 
     suspend fun setSwipeLeftApp(app: AppPreference) {
