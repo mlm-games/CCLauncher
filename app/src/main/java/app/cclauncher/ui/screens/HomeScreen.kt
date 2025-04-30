@@ -4,6 +4,8 @@ import android.view.Gravity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +21,7 @@ import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
+import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.openAlarmApp
 import app.cclauncher.helper.openCalendar
 import app.cclauncher.ui.util.detectSwipeGestures
@@ -159,7 +162,8 @@ fun HomeScreen(
                         else -> AppSelectionType.HOME_APP_1
                     }
                     viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
-                }
+                },
+                columns = if (!isTablet(context)) {1} else uiState.columns
 
             )
         }
@@ -221,26 +225,19 @@ private fun HomeApps(
     homeApps: List<AppModel?>,
     alignment: Int,
     onAppClick: (AppModel) -> Unit,
-    onAppLongPress: (Int) -> Unit
+    onAppLongPress: (Int) -> Unit,
+    columns: Int
 ) {
     val context = LocalContext.current
-
-    Column(
-        horizontalAlignment = when (alignment) {
-            Gravity.START -> Alignment.Start
-            Gravity.END -> Alignment.End
-            else -> Alignment.CenterHorizontally
-        }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columns), // Use the column count
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(16.dp)
     ) {
-        var nonNullAppIndex = 0
-        val nonNullHomeApps = homeApps.filterNotNull()
-
-        // Generate app items based on homeAppsNum
-        for (i in 0 until homeAppsNum) {
-            if (!homeApps[i]?.appPackage.isNullOrEmpty()) {
-                val app = nonNullHomeApps[nonNullAppIndex]
-                nonNullAppIndex++
-
+        items(homeAppsNum) { i ->
+            val app = homeApps.getOrNull(i)
+            if (app != null) {
                 val isInstalled = remember(app.appPackage, app.user) {
                     isPackageInstalled(
                         context,
@@ -287,4 +284,3 @@ private fun HomeApps(
         }
     }
 }
-//}
