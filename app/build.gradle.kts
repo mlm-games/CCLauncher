@@ -25,7 +25,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 470
-        versionName = "v7.0.3"
+        versionName = "v7.1.0"
 
         resourceConfigurations += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
