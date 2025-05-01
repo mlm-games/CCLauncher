@@ -3,6 +3,7 @@ package app.cclauncher.ui.screens
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,10 +21,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
-import app.cclauncher.helper.isTablet
+import app.cclauncher.helper.openAppInfo
 import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.dialogs.AlignmentPickerDialog
@@ -485,7 +487,8 @@ fun SettingsScreen(
                             coroutineScope.launch {
                                 viewModel.prefsDataStore.setDoubleTapToLock(it)
                                 viewModel.updateSettingsState()
-                                if (uiState.doubleTapToLock) Toast.makeText(context, "Enable accessibility permission for the functionality.", Toast.LENGTH_SHORT).show()
+                                // Should show while enabling
+                                if (!uiState.doubleTapToLock) Toast.makeText(context, "Enable accessibility permission for the functionality.", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -500,7 +503,18 @@ fun SettingsScreen(
                         subtitle = if (isClauncherDefault(context)) "CCLauncher is default" else "CCLauncher is not default",
                         onClick = {
                             coroutineScope.launch {
-                                viewModel.emitEvent(UiEvent.ResetLauncher)
+                                //viewModel.emitEvent(UiEvent.ResetLauncher)
+
+//                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                        val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                                        context.startActivity(intent)
+//                                    } else {
+                                        // For older devices, use the package manager to show the launcher chooser
+//                                        val selectorIntent = Intent(Intent.ACTION_MAIN)
+//                                        selectorIntent.addCategory(Intent.CATEGORY_HOME)
+//                                        selectorIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                                        context.startActivity(selectorIntent)
+//                                    }
                             }
                         }
                     )
