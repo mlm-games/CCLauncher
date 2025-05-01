@@ -34,6 +34,7 @@ import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
+import app.cclauncher.helper.openUrl
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.util.detectSwipeGestures
 import kotlinx.coroutines.delay
@@ -188,12 +189,9 @@ Column(modifier = Modifier
                         Button(
                             onClick = {
                                 if (searchQuery.startsWith("!")) {
-                                    val searchUrl = Constants.URL_DUCK_SEARCH +
-                                            searchQuery.substring(1).replace(" ", "%20")
-                                    val intent = Intent(Intent.ACTION_VIEW, searchUrl.toUri())
-                                    context.startActivity(intent)
+                                    context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
                                 } else {
-                                    openSearch(context)
+                                    context.openSearch(searchQuery.trim())
                                 }
                             },
                             modifier = Modifier.padding(top = 16.dp)

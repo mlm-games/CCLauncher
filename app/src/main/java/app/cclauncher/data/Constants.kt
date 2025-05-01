@@ -108,7 +108,7 @@ object Constants {
     const val URL_CCLAUNCHER_PRIVACY = "https://github.com/mlm-games/CCLauncher"
     const val URL_DOUBLE_TAP = ""
     const val URL_CCLAUNCHER_GITHUB = "https://github.com/mlm-games/CCLauncher"
-    const val URL_DUCK_SEARCH = ""
+    const val URL_DUCK_SEARCH = "https://duckduckgo.com?q="
     const val WALLPAPER_WORKER_NAME = "WALLPAPER_WORKER_NAME"
 
     // Need to add the comments below as tooltips when long-tap ig?
