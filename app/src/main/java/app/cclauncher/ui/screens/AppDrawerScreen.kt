@@ -9,6 +9,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
@@ -23,6 +26,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -58,6 +62,7 @@ fun AppDrawerScreen(
     val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
     val autoShowKeyboard = preferences?.autoShowKeyboard != false
     val showAppNames = preferences?.showAppNames != false
+    val showAppIcon = preferences?.showAppIcons != false
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
@@ -81,38 +86,63 @@ fun AppDrawerScreen(
         }
     }
 
-//    if (selectionMode) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(MaterialTheme.colorScheme.primaryContainer)
-//                .padding(8.dp),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Text(
-//                text = "Select an app for $selectionTitle",
-//                style = MaterialTheme.typography.bodyMedium,
-//                color = MaterialTheme.colorScheme.onPrimaryContainer
-//            )
-//        }
-//    }
+    val scrollState = rememberLazyListState()
+    var lastScrollIndex by remember { mutableIntStateOf(0) }
+    var keyboardVisible by remember { mutableStateOf(autoShowKeyboard) }
+    var lastScrollOffset by remember { mutableIntStateOf(0) }
 
+    LaunchedEffect(scrollState) {
+        snapshotFlow {
+            Pair(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset)
+        }.collect { (currentIndex, scrollOffset) ->
+            if (currentIndex > lastScrollIndex) {
+                // Scrolling down
+                keyboardController?.hide()
+                keyboardVisible = false
+            } else if (currentIndex < lastScrollIndex) {
+                // Scrolling up
+                keyboardController?.show()
+                keyboardVisible = true
+            } else if (currentIndex == 0 && scrollOffset < -50 && lastScrollOffset >= -50) {
+                // trying to scroll down further (overscroll)
+                // Go back to home screen (for some reason, only works with search bar)
+                onSwipeDown()
+            }
 
-Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwipeDown)) {
+            lastScrollIndex = currentIndex
+            lastScrollOffset = scrollOffset
+        }
+    }
 
+Column(modifier = Modifier
+    .fillMaxSize()
+    .detectSwipeGestures(onSwipeDown = onSwipeDown)
+    .statusBarsPadding()) {
+
+    if (selectionMode) {
         TopAppBar(
-            title = { Text(if (selectionMode) selectionTitle else "Apps") },
+            title = { Text(selectionTitle) },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
         )
+    }
 
-            // Search field
-        val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-
+        // Search field
         AppDrawerSearch(
-                searchQuery = searchQuery,
-                onSearchChanged = { query -> searchQuery = query },
-                modifier = Modifier.focusRequester(focusRequester)
-                    .clickable {onAppClick(appsToShow[0])} // If user presses enter, it opens the first app in list
+            searchQuery = searchQuery,
+            onSearchChanged = { query -> searchQuery = query
+                if (query.isEmpty()) {
+                    coroutineScope.launch {
+                        delay(10) // Updation delay
+                        scrollState.scrollToItem(0)
+                    }
+                } },
+            modifier = Modifier.focusRequester(focusRequester),
+            onEnterPressed = {
+                val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+                if (appsToShow.isNotEmpty()) {
+                    onAppClick(appsToShow[0])
+                }
+            }
             )
 
         when {
@@ -178,14 +208,18 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
             else -> {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-                LazyColumn( modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
                         AppListItem(
                             app = app,
-                            showAppIcon = showAppNames,
+                            showAppIcon = showAppIcon,
+                            showAppNames = showAppNames,
                             onClick = {
                                 if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
                                     onAppClick(appsToShow[0])
@@ -196,7 +230,7 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
                             onLongClick = {
                                 selectedApp = app
                                 showContextMenu = true
-                            }
+                            },
                         )
                     }
                 }
@@ -282,11 +316,11 @@ Column(modifier = Modifier.fillMaxSize().detectSwipeGestures(onSwipeDown = onSwi
 @Composable
 private fun AppListItem(
     app: AppModel,
+    showAppNames: Boolean,
     showAppIcon: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -307,7 +341,18 @@ private fun AppListItem(
             )
         }
 
-        val textLabelShown =  if (showAppIcon) app.appLabel else ""
+        val textLabelShown =  if (showAppNames) app.appLabel else ""
+
+//        if (showAppNames && app.appIcon != null) {
+//            androidx.compose.foundation.Image(
+//                bitmap = app.appIcon,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .padding(end = 16.dp)
+//            )
+//        }
+
 
         Text(
             text = textLabelShown,
@@ -350,7 +395,8 @@ private fun ContextMenuItem(
 fun AppDrawerSearch(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEnterPressed: () -> Unit = {},
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
@@ -369,9 +415,20 @@ fun AppDrawerSearch(
             },
         placeholder = { Text("Search apps...") },
         singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                keyboardController?.hide()
+                onEnterPressed()
+            }
+        ),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
+            focusedContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
         )
     )
 }

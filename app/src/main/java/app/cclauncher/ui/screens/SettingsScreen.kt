@@ -27,6 +27,7 @@ import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.isClauncherDefault
+import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.dialogs.AlignmentPickerDialog
@@ -38,6 +39,7 @@ import app.cclauncher.ui.dialogs.ThemePickerDialog
 import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.dialogs.ColumnsPickerDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +57,7 @@ fun SettingsScreen(
 
     // Dialog states
     var showNumberPicker by remember { mutableStateOf(false) }
+    var showColumnPicker by remember { mutableStateOf(false) }
     var showThemePicker by remember { mutableStateOf(false) }
     var showAlignmentPicker by remember { mutableStateOf(false) }
     var showDateTimePicker by remember { mutableStateOf(false) }
@@ -66,11 +69,25 @@ fun SettingsScreen(
     NumberPickerDialog(
         show = showNumberPicker,
         currentValue = uiState.homeAppsNum,
-        range = 0..8,
+        range = 0..Constants.HomeAppCount.NUM,
         onDismiss = { showNumberPicker = false },
         onValueSelected = { newValue ->
             coroutineScope.launch {
                 viewModel.prefsDataStore.setHomeAppsNum(newValue)
+                viewModel.refreshHome(true)
+                viewModel.updateSettingsState()
+            }
+        }
+    )
+
+    ColumnsPickerDialog(
+        show = showColumnPicker,
+        currentValue = uiState.homeScreenColumns,
+        range = 0..Constants.HomeAppCount.NUM,
+        onDismiss = { showColumnPicker = false },
+        onValueSelected = { newValue ->
+            coroutineScope.launch {
+                viewModel.prefsDataStore.setHomeScreenColumns(newValue)
                 viewModel.refreshHome(true)
                 viewModel.updateSettingsState()
             }
@@ -206,6 +223,16 @@ fun SettingsScreen(
                         }
                     )
 
+                    SettingsToggle(
+                        title = "Show App Icons",
+                        isChecked = uiState.showAppIcons,
+                        onCheckedChange = { newValue ->
+                            coroutineScope.launch {
+                                viewModel.prefsDataStore.setShowAppIcons(newValue)
+                                viewModel.updateSettingsState()
+                            }
+                        }
+                    )
 
                     SettingsToggle(
                         title = "Auto Show Keyboard",
@@ -338,6 +365,44 @@ fun SettingsScreen(
                             }
                         }
                     )
+
+                    SettingsItem(
+                                title = "Number of Columns",
+                                subtitle = "${uiState.homeScreenColumns}",
+                                onClick = { showColumnPicker = true }
+                            )
+
+//                    NumberPickerDialog(
+//                        show = showColumnCountPicker,
+//                        currentValue = uiState.columnCount,
+//                        range = 2..4,
+//                        onDismiss = { showColumnCountPicker = false },
+//                        onValueSelected = { newValue ->
+//                            coroutineScope.launch {
+//                                viewModel.prefsDataStore.setColumnCount(newValue)
+//                                viewModel.updateSettingsState()
+//                                (context as? Activity)?.recreate()
+//                            }
+//                        }
+//                    )
+
+
+//                    if (isTablet(context)) {
+//                        SettingsToggle(
+//                            title = "Multi-column Layout",
+//                            subtitle = "Show shortcuts in multiple columns (better for tablets)",
+//                            isChecked = uiState.useMultiColumnLayout,
+//                            onCheckedChange = { newValue ->
+//                                coroutineScope.launch {
+//                                    viewModel.prefsDataStore.setUseMultiColumnLayout(newValue)
+//                                    viewModel.updateSettingsState()
+//                                    (context as? Activity)?.recreate()
+//                                }
+//                            }
+//                        )
+//
+//                        if (uiState.useMultiColumnLayout) {
+//
 
 
 

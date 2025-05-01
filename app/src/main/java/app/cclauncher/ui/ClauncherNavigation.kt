@@ -199,77 +199,74 @@ fun CLauncherNavigation(
         },
         contentAlignment = Alignment.Center  // Important for proper scaling
     ) { screen ->
-        // Render the appropriate screen with additional alpha transition
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            // Add a nested AnimatedVisibility for extra content alpha transitions
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(
-                    animationSpec = tween(150, delayMillis = 150)
-                ),
-                exit = fadeOut(
-                    animationSpec = tween(150)
-                )
-            ) {
-                when (screen) {
-                    Navigation.HOME -> {
-                        HomeScreen(
-                            viewModel = viewModel,
-                            onNavigateToAppDrawer = {
-                                onScreenChange(Navigation.APP_DRAWER)
-                            },
-                            onNavigateToSettings = {
-                                onScreenChange(Navigation.SETTINGS)
-                            }
-                        )
-                    }
-                    Navigation.APP_DRAWER -> {
-                        AppDrawerScreen(
-                            viewModel = viewModel,
-                            onAppClick = { app ->
-                                // Check if we're in app selection mode
-                                if (currentSelectionType != null) {
-                                    when (currentSelectionType) {
-                                        AppSelectionType.CLOCK_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CLOCK_APP)
-                                        AppSelectionType.CALENDAR_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CALENDAR_APP)
-                                        AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
-                                        AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
-                                        AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
-                                        AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
-                                        AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
-                                        AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
-                                        AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
-                                        AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
-                                        AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
-                                        AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
-                                        else -> {}
-                                    }
-                                    currentSelectionType = null
-                                    onScreenChange(Navigation.HOME)
-                                } else {
-                                    viewModel.launchApp(app)
-                                    onScreenChange(Navigation.HOME)
+        // Render the appropriate screen based on current navigation state
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (screen) {
+                Navigation.HOME -> {
+                    HomeScreen(
+                        viewModel = viewModel,
+                        onNavigateToAppDrawer = {
+                            onScreenChange(Navigation.APP_DRAWER)
+                        },
+                        onNavigateToSettings = {
+                            onScreenChange(Navigation.SETTINGS)
+                        }
+                    )
+                }
+                Navigation.APP_DRAWER -> {
+                    AppDrawerScreen(
+                        viewModel = viewModel,
+                        onAppClick = { app ->
+                            // Check if we're in app selection mode
+                            if (currentSelectionType != null) {
+                                when (currentSelectionType) {
+                                    AppSelectionType.CLOCK_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CLOCK_APP)
+                                    AppSelectionType.CALENDAR_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CALENDAR_APP)
+                                    AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
+                                    AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
+                                    AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
+                                    AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
+                                    AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
+                                    AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
+                                    AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
+                                    AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
+                                    AppSelectionType.HOME_APP_9 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_9)
+                                    AppSelectionType.HOME_APP_10 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_10)
+                                    AppSelectionType.HOME_APP_11 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_11)
+                                    AppSelectionType.HOME_APP_12 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_12)
+                                    AppSelectionType.HOME_APP_13 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_13)
+                                    AppSelectionType.HOME_APP_14 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_14)
+                                    AppSelectionType.HOME_APP_15 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_15)
+                                    AppSelectionType.HOME_APP_16 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_16)
+                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
+                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                    else -> {}
                                 }
                             },
                             onSwipeDown = { onScreenChange(Navigation.HOME) },
                             selectionMode = currentSelectionType != null,
                             selectionTitle = when (currentSelectionType) {
-                                AppSelectionType.CLOCK_APP -> "Select Clock App"
-                                AppSelectionType.CALENDAR_APP -> "Select Calendar App"
-                                AppSelectionType.HOME_APP_1,
-                                AppSelectionType.HOME_APP_2,
-                                AppSelectionType.HOME_APP_3,
-                                AppSelectionType.HOME_APP_4,
-                                AppSelectionType.HOME_APP_5,
-                                AppSelectionType.HOME_APP_6,
-                                AppSelectionType.HOME_APP_7,
-                                AppSelectionType.HOME_APP_8 -> "Select Home App"
-                                AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
-                                AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
-                                null -> ""
+                            AppSelectionType.CLOCK_APP -> "Select Clock App"
+                            AppSelectionType.CALENDAR_APP -> "Select Calendar App"
+                            AppSelectionType.HOME_APP_1,
+                            AppSelectionType.HOME_APP_2,
+                            AppSelectionType.HOME_APP_3,
+                            AppSelectionType.HOME_APP_4,
+                            AppSelectionType.HOME_APP_5,
+                            AppSelectionType.HOME_APP_6,
+                            AppSelectionType.HOME_APP_7,
+                            AppSelectionType.HOME_APP_8,
+                            AppSelectionType.HOME_APP_9,
+                            AppSelectionType.HOME_APP_10,
+                            AppSelectionType.HOME_APP_11,
+                            AppSelectionType.HOME_APP_12,
+                            AppSelectionType.HOME_APP_13,
+                            AppSelectionType.HOME_APP_14,
+                            AppSelectionType.HOME_APP_15,
+                            AppSelectionType.HOME_APP_16 -> "Select Home App"
+                            AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
+                            AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+                            null -> ""
                             }
                         )
                     }

@@ -50,14 +50,18 @@ object Constants {
         const val TWO = 0.75f
         const val THREE = 0.9f
         const val FOUR = 1f
-        const val FIVE = 1.1f
-        const val SIX = 1.2f
-        const val SEVEN = 1.3f
+        const val FIVE = 1.15f
+        const val SIX = 1.3f
+        const val SEVEN = 1.45f
     }
 
     object CharacterIndicator{
         const val SHOW = 102
         const val HIDE = 101
+    }
+
+    object HomeAppCount {
+        const val NUM = 16
     }
 
     const val WALL_TYPE_LIGHT = "light"
@@ -74,16 +78,24 @@ object Constants {
     const val FLAG_SET_HOME_APP_6 = 6
     const val FLAG_SET_HOME_APP_7 = 7
     const val FLAG_SET_HOME_APP_8 = 8
+    const val FLAG_SET_HOME_APP_9 = 9
+    const val FLAG_SET_HOME_APP_10 = 10
+    const val FLAG_SET_HOME_APP_11 = 11
+    const val FLAG_SET_HOME_APP_12 = 12
+    const val FLAG_SET_HOME_APP_13 = 13
+    const val FLAG_SET_HOME_APP_14 = 14
+    const val FLAG_SET_HOME_APP_15 = 15
+    const val FLAG_SET_HOME_APP_16 = 16
 
-    const val FLAG_SET_SWIPE_LEFT_APP = 11
-    const val FLAG_SET_SWIPE_RIGHT_APP = 12
-    const val FLAG_SET_CLOCK_APP = 13
-    const val FLAG_SET_CALENDAR_APP = 14
+    const val FLAG_SET_SWIPE_LEFT_APP = 17
+    const val FLAG_SET_SWIPE_RIGHT_APP = 18
+    const val FLAG_SET_CLOCK_APP = 19
+    const val FLAG_SET_CALENDAR_APP = 20
 
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678
 
-    const val HINT_RATE_US = 15
+    const val HINT_RATE_US = 25
 
     const val LONG_PRESS_DELAY_MS = 500L
     const val ONE_DAY_IN_MILLIS = 86400000L

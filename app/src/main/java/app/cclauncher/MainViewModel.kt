@@ -93,6 +93,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateHomeScreenState(prefs: LauncherPreferences) {
         _homeScreenState.value = HomeScreenUiState(
             homeAppsNum = prefs.homeAppsNum,
+            homeScreenColumns = prefs.homeScreenColumns,
             dateTimeVisibility = prefs.dateTimeVisibility,
             homeAlignment = prefs.homeAlignment,
             homeBottomAlignment = prefs.homeBottomAlignment,
@@ -105,7 +106,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateSettingsScreenState(prefs: LauncherPreferences) {
         _settingsScreenState.value = SettingsScreenUiState(
             homeAppsNum = prefs.homeAppsNum,
+            homeScreenColumns = prefs.homeScreenColumns,
             showAppNames = prefs.showAppNames,
+            showAppIcons = prefs.showAppIcons,
             autoShowKeyboard = prefs.autoShowKeyboard,
             appTheme = prefs.appTheme,
             textSizeScale = prefs.textSizeScale,
@@ -164,7 +167,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val prefs = prefsDataStore.preferences.first()
                 _settingsScreenState.value = SettingsScreenUiState(
                     homeAppsNum = prefs.homeAppsNum,
+                    homeScreenColumns = prefs.homeScreenColumns,
                     showAppNames = prefs.showAppNames,
+                    showAppIcons = prefs.showAppIcons,
                     autoShowKeyboard = prefs.autoShowKeyboard,
                     appTheme = prefs.appTheme,
                     textSizeScale = prefs.textSizeScale,
@@ -262,13 +267,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 launchApp(appModel)
             }
 
-            Constants.FLAG_SET_HOME_APP_1, Constants.FLAG_SET_HOME_APP_2,
-            Constants.FLAG_SET_HOME_APP_3, Constants.FLAG_SET_HOME_APP_4,
-            Constants.FLAG_SET_HOME_APP_5, Constants.FLAG_SET_HOME_APP_6,
-            Constants.FLAG_SET_HOME_APP_7, Constants.FLAG_SET_HOME_APP_8 -> {
-                setHomeApp(appModel, flag - Constants.FLAG_SET_HOME_APP_1)
-            }
-
             Constants.FLAG_SET_SWIPE_LEFT_APP -> {
                 setSwipeLeftApp(appModel)
             }
@@ -284,19 +282,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FLAG_SET_CALENDAR_APP -> {
                 setCalendarApp(appModel)
             }
+            in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
+                val position = flag - Constants.FLAG_SET_HOME_APP_1
+                println("Setting home app at position $position from flag $flag")
+                setHomeApp(appModel, position)
+            }
         }
     }
 
     private fun setHomeApp(app: AppModel, position: Int) {
         viewModelScope.launch {
-            prefsDataStore.setHomeApp(
-                position, HomeAppPreference(
-                    label = app.appLabel,
-                    packageName = app.appPackage,
-                    activityClassName = app.activityClassName,
-                    userString = app.user.toString()
-                )
-            )
+//            println("Setting home app at position: $position for app: ${app.appLabel}")
+
+            prefsDataStore.setHomeApp(position, HomeAppPreference(
+                label = app.appLabel,
+                packageName = app.appPackage,
+                activityClassName = app.activityClassName,
+                userString = app.user.toString()
         }
     }
 
@@ -401,6 +403,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 val currentCount = _homeScreenState.value.homeAppsNum
                 prefsDataStore.setHomeAppsNum(currentCount)
+
+                val homeScreenColumnCount = _homeScreenState.value.homeScreenColumns
+                prefsDataStore.setHomeScreenColumns(homeScreenColumnCount)
             }
         }
     }
@@ -417,7 +422,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Get home app model at specified position
      */
     fun getHomeAppModel(position: Int): AppModel? {
-        if (position < 1 || position > 8) return null
+        if (position < 1 || position > Constants.HomeAppCount.NUM) return null
 
         val homeApps = _homeScreenState.value.homeApps
         if (homeApps.size < position) return null

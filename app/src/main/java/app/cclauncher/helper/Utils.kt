@@ -21,7 +21,6 @@ import android.os.UserHandle
 import android.os.UserManager
 import android.provider.AlarmClock
 import android.provider.CalendarContract
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -33,11 +32,15 @@ import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import app.cclauncher.R
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.PrefsDataStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -45,10 +48,6 @@ import java.net.URL
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
-import androidx.core.net.toUri
-import androidx.core.graphics.createBitmap
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     if (message.isNullOrBlank()) return
@@ -63,14 +62,17 @@ suspend fun getAppsList(
     context: Context,
     prefsDataStore: PrefsDataStore,
     includeRegularApps: Boolean = true,
-    includeHiddenApps: Boolean = false
+    includeHiddenApps: Boolean = false,
+    includeAppIcons: Boolean = false
 ): MutableList<AppModel> {
     return withContext(Dispatchers.IO) {
         val appList: MutableList<AppModel> = mutableListOf()
 
         try {
             val hiddenApps = prefsDataStore.hiddenApps.first()
-            println("Hidden apps count: ${hiddenApps.size}")
+//            println("Hidden apps count: ${hiddenApps.size}")
+
+            val includeIcons = prefsDataStore.preferences.first().showAppIcons
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -84,18 +86,29 @@ suspend fun getAppsList(
                     val appLabelShown = app.label.toString() +
                             if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
 
+                    val iconCache = IconCache(context)
+
+                    val appIcon = if (includeIcons) {
+                        iconCache.getIcon(app.applicationInfo.packageName, app.componentName.className, app.user)
+                    } else {
+                        null
+                    }
+
                     val appModel = AppModel(
                         appLabelShown,
                         collator.getCollationKey(app.label.toString()),
                         app.applicationInfo.packageName,
                         app.componentName.className,
                         (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
-                        profile
+                        profile,
+                        appIcon = appIcon
                     )
 
                     val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
                     val isHidden = hiddenApps.contains(appKey)
-                    println("App: $appKey, isHidden: $isHidden")
+//                    println("App: $appKey, isHidden: $isHidden")
+
+
 
                     if (isHidden) {
                         if (includeHiddenApps) {
@@ -115,6 +128,7 @@ suspend fun getAppsList(
             e.printStackTrace()
         }
         appList
+
     }
 }
 
@@ -304,24 +318,6 @@ fun expandNotificationDrawer(context: Context) {
         val statusBarManager = Class.forName("android.app.StatusBarManager")
         val method = statusBarManager.getMethod("expandNotificationsPanel")
         method.invoke(statusBarService)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-fun openDialerApp(context: Context) {
-    try {
-        val sendIntent = Intent(Intent.ACTION_DIAL)
-        context.startActivity(sendIntent)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-fun openCameraApp(context: Context) {
-    try {
-        val sendIntent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
-        context.startActivity(sendIntent)
     } catch (e: Exception) {
         e.printStackTrace()
     }
