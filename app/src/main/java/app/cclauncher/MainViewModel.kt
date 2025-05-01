@@ -2,6 +2,7 @@ package app.cclauncher
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val appContext = application.applicationContext
+    internal val appContext = application.applicationContext
     val prefsDataStore = PrefsDataStore(appContext)
     private val appRepository = AppRepository(appContext, prefsDataStore)
     private val permissionManager = PermissionManager(appContext)
@@ -205,7 +206,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 appRepository.loadAllApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
+                _appDrawerState.value =
+                    _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
@@ -221,7 +223,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load hidden apps: ${e.message}"
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
+                _appDrawerState.value =
+                    _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
@@ -263,15 +266,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FLAG_LAUNCH_APP, Constants.FLAG_HIDDEN_APPS -> {
                 launchApp(appModel)
             }
+
             Constants.FLAG_SET_SWIPE_LEFT_APP -> {
                 setSwipeLeftApp(appModel)
             }
+
             Constants.FLAG_SET_SWIPE_RIGHT_APP -> {
                 setSwipeRightApp(appModel)
             }
+
             Constants.FLAG_SET_CLOCK_APP -> {
                 setClockApp(appModel)
             }
+
             Constants.FLAG_SET_CALENDAR_APP -> {
                 setCalendarApp(appModel)
             }
@@ -292,51 +299,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
-            ))
         }
     }
 
     private fun setSwipeLeftApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setSwipeLeftApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            prefsDataStore.setSwipeLeftApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
     private fun setSwipeRightApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setSwipeRightApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            prefsDataStore.setSwipeRightApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
     private fun setClockApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setClockApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            prefsDataStore.setClockApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
     private fun setCalendarApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setCalendarApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            prefsDataStore.setCalendarApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
@@ -518,12 +532,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 fuzzyMatch(app.appLabel, query)
                             }
                         }
+
                         Constants.SearchType.STARTS_WITH -> {
                             // Starts with implementation
                             listToFilter.value.filter { app ->
                                 app.appLabel.startsWith(query, ignoreCase = true)
                             }
                         }
+
                         else -> {
                             // Default contains search
                             listToFilter.value.filter { app ->
@@ -547,6 +563,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
         val textLower = text.lowercase()
         val patternLower = pattern.lowercase()
@@ -564,27 +581,125 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return patternIndex == patternLower.length
     }
 
-    /**
-     * Reset launcher failed
-     */
-    fun setLauncherResetFailed(failed: Boolean) {
-        _launcherResetFailed.value = failed
-    }
 
-    /**
-     * Emit UI event
-     */
-    fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _eventsFlow.emit(event)
+        /**
+         * Add an external widget to preferences
+         */
+        fun addExternalWidget(widget: ExternalWidgetModel) {
+            viewModelScope.launch {
+                try {
+                    Log.d(
+                        "MainViewModel",
+                        "Adding widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
+                    )
+                    prefsDataStore.addExternalWidget(widget)
+
+                    // Emit event to navigate to home screen
+                    _eventsFlow.emit(UiEvent.NavigateBack)
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error adding widget: ${e.message}", e)
+                    _errorMessage.value = "Failed to add widget: ${e.message}"
+                }
+            }
+
+        }
+
+        /**
+         * Update an existing external widget
+         */
+        fun updateExternalWidget(widget: ExternalWidgetModel) {
+            viewModelScope.launch {
+                try {
+                    Log.d(
+                        "MainViewModel",
+                        "Updating widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
+                    )
+                    prefsDataStore.updateExternalWidget(widget)
+
+                    // Emit event to navigate to home screen
+                    _eventsFlow.emit(UiEvent.NavigateBack)
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error updating widget: ${e.message}", e)
+                    _errorMessage.value = "Failed to update widget: ${e.message}"
+                }
+            }
+        }
+
+        /**
+         * Remove an external widget from preferences
+         */
+        fun removeExternalWidget(widgetId: String) {
+            viewModelScope.launch {
+                try {
+                    Log.d("MainViewModel", "Removing widget: id=$widgetId")
+                    prefsDataStore.removeExternalWidget(widgetId)
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error removing widget: ${e.message}", e)
+                    _errorMessage.value = "Failed to remove widget: ${e.message}"
+                }
+            }
+        }
+
+        /**
+         * Update the order of widgets
+         */
+        fun updateWidgetOrder(widgets: List<ExternalWidgetModel>) {
+            viewModelScope.launch {
+                try {
+                    Log.d("MainViewModel", "Updating widget order for ${widgets.size} widgets")
+
+                    // Update each widget with its new position
+                    widgets.forEachIndexed { index, widget ->
+                        val updatedWidget = widget.copy(position = index)
+                        prefsDataStore.updateExternalWidget(updatedWidget)
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error updating widget order: ${e.message}", e)
+                    _errorMessage.value = "Failed to update widget order: ${e.message}"
+                }
+            }
+        }
+
+        /**
+         * Configure an existing widget
+         */
+        fun configureExistingWidget(widget: ExternalWidgetModel) {
+            viewModelScope.launch {
+                try {
+                    Log.d(
+                        "MainViewModel",
+                        "Configuring widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
+                    )
+                    _eventsFlow.emit(UiEvent.NavigateToWidgetConfig(widget))
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error navigating to widget config: ${e.message}", e)
+                    _errorMessage.value = "Failed to configure widget: ${e.message}"
+                }
+            }
+        }
+
+
+        /**
+         * Reset launcher failed
+         */
+        fun setLauncherResetFailed(failed: Boolean) {
+            _launcherResetFailed.value = failed
+        }
+
+        /**
+         * Emit UI event
+         */
+        fun emitEvent(event: UiEvent) {
+            viewModelScope.launch {
+                _eventsFlow.emit(event)
+            }
+        }
+
+        /**
+         * Clear error message
+         */
+        fun clearError() {
+            _errorMessage.value = null
+            _appDrawerState.value = _appDrawerState.value.copy(error = null)
         }
     }
-
-    /**
-     * Clear error message
-     */
-    fun clearError() {
-        _errorMessage.value = null
-        _appDrawerState.value = _appDrawerState.value.copy(error = null)
-    }
-}
