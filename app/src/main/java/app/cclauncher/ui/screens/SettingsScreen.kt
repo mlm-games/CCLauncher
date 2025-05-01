@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
+import app.cclauncher.helper.isAccessServiceEnabled
 import app.cclauncher.helper.isClauncherDefault
 import app.cclauncher.helper.openAppInfo
 import app.cclauncher.helper.setPlainWallpaperByTheme
@@ -38,6 +40,7 @@ import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.dialogs.ColumnsPickerDialog
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,7 +209,7 @@ fun SettingsScreen(
                     SettingsItem(
                         title = "Home Apps Number",
                         subtitle = "${uiState.homeAppsNum} apps",
-                        onClick = { showNumberPicker = true }
+                        onClick = { showNumberPicker = true },
                     )
 
                     SettingsToggle(
@@ -331,7 +334,7 @@ fun SettingsScreen(
                                     prefs.copy(appLabelAlignment = uiState.homeAlignment)
                                 }
                             }
-                        }
+                        },
                     )
 
                     SettingsToggle(
@@ -365,10 +368,10 @@ fun SettingsScreen(
                     )
 
                     SettingsItem(
-                                title = "Number of Columns",
-                                subtitle = "${uiState.homeScreenColumns}",
-                                onClick = { showColumnPicker = true }
-                            )
+                        title = "Number of Columns",
+                        subtitle = "${uiState.homeScreenColumns}",
+                        onClick = { showColumnPicker = true }
+                    )
 
 //                    NumberPickerDialog(
 //                        show = showColumnCountPicker,
@@ -487,8 +490,14 @@ fun SettingsScreen(
                             coroutineScope.launch {
                                 viewModel.prefsDataStore.setDoubleTapToLock(it)
                                 viewModel.updateSettingsState()
-                                // Should show while enabling
-                                if (!uiState.doubleTapToLock) Toast.makeText(context, "Enable accessibility permission for the functionality.", Toast.LENGTH_SHORT).show()
+                                if (!isAccessServiceEnabled(context))
+                                {
+                                    Toast.makeText(context, "Enable accessibility permission for the functionality.", Toast.LENGTH_SHORT).show()
+
+                                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                    context.startActivity(intent)
+
+                                }
                             }
                         }
                     )
@@ -516,7 +525,8 @@ fun SettingsScreen(
 //                                        context.startActivity(selectorIntent)
 //                                    }
                             }
-                        }
+                        },
+                        transparency = if (isClauncherDefault(context)) (0.7f) else (1.0f)
                     )
 
                     SettingsItem(
@@ -581,7 +591,8 @@ fun SettingsItem(
     title: String,
     subtitle: String? = null,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    transparency: Float = 1.0f
 ) {
     Surface(
         modifier = Modifier
@@ -596,6 +607,7 @@ fun SettingsItem(
                 }
             }
             .padding(vertical = 8.dp)
+            .alpha(transparency)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
