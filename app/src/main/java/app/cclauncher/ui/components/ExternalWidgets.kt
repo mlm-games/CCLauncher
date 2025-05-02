@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -12,9 +13,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,13 +32,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.helper.WidgetHelper
 
-private const val TAG = "ExternalWidget"
-
 @Composable
 fun ExternalWidget(
     widget: ExternalWidgetModel,
     onConfigureWidget: (ExternalWidgetModel) -> Unit = {},
     onRemoveWidget: (String) -> Unit = {},
+    onResizeWidget: (ExternalWidgetModel, Int, Int) -> Unit = { _, _, _ -> },
     editMode: Boolean = false
 ) {
     val context = LocalContext.current
@@ -42,8 +46,9 @@ fun ExternalWidget(
     val density = LocalDensity.current
 
     // Calculate widget dimensions based on grid size
-    val widthMultiplier = widget.width.coerceIn(1, 4)
-    val heightMultiplier = widget.height.coerceIn(1, 4)
+    var widthMultiplier by remember { mutableStateOf(widget.width.coerceIn(1, 4)) }
+    var heightMultiplier by remember { mutableStateOf(widget.height.coerceIn(1, 4)) }
+    var isResizing by remember { mutableStateOf(false) }
 
     // Base unit is 80dp
     val baseUnit = 80.dp
@@ -53,11 +58,6 @@ fun ExternalWidget(
     // Track widget creation errors
     var hasError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-
-    // Log widget details
-    LaunchedEffect(widget.id) {
-        Log.d(TAG, "Rendering widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}, size=${widget.width}x${widget.height}")
-    }
 
     Box(
         modifier = Modifier
@@ -82,12 +82,9 @@ fun ExternalWidget(
             modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
                 try {
-                    Log.d(TAG, "Creating widget view for appWidgetId: ${widget.appWidgetId}")
-
                     // Check if the widget info exists
                     val widgetInfo = widgetHelper.getWidgetInfo(widget.appWidgetId)
                     if (widgetInfo == null) {
-                        Log.e(TAG, "Widget info not found for appWidgetId: ${widget.appWidgetId}")
                         hasError = true
                         errorMessage = "Widget not found"
                         return@AndroidView View(ctx).apply {
@@ -102,13 +99,11 @@ fun ExternalWidget(
                     with(density) {
                         val widthPx = widgetWidth.toPx().toInt()
                         val heightPx = widgetHeight.toPx().toInt()
-                        Log.d(TAG, "Updating widget options to size: ${widthPx}x${heightPx}")
                         widgetHelper.updateWidgetOptions(widget.appWidgetId, widthPx, heightPx)
                     }
 
                     widgetView
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error creating widget view: ${e.message}", e)
                     hasError = true
                     errorMessage = e.message ?: "Unknown error"
 
@@ -134,7 +129,7 @@ fun ExternalWidget(
                             )
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error updating widget size: ${e.message}", e)
+                        // Handle error
                     }
                 }
             }
@@ -196,19 +191,155 @@ fun ExternalWidget(
                 }
             }
 
-            // Size indicator
-            Text(
-                text = "${widget.width}x${widget.height}",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.8f),
+            // Size indicator and resize controls
+            Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .background(
-                        color = Color.Black.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            )
+                    .padding(8.dp)
+            ) {
+                if (isResizing) {
+                    // Resize controls
+                    Row(
+                        modifier = Modifier
+                            .background(
+                                color = Color.Black.copy(alpha = 0.7f),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(4.dp)
+                    ) {
+                        // Width controls
+                        Column {
+                            Text("Width", color = Color.White, style = MaterialTheme.typography.labelSmall)
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        if (widthMultiplier > 1) {
+                                            widthMultiplier--
+                                        }
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Decrease Width",
+                                        tint = Color.White
+                                    )
+                                }
+
+                                Text(
+                                    text = "$widthMultiplier",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+
+                                IconButton(
+                                    onClick = {
+                                        if (widthMultiplier < 4) {
+                                            widthMultiplier++
+                                        }
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Increase Width",
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        // Height controls
+                        Column {
+                            Text("Height", color = Color.White, style = MaterialTheme.typography.labelSmall)
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        if (heightMultiplier > 1) {
+                                            heightMultiplier--
+                                        }
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Decrease Height",
+                                        tint = Color.White
+                                    )
+                                }
+
+                                Text(
+                                    text = "$heightMultiplier",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+
+                                IconButton(
+                                    onClick = {
+                                        if (heightMultiplier < 4) {
+                                            heightMultiplier++
+                                        }
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Increase Height",
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            isResizing = false
+                            onResizeWidget(widget, widthMultiplier, heightMultiplier)
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Apply", style = MaterialTheme.typography.labelSmall)
+                    }
+                } else {
+                    // Size indicator with resize button
+                    Row(
+                        modifier = Modifier
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .clickable { isResizing = true }
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "${widget.width}x${widget.height}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Resize",
+                            tint = Color.White.copy(alpha = 0.8f),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // Apply resize changes when dimensions change
+    LaunchedEffect(widthMultiplier, heightMultiplier, isResizing) {
+        if (!isResizing && (widthMultiplier != widget.width || heightMultiplier != widget.height)) {
+            onResizeWidget(widget, widthMultiplier, heightMultiplier)
         }
     }
 }

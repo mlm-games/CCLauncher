@@ -48,46 +48,45 @@ class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
-    private val widgetHelper by lazy { WidgetHelper(this) }
+        val widgetHelper by lazy { WidgetHelper(this) }
 
-    val widgetRequestLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
-        if (result.resultCode == RESULT_OK) {
-            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
-            if (appWidgetId != -1) {
-                // Check if widget needs configuration
-                if (widgetHelper.needsConfiguration(appWidgetId)) {
-                    Log.d("MainActivity", "Widget needs configuration after binding")
-                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-                    configIntent?.let {
-                        configWidgetLauncher.launch(it)
+        val widgetRequestLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Log.d("MainActivity", "Widget request result: ${result.resultCode}")
+            if (result.resultCode == RESULT_OK) {
+                val appWidgetId =
+                    result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+                Log.d("MainActivity", "Widget ID from result: $appWidgetId")
+                if (appWidgetId != -1) {
+                    // Check if widget needs configuration
+                    if (widgetHelper.needsConfiguration(appWidgetId)) {
+                        Log.d("MainActivity", "Widget needs configuration after binding")
+                        val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                        configIntent?.let {
+                            configWidgetLauncher.launch(it)
+                        }
+                    } else {
+                        // Widget added successfully, proceed to widget configuration screen
+                        Log.d("MainActivity", "Proceeding to widget size config")
+                        viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
                     }
-                } else {
-                    // Widget added successfully, proceed to widget configuration screen
-                    Log.d("MainActivity", "Proceeding to widget size config")
-                    viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
                 }
             }
         }
-    }
 
-    val configWidgetLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        Log.d("MainActivity", "Widget config result: ${result.resultCode}")
-        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-        if (appWidgetId != -1) {
-            // Widget configured successfully, proceed to widget configuration screen
-            Log.d("MainActivity", "Proceeding to widget size config after configuration")
-            viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+        val configWidgetLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            Log.d("MainActivity", "Widget config result: ${result.resultCode}")
+            val appWidgetId =
+                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            if (appWidgetId != -1) {
+                // Widget configured successfully, proceed to widget configuration screen
+                Log.d("MainActivity", "Proceeding to widget size config after configuration")
+                viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+            }
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        //        window.setDecorFitsSystemWindows(false)
 
         // Use hardware acceleration
         window.setFlags(
@@ -172,7 +171,7 @@ class MainActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
-                        viewModel.emitEvent(UiEvent.NavigateBack)
+                    viewModel.emitEvent(UiEvent.NavigateBack)
                 }
             }
         })
@@ -182,7 +181,10 @@ class MainActivity : ComponentActivity() {
         val appWidgetId = widgetHelper.allocateAppWidgetId()
 
         // Log for debugging
-        Log.d("MainActivity", "Allocating widget ID: $appWidgetId for ${providerInfo.provider.packageName}")
+        Log.d(
+            "MainActivity",
+            "Allocating widget ID: $appWidgetId for ${providerInfo.provider.packageName}"
+        )
 
         // Try to bind the widget
         if (!widgetHelper.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo)) {
@@ -249,20 +251,12 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
 
         if (intent.action == Intent.ACTION_MAIN &&
-            intent.hasCategory(Intent.CATEGORY_HOME)) {
+            intent.hasCategory(Intent.CATEGORY_HOME)
+        ) {
             lifecycleScope.launch {
                 viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
-
-    fun requestDefaultLauncher(context: Context) {
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-//            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
-//            val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
-//            launcher.launch(intent)
-//        } else {
-            context.startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-//        }
     }
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

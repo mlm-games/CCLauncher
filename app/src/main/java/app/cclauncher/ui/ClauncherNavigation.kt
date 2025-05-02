@@ -1,11 +1,13 @@
 package app.cclauncher.ui
 
+import WidgetSizeConfigScreen
 import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,8 +54,8 @@ fun CLauncherNavigation(
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
     // Widget-related state
-    var currentWidgetId by remember { mutableStateOf(-1) }
-    var currentWidget by remember { mutableStateOf<ExternalWidgetModel?>(null) }
+    var widgetIdToConfig by remember { mutableIntStateOf(-1) }
+    var widgetToConfig by remember { mutableStateOf<ExternalWidgetModel?>(null) }
 
     // for UI events
     LaunchedEffect(key1 = viewModel) {
@@ -89,15 +91,16 @@ fun CLauncherNavigation(
                     onScreenChange(Navigation.WIDGET_MANAGER)
                 }
                 is UiEvent.NavigateToWidgetSizeConfig -> {
-                    // Store the widget ID for the config screen
-                    currentWidgetId = event.appWidgetId
-                    onScreenChange(Navigation.WIDGET_CONFIG)
+                    onScreenChange(Navigation.WIDGET_SIZE_CONFIG)
+                    // Store appWidgetId for later use
+                    widgetIdToConfig = event.appWidgetId
                 }
                 is UiEvent.NavigateToWidgetConfig -> {
-                    // Store the widget for editing
-                    currentWidget = event.widget
-                    onScreenChange(Navigation.WIDGET_EDIT)
+                    onScreenChange(Navigation.WIDGET_CONFIG)
+                    // Store widget for later use
+                    widgetToConfig = event.widget
                 }
+
                 else -> {
                     // Handle other events, presently nothing.
                 }
@@ -174,33 +177,37 @@ fun CLauncherNavigation(
                             animationSpec = tween(300)
                         )
                     )
+                }
                 // Widget screens animations
                 Navigation.WIDGET_PICKER, Navigation.WIDGET_MANAGER -> {
                     // Settings to widget screens: slide left with fade and scale
                     (slideInHorizontally(
-                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
-                        animationSpec = tween(300)
-                    ) + fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                            (slideOutHorizontally(
-                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                                animationSpec = tween(300)
-                            ) + fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                                        animationSpec = tween(300)
+                                    ) + fadeIn(animationSpec = tween(300)) +
+                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                        slideOutHorizontally(
+                                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                                animationSpec = tween(300)
+                                            ) + fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                    )
                 }
                 Navigation.WIDGET_CONFIG, Navigation.WIDGET_EDIT -> {
                     // Widget picker to config: zoom in with fade
                     (fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.85f, animationSpec = tween(350))) with
-                            (fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 1.1f, animationSpec = tween(350)))
+                                            scaleIn(initialScale = 0.85f, animationSpec = tween(350))).togetherWith(
+                        fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 1.1f, animationSpec = tween(350))
+                    )
                 }
                 else -> {
                     // Default animation with fade and scale
                     (fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                            (fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                        fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                    )
                 }
             }
         },
@@ -251,10 +258,11 @@ fun CLauncherNavigation(
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
                                     else -> {}
                                 }
-                            },
-                            onSwipeDown = { onScreenChange(Navigation.HOME) },
-                            selectionMode = currentSelectionType != null,
-                            selectionTitle = when (currentSelectionType) {
+                            }
+                        },
+                        onSwipeDown = { onScreenChange(Navigation.HOME) },
+                        selectionMode = currentSelectionType != null,
+                        selectionTitle = when (currentSelectionType) {
                             AppSelectionType.CLOCK_APP -> "Select Clock App"
                             AppSelectionType.CALENDAR_APP -> "Select Calendar App"
                             AppSelectionType.HOME_APP_1,
@@ -294,93 +302,45 @@ fun CLauncherNavigation(
                     HiddenAppsScreen(
                         viewModel = viewModel,
                         onNavigateBack = {
-                                onScreenChange(Navigation.SETTINGS)
-                            }
-                        )
-                    }
-                    // Widget-related screens
-                    Navigation.WIDGET_PICKER -> {
-                        ExternalWidgetPickerScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = {
-                                onScreenChange(Navigation.SETTINGS)
-                            },
-                            onWidgetSelected = { providerInfo ->
-                                // Call the MainActivity function to add a widget
-                                (context as? MainActivity)?.addExternalWidget(providerInfo)
-                            }
-                        )
-                    }
-                    Navigation.WIDGET_MANAGER -> {
-                        WidgetManagerScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = {
-                                onScreenChange(Navigation.SETTINGS)
-                            },
-                            onAddWidget = {
-                                onScreenChange(Navigation.WIDGET_PICKER)
-                            }
-                        )
-                    }
-                    Navigation.WIDGET_CONFIG -> {
-                        if (currentWidgetId != -1) {
-                            val widgetHelper = WidgetHelper(context)
-                            val widgetInfo = widgetHelper.getWidgetInfo(currentWidgetId)
-                            if (widgetInfo != null) {
-                                WidgetConfigSizeScreen(
-                                    viewModel = viewModel,
-                                    widgetInfo = widgetInfo,
-                                    widgetId = currentWidgetId,
-                                    onNavigateBack = {
-                                        // If canceled, delete the widget
-                                        widgetHelper.deleteWidget(currentWidgetId)
-                                        onScreenChange(Navigation.SETTINGS)
-                                    },
-                                    onSaveWidget = { widget ->
-                                        viewModel.addExternalWidget(widget)
-                                        // Reset widget ID
-                                        currentWidgetId = -1
-                                        // Navigate to home to see the widget
-                                        onScreenChange(Navigation.HOME)
-                                    }
-                                )
-                            } else {
-                                // Widget info not found, go back
-                                onScreenChange(Navigation.SETTINGS)
-                            }
-                        } else {
-                            // No widget ID, go back
                             onScreenChange(Navigation.SETTINGS)
                         }
-                    }
-                    Navigation.WIDGET_EDIT -> {
-                        currentWidget?.let { widget ->
-                            val widgetHelper = WidgetHelper(context)
-                            val widgetInfo = widgetHelper.getWidgetInfo(widget.appWidgetId)
+                    )
+                }
+                // Widget-related screens
+                Navigation.WIDGET_PICKER -> {
+                    WidgetPickerScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { onScreenChange(Navigation.HOME) }
+                    )
+                }
+                Navigation.WIDGET_SIZE_CONFIG -> {
+                    WidgetSizeConfigScreen(
+                        viewModel = viewModel,
+                        appWidgetId = widgetIdToConfig,
+                        onNavigateBack = { onScreenChange(Navigation.HOME) }
+                    )
+                }
+//                Navigation.WIDGET_CONFIG -> {
+//                    widgetToConfig?.let { widget ->
+//                        WidgetConfigScreen( //TODO: Doesn't exist
+//                            viewModel = viewModel,
+//                            widget = widget,
+//                            onNavigateBack = { onScreenChange(Navigation.HOME) }
+//                        )
+//                    } ?: onScreenChange(Navigation.HOME)
+//                }
 
-                            if (widgetInfo != null) {
-                                WidgetConfigSizeScreen(
-                                    viewModel = viewModel,
-                                    widgetInfo = widgetInfo,
-                                    widgetId = widget.appWidgetId,
-//                                    existingWidget = widget,
-                                    onNavigateBack = {
-                                        onScreenChange(Navigation.WIDGET_MANAGER)
-                                    },
-                                    onSaveWidget = { updatedWidget ->
-                                        viewModel.updateExternalWidget(updatedWidget)
-                                        // Reset current widget
-                                        currentWidget = null
-                                        // Navigate to home to see the updated widget
-                                        onScreenChange(Navigation.HOME)
-                                    }
-                                )
-                            } else {
-                                // Widget info not found, go back
-                                onScreenChange(Navigation.WIDGET_MANAGER)
-                            }
-                        } ?: onScreenChange(Navigation.WIDGET_MANAGER)
-                    }
+
+                Navigation.WIDGET_MANAGER -> {
+                    WidgetManagerScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = {
+                            onScreenChange(Navigation.SETTINGS)
+                        },
+                        onAddWidget = {
+                            onScreenChange(Navigation.WIDGET_PICKER)
+                        }
+                    )
                 }
             }
         }

@@ -11,6 +11,7 @@ import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PermissionManager
+import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
@@ -236,7 +237,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 packageName = app.appPackage,
                 icon = app.appIcon,
                 activityClassName = app.activityClassName,
-                userString = app.user.toString()
+                userString = app.user.toString()))
         }
     }
 
@@ -434,6 +435,52 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateHomeAppOrder(reorderedApps: List<HomeAppPreference>) {
+        viewModelScope.launch {
+            try {
+                // Update each app with its new position
+                reorderedApps.forEachIndexed { index, appPref ->
+                    settingsRepository.setHomeApp(index, appPref)
+                }
+
+                // Refresh home screen state
+                updateHomeScreenState(settingsRepository.settings.first())
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to reorder apps: ${e.message}"
+            }
+        }
+    }
+
+    fun resizeWidget(widget: ExternalWidgetModel, newWidth: Int, newHeight: Int) {
+        viewModelScope.launch {
+            try {
+                val updatedWidget = widget.copy(
+                    width = newWidth,
+                    height = newHeight
+                )
+
+                Log.d("MainViewModel", "Resizing widget: id=${widget.id}, size=${newWidth}x${newHeight}")
+                prefsDataStore.updateExternalWidget(updatedWidget)
+
+                // Update widget dimensions in the host
+                val context = getApplication<Application>().applicationContext
+                val widgetHelper = WidgetHelper(context)
+                val density = context.resources.displayMetrics.density
+
+                // Convert dp to pixels based on density
+                val widthPx = (newWidth * 80 * density).toInt()
+                val heightPx = (newHeight * 80 * density).toInt()
+
+                widgetHelper.updateWidgetOptions(widget.appWidgetId, widthPx, heightPx)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error resizing widget: ${e.message}", e)
+                _errorMessage.value = "Failed to resize widget: ${e.message}"
+            }
+        }
+    }
+
+
+
 
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
         val textLower = text.lowercase()
@@ -523,7 +570,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         3 -> 16
         else -> 8
     }
-}
 
         /**
          * Update an existing external widget

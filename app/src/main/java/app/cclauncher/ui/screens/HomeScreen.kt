@@ -45,6 +45,12 @@ import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.coroutineScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import app.cclauncher.data.HomeAppPreference
+import app.cclauncher.ui.components.DraggableAppsGrid
 import app.cclauncher.ui.components.DraggableWidgetContainer
 import app.cclauncher.ui.components.ExternalWidget
 import kotlinx.coroutines.launch
@@ -134,6 +140,22 @@ fun HomeScreen(
         return
     }
 
+    if (widgetEditMode) {
+        FloatingActionButton(
+            onClick = {
+                viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
+            },
+            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Widget"
+            )
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -220,55 +242,41 @@ fun HomeScreen(
                         }
                     }
 
-                    // Widget container with drag-and-drop if in edit mode
-                    if (widgetEditMode) {
-                        // Use our DraggableWidgetContainer for edit mode
-                        DraggableWidgetContainer(
-                            widgets = widgets,
-                            editMode = true,
-                            onWidgetsReordered = { reorderedWidgets ->
-                                scope.launch {
-                                    viewModel.updateWidgetOrder(reorderedWidgets)
-                                }
-                            },
-                            onConfigureWidget = { widget ->
-                                viewModel.configureExistingWidget(widget)
-                            },
-                            onRemoveWidget = { widgetId ->
-                                scope.launch {
-                                    // Find the widget to get its appWidgetId
-                                    val widget = widgets.find { it.id == widgetId }
-                                    widget?.let {
-                                        // Delete the actual widget
-                                        val widgetHelper = WidgetHelper(context)
-                                        widgetHelper.deleteWidget(it.appWidgetId)
-                                        // Remove from preferences
-                                        viewModel.removeExternalWidget(widgetId)
+                    // Widget container with enhanced drag-and-drop
+                    DraggableWidgetContainer(
+                        widgets = widgets,
+                        editMode = widgetEditMode,
+                        onWidgetsReordered = { reorderedWidgets ->
+                            scope.launch {
+                                viewModel.updateWidgetOrder(reorderedWidgets)
+                            }
+                        },
+                        onConfigureWidget = { widget ->
+                            viewModel.configureExistingWidget(widget)
+                        },
+                                onRemoveWidget = { widgetId ->
+                                    scope.launch {
+                                        // Find the widget to get its appWidgetId
+                                        val widget = widgets.find { it.id == widgetId }
+                                        widget?.let {
+                                            // Delete the actual widget
+                                            val widgetHelper = WidgetHelper(context)
+                                            widgetHelper.deleteWidget(it.appWidgetId)
+                                            // Remove from preferences
+                                            viewModel.removeExternalWidget(widgetId)
+                                        }
+                                    }
+                                },
+                                onResizeWidget = { widget, newWidth, newHeight ->
+                                    scope.launch {
+                                        viewModel.resizeWidget(widget, newWidth, newHeight)
                                     }
                                 }
-                            }
-                        )
-                    } else {
-                        // Simple row of widgets for normal mode
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(widgets) { widget ->
-                                ExternalWidget(
-                                    widget = widget,
-                                    editMode = false
                                 )
+
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-
 
 
             // Flexible space that pushes content down or centers it
@@ -316,53 +324,119 @@ fun HomeScreen(
                     fontWeight = fontWeight,
                     onTimeClick = { openAlarmApp(context) },
                     onDateClick = { openCalendar(context) },
-                    onDateLongPress = { viewModel.emitEvent(UiEvent.NavigateToAppSelection(AppSelectionType.CALENDAR_APP)) },
-                    onTimeLongPress = { viewModel.emitEvent(UiEvent.NavigateToAppSelection(AppSelectionType.CLOCK_APP)) }
+                    onDateLongPress = {
+                        viewModel.emitEvent(
+                            UiEvent.NavigateToAppSelection(
+                                AppSelectionType.CALENDAR_APP
+                            )
+                        )
+                    },
+                    onTimeLongPress = {
+                        viewModel.emitEvent(
+                            UiEvent.NavigateToAppSelection(
+                                AppSelectionType.CLOCK_APP
+                            )
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            HomeApps(
-                homeAppsNum = settings.homeAppsNum,
-                homeApps = uiState.homeApps,
-                alignment = settings.homeAlignment,
-                showAppIcons = shouldShowIcons,
-                fontScale = settings.textSizeScale,
-                fontWeight = fontWeight,
-                iconCornerRadius = settings.iconCornerRadius.dp,
-                itemSpacing = itemSpacing,
-                onAppClick = { app -> viewModel.launchApp(app) },
-                onAppLongPress = { position ->
-                    // Convert position to selection type
-                    val selectionType = when (position) {
-                        0 -> AppSelectionType.HOME_APP_1
-                        1 -> AppSelectionType.HOME_APP_2
-                        2 -> AppSelectionType.HOME_APP_3
-                        3 -> AppSelectionType.HOME_APP_4
-                        4 -> AppSelectionType.HOME_APP_5
-                        5 -> AppSelectionType.HOME_APP_6
-                        6 -> AppSelectionType.HOME_APP_7
-                        7 -> AppSelectionType.HOME_APP_8
-                        8 -> AppSelectionType.HOME_APP_9
-                        9 -> AppSelectionType.HOME_APP_10
-                        10 -> AppSelectionType.HOME_APP_11
-                        11 -> AppSelectionType.HOME_APP_12
-                        12 -> AppSelectionType.HOME_APP_13
-                        13 -> AppSelectionType.HOME_APP_14
-                        14 -> AppSelectionType.HOME_APP_15
-                        15 -> AppSelectionType.HOME_APP_16
-                        else -> AppSelectionType.HOME_APP_1
-                    }
-                    viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
-                },
-                columns = settings.homeScreenColumns
-            )
+            var homeEditMode by remember { mutableStateOf(false) }
+
+            if (settings.homeAppsNum > 0) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (homeEditMode) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Edit Home Apps",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Button(onClick = { homeEditMode = false }) {
+                                Text("Done")
+                            }
+                        }
+                    } else {
+                        // Show edit button when not in edit mode
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.dp)
+                        ) {
+                            Text(
+                                text = "Edit",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .clickable { homeEditMode = true }
+                                    .padding(8.dp)
+                            )
+                        }
+                    } //TODO: Edit mode should preferably be accessed from settings instead of having a button all the time
+
+                    // Replace HomeApps with DraggableAppsGrid
+                    DraggableAppsGrid(
+                        apps = uiState.homeApps,
+                        columns = settings.homeScreenColumns,
+                        showAppIcons = shouldShowIcons,
+                        itemSpacing = itemSpacing,
+                        onAppClick = { app -> viewModel.launchApp(app) },
+                        onAppLongPress = { position ->
+                            val selectionType = when (position) {
+                                0 -> AppSelectionType.HOME_APP_1
+                                1 -> AppSelectionType.HOME_APP_2
+                                2 -> AppSelectionType.HOME_APP_3
+                                3 -> AppSelectionType.HOME_APP_4
+                                4 -> AppSelectionType.HOME_APP_5
+                                5 -> AppSelectionType.HOME_APP_6
+                                6 -> AppSelectionType.HOME_APP_7
+                                7 -> AppSelectionType.HOME_APP_8
+                                8 -> AppSelectionType.HOME_APP_9
+                                9 -> AppSelectionType.HOME_APP_10
+                                10 -> AppSelectionType.HOME_APP_11
+                                11 -> AppSelectionType.HOME_APP_12
+                                12 -> AppSelectionType.HOME_APP_13
+                                13 -> AppSelectionType.HOME_APP_14
+                                14 -> AppSelectionType.HOME_APP_15
+                                15 -> AppSelectionType.HOME_APP_16
+                                else -> AppSelectionType.HOME_APP_1
+                            }
+                            viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
+                        },
+                        onAppsReordered = { reorderedApps ->
+                            // Update app order in ViewModel
+                            viewModel.updateHomeAppOrder(reorderedApps.mapIndexed { index, pair ->
+                                pair.second?.let { app ->
+                                    HomeAppPreference(
+                                        label = app.appLabel,
+                                        packageName = app.appPackage,
+                                        activityClassName = app.activityClassName,
+                                        userString = app.user.toString(),
+                                        position = index
+                                    )
+                                }
+                            }.filterNotNull())
+                        },
+                        editMode = homeEditMode
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun DateTimeSection(
+fun DateTimeSection(
     showTime: Boolean,
     showDate: Boolean,
     currentDate: Date,
@@ -418,152 +492,3 @@ private fun DateTimeSection(
     }
 }
 
-@Composable
-private fun HomeApps(
-    homeAppsNum: Int,
-    homeApps: List<AppModel?>,
-    alignment: Int,
-    showAppIcons: Boolean,
-    fontScale: Float,
-    fontWeight: FontWeight,
-    iconCornerRadius: androidx.compose.ui.unit.Dp,
-    itemSpacing: androidx.compose.ui.unit.Dp,
-    onAppClick: (AppModel) -> Unit,
-    onAppLongPress: (Int) -> Unit,
-    columns: Int
-) {
-    val context = LocalContext.current
-    val iconCache = remember { IconCache(context) }
-    val coroutineScope = rememberCoroutineScope()
-
-    val loadedIcons = remember { mutableStateMapOf<String, ImageBitmap?>() }
-
-    LaunchedEffect(homeApps) {
-        if (showAppIcons) {
-            homeApps.filterNotNull().forEach { app ->
-                if (app.appIcon == null) {
-                    val key = app.getKey()
-
-                    if (!loadedIcons.containsKey(key)) {
-                        coroutineScope.launch {
-                            val userHandle = app.user
-                            val icon = iconCache.getIcon(
-                                app.appPackage,
-                                app.activityClassName,
-                                userHandle
-                            )
-                            loadedIcons[key] = icon
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        horizontalArrangement = Arrangement.spacedBy(itemSpacing),
-        verticalArrangement = Arrangement.spacedBy(itemSpacing),
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-//            .wrapContentWidth(
-//                when (alignment) {
-//                    Gravity.START -> Alignment.Start
-//                    Gravity.END -> Alignment.End
-//                    else -> Alignment.CenterHorizontally
-//                }
-//            )
-    ) {
-        items(homeAppsNum) { i ->
-            val app = homeApps.getOrNull(i)
-            if (app != null) {
-                val isInstalled = remember(app.appPackage, app.user) {
-                    isPackageInstalled(
-                        context,
-                        app.appPackage,
-                        app.user.toString()
-                    )
-                }
-
-                if (isInstalled) {
-                        Row(
-//                            horizontalArrangement = when (alignment) {
-//                                Gravity.START -> Arrangement.Start
-//                                Gravity.END -> Arrangement.End
-//                                else -> Arrangement.Center
-//                            },
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth() // Make the row fill the grid cell width
-                                .padding(vertical = 8.dp)
-                                .pointerInput(app) {
-                                    detectTapGestures(
-                                        onTap = { onAppClick(app) },
-                                        onLongPress = { onAppLongPress(i) }
-                                    )
-                                }
-                        ) {
-                            if (showAppIcons) {
-
-                                val appIcon = app.appIcon ?: loadedIcons[app.getKey()]
-
-                                if (appIcon != null) {
-
-                                    Surface(
-                                        shape = RoundedCornerShape(iconCornerRadius),
-                                        modifier = Modifier.padding(end = 8.dp)
-//                                        modifier = Modifier.align(
-//                                            when (alignment) {
-//                                                Gravity.START -> Alignment.Start
-//                                                Gravity.END -> Alignment.End
-//                                                else -> Alignment.CenterHorizontally
-//                                            }
-//                                        )
-                                    ) {
-                                        Image(
-                                            bitmap = appIcon,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(48.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
-                            }
-
-                            Text(
-                                text = app.appLabel,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
-                                    fontWeight = fontWeight
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface,
-//                                textAlign = when (alignment) {
-//                                    Gravity.START -> TextAlign.Start
-//                                    Gravity.END -> TextAlign.End
-//                                    else -> TextAlign.Center
-//                                }
-                            )
-                    }
-                }
-            } else {
-                Text(
-                    text = "•••",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
-                        fontWeight = fontWeight
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = when (alignment) {
-                        Gravity.START -> TextAlign.Start
-                        Gravity.END -> TextAlign.End
-                        else -> TextAlign.Center
-                    },
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .clickable { onAppLongPress(i) }
-                )
-            }
-        }
-    }
-}
