@@ -6,13 +6,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
+import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
 import app.cclauncher.ui.HomeScreenUiState
-import app.cclauncher.ui.SettingsScreenUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -21,8 +22,9 @@ import kotlinx.coroutines.launch
  */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    val prefsDataStore = PrefsDataStore(appContext)
-    private val appRepository = AppRepository(appContext, prefsDataStore)
+    val prefsDataStore = PrefsDataStore(appContext) // Keep for backward compatibility during transition
+    val settingsRepository = SettingsRepository(appContext) // New settings repository
+    private val appRepository = AppRepository(appContext, settingsRepository) // Will need refactoring in future
     private val permissionManager = PermissionManager(appContext)
 
     // Events manager for UI events
@@ -35,9 +37,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _appDrawerState = MutableStateFlow(AppDrawerUiState())
     val appDrawerState: StateFlow<AppDrawerUiState> = _appDrawerState.asStateFlow()
-
-    private val _settingsScreenState = MutableStateFlow(SettingsScreenUiState())
-    val settingsScreenState: StateFlow<SettingsScreenUiState> = _settingsScreenState.asStateFlow()
 
     // App list state
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
@@ -58,20 +57,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
     init {
-        // Initialize UI states from preferences
+        // Initialize UI states from settings
         viewModelScope.launch {
-            prefsDataStore.preferences.collect { prefs ->
-                updateHomeScreenState(prefs)
-                updateSettingsScreenState(prefs)
+            settingsRepository.settings.collect { settings ->
+                updateHomeScreenState(settings)
             }
         }
+
         viewModelScope.launch {
             appRepository.appListAll.collect { apps ->
                 _appListAll.value = apps
                 updateAppDrawerState()
             }
         }
-
 
         // Observe app list changes
         viewModelScope.launch {
@@ -89,42 +87,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun updateHomeScreenState(prefs: LauncherPreferences) {
-        _homeScreenState.value = HomeScreenUiState(
-            homeAppsNum = prefs.homeAppsNum,
-            homeScreenColumns = prefs.homeScreenColumns,
-            dateTimeVisibility = prefs.dateTimeVisibility,
-            homeAlignment = prefs.homeAlignment,
-            homeBottomAlignment = prefs.homeBottomAlignment,
-            homeApps = prefs.homeApps.map { app ->
-                getAppModelFromPreference(app)
-            }
-        )
-    }
+    private fun updateHomeScreenState(settings: AppSettings) {
+        viewModelScope.launch {
+            val homeApps = settingsRepository.getHomeApps()
 
-    private fun updateSettingsScreenState(prefs: LauncherPreferences) {
-        _settingsScreenState.value = SettingsScreenUiState(
-            homeAppsNum = prefs.homeAppsNum,
-            homeScreenColumns = prefs.homeScreenColumns,
-            showAppNames = prefs.showAppNames,
-            showAppIcons = prefs.showAppIcons,
-            autoShowKeyboard = prefs.autoShowKeyboard,
-            appTheme = prefs.appTheme,
-            textSizeScale = prefs.textSizeScale,
-            useSystemFont = prefs.useSystemFont,
-            useDynamicTheme = prefs.useDynamicTheme,
-            homeAlignment = prefs.homeAlignment,
-            homeBottomAlignment = prefs.homeBottomAlignment,
-            statusBar = prefs.statusBar,
-            dateTimeVisibility = prefs.dateTimeVisibility,
-            swipeLeftEnabled = prefs.swipeLeftEnabled,
-            swipeRightEnabled = prefs.swipeRightEnabled,
-            swipeLeftAppName = prefs.swipeLeftApp.label,
-            swipeRightAppName = prefs.swipeRightApp.label,
-            swipeDownAction = prefs.swipeDownAction,
-            doubleTapToLock = prefs.doubleTapToLock,
-            searchType = prefs.searchType,
-        )
+            _homeScreenState.value = HomeScreenUiState(
+                homeAppsNum = settings.homeAppsNum,
+                homeScreenColumns = settings.homeScreenColumns,
+                dateTimeVisibility = settings.dateTimeVisibility,
+                homeAlignment = settings.homeAlignment,
+                homeBottomAlignment = settings.homeBottomAlignment,
+                homeApps = homeApps.map { app ->
+                    getAppModelFromPreference(app)
+                }
+            )
+        }
     }
 
     private fun updateAppDrawerState() {
@@ -153,44 +130,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun firstOpen(value: Boolean) {
         viewModelScope.launch {
-            prefsDataStore.setFirstOpen(value)
-        }
-    }
-
-    /**
-     * Update settings screen state
-     */
-    fun updateSettingsState() {
-        viewModelScope.launch {
-            try {
-                val prefs = prefsDataStore.preferences.first()
-                _settingsScreenState.value = SettingsScreenUiState(
-                    homeAppsNum = prefs.homeAppsNum,
-                    homeScreenColumns = prefs.homeScreenColumns,
-                    showAppNames = prefs.showAppNames,
-                    showAppIcons = prefs.showAppIcons,
-                    autoShowKeyboard = prefs.autoShowKeyboard,
-                    appTheme = prefs.appTheme,
-                    textSizeScale = prefs.textSizeScale,
-                    useSystemFont = prefs.useSystemFont,
-                    homeAlignment = prefs.homeAlignment,
-                    homeBottomAlignment = prefs.homeBottomAlignment,
-                    statusBar = prefs.statusBar,
-                    dateTimeVisibility = prefs.dateTimeVisibility,
-                    swipeLeftEnabled = prefs.swipeLeftEnabled,
-                    swipeRightEnabled = prefs.swipeRightEnabled,
-                    swipeLeftAppName = prefs.swipeLeftApp.label,
-                    swipeRightAppName = prefs.swipeRightApp.label,
-                    swipeDownAction = prefs.swipeDownAction,
-                    showHiddenAppsOnSearch = prefs.showHiddenAppsOnSearch,
-                    autoOpenFilteredApp = prefs.autoOpenFilteredApp,
-                    useDynamicTheme = prefs.useDynamicTheme,
-                    doubleTapToLock = prefs.doubleTapToLock,
-                    searchType = prefs.searchType,
-                )
-            } catch (e: Exception) {
-                _errorMessage.value = "Failed to update settings: ${e.message}"
-            }
+            settingsRepository.setFirstOpen(value)
         }
     }
 
@@ -277,7 +217,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
                 val position = flag - Constants.FLAG_SET_HOME_APP_1
-                println("Setting home app at position $position from flag $flag")
                 setHomeApp(appModel, position)
             }
         }
@@ -285,11 +224,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setHomeApp(app: AppModel, position: Int) {
         viewModelScope.launch {
-//            println("Setting home app at position: $position for app: ${app.appLabel}")
-
-            prefsDataStore.setHomeApp(position, HomeAppPreference(
+            settingsRepository.setHomeApp(position, HomeAppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
+                icon = app.appIcon,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
             ))
@@ -298,7 +236,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setSwipeLeftApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setSwipeLeftApp(AppPreference(
+            settingsRepository.setSwipeLeftApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
@@ -309,7 +247,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setSwipeRightApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setSwipeRightApp(AppPreference(
+            settingsRepository.setSwipeRightApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
@@ -320,7 +258,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setClockApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setClockApp(AppPreference(
+            settingsRepository.setClockApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
@@ -331,7 +269,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setCalendarApp(app: AppModel) {
         viewModelScope.launch {
-            prefsDataStore.setCalendarApp(AppPreference(
+            settingsRepository.setCalendarApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
@@ -342,8 +280,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun lockScreen() {
         viewModelScope.launch {
-            val prefs = prefsDataStore.preferences.first()
-            if (prefs.doubleTapToLock) {
+            val settings = settingsRepository.settings.first()
+            if (settings.doubleTapToLock) {
                 // Use accessibility service to lock screen
                 val intent = Intent(appContext, MyAccessibilityService::class.java)
                 intent.action = "LOCK_SCREEN"
@@ -352,13 +290,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     /**
      * Update home screen alignment
      */
     fun updateHomeAlignment(gravity: Int) {
         viewModelScope.launch {
-            prefsDataStore.setHomeAlignment(gravity)
+            settingsRepository.setHomeAlignment(gravity)
         }
     }
 
@@ -368,7 +305,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleDateTime() {
         viewModelScope.launch {
             val currentVisibility = _homeScreenState.value.dateTimeVisibility
-            prefsDataStore.setDateTimeVisibility(currentVisibility)
+            settingsRepository.setDateTimeVisibility(currentVisibility)
         }
     }
 
@@ -377,7 +314,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun updateShowApps(show: Boolean) {
         viewModelScope.launch {
-            prefsDataStore.updatePreference { it.copy(showAppNames = show) }
+            settingsRepository.setShowAppNames(show)
         }
     }
 
@@ -388,10 +325,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (appCountUpdated) {
             viewModelScope.launch {
                 val currentCount = _homeScreenState.value.homeAppsNum
-                prefsDataStore.setHomeAppsNum(currentCount)
+                settingsRepository.setHomeAppsNum(currentCount)
 
                 val homeScreenColumnCount = _homeScreenState.value.homeScreenColumns
-                prefsDataStore.setHomeScreenColumns(homeScreenColumnCount)
+                settingsRepository.setHomeScreenColumns(homeScreenColumnCount)
             }
         }
     }
@@ -421,14 +358,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun launchSwipeLeftApp() {
         viewModelScope.launch {
-            val prefs = prefsDataStore.preferences.first()
-            if (prefs.swipeLeftApp.packageName.isNotEmpty()) {
+            val swipeLeftApp = settingsRepository.getSwipeLeftApp()
+            if (swipeLeftApp.packageName.isNotEmpty()) {
                 val app = AppModel(
-                    appLabel = prefs.swipeLeftApp.label,
+                    appLabel = swipeLeftApp.label,
                     key = null,
-                    appPackage = prefs.swipeLeftApp.packageName,
-                    activityClassName = prefs.swipeLeftApp.activityClassName,
-                    user = getUserHandleFromString(appContext, prefs.swipeLeftApp.userString)
+                    appPackage = swipeLeftApp.packageName,
+                    activityClassName = swipeLeftApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeLeftApp.userString)
                 )
                 launchApp(app)
             }
@@ -440,14 +377,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun launchSwipeRightApp() {
         viewModelScope.launch {
-            val prefs = prefsDataStore.preferences.first()
-            if (prefs.swipeRightApp.packageName.isNotEmpty()) {
+            val swipeRightApp = settingsRepository.getSwipeRightApp()
+            if (swipeRightApp.packageName.isNotEmpty()) {
                 val app = AppModel(
-                    appLabel = prefs.swipeRightApp.label,
+                    appLabel = swipeRightApp.label,
                     key = null,
-                    appPackage = prefs.swipeRightApp.packageName,
-                    activityClassName = prefs.swipeRightApp.activityClassName,
-                    user = getUserHandleFromString(appContext, prefs.swipeRightApp.userString)
+                    appPackage = swipeRightApp.packageName,
+                    activityClassName = swipeRightApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeRightApp.userString)
                 )
                 launchApp(app)
             }
@@ -459,14 +396,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun openClockApp() {
         viewModelScope.launch {
-            val prefs = prefsDataStore.preferences.first()
-            if (prefs.clockApp.packageName.isNotEmpty()) {
+            val clockApp = settingsRepository.getClockApp()
+            if (clockApp.packageName.isNotEmpty()) {
                 val app = AppModel(
                     appLabel = "Clock",
                     key = null,
-                    appPackage = prefs.clockApp.packageName,
-                    activityClassName = prefs.clockApp.activityClassName,
-                    user = getUserHandleFromString(appContext, prefs.clockApp.userString)
+                    appPackage = clockApp.packageName,
+                    activityClassName = clockApp.activityClassName,
+                    user = getUserHandleFromString(appContext, clockApp.userString)
                 )
                 launchApp(app)
             }
@@ -478,14 +415,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun openCalendarApp() {
         viewModelScope.launch {
-            val prefs = prefsDataStore.preferences.first()
-            if (prefs.calendarApp.packageName.isNotEmpty()) {
+            val calendarApp = settingsRepository.getCalendarApp()
+            if (calendarApp.packageName.isNotEmpty()) {
                 val app = AppModel(
                     appLabel = "Calendar",
                     key = null,
-                    appPackage = prefs.calendarApp.packageName,
-                    activityClassName = prefs.calendarApp.activityClassName,
-                    user = getUserHandleFromString(appContext, prefs.calendarApp.userString)
+                    appPackage = calendarApp.packageName,
+                    activityClassName = calendarApp.activityClassName,
+                    user = getUserHandleFromString(appContext, calendarApp.userString)
                 )
                 launchApp(app)
             }
@@ -503,13 +440,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             try {
-                val prefs = prefsDataStore.preferences.first()
-                val searchType = prefs.searchType
+                val settings = settingsRepository.settings.first()
+                val searchType = settings.searchType
 
                 val filteredApps = if (query.isBlank()) {
                     _appList.value
                 } else {
-                    val listToFilter = if (prefs.showHiddenAppsOnSearch) _appListAll else _appList
+                    val listToFilter = if (settings.showHiddenAppsOnSearch) _appListAll else _appList
 
                     when (searchType) {
                         Constants.SearchType.FUZZY -> {
@@ -537,6 +474,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     filteredApps = filteredApps,
                     isLoading = false
                 )
+
+                // Auto-open single match if enabled
+                if (filteredApps.size == 1 && query.isNotEmpty() && settings.autoOpenFilteredApp) {
+                    launchApp(filteredApps[0])
+                }
             } catch (e: Exception) {
                 _errorMessage.value = "Search failed: ${e.message}"
                 _appDrawerState.value = _appDrawerState.value.copy(
@@ -586,5 +528,46 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearError() {
         _errorMessage.value = null
         _appDrawerState.value = _appDrawerState.value.copy(error = null)
+    }
+
+    /**
+     * Update orientation based on settings
+     */
+    fun updateOrientation(isLandscape: Boolean) {
+        viewModelScope.launch {
+            val settings = settingsRepository.settings.first()
+            val showIcons = if (settings.showAppIcons) {
+                if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
+            } else {
+                false
+            }
+
+            // Update any UI state that depends on orientation
+            // This would be expanded in a full implementation
+        }
+    }
+
+    /**
+     * Apply font settings to text
+     */
+    fun getFontWeight(settings: AppSettings) = when (settings.fontWeight) {
+        0 -> androidx.compose.ui.text.font.FontWeight.Thin
+        1 -> androidx.compose.ui.text.font.FontWeight.Light
+        2 -> androidx.compose.ui.text.font.FontWeight.Normal
+        3 -> androidx.compose.ui.text.font.FontWeight.Medium
+        4 -> androidx.compose.ui.text.font.FontWeight.Bold
+        5 -> androidx.compose.ui.text.font.FontWeight.Black
+        else -> androidx.compose.ui.text.font.FontWeight.Normal
+    }
+
+    /**
+     * Get item spacing based on settings
+     */
+    fun getItemSpacing(settings: AppSettings) = when (settings.itemSpacing) {
+        0 -> 0
+        1 -> 4
+        2 -> 8
+        3 -> 16
+        else -> 8
     }
 }

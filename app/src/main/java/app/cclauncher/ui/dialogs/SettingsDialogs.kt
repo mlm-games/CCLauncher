@@ -645,3 +645,343 @@ fun TextSizeDialog(
         )
     }
 }
+
+@Composable
+fun TextSizeSliderDialog(
+    show: Boolean,
+    currentSize: Float,
+    onDismiss: () -> Unit,
+    onSizeSelected: (Float) -> Unit
+) {
+    if (!show) return
+
+    var sliderPosition by remember { mutableStateOf(currentSize) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Text Size") },
+        text = {
+            Column {
+                Text(
+                    "Preview Text",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * sliderPosition
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Text(String.format("%.1f", sliderPosition))
+
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = { sliderPosition = it },
+                    valueRange = 0.5f..2.0f,
+                    steps = 15,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSizeSelected(sliderPosition)
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun IconCornerRadiusDialog(
+    show: Boolean,
+    currentRadius: Int,
+    onDismiss: () -> Unit,
+    onRadiusSelected: (Int) -> Unit
+) {
+    if (!show) return
+
+    var sliderPosition by remember { mutableStateOf(currentRadius.toFloat()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Icon Corner Radius") },
+        text = {
+            Column {
+                // Preview of icon with corner radius
+                // This is a placeholder - in a real implementation you'd show an actual app icon
+                Surface(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .align(Alignment.CenterHorizontally),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(sliderPosition.dp),
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    Box {}
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("${sliderPosition.toInt()} dp")
+
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = { sliderPosition = it },
+                    valueRange = 0f..50f,
+                    steps = 50,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onRadiusSelected(sliderPosition.toInt())
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun ItemSpacingDialog(
+    show: Boolean,
+    currentSpacing: Int,
+    onDismiss: () -> Unit,
+    onSpacingSelected: (Int) -> Unit
+) {
+    if (!show) return
+
+    val options = listOf("None", "Small", "Medium", "Large")
+    var selectedOption by remember { mutableStateOf(currentSpacing) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Item Spacing") },
+        text = {
+            Column {
+                options.forEachIndexed { index, option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectedOption == index,
+                            onClick = { selectedOption = index }
+                        )
+                        Text(
+                            text = option,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    // Show preview spacing between items
+                    if (selectedOption == index) {
+                        Column {
+                            repeat(3) { itemIndex ->
+                                Text(
+                                    "Item ${itemIndex + 1}",
+                                    modifier = Modifier.padding(
+                                        vertical = when(index) {
+                                            0 -> 0.dp
+                                            1 -> 4.dp
+                                            2 -> 8.dp
+                                            3 -> 16.dp
+                                            else -> 0.dp
+                                        }
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSpacingSelected(selectedOption)
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun OrientationIconsDialog(
+    show: Boolean,
+    showInLandscape: Boolean,
+    showInPortrait: Boolean,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (landscape: Boolean, portrait: Boolean) -> Unit
+) {
+    if (!show) return
+
+    var landscapeEnabled by remember { mutableStateOf(showInLandscape) }
+    var portraitEnabled by remember { mutableStateOf(showInPortrait) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Show App Icons") },
+        text = {
+            Column {
+                Text(
+                    "Configure when to show app icons based on device orientation:",
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Checkbox(
+                        checked = landscapeEnabled,
+                        onCheckedChange = { landscapeEnabled = it }
+                    )
+                    Text(
+                        text = "Show icons in landscape mode",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Checkbox(
+                        checked = portraitEnabled,
+                        onCheckedChange = { portraitEnabled = it }
+                    )
+                    Text(
+                        text = "Show icons in portrait mode",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSettingsChanged(landscapeEnabled, portraitEnabled)
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun SearchResultsAppearanceDialog(
+    show: Boolean,
+    useHomeFont: Boolean,
+    fontSize: Float,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (useHomeFont: Boolean, fontSize: Float) -> Unit
+) {
+    if (!show) return
+
+    var useHomeFontSetting by remember { mutableStateOf(useHomeFont) }
+    var fontSizeSetting by remember { mutableStateOf(fontSize) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Search Results Appearance") },
+        text = {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Checkbox(
+                        checked = useHomeFontSetting,
+                        onCheckedChange = { useHomeFontSetting = it }
+                    )
+                    Text(
+                        text = "Use home screen font size",
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                if (!useHomeFontSetting) {
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Text(
+                        "Search results font size:",
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    Text(
+                        "Preview Text",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontSizeSetting
+                        ),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    Text(String.format("%.1f", fontSizeSetting))
+
+                    Slider(
+                        value = fontSizeSetting,
+                        onValueChange = { fontSizeSetting = it },
+                        valueRange = 0.5f..2.0f,
+                        steps = 15,
+                        modifier = Modifier.padding(top = 8.dp),
+                        enabled = !useHomeFontSetting
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSettingsChanged(useHomeFontSetting, fontSizeSetting)
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}

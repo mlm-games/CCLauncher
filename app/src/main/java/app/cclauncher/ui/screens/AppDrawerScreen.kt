@@ -1,6 +1,9 @@
 package app.cclauncher.ui.screens
 
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -24,10 +28,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import app.cclauncher.MainViewModel
@@ -40,11 +47,16 @@ import app.cclauncher.ui.util.detectSwipeGestures
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.ui.viewmodels.SettingsViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawerScreen(
     viewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel = viewModel(), // Add this parameter
     onAppClick: (AppModel) -> Unit,
     selectionMode: Boolean = false,
     selectionTitle: String = "",
@@ -54,19 +66,67 @@ fun AppDrawerScreen(
 
     val context = LocalContext.current
     val uiState by viewModel.appDrawerState.collectAsState()
+    val settings by settingsViewModel.settingsState.collectAsState() // Use the settings state
     val coroutineScope = rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
-    val autoShowKeyboard = preferences?.autoShowKeyboard != false
-    val showAppNames = preferences?.showAppNames != false
-    val showAppIcon = preferences?.showAppIcons != false
+    val autoShowKeyboard = settings.autoShowKeyboard
+    val showAppNames = settings.showAppNames
+    val showAppIcons = settings.showAppIcons
+    val autoOpenFilteredApp = settings.autoOpenFilteredApp
+
+    // Get current orientation to decide whether to show icons
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    // Determine if icons should be shown based on orientation settings
+    val shouldShowIcons = if (showAppIcons) {
+        if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
+    } else {
+        false
+    }
+
+    // Get the item spacing
+    val itemSpacing = when (settings.itemSpacing) {
+        0 -> 0.dp
+        1 -> 4.dp
+        2 -> 8.dp
+        3 -> 16.dp
+        else -> 4.dp
+    }
+
+    // Get font size for search results
+    val searchResultsFontSize = if (settings.searchResultsUseHomeFont) {
+        settings.textSizeScale
+    } else {
+        settings.searchResultsFontSize
+    }
+
+    // Get font weight
+    val fontWeight = when (settings.fontWeight) {
+        0 -> androidx.compose.ui.text.font.FontWeight.Thin
+        1 -> androidx.compose.ui.text.font.FontWeight.Light
+        2 -> androidx.compose.ui.text.font.FontWeight.Normal
+        3 -> androidx.compose.ui.text.font.FontWeight.Medium
+        4 -> androidx.compose.ui.text.font.FontWeight.Bold
+        5 -> androidx.compose.ui.text.font.FontWeight.Black
+        else -> androidx.compose.ui.text.font.FontWeight.Normal
+    }
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
+
+    // Force landscape if setting is enabled
+    LaunchedEffect(settings.forceLandscapeMode) {
+        (context as? Activity)?.let { activity ->
+            if (settings.forceLandscapeMode) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
+    }
 
     // Load apps when screen is shown
     LaunchedEffect(Unit) {
@@ -115,28 +175,30 @@ fun AppDrawerScreen(
         }
     }
 
-Column(modifier = Modifier
-    .fillMaxSize()
-    .detectSwipeGestures(onSwipeDown = onSwipeDown)
-    .statusBarsPadding()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .detectSwipeGestures(onSwipeDown = onSwipeDown)
+        .statusBarsPadding()) {
 
-    if (selectionMode) {
-        TopAppBar(
-            title = { Text(selectionTitle) },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-        )
-    }
+        if (selectionMode) {
+            TopAppBar(
+                title = { Text(selectionTitle) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        }
 
         // Search field
         AppDrawerSearch(
             searchQuery = searchQuery,
-            onSearchChanged = { query -> searchQuery = query
+            onSearchChanged = { query ->
+                searchQuery = query
                 if (query.isEmpty()) {
                     coroutineScope.launch {
                         delay(10) // Updation delay
                         scrollState.scrollToItem(0)
                     }
-                } },
+                }
+            },
             modifier = Modifier.focusRequester(focusRequester),
             onEnterPressed = {
                 val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
@@ -144,7 +206,7 @@ Column(modifier = Modifier
                     onAppClick(appsToShow[0])
                 }
             }
-            )
+        )
 
         when {
             // Loading state
@@ -208,7 +270,8 @@ Column(modifier = Modifier
 
                 LazyColumn(
                     state = scrollState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(itemSpacing) // Apply item spacing
                 ) {
                     items(
                         items = appsToShow,
@@ -216,8 +279,11 @@ Column(modifier = Modifier
                     ) { app ->
                         AppListItem(
                             app = app,
-                            showAppIcon = showAppIcon,
+                            showAppIcon = shouldShowIcons, // Use conditional icon display
                             showAppNames = showAppNames,
+                            fontScale = searchResultsFontSize, // Apply font scaling
+                            fontWeight = fontWeight, // Apply font weight
+                            iconCornerRadius = settings.iconCornerRadius.dp, // Apply icon corner radius
                             onClick = {
                                 if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
                                     onAppClick(appsToShow[0])
@@ -233,7 +299,7 @@ Column(modifier = Modifier
                     }
                 }
 
-                if ((appsToShow.size == 1) and (preferences?.autoOpenFilteredApp != false)) {
+                if ((appsToShow.size == 1) and autoOpenFilteredApp) {
                     onAppClick(appsToShow[0])
                 }
             }
@@ -288,9 +354,10 @@ Column(modifier = Modifier
                         icon = Icons.Default.Add
                     ) {
                         coroutineScope.launch {
-                            val prefs = viewModel.prefsDataStore.preferences.first()
-                            for (i in 0 until prefs.homeAppsNum) {
-                                val homeApp = prefs.homeApps[i]
+                            val homeAppsNum = settings.homeAppsNum
+                            for (i in 0 until homeAppsNum) {
+                                val homeApps = settingsViewModel.settingsRepository.getHomeApps()
+                                val homeApp = homeApps[i]
                                 if (homeApp.packageName.isEmpty()) {
                                     viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1 + i)
                                     break
@@ -316,6 +383,9 @@ private fun AppListItem(
     app: AppModel,
     showAppNames: Boolean,
     showAppIcon: Boolean,
+    fontScale: Float = 1.0f,
+    fontWeight: FontWeight = FontWeight.Normal,
+    iconCornerRadius: Dp = 8.dp,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
@@ -330,31 +400,26 @@ private fun AppListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showAppIcon && app.appIcon != null) {
-            androidx.compose.foundation.Image(
-                bitmap = app.appIcon,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(end = 16.dp)
-            )
+            Surface(
+                shape = RoundedCornerShape(iconCornerRadius),
+                modifier = Modifier.padding(end = 16.dp)
+            ) {
+                androidx.compose.foundation.Image(
+                    bitmap = app.appIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
         }
 
-        val textLabelShown =  if (showAppNames) app.appLabel else ""
-
-//        if (showAppNames && app.appIcon != null) {
-//            androidx.compose.foundation.Image(
-//                bitmap = app.appIcon,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(40.dp)
-//                    .padding(end = 16.dp)
-//            )
-//        }
-
+        val textLabelShown = if (showAppNames) app.appLabel else ""
 
         Text(
             text = textLabelShown,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
+                fontWeight = fontWeight
+            ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface,

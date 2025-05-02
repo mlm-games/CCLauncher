@@ -20,7 +20,7 @@ import androidx.core.graphics.createBitmap
 class IconCache(context: Context) {
     private val launcherApps =
         context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private val iconCache = LruCache<String, Bitmap>(200) // Increased cache size
+    private val iconCache = LruCache<String, Bitmap>(200)
 
     /**
      * Get an app icon, either from cache or by loading it

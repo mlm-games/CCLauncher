@@ -146,6 +146,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
     implementation(libs.constraintlayout.compose.android)
+    implementation(libs.kotlin.reflect)
 
     // Testing
 //    androidTestImplementation(libs.androidx.ui.test.junit4)

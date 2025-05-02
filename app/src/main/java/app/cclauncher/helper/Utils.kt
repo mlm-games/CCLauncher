@@ -38,6 +38,7 @@ import app.cclauncher.R
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.PrefsDataStore
+import app.cclauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -58,9 +59,83 @@ fun Context.showToast(stringResource: Int, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, getString(stringResource), duration).show()
 }
 
+//suspend fun getAppsList(
+//    context: Context,
+//    prefsDataStore: PrefsDataStore,
+//    includeRegularApps: Boolean = true,
+//    includeHiddenApps: Boolean = false,
+//    includeAppIcons: Boolean = true
+//): MutableList<AppModel> {
+//    return withContext(Dispatchers.IO) {
+//        val appList: MutableList<AppModel> = mutableListOf()
+//
+//        try {
+//            val hiddenApps = prefsDataStore.hiddenApps.first()
+////            println("Hidden apps count: ${hiddenApps.size}")
+//
+//            val includeIcons = prefsDataStore.preferences.first().showAppIcons
+//
+//            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
+//            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+//            val collator = Collator.getInstance()
+//
+//            for (profile in userManager.userProfiles) {
+//                for (app in launcherApps.getActivityList(null, profile)) {
+//                    // Skip CCLauncher itself
+//                    if (app.applicationInfo.packageName == context.packageName) continue
+//
+//                    val appLabelShown = app.label.toString() +
+//                            if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
+//
+//                    val iconCache = IconCache(context)
+//
+//                    val appIcon = if (includeIcons) {
+//                        iconCache.getIcon(app.applicationInfo.packageName, app.componentName.className, app.user)
+//                    } else {
+//                        null
+//                    }
+//
+//                    val appModel = AppModel(
+//                        appLabelShown,
+//                        collator.getCollationKey(app.label.toString()),
+//                        app.applicationInfo.packageName,
+//                        app.componentName.className,
+//                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
+//                        profile,
+//                        appIcon = appIcon
+//                    )
+//
+//                    val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
+//                    val isHidden = hiddenApps.contains(appKey)
+////                    println("App: $appKey, isHidden: $isHidden")
+//
+//
+//
+//                    if (isHidden) {
+//                        if (includeHiddenApps) {
+//                            appList.add(appModel.copy(isHidden = true))
+//                        }
+//                    } else {
+//                        if (includeRegularApps) {
+//                            appList.add(appModel)
+//                        }
+//                    }
+//                }
+//            }
+//            appList.sortBy { it.appLabel.lowercase() }
+//
+//        } catch (e: Exception) {
+//            println("Error loading apps: ${e.message}")
+//            e.printStackTrace()
+//        }
+//        appList
+//
+//    }
+//}
+
 suspend fun getAppsList(
     context: Context,
-    prefsDataStore: PrefsDataStore,
+    settingsRepository: SettingsRepository,
     includeRegularApps: Boolean = true,
     includeHiddenApps: Boolean = false,
     includeAppIcons: Boolean = false
@@ -69,10 +144,9 @@ suspend fun getAppsList(
         val appList: MutableList<AppModel> = mutableListOf()
 
         try {
-            val hiddenApps = prefsDataStore.hiddenApps.first()
-//            println("Hidden apps count: ${hiddenApps.size}")
-
-            val includeIcons = prefsDataStore.preferences.first().showAppIcons
+            val settings = settingsRepository.settings.first()
+            val hiddenApps = settings.hiddenApps
+            val includeIcons = settings.showAppIcons
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -106,9 +180,6 @@ suspend fun getAppsList(
 
                     val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
                     val isHidden = hiddenApps.contains(appKey)
-//                    println("App: $appKey, isHidden: $isHidden")
-
-
 
                     if (isHidden) {
                         if (includeHiddenApps) {
@@ -128,9 +199,9 @@ suspend fun getAppsList(
             e.printStackTrace()
         }
         appList
-
     }
 }
+
 
 // This is to ensure backward compatibility with older app versions
 // which did not support multiple user profiles

@@ -1,8 +1,11 @@
 package app.cclauncher.data
 
 import android.content.Context
+import android.media.Image
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -65,7 +68,8 @@ data class HomeAppPreference(
     val label: String = "",
     val packageName: String = "",
     val activityClassName: String? = null,
-    val userString: String = ""
+    val userString: String = "",
+    val icon: ImageBitmap? = null
 )
 
 data class AppPreference(

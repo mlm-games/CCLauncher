@@ -1,5 +1,6 @@
 package app.cclauncher.ui
 
+import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -20,20 +21,32 @@ import app.cclauncher.ui.screens.HiddenAppsScreen
 import app.cclauncher.ui.screens.HomeScreen
 import app.cclauncher.ui.screens.SettingsScreen
 import app.cclauncher.ui.util.SystemUIController
+import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CLauncherNavigation(
     viewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel,  // Use the new SettingsViewModel
     currentScreen: String,
     onScreenChange: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
+    val settings by settingsViewModel.settingsState.collectAsState()  // Get settings from SettingsViewModel
 
-    preferences?.let {
-        SystemUIController(showStatusBar = it.statusBar)
+    // Apply system UI settings
+    SystemUIController(showStatusBar = settings.statusBar)
+
+    // Force landscape if setting is enabled
+    LaunchedEffect(settings.forceLandscapeMode) {
+        (context as? android.app.Activity)?.let { activity ->
+            if (settings.forceLandscapeMode) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
     }
 
     var showAppSelectionDialog by remember { mutableStateOf(false) }
@@ -84,25 +97,25 @@ fun CLauncherNavigation(
                         Navigation.APP_DRAWER -> {
                             // App drawer to home: slide down
                             slideInVertically(
-                                                        initialOffsetY = { -it },
-                                                        animationSpec = tween(300)
-                                                    ).togetherWith(
+                                initialOffsetY = { -it },
+                                animationSpec = tween(300)
+                            ).togetherWith(
                                 slideOutVertically(
-                                                        targetOffsetY = { it },
-                                                        animationSpec = tween(300)
-                                                    )
+                                    targetOffsetY = { it },
+                                    animationSpec = tween(300)
+                                )
                             )
                         }
                         else -> {
                             // Settings/Hidden apps to home: slide right
                             slideInHorizontally(
-                                                        initialOffsetX = { -it },
-                                                        animationSpec = tween(300)
-                                                    ).togetherWith(
+                                initialOffsetX = { -it },
+                                animationSpec = tween(300)
+                            ).togetherWith(
                                 slideOutHorizontally(
-                                                        targetOffsetX = { it },
-                                                        animationSpec = tween(300)
-                                                    )
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(300)
+                                )
                             )
                         }
                     }
@@ -110,37 +123,37 @@ fun CLauncherNavigation(
                 Navigation.APP_DRAWER -> {
                     // Home to app drawer: slide up
                     slideInVertically(
-                                        initialOffsetY = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
+                        initialOffsetY = { it },
+                        animationSpec = tween(300)
+                    ).togetherWith(
                         slideOutVertically(
-                                        targetOffsetY = { -it },
-                                        animationSpec = tween(300)
-                                    )
+                            targetOffsetY = { -it },
+                            animationSpec = tween(300)
+                        )
                     )
                 }
                 Navigation.SETTINGS -> {
                     // Home to settings: slide left
                     slideInHorizontally(
-                                        initialOffsetX = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300)
+                    ).togetherWith(
                         slideOutHorizontally(
-                                        targetOffsetX = { -it },
-                                        animationSpec = tween(300)
-                                    )
+                            targetOffsetX = { -it },
+                            animationSpec = tween(300)
+                        )
                     )
                 }
                 Navigation.HIDDEN_APPS -> {
                     // Settings to hidden apps: slide left
                     slideInHorizontally(
-                                        initialOffsetX = { it },
-                                        animationSpec = tween(300)
-                                    ).togetherWith(
+                        initialOffsetX = { it },
+                        animationSpec = tween(300)
+                    ).togetherWith(
                         slideOutHorizontally(
-                                        targetOffsetX = { -it },
-                                        animationSpec = tween(300)
-                                    )
+                            targetOffsetX = { -it },
+                            animationSpec = tween(300)
+                        )
                     )
                 }
                 else -> {
@@ -156,6 +169,7 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     HomeScreen(
                         viewModel = viewModel,
+                        settingsViewModel = settingsViewModel,  // Pass the settings view model
                         onNavigateToAppDrawer = {
                             onScreenChange(Navigation.APP_DRAWER)
                         },
@@ -167,6 +181,7 @@ fun CLauncherNavigation(
                 Navigation.APP_DRAWER -> {
                     AppDrawerScreen(
                         viewModel = viewModel,
+                        settingsViewModel = settingsViewModel,  // Pass the settings view model
                         onAppClick = { app ->
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
@@ -229,7 +244,7 @@ fun CLauncherNavigation(
                 }
                 Navigation.SETTINGS -> {
                     SettingsScreen(
-                        viewModel = viewModel,
+                        viewModel = settingsViewModel,
                         onNavigateBack = {
                             onScreenChange(Navigation.HOME)
                         },
