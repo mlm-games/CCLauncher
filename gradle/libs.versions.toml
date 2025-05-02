@@ -6,6 +6,7 @@ datastorePreferences = "1.1.4"
 androidGradlePlugin = "8.9.2"
 kotlinReflect = "2.1.0"
 kotlinStdlib = "2.1.20"
+kotlinxSerializationJson = "1.5.0"
 lifecycleExtensions = "2.2.0"
 lifecycleViewmodelCompose = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
@@ -23,6 +24,7 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }

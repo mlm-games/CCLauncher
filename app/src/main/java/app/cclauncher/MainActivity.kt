@@ -1,11 +1,17 @@
 package app.cclauncher
 
+import android.annotation.SuppressLint
+import android.app.role.RoleManager
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
@@ -21,6 +27,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
 import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.PrefsDataStore
+import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isTablet
@@ -40,6 +48,47 @@ class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+    private val widgetHelper by lazy { WidgetHelper(this) }
+
+    val widgetRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
+        if (result.resultCode == RESULT_OK) {
+            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
+            if (appWidgetId != -1) {
+                // Check if widget needs configuration
+                if (widgetHelper.needsConfiguration(appWidgetId)) {
+                    Log.d("MainActivity", "Widget needs configuration after binding")
+                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                    configIntent?.let {
+                        configWidgetLauncher.launch(it)
+                    }
+                } else {
+                    // Widget added successfully, proceed to widget configuration screen
+                    Log.d("MainActivity", "Proceeding to widget size config")
+                    viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+                }
+            }
+        }
+    }
+
+    val configWidgetLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget config result: ${result.resultCode}")
+        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (appWidgetId != -1) {
+            // Widget configured successfully, proceed to widget configuration screen
+            Log.d("MainActivity", "Proceeding to widget size config after configuration")
+            viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        //        window.setDecorFitsSystemWindows(false)
+
         // Use hardware acceleration
         window.setFlags(
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -129,6 +178,37 @@ class MainActivity : ComponentActivity() {
         })
     }
 
+    fun addExternalWidget(providerInfo: AppWidgetProviderInfo) {
+        val appWidgetId = widgetHelper.allocateAppWidgetId()
+
+        // Log for debugging
+        Log.d("MainActivity", "Allocating widget ID: $appWidgetId for ${providerInfo.provider.packageName}")
+
+        // Try to bind the widget
+        if (!widgetHelper.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo)) {
+            // If binding not allowed, request permission
+            Log.d("MainActivity", "Binding not allowed, requesting permission")
+            val bindIntent = widgetHelper.createBindWidgetIntent(appWidgetId, providerInfo)
+            widgetRequestLauncher.launch(bindIntent)
+        } else {
+            // Widget binding succeeded
+            Log.d("MainActivity", "Widget binding succeeded")
+            if (widgetHelper.needsConfiguration(appWidgetId)) {
+                // If widget needs configuration, launch config activity
+                Log.d("MainActivity", "Widget needs configuration")
+                val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                configIntent?.let {
+                    configWidgetLauncher.launch(it)
+                }
+            } else {
+                // No config needed, proceed to widget size config
+                Log.d("MainActivity", "No config needed, proceeding to size config")
+                viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+            }
+        }
+    }
+
+
     private fun initObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -174,6 +254,15 @@ class MainActivity : ComponentActivity() {
                 viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
+
+    fun requestDefaultLauncher(context: Context) {
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+//            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+//            val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
+//            launcher.launch(intent)
+//        } else {
+            context.startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+//        }
     }
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -196,4 +285,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Force hardware acceleration
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
+    }
+
 }

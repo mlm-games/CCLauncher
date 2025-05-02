@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +33,7 @@ import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.helper.IconCache
+import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
 import app.cclauncher.helper.isTablet
@@ -40,6 +44,9 @@ import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.coroutineScope
+import androidx.compose.foundation.lazy.items
+import app.cclauncher.ui.components.DraggableWidgetContainer
+import app.cclauncher.ui.components.ExternalWidget
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,6 +62,10 @@ fun HomeScreen(
     val uiState by viewModel.homeScreenState.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val settings by settingsViewModel.settingsState.collectAsState()
+
+    val scope = rememberCoroutineScope()
+
+    var widgetEditMode by remember { mutableStateOf(false) }
 
     val currentDate = remember { mutableStateOf(Date()) }
     val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
@@ -150,6 +161,124 @@ fun HomeScreen(
                 )
             }
     ) {
+        val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = when (uiState.homeAlignment) {
+                Gravity.START -> Alignment.Start
+                Gravity.END -> Alignment.End
+                else -> Alignment.CenterHorizontally
+            }
+        ) {
+            // widgets at the top if there are any
+            preferences?.externalWidgets?.let { widgets ->
+                if (widgets.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Widget section header with edit toggle
+                    if (widgetEditMode) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Edit Widgets",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Button(
+                                onClick = { widgetEditMode = false },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            ) {
+                                Text("Done")
+                            }
+                        }
+                    } else {
+                        // Show edit button when not in edit mode
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.dp)
+                        ) {
+                            Text(
+                                text = "Edit",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .clickable { widgetEditMode = true }
+                                    .padding(8.dp)
+                            )
+                        }
+                    }
+
+                    // Widget container with drag-and-drop if in edit mode
+                    if (widgetEditMode) {
+                        // Use our DraggableWidgetContainer for edit mode
+                        DraggableWidgetContainer(
+                            widgets = widgets,
+                            editMode = true,
+                            onWidgetsReordered = { reorderedWidgets ->
+                                scope.launch {
+                                    viewModel.updateWidgetOrder(reorderedWidgets)
+                                }
+                            },
+                            onConfigureWidget = { widget ->
+                                viewModel.configureExistingWidget(widget)
+                            },
+                            onRemoveWidget = { widgetId ->
+                                scope.launch {
+                                    // Find the widget to get its appWidgetId
+                                    val widget = widgets.find { it.id == widgetId }
+                                    widget?.let {
+                                        // Delete the actual widget
+                                        val widgetHelper = WidgetHelper(context)
+                                        widgetHelper.deleteWidget(it.appWidgetId)
+                                        // Remove from preferences
+                                        viewModel.removeExternalWidget(widgetId)
+                                    }
+                                }
+                            }
+                        )
+                    } else {
+                        // Simple row of widgets for normal mode
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(widgets) { widget ->
+                                ExternalWidget(
+                                    widget = widget,
+                                    editMode = false
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+
+
+            // Flexible space that pushes content down or centers it
+            if (uiState.homeBottomAlignment) {
+                Spacer(modifier = Modifier.weight(1f))
+            } else {
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
+        }
+
         // date/time and homeApps column
         Column(
             modifier = Modifier

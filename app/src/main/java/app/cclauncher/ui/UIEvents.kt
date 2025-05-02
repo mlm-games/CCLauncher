@@ -1,6 +1,7 @@
 package app.cclauncher.ui
 
 import app.cclauncher.data.AppModel
+import app.cclauncher.data.ExternalWidgetModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -29,6 +30,13 @@ sealed class UiEvent {
     data class ShowError(val message: String) : UiEvent()
     data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()
     data class ShowAppSelectionDialog(val selectionType: AppSelectionType) : UiEvent()
+
+    data object NavigateToWidgetPicker : UiEvent()
+    data class NavigateToWidgetSizeConfig(val appWidgetId: Int) : UiEvent()
+    data class NavigateToWidgetConfig(val widget: ExternalWidgetModel) : UiEvent()
+    data object NavigateToWidgetManager : UiEvent()
+
+
 }
 
 

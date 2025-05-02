@@ -6,6 +6,9 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.20"
+    id("org.jetbrains.kotlin.plugin.parcelize")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+
 }
 
 android {
@@ -134,6 +137,9 @@ dependencies {
     implementation(libs.work.runtime.ktx)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
+    implementation("com.google.code.gson:gson:2.11.0")
+
 
     //Material dependencies
     implementation(libs.material)
