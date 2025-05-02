@@ -1,6 +1,5 @@
 package app.cclauncher
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -96,7 +95,7 @@ class MainActivity : ComponentActivity() {
                 if (settings.forceLandscapeMode) {
                     requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else if (!isTablet(this@MainActivity) && Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 }
             }
         }
