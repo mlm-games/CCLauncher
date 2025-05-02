@@ -338,7 +338,7 @@ fun SettingsScreen(
                                     )
                                 }
 
-                                else -> { /* Handle other types if needed */ }
+                                else -> { /* Handle other types (mainly here for colorpicker (which is not needed but still)) */ }
                             }
                         }
                     }

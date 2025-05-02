@@ -95,7 +95,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 homeAppsNum = settings.homeAppsNum,
                 homeScreenColumns = settings.homeScreenColumns,
                 dateTimeVisibility = settings.dateTimeVisibility,
-                homeAlignment = settings.homeAlignment,
+//                homeAlignment = settings.homeAlignment,
                 homeBottomAlignment = settings.homeBottomAlignment,
                 homeApps = homeApps.map { app ->
                     getAppModelFromPreference(app)
@@ -288,69 +288,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 appContext.startService(intent)
             }
         }
-    }
-
-    /**
-     * Update home screen alignment
-     */
-    fun updateHomeAlignment(gravity: Int) {
-        viewModelScope.launch {
-            settingsRepository.setHomeAlignment(gravity)
-        }
-    }
-
-    /**
-     * Toggle date and time visibility
-     */
-    fun toggleDateTime() {
-        viewModelScope.launch {
-            val currentVisibility = _homeScreenState.value.dateTimeVisibility
-            settingsRepository.setDateTimeVisibility(currentVisibility)
-        }
-    }
-
-    /**
-     * Update visibility of apps
-     */
-    fun updateShowApps(show: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setShowAppNames(show)
-        }
-    }
-
-    /**
-     * Refresh home screen
-     */
-    fun refreshHome(appCountUpdated: Boolean) {
-        if (appCountUpdated) {
-            viewModelScope.launch {
-                val currentCount = _homeScreenState.value.homeAppsNum
-                settingsRepository.setHomeAppsNum(currentCount)
-
-                val homeScreenColumnCount = _homeScreenState.value.homeScreenColumns
-                settingsRepository.setHomeScreenColumns(homeScreenColumnCount)
-            }
-        }
-    }
-
-    /**
-     * Launch home app at specified position
-     */
-    fun launchHomeApp(position: Int) {
-        val app = getHomeAppModel(position)
-        app?.let { launchApp(it) }
-    }
-
-    /**
-     * Get home app model at specified position
-     */
-    fun getHomeAppModel(position: Int): AppModel? {
-        if (position < 1 || position > Constants.HomeAppCount.NUM) return null
-
-        val homeApps = _homeScreenState.value.homeApps
-        if (homeApps.size < position) return null
-
-        return homeApps[position - 1]
     }
 
     /**

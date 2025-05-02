@@ -247,11 +247,11 @@ private fun DateTimeSection(
     onDateLongPress: () -> Unit
 ) {
     Column(
-        horizontalAlignment = when (homeAlignment) {
-            Gravity.START -> Alignment.Start
-            Gravity.END -> Alignment.End
-            else -> Alignment.CenterHorizontally
-        }
+//        horizontalAlignment = when (homeAlignment) {
+//            Gravity.START -> Alignment.Start
+//            Gravity.END -> Alignment.End
+//            else -> Alignment.CenterHorizontally
+//        }
     ) {
         if (showTime) {
             Text(
@@ -332,10 +332,19 @@ private fun HomeApps(
     }
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns), // Use the column count
+        columns = GridCells.Fixed(columns),
         horizontalArrangement = Arrangement.spacedBy(itemSpacing),
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+//            .wrapContentWidth(
+//                when (alignment) {
+//                    Gravity.START -> Alignment.Start
+//                    Gravity.END -> Alignment.End
+//                    else -> Alignment.CenterHorizontally
+//                }
+//            )
     ) {
         items(homeAppsNum) { i ->
             val app = homeApps.getOrNull(i)
@@ -348,62 +357,64 @@ private fun HomeApps(
                     )
                 }
 
-
                 if (isInstalled) {
-                    Column(
-                        horizontalAlignment = when (alignment) {
-                            Gravity.START -> Alignment.Start
-                            Gravity.END -> Alignment.End
-                            else -> Alignment.CenterHorizontally
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .pointerInput(app) {
-                                detectTapGestures(
-                                    onTap = { onAppClick(app) },
-                                    onLongPress = { onAppLongPress(i) }
-                                )
-                            }
-                    ) {
-                        if (showAppIcons) {
+                        Row(
+//                            horizontalArrangement = when (alignment) {
+//                                Gravity.START -> Arrangement.Start
+//                                Gravity.END -> Arrangement.End
+//                                else -> Arrangement.Center
+//                            },
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth() // Make the row fill the grid cell width
+                                .padding(vertical = 8.dp)
+                                .pointerInput(app) {
+                                    detectTapGestures(
+                                        onTap = { onAppClick(app) },
+                                        onLongPress = { onAppLongPress(i) }
+                                    )
+                                }
+                        ) {
+                            if (showAppIcons) {
 
-                            val appIcon = app.appIcon ?: loadedIcons[app.getKey()]
+                                val appIcon = app.appIcon ?: loadedIcons[app.getKey()]
 
-                            if (appIcon != null) {
+                                if (appIcon != null) {
 
-                            Surface(
-                                shape = RoundedCornerShape(iconCornerRadius),
-                                modifier = Modifier.align(
-                                    when (alignment) {
-                                        Gravity.START -> Alignment.Start
-                                        Gravity.END -> Alignment.End
-                                        else -> Alignment.CenterHorizontally
+                                    Surface(
+                                        shape = RoundedCornerShape(iconCornerRadius),
+                                        modifier = Modifier.padding(end = 8.dp)
+//                                        modifier = Modifier.align(
+//                                            when (alignment) {
+//                                                Gravity.START -> Alignment.Start
+//                                                Gravity.END -> Alignment.End
+//                                                else -> Alignment.CenterHorizontally
+//                                            }
+//                                        )
+                                    ) {
+                                        Image(
+                                            bitmap = appIcon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(48.dp)
+                                        )
                                     }
-                                )
-                            ) {
-                                Image(
-                                    bitmap = appIcon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp)
-                                )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                        }
 
-                        Text(
-                            text = app.appLabel,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
-                                fontWeight = fontWeight
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = when (alignment) {
-                                Gravity.START -> TextAlign.Start
-                                Gravity.END -> TextAlign.End
-                                else -> TextAlign.Center
-                            }
-                        )
+                            Text(
+                                text = app.appLabel,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
+                                    fontWeight = fontWeight
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+//                                textAlign = when (alignment) {
+//                                    Gravity.START -> TextAlign.Start
+//                                    Gravity.END -> TextAlign.End
+//                                    else -> TextAlign.Center
+//                                }
+                            )
                     }
                 }
             } else {
