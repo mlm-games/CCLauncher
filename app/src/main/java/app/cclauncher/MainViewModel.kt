@@ -440,7 +440,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 // Update each app with its new position
                 reorderedApps.forEachIndexed { index, appPref ->
-                    settingsRepository.setHomeApp(index, appPref)
+                    val updatedPref = appPref.copy(position = index)
+                    settingsRepository.setHomeApp(index, updatedPref)
                 }
 
                 // Refresh home screen state

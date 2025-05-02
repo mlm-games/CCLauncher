@@ -74,7 +74,8 @@ data class HomeAppPreference(
     val packageName: String = "",
     val activityClassName: String? = null,
     val userString: String = "",
-    val icon: ImageBitmap? = null
+    val icon: ImageBitmap? = null,
+    val position: Int = 0
 )
 
 data class AppPreference(

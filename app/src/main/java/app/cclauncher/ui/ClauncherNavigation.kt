@@ -320,15 +320,15 @@ fun CLauncherNavigation(
                         onNavigateBack = { onScreenChange(Navigation.HOME) }
                     )
                 }
-//                Navigation.WIDGET_CONFIG -> {
-//                    widgetToConfig?.let { widget ->
-//                        WidgetConfigScreen( //TODO: Doesn't exist
-//                            viewModel = viewModel,
-//                            widget = widget,
-//                            onNavigateBack = { onScreenChange(Navigation.HOME) }
-//                        )
-//                    } ?: onScreenChange(Navigation.HOME)
-//                }
+                Navigation.WIDGET_CONFIG -> {
+                    widgetToConfig?.let { widget ->
+                        WidgetConfigScreen(
+                            viewModel = viewModel,
+                            widget = widget,
+                            onNavigateBack = { onScreenChange(Navigation.HOME) }
+                        )
+                    } ?: onScreenChange(Navigation.HOME)
+                }
 
 
                 Navigation.WIDGET_MANAGER -> {

@@ -422,7 +422,7 @@ fun HomeScreen(
                                         packageName = app.appPackage,
                                         activityClassName = app.activityClassName,
                                         userString = app.user.toString(),
-//                                        position = index
+                                        position = index
                                     )
                                 }
                             }.filterNotNull())
