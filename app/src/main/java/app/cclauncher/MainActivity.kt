@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
@@ -27,6 +28,7 @@ import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.helper.showLauncherSelector
 import app.cclauncher.ui.CLauncherNavigation
+import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
@@ -118,6 +120,14 @@ class MainActivity : ComponentActivity() {
 
         initObservers()
         viewModel.loadApps()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                lifecycleScope.launch {
+                        viewModel.emitEvent(UiEvent.NavigateBack)
+                }
+            }
+        })
     }
 
     private fun initObservers() {
@@ -152,6 +162,17 @@ class MainActivity : ComponentActivity() {
             if (settings.plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
                 setPlainWallpaper()
                 recreate()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        if (intent.action == Intent.ACTION_MAIN &&
+            intent.hasCategory(Intent.CATEGORY_HOME)) {
+            lifecycleScope.launch {
+                viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
     }
