@@ -1,5 +1,6 @@
 package app.cclauncher.ui
 
+import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -19,20 +20,32 @@ import app.cclauncher.data.Navigation
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.ui.screens.*
 import app.cclauncher.ui.util.SystemUIController
+import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CLauncherNavigation(
     viewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel,  // Use the new SettingsViewModel
     currentScreen: String,
     onScreenChange: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
+    val settings by settingsViewModel.settingsState.collectAsState()  // Get settings from SettingsViewModel
 
-    preferences?.let {
-        SystemUIController(showStatusBar = it.statusBar)
+    // Apply system UI settings
+    SystemUIController(showStatusBar = settings.statusBar)
+
+    // Force landscape if setting is enabled
+    LaunchedEffect(settings.forceLandscapeMode) {
+        (context as? android.app.Activity)?.let { activity ->
+            if (settings.forceLandscapeMode) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
     }
 
     var showAppSelectionDialog by remember { mutableStateOf(false) }
@@ -101,72 +114,66 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     when (initialState) {
                         Navigation.APP_DRAWER -> {
-                            // App drawer to home: slide down with fade and scale
-                            (slideInVertically(
-                                initialOffsetY = { -it/5 },  // Reduced slide distance for subtlety
+                            // App drawer to home: slide down
+                            slideInVertically(
+                                initialOffsetY = { -it },
                                 animationSpec = tween(300)
-                            ) + fadeIn(animationSpec = tween(300)) +
-                                    scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                                    (slideOutVertically(
-                                        targetOffsetY = { it/5 },  // Reduced slide distance for subtlety
-                                        animationSpec = tween(300)
-                                    ) + fadeOut(animationSpec = tween(300)) +
-                                            scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                            ).togetherWith(
+                                slideOutVertically(
+                                    targetOffsetY = { it },
+                                    animationSpec = tween(300)
+                                )
+                            )
                         }
                         else -> {
-                            // Settings/Hidden apps to home: slide right with fade and scale
-                            (slideInHorizontally(
-                                initialOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                            // Settings/Hidden apps to home: slide right
+                            slideInHorizontally(
+                                initialOffsetX = { -it },
                                 animationSpec = tween(300)
-                            ) + fadeIn(animationSpec = tween(300)) +
-                                    scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                                    (slideOutHorizontally(
-                                        targetOffsetX = { it/5 },  // Reduced slide distance for subtlety
-                                        animationSpec = tween(300)
-                                    ) + fadeOut(animationSpec = tween(300)) +
-                                            scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                            ).togetherWith(
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(300)
+                                )
+                            )
                         }
                     }
                 }
                 Navigation.APP_DRAWER -> {
-                    // Home to app drawer: slide up with fade and scale
-                    (slideInVertically(
-                        initialOffsetY = { it/5 },  // Reduced slide distance for subtlety
+                    // Home to app drawer: slide up
+                    slideInVertically(
+                        initialOffsetY = { it },
                         animationSpec = tween(300)
-                    ) + fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                            (slideOutVertically(
-                                targetOffsetY = { -it/5 },  // Reduced slide distance for subtlety
-                                animationSpec = tween(300)
-                            ) + fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                    ).togetherWith(
+                        slideOutVertically(
+                            targetOffsetY = { -it },
+                            animationSpec = tween(300)
+                        )
+                    )
                 }
                 Navigation.SETTINGS -> {
-                    // Home to settings: slide left with fade and scale
-                    (slideInHorizontally(
-                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                    // Home to settings: slide left
+                    slideInHorizontally(
+                        initialOffsetX = { it },
                         animationSpec = tween(300)
-                    ) + fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                            (slideOutHorizontally(
-                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                                animationSpec = tween(300)
-                            ) + fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                    ).togetherWith(
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(300)
+                        )
+                    )
                 }
                 Navigation.HIDDEN_APPS -> {
-                    // Settings to hidden apps: slide left with fade and scale
-                    (slideInHorizontally(
-                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                    // Settings to hidden apps: slide left
+                    slideInHorizontally(
+                        initialOffsetX = { it },
                         animationSpec = tween(300)
-                    ) + fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))) with
-                            (slideOutHorizontally(
-                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                                animationSpec = tween(300)
-                            ) + fadeOut(animationSpec = tween(300)) +
-                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
-                }
+                    ).togetherWith(
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(300)
+                        )
+                    )
                 // Widget screens animations
                 Navigation.WIDGET_PICKER, Navigation.WIDGET_MANAGER -> {
                     // Settings to widget screens: slide left with fade and scale
@@ -205,6 +212,7 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     HomeScreen(
                         viewModel = viewModel,
+                        settingsViewModel = settingsViewModel,  // Pass the settings view model
                         onNavigateToAppDrawer = {
                             onScreenChange(Navigation.APP_DRAWER)
                         },
@@ -216,6 +224,7 @@ fun CLauncherNavigation(
                 Navigation.APP_DRAWER -> {
                     AppDrawerScreen(
                         viewModel = viewModel,
+                        settingsViewModel = settingsViewModel,  // Pass the settings view model
                         onAppClick = { app ->
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
@@ -267,24 +276,24 @@ fun CLauncherNavigation(
                             AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                             null -> ""
-                            }
-                        )
-                    }
-                    Navigation.SETTINGS -> {
-                        SettingsScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = {
-                                onScreenChange(Navigation.HOME)
-                            },
-                            onNavigateToHiddenApps = {
-                                onScreenChange(Navigation.HIDDEN_APPS)
-                            }
-                        )
-                    }
-                    Navigation.HIDDEN_APPS -> {
-                        HiddenAppsScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = {
+                        }
+                    )
+                }
+                Navigation.SETTINGS -> {
+                    SettingsScreen(
+                        viewModel = settingsViewModel,
+                        onNavigateBack = {
+                            onScreenChange(Navigation.HOME)
+                        },
+                        onNavigateToHiddenApps = {
+                            onScreenChange(Navigation.HIDDEN_APPS)
+                        }
+                    )
+                }
+                Navigation.HIDDEN_APPS -> {
+                    HiddenAppsScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = {
                                 onScreenChange(Navigation.SETTINGS)
                             }
                         )

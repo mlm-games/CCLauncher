@@ -2,8 +2,10 @@ package app.cclauncher.helper
 
 import android.app.Activity
 import android.app.AppOpsManager
+import android.app.SearchManager
 import android.app.role.RoleManager
 import android.content.Context
+import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.view.Display
@@ -41,6 +43,12 @@ fun Activity.showLauncherSelector(requestCode: Int) {
 //        e.printStackTrace()
 //    }
 //}
+
+fun Context.openSearch(query: String? = null) {
+    val intent = Intent(Intent.ACTION_WEB_SEARCH)
+    intent.putExtra(SearchManager.QUERY, query ?: "")
+    startActivity(intent)
+}
 
 
 fun Context.isEinkDisplay(): Boolean {

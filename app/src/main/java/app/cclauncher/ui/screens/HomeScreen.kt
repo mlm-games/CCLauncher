@@ -1,27 +1,38 @@
 package app.cclauncher.ui.screens
 
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.view.Gravity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
+import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.isPackageInstalled
@@ -31,6 +42,8 @@ import app.cclauncher.helper.openCalendar
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.viewmodels.SettingsViewModel
+import kotlinx.coroutines.coroutineScope
 import androidx.compose.foundation.lazy.items
 import app.cclauncher.ui.components.DraggableWidgetContainer
 import app.cclauncher.ui.components.ExternalWidget
@@ -41,12 +54,14 @@ import java.util.*
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel = viewModel(),
     onNavigateToAppDrawer: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     val context = LocalContext.current
     val uiState by viewModel.homeScreenState.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val settings by settingsViewModel.settingsState.collectAsState()
 
     val scope = rememberCoroutineScope()
 
@@ -56,6 +71,47 @@ fun HomeScreen(
     val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
     val dateText = dateFormat.format(currentDate.value).replace(".,", ",")
 
+    // Get current orientation to decide whether to show icons
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+
+    // Determine if icons should be shown based on orientation settings
+    val shouldShowIcons = if (settings.showHomeScreenIcons) {
+        if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
+    } else {
+        false
+    }
+
+    // Get font weight
+    val fontWeight = when (settings.fontWeight) {
+        0 -> FontWeight.Thin
+        1 -> FontWeight.Light
+        2 -> FontWeight.Normal
+        3 -> FontWeight.Medium
+        4 -> FontWeight.Bold
+        5 -> FontWeight.Black
+        else -> FontWeight.Normal
+    }
+
+    // Get item spacing
+    val itemSpacing = when (settings.itemSpacing) {
+        0 -> 0.dp
+        1 -> 4.dp
+        2 -> 8.dp
+        3 -> 16.dp
+        else -> 8.dp
+    }
+
+    LaunchedEffect(settings.forceLandscapeMode) {
+        (context as? android.app.Activity)?.let { activity ->
+            if (settings.forceLandscapeMode) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         while(true) {
@@ -63,7 +119,6 @@ fun HomeScreen(
             kotlinx.coroutines.delay(60000)
         }
     }
-
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
@@ -85,7 +140,7 @@ fun HomeScreen(
             .detectSwipeGestures(
                 onSwipeUp = { onNavigateToAppDrawer() },
                 onSwipeDown = {
-                    when (viewModel.settingsScreenState.value.swipeDownAction) {
+                    when (settings.swipeDownAction) {
                         Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
                         else -> expandNotificationDrawer(context)
@@ -96,8 +151,9 @@ fun HomeScreen(
             )
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = {if (viewModel.settingsScreenState.value.doubleTapToLock) {
-                        viewModel.lockScreen()
+                    onDoubleTap = {
+                        if (settings.doubleTapToLock) {
+                            viewModel.lockScreen()
                         }
                     },
                     onLongPress = { onNavigateToSettings() },
@@ -229,12 +285,12 @@ fun HomeScreen(
                 .align(
                     when {
                         // First determine vertical alignment based on homeBottomAlignment
-                        uiState.homeBottomAlignment -> when (uiState.homeAlignment) {
+                        settings.homeBottomAlignment -> when (settings.homeAlignment) {
                             Gravity.START -> Alignment.BottomStart
                             Gravity.END -> Alignment.BottomEnd
                             else -> Alignment.BottomCenter
                         }
-                        else -> when (uiState.homeAlignment) {
+                        else -> when (settings.homeAlignment) {
                             Gravity.START -> Alignment.CenterStart
                             Gravity.END -> Alignment.CenterEnd
                             else -> Alignment.Center
@@ -243,19 +299,21 @@ fun HomeScreen(
                 )
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = when (uiState.homeAlignment) {
+            horizontalAlignment = when (settings.homeAlignment) {
                 Gravity.START -> Alignment.Start
                 Gravity.END -> Alignment.End
                 else -> Alignment.CenterHorizontally
             },
-            ) {
-            if (uiState.showDateTime) {
+        ) {
+            if (settings.dateTimeVisibility != Constants.DateTime.OFF) {
                 DateTimeSection(
-                    showTime = uiState.showTime,
-                    showDate = uiState.showDate,
+                    showTime = Constants.DateTime.isTimeVisible(settings.dateTimeVisibility),
+                    showDate = Constants.DateTime.isDateVisible(settings.dateTimeVisibility),
                     currentDate = currentDate.value,
                     dateText = dateText,
-                    homeAlignment = uiState.homeAlignment,
+                    homeAlignment = settings.homeAlignment,
+                    fontScale = settings.textSizeScale,
+                    fontWeight = fontWeight,
                     onTimeClick = { openAlarmApp(context) },
                     onDateClick = { openCalendar(context) },
                     onDateLongPress = { viewModel.emitEvent(UiEvent.NavigateToAppSelection(AppSelectionType.CALENDAR_APP)) },
@@ -265,9 +323,14 @@ fun HomeScreen(
             }
 
             HomeApps(
-                homeAppsNum = uiState.homeAppsNum,
+                homeAppsNum = settings.homeAppsNum,
                 homeApps = uiState.homeApps,
-                alignment = uiState.homeAlignment,
+                alignment = settings.homeAlignment,
+                showAppIcons = shouldShowIcons,
+                fontScale = settings.textSizeScale,
+                fontWeight = fontWeight,
+                iconCornerRadius = settings.iconCornerRadius.dp,
+                itemSpacing = itemSpacing,
                 onAppClick = { app -> viewModel.launchApp(app) },
                 onAppLongPress = { position ->
                     // Convert position to selection type
@@ -292,8 +355,7 @@ fun HomeScreen(
                     }
                     viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
                 },
-                columns = uiState.homeScreenColumns
-
+                columns = settings.homeScreenColumns
             )
         }
     }
@@ -306,22 +368,27 @@ private fun DateTimeSection(
     currentDate: Date,
     dateText: String,
     homeAlignment: Int,
+    fontScale: Float,
+    fontWeight: FontWeight,
     onTimeClick: () -> Unit,
     onDateClick: () -> Unit,
     onTimeLongPress: () -> Unit,
     onDateLongPress: () -> Unit
 ) {
     Column(
-        horizontalAlignment = when (homeAlignment) {
-            Gravity.START -> Alignment.Start
-            Gravity.END -> Alignment.End
-            else -> Alignment.CenterHorizontally
-        }
+//        horizontalAlignment = when (homeAlignment) {
+//            Gravity.START -> Alignment.Start
+//            Gravity.END -> Alignment.End
+//            else -> Alignment.CenterHorizontally
+//        }
     ) {
         if (showTime) {
             Text(
                 text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentDate),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = MaterialTheme.typography.headlineLarge.fontSize * fontScale,
+                    fontWeight = fontWeight
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
@@ -335,7 +402,10 @@ private fun DateTimeSection(
         if (showDate) {
             Text(
                 text = dateText,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize * fontScale,
+                    fontWeight = fontWeight
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(
@@ -353,16 +423,57 @@ private fun HomeApps(
     homeAppsNum: Int,
     homeApps: List<AppModel?>,
     alignment: Int,
+    showAppIcons: Boolean,
+    fontScale: Float,
+    fontWeight: FontWeight,
+    iconCornerRadius: androidx.compose.ui.unit.Dp,
+    itemSpacing: androidx.compose.ui.unit.Dp,
     onAppClick: (AppModel) -> Unit,
     onAppLongPress: (Int) -> Unit,
     columns: Int
 ) {
     val context = LocalContext.current
+    val iconCache = remember { IconCache(context) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val loadedIcons = remember { mutableStateMapOf<String, ImageBitmap?>() }
+
+    LaunchedEffect(homeApps) {
+        if (showAppIcons) {
+            homeApps.filterNotNull().forEach { app ->
+                if (app.appIcon == null) {
+                    val key = app.getKey()
+
+                    if (!loadedIcons.containsKey(key)) {
+                        coroutineScope.launch {
+                            val userHandle = app.user
+                            val icon = iconCache.getIcon(
+                                app.appPackage,
+                                app.activityClassName,
+                                userHandle
+                            )
+                            loadedIcons[key] = icon
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columns), // Use the column count
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(16.dp)
+        columns = GridCells.Fixed(columns),
+        horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+        verticalArrangement = Arrangement.spacedBy(itemSpacing),
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+//            .wrapContentWidth(
+//                when (alignment) {
+//                    Gravity.START -> Alignment.Start
+//                    Gravity.END -> Alignment.End
+//                    else -> Alignment.CenterHorizontally
+//                }
+//            )
     ) {
         items(homeAppsNum) { i ->
             val app = homeApps.getOrNull(i)
@@ -376,29 +487,72 @@ private fun HomeApps(
                 }
 
                 if (isInstalled) {
-                    Text(
-                        text = app.appLabel,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = when (alignment) {
-                            Gravity.START -> TextAlign.Start
-                            Gravity.END -> TextAlign.End
-                            else -> TextAlign.Center
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .pointerInput(app) {
-                                detectTapGestures(
-                                    onTap = { onAppClick(app) },
-                                    onLongPress = { onAppLongPress(i) }
-                                )
+                        Row(
+//                            horizontalArrangement = when (alignment) {
+//                                Gravity.START -> Arrangement.Start
+//                                Gravity.END -> Arrangement.End
+//                                else -> Arrangement.Center
+//                            },
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth() // Make the row fill the grid cell width
+                                .padding(vertical = 8.dp)
+                                .pointerInput(app) {
+                                    detectTapGestures(
+                                        onTap = { onAppClick(app) },
+                                        onLongPress = { onAppLongPress(i) }
+                                    )
+                                }
+                        ) {
+                            if (showAppIcons) {
+
+                                val appIcon = app.appIcon ?: loadedIcons[app.getKey()]
+
+                                if (appIcon != null) {
+
+                                    Surface(
+                                        shape = RoundedCornerShape(iconCornerRadius),
+                                        modifier = Modifier.padding(end = 8.dp)
+//                                        modifier = Modifier.align(
+//                                            when (alignment) {
+//                                                Gravity.START -> Alignment.Start
+//                                                Gravity.END -> Alignment.End
+//                                                else -> Alignment.CenterHorizontally
+//                                            }
+//                                        )
+                                    ) {
+                                        Image(
+                                            bitmap = appIcon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(48.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
                             }
-                    )
+
+                            Text(
+                                text = app.appLabel,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
+                                    fontWeight = fontWeight
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+//                                textAlign = when (alignment) {
+//                                    Gravity.START -> TextAlign.Start
+//                                    Gravity.END -> TextAlign.End
+//                                    else -> TextAlign.Center
+//                                }
+                            )
+                    }
                 }
             } else {
                 Text(
                     text = "•••",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale,
+                        fontWeight = fontWeight
+                    ),
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = when (alignment) {
                         Gravity.START -> TextAlign.Start

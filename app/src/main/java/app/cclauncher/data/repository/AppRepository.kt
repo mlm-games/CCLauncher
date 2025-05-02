@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
  */
 class AppRepository(
     private val context: Context,
-    private val prefs: PrefsDataStore
+    private val settingsRepository: SettingsRepository
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
@@ -35,7 +35,7 @@ class AppRepository(
     suspend fun loadAllApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = true, includeAppIcons = true)
+                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true, includeAppIcons = true)
                 _appListAll.value = apps
             } catch (e: Exception) {
                 throw e
@@ -49,7 +49,7 @@ class AppRepository(
     suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, prefs, includeRegularApps = true, includeHiddenApps = false, includeAppIcons = true)
+                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false, includeAppIcons = true)
                 _appList.value = apps
             } catch (e: Exception) {
                 throw e
@@ -63,7 +63,7 @@ class AppRepository(
     suspend fun loadHiddenApps() {
         withContext(Dispatchers.IO) {
             try {
-                val hiddenApps = getAppsList(context, prefs, includeRegularApps = false, includeHiddenApps = true)
+                val hiddenApps = getAppsList(context, settingsRepository, includeRegularApps = false, includeHiddenApps = true)
                 _hiddenApps.value = hiddenApps
             } catch (e: Exception) {
                 throw e
@@ -75,26 +75,11 @@ class AppRepository(
      * Toggle app hidden state
      */
     suspend fun toggleAppHidden(app: AppModel) {
-
-        val prefsDataStore = prefs
         withContext(Dispatchers.IO) {
             try {
                 val appKey = "${app.appPackage}/${app.user.hashCode()}"
-                val currentHiddenApps = prefsDataStore.hiddenApps.first().toMutableSet()
 
-                if (currentHiddenApps.contains(appKey)) {
-                    // App is currently hidden, unhide it
-                    currentHiddenApps.remove(appKey)
-                    println("Unhiding app: $appKey")
-                } else {
-                    // App is currently visible, hide it
-                    currentHiddenApps.add(appKey)
-                    println("Hiding app: $appKey")
-                }
-
-                prefsDataStore.setHiddenApps(currentHiddenApps)
-
-                prefsDataStore.updatePreference { it.copy(hiddenAppsUpdated = true) }
+                settingsRepository.toggleAppHidden(appKey)
 
                 loadApps()
                 loadHiddenApps()
@@ -146,9 +131,9 @@ class AppRepository(
      * Check if app is hidden
      */
     suspend fun isAppHidden(app: AppModel): Boolean {
-        val preferences = prefs.preferences.first()
+        val settings = settingsRepository.settings.first()
         val appKey = "${app.appPackage}/${app.user}"
-        return preferences.hiddenApps.contains(appKey)
+        return settings.hiddenApps.contains(appKey)
     }
 
     /**

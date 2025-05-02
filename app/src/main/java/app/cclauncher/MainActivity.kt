@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
+import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.PrefsDataStore
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
@@ -35,12 +37,17 @@ import app.cclauncher.helper.showLauncherSelector
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
+import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var settingsRepository: SettingsRepository
+
+    override fun onCreate(savedInstanceState: Bundle?) {
     private val widgetHelper by lazy { WidgetHelper(this) }
 
     val widgetRequestLauncher = registerForActivityResult(
@@ -88,54 +95,69 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
         )
 
-        val prefsDataStore = PrefsDataStore(this)
+        // Initialize settings repository
+        settingsRepository = SettingsRepository(applicationContext)
+
+        // Initialize theme based on settings
         lifecycleScope.launch {
-            val appTheme = prefsDataStore.appTheme.first()
+            val settings = settingsRepository.settings.first()
             if (isEinkDisplay()) {
-                prefsDataStore.setAppTheme(AppCompatDelegate.MODE_NIGHT_NO)
+                settingsRepository.setAppTheme(AppCompatDelegate.MODE_NIGHT_NO)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             } else {
-                AppCompatDelegate.setDefaultNightMode(appTheme)
+                AppCompatDelegate.setDefaultNightMode(settings.appTheme)
             }
         }
 
         super.onCreate(savedInstanceState)
 
+        // Initialize ViewModels
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
+        // Handle first open
         lifecycleScope.launch {
-            val firstOpen = prefsDataStore.firstOpen.first()
-            if (firstOpen) {
-                viewModel.firstOpen(true)
-                prefsDataStore.setFirstOpen(false)
-                prefsDataStore.setFirstOpenTime(System.currentTimeMillis())
+            val settings = settingsRepository.settings.first()
+            if (settings.firstOpen) {
+                viewModel.firstOpen(false)
+                settingsRepository.setFirstOpen(false)
+                settingsRepository.updateSetting { it.copy(firstOpenTime = System.currentTimeMillis()) }
             }
         }
 
+        // Update status bar visibility
         lifecycleScope.launch {
-            //ensure window is ready
+            // Ensure window is ready
             delay(500)
-            prefsDataStore.preferences.first().let { prefs ->
+            settingsRepository.settings.first().let { settings ->
                 try {
-                    updateStatusBarVisibility(this@MainActivity, prefs.statusBar)
+                    updateStatusBarVisibility(this@MainActivity, settings.statusBar)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
         }
 
+        // Set up orientation observer
+        lifecycleScope.launch {
+            settingsRepository.settings.collect { settings ->
+                if (settings.forceLandscapeMode) {
+                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                } else if (!isTablet(this@MainActivity) && Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                }
+            }
+        }
 
-        setupOrientation()
         window.addFlags(FLAG_LAYOUT_NO_LIMITS)
 
         setContent {
-//            val preferences by prefsDataStore.preferences.collectAsState(initial = null)
-
             CLauncherTheme {
                 var currentScreen by remember { mutableStateOf(Navigation.HOME) }
 
                 CLauncherNavigation(
                     viewModel = viewModel,
+                    settingsViewModel = settingsViewModel,
                     currentScreen = currentScreen,
                     onScreenChange = { screen ->
                         currentScreen = screen
@@ -146,6 +168,14 @@ class MainActivity : ComponentActivity() {
 
         initObservers()
         viewModel.loadApps()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                lifecycleScope.launch {
+                        viewModel.emitEvent(UiEvent.NavigateBack)
+                }
+            }
+        })
     }
 
     fun addExternalWidget(providerInfo: AppWidgetProviderInfo) {
@@ -189,13 +219,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
-    private fun setupOrientation() {
-        if (isTablet(this) || Build.VERSION.SDK_INT == Build.VERSION_CODES.O)
-            return
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    }
-
     private fun openLauncherChooser(resetFailed: Boolean) {
         if (resetFailed) {
             val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
@@ -212,16 +235,25 @@ class MainActivity : ComponentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         lifecycleScope.launch {
-            val appTheme = viewModel.prefsDataStore.appTheme.first()
-            AppCompatDelegate.setDefaultNightMode(appTheme)
+            val settings = settingsRepository.settings.first()
+            AppCompatDelegate.setDefaultNightMode(settings.appTheme)
 
-            val plainWallpaper = viewModel.prefsDataStore.plainWallpaper.first()
-            if (plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            if (settings.plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
                 setPlainWallpaper()
                 recreate()
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        if (intent.action == Intent.ACTION_MAIN &&
+            intent.hasCategory(Intent.CATEGORY_HOME)) {
+            lifecycleScope.launch {
+                viewModel.emitEvent(UiEvent.NavigateBack)
+            }
+        }
 
     fun requestDefaultLauncher(context: Context) {
 //        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
@@ -239,7 +271,7 @@ class MainActivity : ComponentActivity() {
                 when (result.data?.getIntExtra("requestCode", 0)) {
                     Constants.REQUEST_CODE_ENABLE_ADMIN -> {
                         lifecycleScope.launch {
-                            viewModel.prefsDataStore.updatePreference { it.copy(lockMode = true) }
+                            settingsRepository.updateSetting { it.copy(lockMode = true) }
                         }
                     }
                     Constants.REQUEST_CODE_LAUNCHER_SELECTOR -> {

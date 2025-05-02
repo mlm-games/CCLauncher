@@ -1,0 +1,1 @@
+Settings will not carry over, if you have already updated -> you can install the previous version to get them back and then note them for the next update
