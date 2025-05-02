@@ -24,8 +24,8 @@ android {
         applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 35
-        versionCode = 490
-        versionName = "v8.0.0"
+        versionCode = 500
+        versionName = "v8.0.1"
 
         resourceConfigurations += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
