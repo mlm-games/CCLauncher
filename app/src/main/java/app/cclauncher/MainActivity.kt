@@ -46,47 +46,47 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
+    val widgetHelper by lazy { WidgetHelper(this) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        val widgetHelper by lazy { WidgetHelper(this) }
-
-        val widgetRequestLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            Log.d("MainActivity", "Widget request result: ${result.resultCode}")
-            if (result.resultCode == RESULT_OK) {
-                val appWidgetId =
-                    result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-                Log.d("MainActivity", "Widget ID from result: $appWidgetId")
-                if (appWidgetId != -1) {
-                    // Check if widget needs configuration
-                    if (widgetHelper.needsConfiguration(appWidgetId)) {
-                        Log.d("MainActivity", "Widget needs configuration after binding")
-                        val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-                        configIntent?.let {
-                            configWidgetLauncher.launch(it)
-                        }
-                    } else {
-                        // Widget added successfully, proceed to widget configuration screen
-                        Log.d("MainActivity", "Proceeding to widget size config")
-                        viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+    val widgetRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
+        if (result.resultCode == RESULT_OK) {
+            val appWidgetId =
+                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
+            if (appWidgetId != -1) {
+                // Check if widget needs configuration
+                if (widgetHelper.needsConfiguration(appWidgetId)) {
+                    Log.d("MainActivity", "Widget needs configuration after binding")
+                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                    configIntent?.let {
+                        configWidgetLauncher.launch(it)
                     }
+                } else {
+                    // Widget added successfully, proceed to widget configuration screen
+                    Log.d("MainActivity", "Proceeding to widget size config")
+                    viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
                 }
             }
         }
+    }
 
-        val configWidgetLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            Log.d("MainActivity", "Widget config result: ${result.resultCode}")
-            val appWidgetId =
-                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-            if (appWidgetId != -1) {
-                // Widget configured successfully, proceed to widget configuration screen
-                Log.d("MainActivity", "Proceeding to widget size config after configuration")
-                viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
-            }
+    val configWidgetLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget config result: ${result.resultCode}")
+        val appWidgetId =
+            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (appWidgetId != -1) {
+            // Widget configured successfully, proceed to widget configuration screen
+            Log.d("MainActivity", "Proceeding to widget size config after configuration")
+            viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration
         window.setFlags(

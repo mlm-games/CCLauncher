@@ -113,7 +113,7 @@ fun DraggableAppsGrid(
                 app?.let { appModel ->
                     AppItem(
                         app = appModel,
-                        showIcon = showAppIcons,
+//                        showIcon = showAppIcons,
                         onClick = { onAppClick(appModel) },
                         onLongClick = { onAppLongPress(originalIndex) }
                     )

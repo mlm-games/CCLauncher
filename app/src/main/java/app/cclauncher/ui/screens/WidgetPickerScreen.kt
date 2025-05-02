@@ -83,7 +83,8 @@ fun WidgetPickerScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(availableWidgets.value) { widgetInfo ->
+                items(availableWidgets.value.size) { index ->
+                    val widgetInfo = availableWidgets.value[index]
                     WidgetInfoItem(
                         widgetInfo = widgetInfo,
                         onClick = {
