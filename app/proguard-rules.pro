@@ -22,7 +22,10 @@
 
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class sun.misc.Unsafe { *; }
+-dontobfuscate
+
+#-keep @app.cclauncher.data.settings.Setting class *
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
+
