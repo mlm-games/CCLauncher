@@ -28,22 +28,9 @@
   public static final android.os.Parcelable$Creator *;
 }
 
--keep class app.cclauncher.data.settings.Setting
--keepclasseswithmembers class app.cclauncher.data.settings.AppSettings {
-    <fields>;
-}
-
-# Keep annotation metadata on AppSettings fields
--keepclassmembers class app.cclauncher.data.settings.AppSettings {
+-keep class app.cclauncher.data.settings.AppSettings { *; }
+-keepclassmembers class app.cclauncher.data.settings.AppSettings { *; }
+-keep @app.cclauncher.data.settings.Setting class * { *; }
+-keepclasseswithmembers class * {
     @app.cclauncher.data.settings.Setting <fields>;
-}
-
--keepclassmembers class app.cclauncher.data.settings.SettingType { *; }
--keepclassmembers class app.cclauncher.data.settings.SettingCategory { *; }
-
--keepattributes *Annotation*, InnerClasses, Signature, RuntimeVisibleAnnotations, AnnotationDefault
--keep class kotlin.Metadata { *; }
--keep class kotlin.reflect.** { *; }
--keepclassmembers class ** {
-    @kotlin.reflect.** *;
 }
