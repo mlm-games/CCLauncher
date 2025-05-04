@@ -1,3 +1,5 @@
+package app.cclauncher.ui.screens
+
 import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -11,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon

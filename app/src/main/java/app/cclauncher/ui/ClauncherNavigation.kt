@@ -1,6 +1,6 @@
 package app.cclauncher.ui
 
-import WidgetSizeConfigScreen
+import app.cclauncher.ui.screens.WidgetSizeConfigScreen
 import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
