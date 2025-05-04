@@ -335,10 +335,15 @@ fun CLauncherNavigation(
                 }
                 Navigation.WIDGET_CONFIG -> {
                     widgetToConfig?.let { widget ->
-                        WidgetConfigScreen(
+                        WidgetConfigSizeScreen(
                             viewModel = viewModel,
-                            widget = widget,
-                            onNavigateBack = { onScreenChange(Navigation.HOME) }
+                            existingWidget = widget,
+                            providerClassName = widget.providerClassName,
+                            label = widget.label,
+                            packageName = widget.packageName,
+                            widgetId = widget.appWidgetId,
+                            onNavigateBack = { onScreenChange(Navigation.HOME) },
+                            onSaveWidget = {} //TODO
                         )
                     } ?: onScreenChange(Navigation.HOME)
                 }

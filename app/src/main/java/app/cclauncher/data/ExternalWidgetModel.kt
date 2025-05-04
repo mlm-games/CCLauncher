@@ -19,7 +19,8 @@ data class ExternalWidgetModel(
     val position: Int = 0,
     val width: Int = 1,  // Width in grid cells
     val height: Int = 1, // in grid cells
-    val config: WidgetConfig = WidgetConfig()
+    val config: WidgetConfig = WidgetConfig(),
+    val specialType: String = ""
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

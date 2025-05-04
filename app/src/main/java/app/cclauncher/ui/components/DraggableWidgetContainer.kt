@@ -24,17 +24,27 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import app.cclauncher.MainViewModel
 import app.cclauncher.data.ExternalWidgetModel
+import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.data.settings.Setting
+import app.cclauncher.ui.viewmodels.SettingsViewModel
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun DraggableWidgetContainer(
     widgets: List<ExternalWidgetModel>,
     editMode: Boolean,
+    mainViewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel,
     onWidgetsReordered: (List<ExternalWidgetModel>) -> Unit,
     onConfigureWidget: (ExternalWidgetModel) -> Unit = {},
     onRemoveWidget: (String) -> Unit = {},
     onResizeWidget: (ExternalWidgetModel, Int, Int) -> Unit = { _, _, _ -> }
 ) {
+    val settings = settingsViewModel.settingsState.collectAsState().value
+    val uiState = mainViewModel.homeScreenState.collectAsState().value
+
     if (widgets.isEmpty()) return
 
     // Track widget order
@@ -91,7 +101,8 @@ fun DraggableWidgetContainer(
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
                                 // Store position of each widget for drop target calculation
-                                widgetPositions[index] = coordinates.positionInRoot() to coordinates.size
+                                widgetPositions[index] =
+                                    coordinates.positionInRoot() to coordinates.size
                             }
                             .zIndex(if (isDragging) 10f else 1f)
                             .scale(scale)
@@ -110,16 +121,18 @@ fun DraggableWidgetContainer(
                                                 dragOffset += dragAmount
 
                                                 // Find the widget under the current drag position
-                                                val currentPosition = widgetPositions[index]?.first?.plus(dragOffset)
+                                                val currentPosition =
+                                                    widgetPositions[index]?.first?.plus(dragOffset)
                                                 if (currentPosition != null) {
                                                     // Find which widget we're hovering over
-                                                    val targetIndex = widgetPositions.entries.firstOrNull { (i, posSize) ->
-                                                        if (i != index) {
-                                                            val (pos, size) = posSize
-                                                            currentPosition.x >= pos.x &&
-                                                                    currentPosition.x <= pos.x + size.width
-                                                        } else false
-                                                    }?.key
+                                                    val targetIndex =
+                                                        widgetPositions.entries.firstOrNull { (i, posSize) ->
+                                                            if (i != index) {
+                                                                val (pos, size) = posSize
+                                                                currentPosition.x >= pos.x &&
+                                                                        currentPosition.x <= pos.x + size.width
+                                                            } else false
+                                                        }?.key
 
                                                     // If valid target found, swap widgets
                                                     if (targetIndex != null && targetIndex != index) {
@@ -129,9 +142,10 @@ fun DraggableWidgetContainer(
                                                         newList[targetIndex] = temp
 
                                                         // Update positions to match new order
-                                                        val reposWidgets = newList.mapIndexed { i, w ->
-                                                            w.copy(position = i)
-                                                        }
+                                                        val reposWidgets =
+                                                            newList.mapIndexed { i, w ->
+                                                                w.copy(position = i)
+                                                            }
 
                                                         orderedWidgets = reposWidgets
                                                         draggedWidgetIndex = targetIndex
@@ -164,13 +178,38 @@ fun DraggableWidgetContainer(
                             ) {}
                         }
 
-                        ExternalWidget(
-                            widget = widget,
-                            editMode = editMode,
-                            onConfigureWidget = onConfigureWidget,
-                            onRemoveWidget = onRemoveWidget,
-                            onResizeWidget = onResizeWidget
-                        )
+
+                        Box {
+                            when (widget.specialType) {
+                                "home_apps_grid" -> {
+                                    DraggableAppsGrid(
+                                        apps = uiState.homeApps,
+                                        columns = settings.homeScreenColumns,
+                                        showAppIcons = settings.showAppIcons,
+                                        itemSpacing = settings.itemSpacing.dp,
+                                        onAppClick = {app -> mainViewModel.launchApp(app)},
+                                        onAppLongPress = {
+
+                                        },
+                                        onAppsReordered = {},
+                                        editMode = settings.editHomeApps
+                                    )
+                                }
+                                "clock_widget" -> {
+                                    // Render clock/date widget
+                                    //TODO: ClockDateWidget(...)
+                                }
+                                else -> {
+                                    ExternalWidget(
+                                        widget = widget,
+                                        editMode = editMode,
+                                        onConfigureWidget = onConfigureWidget,
+                                        onRemoveWidget = onRemoveWidget,
+                                        onResizeWidget = onResizeWidget
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

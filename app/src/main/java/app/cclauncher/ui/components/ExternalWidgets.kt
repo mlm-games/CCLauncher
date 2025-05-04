@@ -1,37 +1,45 @@
 package app.cclauncher.ui.components
 
 import android.appwidget.AppWidgetHostView
-import android.util.Log
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.helper.WidgetHelper
+import kotlin.math.abs
 
 @Composable
 fun ExternalWidget(
@@ -49,7 +57,6 @@ fun ExternalWidget(
     // Calculate widget dimensions based on grid size
     var widthMultiplier by remember { mutableIntStateOf(widget.width.coerceIn(1, 4)) }
     var heightMultiplier by remember { mutableIntStateOf(widget.height.coerceIn(1, 4)) }
-    var isResizing by remember { mutableStateOf(false) }
 
     // Base unit is 80dp
     val baseUnit = 80.dp
@@ -61,11 +68,6 @@ fun ExternalWidget(
     var errorMessage by remember { mutableStateOf("") }
 
     // Reset resizing state when edit mode changes
-    LaunchedEffect(editMode) {
-        if (!editMode) {
-            isResizing = false
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -188,35 +190,51 @@ fun ExternalWidget(
                 }
             }
 
-            // Size indicator and resize controls
-            Column(
+            val cornerSize = 20.dp
+
+            Box(
                 modifier = Modifier
+                    .size(cornerSize)
                     .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-            ) {
-                if (isResizing) {
-                    // Resize controls
-                    Row(
-                        modifier = Modifier
-                            .background(
-                                color = Color.Black.copy(alpha = 0.7f),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(4.dp)
-                    ) {
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.7f))
+                    .pointerInput(widget.id) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            // Increase width/height based on drag
+                            val dragX = dragAmount.x / density.density
+                            val dragY = dragAmount.y / density.density
 
-//TODO: Need draggable corners?
+                            // Update width multiplier (within bounds 1-4)
+                            if (abs(dragX) > 2f) {
+                                val direction = if (dragX > 0) 1 else -1
+                                widthMultiplier = (widthMultiplier + direction).coerceIn(1, 4)
+                            }
 
+                            // Update height multiplier (within bounds 1-4)
+                            if (abs(dragY) > 2f) {
+                                val direction = if (dragY > 0) 1 else -1
+                                heightMultiplier = (heightMultiplier + direction).coerceIn(1, 4)
+                            }
+
+                            // Apply resize immediately
+                            onResizeWidget(widget, widthMultiplier, heightMultiplier)
+                        }
                     }
-                }
-            }
-        }
-    }
+            )
 
-    // Apply resize changes when dimensions change, //TODO: They reset when the screen changes, instead of saving the size
-    LaunchedEffect(widthMultiplier, heightMultiplier, isResizing) {
-        if (!isResizing && (widthMultiplier != widget.width || heightMultiplier != widget.height)) {
-            onResizeWidget(widget, widthMultiplier, heightMultiplier)
+            Box(
+                modifier = Modifier
+                    .size(cornerSize)
+                    .align(Alignment.BottomStart)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+                    .pointerInput(widget.id) {
+                        // Similar drag detection but affecting width differently
+                    }
+            )
+
+
+//TODO: Need better draggable corners?
+
         }
     }
 }

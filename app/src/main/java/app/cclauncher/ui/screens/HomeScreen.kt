@@ -43,9 +43,6 @@ fun HomeScreen(
     val settings by settingsViewModel.settingsState.collectAsState()
     val scope = rememberCoroutineScope()
 
-    // Widget edit mode
-    // Home apps edit mode
-
     // Date/time state
     val currentDate = remember { mutableStateOf(Date()) }
     val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
@@ -162,7 +159,9 @@ fun HomeScreen(
                             scope.launch {
                                 viewModel.resizeWidget(widget, newWidth, newHeight)
                             }
-                        }
+                        },
+                        settingsViewModel = settingsViewModel,
+                        mainViewModel = viewModel
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -232,10 +231,14 @@ fun HomeScreen(
                         showAppIcons = shouldShowIcons,
                         itemSpacing = itemSpacing,
                         onAppClick = { app ->
-                            if (!settings.editHomeApps) viewModel.launchApp(app)
+                            viewModel.launchApp(app)
                         },
                         onAppLongPress = { position ->
-                            val selectionType = when (position) {
+
+                            val existingApp = uiState.homeApps.getOrNull(position)
+
+                            if (settings.editHomeApps || existingApp == null) {
+                                val selectionType = when (position) {
                                 0 -> AppSelectionType.HOME_APP_1
                                 1 -> AppSelectionType.HOME_APP_2
                                 2 -> AppSelectionType.HOME_APP_3
@@ -253,8 +256,9 @@ fun HomeScreen(
                                 14 -> AppSelectionType.HOME_APP_15
                                 15 -> AppSelectionType.HOME_APP_16
                                 else -> AppSelectionType.HOME_APP_1
+                                }
+                                viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
                             }
-                            viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
                         },
                         onAppsReordered = { reorderedApps ->
                             viewModel.updateHomeAppOrder(reorderedApps.mapIndexed { index, pair ->

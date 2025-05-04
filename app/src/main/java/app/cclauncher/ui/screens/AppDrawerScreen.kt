@@ -194,7 +194,7 @@ fun AppDrawerScreen(
                 searchQuery = query
                 if (query.isEmpty()) {
                     coroutineScope.launch {
-                        delay(10) // Updation delay
+                        delay(100) // Updation delay
                         scrollState.scrollToItem(0)
                     }
                 }

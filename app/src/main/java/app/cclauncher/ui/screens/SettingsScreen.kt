@@ -1,31 +1,60 @@
 package app.cclauncher.ui.screens
 
 import android.app.Activity
-import android.app.role.RoleManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.cclauncher.MainActivity
-import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.data.settings.Setting
@@ -35,16 +64,14 @@ import app.cclauncher.data.settings.SettingsManager
 import app.cclauncher.helper.isAccessServiceEnabled
 import app.cclauncher.helper.isClauncherDefault
 import app.cclauncher.helper.setPlainWallpaperByTheme
-import app.cclauncher.ui.BackHandler
-import app.cclauncher.ui.dialogs.*
-import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.AppSelectionType
+import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.findAnnotation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -688,64 +715,3 @@ fun DropdownSettingDialog(
     )
 }
 
-@Composable
-fun FontWeightDialog(
-    show: Boolean,
-    currentWeight: Int,
-    onDismiss: () -> Unit,
-    onWeightSelected: (Int) -> Unit
-) {
-    if (!show) return
-
-    val options = listOf("Thin", "Light", "Normal", "Medium", "Bold", "Black")
-    var selected by remember { mutableIntStateOf(currentWeight) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Font Weight") },
-        text = {
-            LazyColumn {
-                items(options.indices.toList().size) { index ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = index }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selected == index,
-                            onClick = { selected = index }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = options[index],
-                            fontWeight = when(index) {
-                                0 -> androidx.compose.ui.text.font.FontWeight.Thin
-                                1 -> androidx.compose.ui.text.font.FontWeight.Light
-                                2 -> androidx.compose.ui.text.font.FontWeight.Normal
-                                3 -> androidx.compose.ui.text.font.FontWeight.Medium
-                                4 -> androidx.compose.ui.text.font.FontWeight.Bold
-                                5 -> androidx.compose.ui.text.font.FontWeight.Black
-                                else -> androidx.compose.ui.text.font.FontWeight.Normal
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onWeightSelected(selected)
-                onDismiss()
-            }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}

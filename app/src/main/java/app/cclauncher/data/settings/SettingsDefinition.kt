@@ -170,19 +170,19 @@ data class AppSettings(
     val itemSpacing: Int = 1,
 
     // Layout settings
-    @Setting(
-        title = "Alignment",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.DROPDOWN,
-        options = ["Left", "Center", "Right"]
-    )
+//    @Setting(
+//        title = "Alignment",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.DROPDOWN,
+//        options = ["Left", "Center", "Right"]
+//    )
     val homeAlignment: Int = Gravity.CENTER,
 
-    @Setting(
-        title = "Bottom Alignment",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE
-    )
+//    @Setting(
+//        title = "Bottom Alignment",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.TOGGLE
+//    )
     val homeBottomAlignment: Boolean = false,
 
     @Setting(

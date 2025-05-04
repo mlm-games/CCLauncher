@@ -38,7 +38,6 @@ import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.helper.WidgetHelper
 
-// Create WidgetPickerScreen.kt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WidgetPickerScreen(
