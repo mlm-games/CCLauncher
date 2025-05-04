@@ -1,103 +1,70 @@
 package app.cclauncher.ui.screens
 
-import android.content.res.Configuration
-import android.view.Gravity
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import android.annotation.SuppressLint
+import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetManager
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
+import app.cclauncher.data.HomeItem
+import app.cclauncher.data.HomeLayout
+import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.openAlarmApp
 import app.cclauncher.helper.openCalendar
-import app.cclauncher.ui.AppSelectionType
-import app.cclauncher.ui.UiEvent
-import app.cclauncher.ui.components.DraggableAppsGrid
-import app.cclauncher.ui.components.DraggableWidgetContainer
+import app.cclauncher.ui.composables.HomeAppItem
+import app.cclauncher.ui.composables.WidgetHostViewContainer
+import app.cclauncher.ui.composables.WidgetSizeData
+import app.cclauncher.ui.dialogs.ResizeWidgetDialog
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.ui.input.pointer.pointerInput
-import app.cclauncher.data.HomeAppPreference
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
+import java.util.Date
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
+    appWidgetHost: AppWidgetHost,
     onNavigateToAppDrawer: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToWidgetPicker: () -> Unit
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.homeScreenState.collectAsState()
+    val homeLayoutState by viewModel.homeLayoutState.collectAsState()
     val settings by settingsViewModel.settingsState.collectAsState()
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
-    // Date/time state
+    var showWidgetContextMenu by remember { mutableStateOf<HomeItem.Widget?>(null) }
+    var showResizeDialog by remember { mutableStateOf<HomeItem.Widget?>(null) }
+
+
     val currentDate = remember { mutableStateOf(Date()) }
-    val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
-    val dateText = dateFormat.format(currentDate.value).replace(".,", ",")
 
-    // Orientation and display settings
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val shouldShowIcons = settings.showHomeScreenIcons &&
-            (if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait)
-
-    // Font settings
-    val fontWeight = when (settings.fontWeight) {
-        0 -> FontWeight.Thin
-        1 -> FontWeight.Light
-        2 -> FontWeight.Normal
-        3 -> FontWeight.Medium
-        4 -> FontWeight.Bold
-        5 -> FontWeight.Black
-        else -> FontWeight.Normal
-    }
-
-    // Item spacing
-    val itemSpacing = when (settings.itemSpacing) {
-        0 -> 0.dp
-        1 -> 4.dp
-        2 -> 8.dp
-        3 -> 16.dp
-        else -> 8.dp
-    }
-
-    val tickerFlow = flow {
-        while (true) {
-            emit(Date())
-            delay(60000)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        tickerFlow.collect { date ->
-            currentDate.value = date
-        }
-    }
-
-    // Loading state
-    if (uiState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    // Main content
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -115,190 +82,198 @@ fun HomeScreen(
             )
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = {
-                        if (settings.doubleTapToLock) {
-                            viewModel.lockScreen()
-                        }
+                    onDoubleTap = { if (settings.doubleTapToLock)
+                                    { viewModel.lockScreen() }
+                                  },
+                    onLongPress = { offset ->
+                        // Check if long press is on empty space to trigger widget contextbox to resize or remove
+                        // This needs hit testing against item bounds, complex.
+                        // Alternative: Add a dedicated button or settings option.
+                        // For now, let's trigger via settings or a FAB maybe.
+                        onNavigateToSettings() // Keep existing long press for settings for now
                     },
-                    onLongPress = { onNavigateToSettings() }
+                    onTap = { /* ... */ }
                 )
             }
     ) {
-        // Main column with all content
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = when (settings.homeAlignment) {
-                Gravity.START -> Alignment.Start
-                Gravity.END -> Alignment.End
-                else -> Alignment.CenterHorizontally
-            }
+        HomeScreenContent(
+            homeLayout = homeLayoutState,
+            settings = settings,
+            currentDate = currentDate.value,
+            appWidgetHost = appWidgetHost,
+            onAppClick = { item -> viewModel.launchApp(item.appModel) },
+            onAppLongPress = { item -> /* Show app context menu? Remove from home? */
+                viewModel.removeAppFromHomeScreen(item) // Example action
+                Toast.makeText(context, "Removed ${item.appModel.appLabel}", Toast.LENGTH_SHORT).show()
+            },
+            onWidgetLongPress = { item -> showWidgetContextMenu = item },
+            onTimeClick = { openAlarmApp(context) },
+            onDateClick = { openCalendar(context) },
+        )
+    }
+
+    WidgetContextMenu(
+        widgetItem = showWidgetContextMenu,
+        onDismiss = { showWidgetContextMenu = null },
+        onRemove = { widget -> viewModel.removeWidget(widget) },
+        onResize = { widget -> showResizeDialog = widget },
+        onConfigure = { widget -> viewModel.requestWidgetReconfigure(widget) }
+    )
+
+    ResizeWidgetDialog(
+        widgetItem = showResizeDialog,
+        currentRows = homeLayoutState.rows,
+        currentColumns = homeLayoutState.columns,
+        onDismiss = { showResizeDialog = null },
+        onResize = { widget, newRowSpan, newColSpan ->
+            viewModel.resizeWidget(widget, newRowSpan, newColSpan)
+        }
+    )
+}
+
+@SuppressLint("UnusedBoxWithConstraintsScope")
+@Composable
+fun HomeScreenContent(
+    homeLayout: HomeLayout,
+    settings: AppSettings,
+    currentDate: Date,
+    appWidgetHost: AppWidgetHost,
+    onAppClick: (HomeItem.App) -> Unit,
+    onAppLongPress: (HomeItem.App) -> Unit,
+    onWidgetLongPress: (HomeItem.Widget) -> Unit,
+    onTimeClick: () -> Unit,
+    onDateClick: () -> Unit,
+) {
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val parentWidthDp = maxWidth
+        val parentHeightDp = maxHeight
+
+        // TODO: Calculate cell size based on available space and padding
+        val horizontalPadding = 16.dp
+        val verticalPadding = 16.dp
+        val usableWidth = parentWidthDp - horizontalPadding * 2
+        val usableHeight = parentHeightDp - verticalPadding * 2 // Adjust if date/time takes space
+
+        val cellWidth = usableWidth / homeLayout.columns
+        val cellHeight = usableHeight / homeLayout.rows
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            val refs = homeLayout.items.associate { it.id to createRef() }
+            val widgetManager = AppWidgetManager.getInstance(LocalContext.current)
 
-            // Widget section - only show if widgets exist
-            val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
-            preferences?.externalWidgets?.let { widgets ->
-                if (widgets.isNotEmpty()) {
-
-                    // Widget container
-                    DraggableWidgetContainer(
-                        widgets = widgets,
-                        editMode = settings.editWidgets,
-                        onWidgetsReordered = { reorderedWidgets ->
-                            scope.launch {
-                                viewModel.updateWidgetOrder(reorderedWidgets)
-                            }
-                        },
-                        onConfigureWidget = { widget ->
-                            viewModel.configureExistingWidget(widget)
-                        },
-                        onRemoveWidget = { widgetId ->
-                            scope.launch {
-                                val widget = widgets.find { it.id == widgetId }
-                                widget?.let {
-                                    val widgetHelper = app.cclauncher.helper.WidgetHelper(context)
-                                    widgetHelper.deleteWidget(it.appWidgetId)
-                                    viewModel.removeExternalWidget(widgetId)
-                                }
-                            }
-                        },
-                        onResizeWidget = { widget, newWidth, newHeight ->
-                            scope.launch {
-                                viewModel.resizeWidget(widget, newWidth, newHeight)
-                            }
-                        },
-                        settingsViewModel = settingsViewModel,
-                        mainViewModel = viewModel
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
+            homeLayout.items.forEach { item ->
+                val itemModifier = Modifier.constrainAs(refs.getValue(item.id)) {
+                    // Position based on row/column
+                    top.linkTo(parent.top, margin = item.row.dp * cellHeight.value)
+                    start.linkTo(parent.start, margin = item.column.dp * cellWidth.value)
+                    // Size based on span
+                    width =
+                        androidx.constraintlayout.compose.Dimension.value(item.columnSpan.dp * cellWidth.value)
+                    height =
+                        androidx.constraintlayout.compose.Dimension.value(item.rowSpan.dp * cellHeight.value)
                 }
-            }
 
-            // Spacer that pushes content down or centers it
-            if (settings.homeBottomAlignment) {
-                Spacer(modifier = Modifier.weight(1f))
-            } else {
-                Spacer(modifier = Modifier.weight(0.5f))
-            }
-
-            // Date/time section
-            if (settings.dateTimeVisibility != Constants.DateTime.OFF) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp),
-                    horizontalAlignment = when (settings.homeAlignment) {
-                        Gravity.START -> Alignment.Start
-                        Gravity.END -> Alignment.End
-                        else -> Alignment.CenterHorizontally
-                    }
-                ) {
-                    if (Constants.DateTime.isTimeVisible(settings.dateTimeVisibility)) {
-                        Text(
-                            text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentDate.value),
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontSize = MaterialTheme.typography.headlineLarge.fontSize * settings.textSizeScale,
-                                fontWeight = fontWeight
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.clickable { openAlarmApp(context) }
+                when (item) {
+                    is HomeItem.App -> {
+                        HomeAppItem(
+                            modifier = itemModifier.padding(4.dp),
+                            app = item.appModel,
+                            settings = settings,
+                            onClick = { onAppClick(item) },
+                            onLongClick = { onAppLongPress(item) }
                         )
                     }
 
-                    if (Constants.DateTime.isDateVisible(settings.dateTimeVisibility)) {
-                        Text(
-                            text = dateText,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontSize = MaterialTheme.typography.titleMedium.fontSize * settings.textSizeScale,
-                                fontWeight = fontWeight
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.clickable { openCalendar(context) }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // Home apps section
-            if (settings.homeAppsNum > 0) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Simple apps grid with clear separation
-                    DraggableAppsGrid(
-                        apps = uiState.homeApps,
-                        columns = settings.homeScreenColumns,
-                        showAppIcons = shouldShowIcons,
-                        itemSpacing = itemSpacing,
-                        onAppClick = { app ->
-                            viewModel.launchApp(app)
-                        },
-                        onAppLongPress = { position ->
-
-                            val existingApp = uiState.homeApps.getOrNull(position)
-
-                            if (settings.editHomeApps || existingApp == null) {
-                                val selectionType = when (position) {
-                                0 -> AppSelectionType.HOME_APP_1
-                                1 -> AppSelectionType.HOME_APP_2
-                                2 -> AppSelectionType.HOME_APP_3
-                                3 -> AppSelectionType.HOME_APP_4
-                                4 -> AppSelectionType.HOME_APP_5
-                                5 -> AppSelectionType.HOME_APP_6
-                                6 -> AppSelectionType.HOME_APP_7
-                                7 -> AppSelectionType.HOME_APP_8
-                                8 -> AppSelectionType.HOME_APP_9
-                                9 -> AppSelectionType.HOME_APP_10
-                                10 -> AppSelectionType.HOME_APP_11
-                                11 -> AppSelectionType.HOME_APP_12
-                                12 -> AppSelectionType.HOME_APP_13
-                                13 -> AppSelectionType.HOME_APP_14
-                                14 -> AppSelectionType.HOME_APP_15
-                                15 -> AppSelectionType.HOME_APP_16
-                                else -> AppSelectionType.HOME_APP_1
-                                }
-                                viewModel.emitEvent(UiEvent.NavigateToAppSelection(selectionType))
+                    is HomeItem.Widget -> {
+                        val providerInfo = remember(item.packageName, item.providerClassName) {
+                            // Lookup provider info at runtime
+                            widgetManager.installedProviders.find {
+                                it.provider.packageName == item.packageName && it.provider.className == item.providerClassName
                             }
-                        },
-                        onAppsReordered = { reorderedApps ->
-                            viewModel.updateHomeAppOrder(reorderedApps.mapIndexed { index, pair ->
-                                pair.second?.let { app ->
-                                    HomeAppPreference(
-                                        label = app.appLabel,
-                                        packageName = app.appPackage,
-                                        activityClassName = app.activityClassName,
-                                        userString = app.user.toString(),
-                                        position = index
+                        }
+
+                        if (providerInfo != null) {
+                            val sizeData = remember(
+                                item.columnSpan,
+                                item.rowSpan,
+                                cellWidth,
+                                cellHeight,
+                                density
+                            ) {
+                                with(density) {
+                                    // Calculate sizes based on determined cell dimensions
+                                    val wDp = item.columnSpan.dp * cellWidth.value
+                                    val hDp = item.rowSpan.dp * cellHeight.value
+                                    WidgetSizeData(
+                                        width = wDp.toPx().roundToInt(),
+                                        height = hDp.toPx().roundToInt(),
+                                        minWidthDp = wDp, maxWidthDp = wDp, // Pass cell-based size
+                                        minHeightDp = hDp, maxHeightDp = hDp
                                     )
                                 }
-                            }.filterNotNull())
-                        },
-                        editMode = settings.editHomeApps
-                    )
+                            }
+                            WidgetHostViewContainer(
+                                modifier = itemModifier.padding(2.dp),
+                                appWidgetId = item.appWidgetId,
+                                providerInfo = providerInfo,
+                                appWidgetHost = appWidgetHost,
+                                widgetSizeData = sizeData,
+                                onLongPress = { onWidgetLongPress(item) }
+                            )
+                        } else {
+                            Box(itemModifier) { /* missing widget so...? */ }
+                            Log.w(
+                                "HomeScreen",
+                                "Provider not found for widget ID ${item.appWidgetId}"
+                            )
+                            // TODO: auto-removing this item from layout state
+                        }
+                    }
                 }
-            }
-        }
-
-        // Add widget FAB - only show in widget edit mode
-        if (settings.editWidgets) {
-            FloatingActionButton(
-                onClick = { viewModel.emitEvent(UiEvent.NavigateToWidgetPicker) },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Widget"
-                )
             }
         }
     }
 }
+
+@Composable
+fun WidgetContextMenu(
+    widgetItem: HomeItem.Widget?,
+    onDismiss: () -> Unit,
+    onRemove: (HomeItem.Widget) -> Unit,
+    onResize: (HomeItem.Widget) -> Unit,
+    onConfigure: (HomeItem.Widget) -> Unit
+) {
+    if (widgetItem == null) return
+
+    val context = LocalContext.current
+    val widgetManager = AppWidgetManager.getInstance(context)
+    val providerInfo = remember(widgetItem) {
+        widgetManager.installedProviders.find {
+            it.provider.packageName == widgetItem.packageName && it.provider.className == widgetItem.providerClassName
+        }
+    }
+    val canReconfigure = providerInfo?.configure != null
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Widget Options") }, // Use widget label? providerInfo?.loadLabel(context.packageManager)
+        text = {
+            Column {
+                DropdownMenuItem(text = { Text("Remove") }, onClick = { onRemove(widgetItem); onDismiss() })
+                DropdownMenuItem(text = { Text("Resize") }, onClick = { onResize(widgetItem); onDismiss() })
+                if (canReconfigure) {
+                    DropdownMenuItem(text = { Text("Configure") }, onClick = { onConfigure(widgetItem); onDismiss() })
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Close") }
+        }
+    )
+}
+

@@ -1,5 +1,6 @@
 package app.cclauncher.ui
 
+import android.content.Intent
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.ExternalWidgetModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,6 +33,8 @@ sealed class UiEvent {
     data class ShowAppSelectionDialog(val selectionType: AppSelectionType) : UiEvent()
 
     data object NavigateToWidgetPicker : UiEvent()
+    data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
+
     data class NavigateToWidgetSizeConfig(val appWidgetId: Int) : UiEvent()
     data class NavigateToWidgetConfig(val widget: ExternalWidgetModel) : UiEvent()
     data object NavigateToWidgetManager : UiEvent()

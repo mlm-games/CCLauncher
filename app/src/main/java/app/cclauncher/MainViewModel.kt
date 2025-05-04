@@ -1,41 +1,46 @@
 package app.cclauncher
 
+import android.app.Activity.RESULT_OK
 import android.app.Application
+import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PermissionManager
-import app.cclauncher.helper.WidgetHelper
+import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
-import app.cclauncher.ui.HomeScreenUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    val prefsDataStore = PrefsDataStore(appContext) // Keep for backward compatibility during transition
     val settingsRepository = SettingsRepository(appContext) // New settings repository
     private val appRepository = AppRepository(appContext, settingsRepository) // Will need refactoring in future
     private val permissionManager = PermissionManager(appContext)
+
+    private val REQUEST_CODE_CONFIGURE_WIDGET = 101
+    private var pendingWidgetInfo: PendingWidgetInfo? = null
+    data class PendingWidgetInfo(val appWidgetId: Int, val providerInfo: android.appwidget.AppWidgetProviderInfo)
 
     // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
     // UI States
-    private val _homeScreenState = MutableStateFlow(HomeScreenUiState())
-    val homeScreenState: StateFlow<HomeScreenUiState> = _homeScreenState.asStateFlow()
+    private val _homeLayoutState = MutableStateFlow(HomeLayout())
+    val homeLayoutState: StateFlow<HomeLayout> = _homeLayoutState.asStateFlow()
 
     private val _appDrawerState = MutableStateFlow(AppDrawerUiState())
     val appDrawerState: StateFlow<AppDrawerUiState> = _appDrawerState.asStateFlow()
@@ -58,13 +63,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _launcherResetFailed = MutableStateFlow(false)
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
+    val appWidgetManager =  AppWidgetManager.getInstance(appContext)
+
     init {
-        // Initialize UI states from settings
+
         viewModelScope.launch {
-            settingsRepository.settings.collect { settings ->
-                updateHomeScreenState(settings)
+            settingsRepository.getHomeLayout().collect { layout ->
+                _homeLayoutState.value = layout
             }
         }
+
+        // Initialize UI states from settings
+//        viewModelScope.launch {
+//            settingsRepository.settings.collect { settings ->
+//                updateHomeScreenState(settings)
+//            }
+//        }
 
         viewModelScope.launch {
             appRepository.appListAll.collect { apps ->
@@ -88,23 +102,83 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+//
+//    private fun updateHomeScreenState(settings: AppSettings) {
+//        viewModelScope.launch {
+//            val homeApps = settingsRepository.getHomeApps()
+//
+//            _homeScreenState.value = HomeScreenUiState(
+//                homeAppsNum = settings.homeAppsNum,
+//                homeScreenColumns = settings.homeScreenColumns,
+//                dateTimeVisibility = settings.dateTimeVisibility,
+////                homeAlignment = settings.homeAlignment,
+//                homeBottomAlignment = settings.homeBottomAlignment,
+//                homeApps = homeApps.map { app ->
+//                    getAppModelFromPreference(app)
+//                }
+//            )
+//        }
+//    }
 
-    private fun updateHomeScreenState(settings: AppSettings) {
+    fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {
-            val homeApps = settingsRepository.getHomeApps()
-
-            _homeScreenState.value = HomeScreenUiState(
-                homeAppsNum = settings.homeAppsNum,
-                homeScreenColumns = settings.homeScreenColumns,
-                dateTimeVisibility = settings.dateTimeVisibility,
-//                homeAlignment = settings.homeAlignment,
-                homeBottomAlignment = settings.homeBottomAlignment,
-                homeApps = homeApps.map { app ->
-                    getAppModelFromPreference(app)
-                }
-            )
+            val nextPos = findNextAvailableGridPosition(_homeLayoutState.value, 1, 1)
+            if (nextPos != null) {
+                val appItem = HomeItem.App(
+                    appModel = appModel,
+                    row = nextPos.first,
+                    column = nextPos.second
+                )
+                val currentLayout = _homeLayoutState.value
+                val newItems = currentLayout.items + appItem
+                settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+            } else {
+                _errorMessage.value = "No space available on home screen."
+            }
         }
     }
+
+    // Function to remove an app from the home screen layout
+    fun removeAppFromHomeScreen(appItem: HomeItem.App) {
+        viewModelScope.launch {
+            val currentLayout = _homeLayoutState.value
+            val newItems = currentLayout.items.filterNot { it.id == appItem.id }
+            settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+        }
+    }
+
+    private fun getCellSizeDp(screenWidthDp: Int, screenHeightDp: Int, rows: Int, columns: Int): Pair<Float, Float> {
+        val cellWidthDp = screenWidthDp.toFloat() / columns
+        val cellHeightDp = screenHeightDp.toFloat() / rows // Use available height
+        return Pair(cellWidthDp, cellHeightDp)
+    }
+
+    private fun findNextAvailableGridPosition(layout: HomeLayout, widthSpan: Int, heightSpan: Int): Pair<Int, Int>? {
+        val occupied = Array(layout.rows) { BooleanArray(layout.columns) }
+
+        // Mark occupied cells
+        layout.items.forEach { item ->
+            for (r in item.row until (item.row + item.rowSpan).coerceAtMost(layout.rows)) {
+                for (c in item.column until (item.column + item.columnSpan).coerceAtMost(layout.columns)) {
+                    if (r >= 0 && c >= 0) { // Basic bounds check
+                        occupied[r][c] = true
+                    }
+                }
+            }
+        }
+
+        // Find the first available top-left corner for the required span
+        for (r in 0 .. layout.rows - heightSpan) {
+            for (c in 0 .. layout.columns - widthSpan) {
+                if (isSpaceFreeInternal(occupied, r, c, widthSpan, heightSpan, layout.rows, layout.columns)) {
+                    return Pair(r, c) // Found a spot
+                }
+            }
+        }
+
+        return null // No space found
+    }
+
 
     private fun updateAppDrawerState() {
         _appDrawerState.value = _appDrawerState.value.copy(
@@ -126,6 +200,231 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             user = userHandle
         )
     }
+
+    fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
+        viewModelScope.launch {
+            try {
+                val appWidgetId = appWidgetHost.allocateAppWidgetId()
+                pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
+
+                if (providerInfo.configure != null) {
+                    val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
+                        component = providerInfo.configure
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    }
+                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
+                } else {
+                    // No configuration needed, add directly
+                    addWidgetToLayout(appWidgetId, providerInfo)
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModelWidget", "Error allocating or configuring widget", e)
+                _errorMessage.value = "Failed to add widget."
+                pendingWidgetInfo?.let { appWidgetHost.deleteAppWidgetId(it.appWidgetId) } // Clean up allocated ID
+                pendingWidgetInfo = null
+            }
+        }
+    }
+
+    private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
+        viewModelScope.launch {
+            val nextPos = findNextAvailableGridPosition(
+                _homeLayoutState.value,
+                providerInfo.minResizeWidth / 70, // Approximate cell calculation
+                providerInfo.minResizeHeight / 70
+            )
+
+            if (nextPos != null) {
+                val widgetItem = HomeItem.Widget(
+                    appWidgetId = appWidgetId,
+                    packageName = providerInfo.provider.packageName,
+                    providerClassName = providerInfo.provider.className,
+                    row = nextPos.first,
+                    column = nextPos.second,
+                    rowSpan = providerInfo.minResizeHeight / 70, // TODO: Example initial size
+                    columnSpan = providerInfo.minResizeWidth / 70,
+                )
+
+                val success = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo.provider)
+
+                if(success) {
+                    val currentLayout = _homeLayoutState.value
+                    val newItems = currentLayout.items + widgetItem
+                    val newLayout = currentLayout.copy(items = newItems)
+                    settingsRepository.saveHomeLayout(newLayout)
+                } else {
+                    Log.e("ViewModelWidget", "Failed to bind widget ID $appWidgetId")
+                    _errorMessage.value = "Could not bind widget."
+                    appWidgetHost.deleteAppWidgetId(appWidgetId)
+                }
+
+            } else {
+                Log.w("ViewModelWidget", "No space found for widget ID $appWidgetId")
+                _errorMessage.value = "No space available on home screen."
+                appWidgetHost.deleteAppWidgetId(appWidgetId)
+            }
+            pendingWidgetInfo = null
+        }
+    }
+
+    private fun isSpaceFreeInternal(occupiedGrid: Array<BooleanArray>, startRow: Int, startCol: Int, spanW: Int, spanH: Int, maxRows: Int, maxCols: Int): Boolean {
+        // if (startRow + spanH > maxRows || startCol + spanW > maxCols) return false
+
+        // Check all cells within the desired span
+        for (r in startRow until startRow + spanH) {
+            for (c in startCol until startCol + spanW) {
+                if (r >= maxRows || c >= maxCols || occupiedGrid[r][c]) {
+                    return false // occupied cell
+                }
+            }
+        }
+        return true
+    }
+
+    private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Widget, newRowSpan: Int, newColSpan: Int): Boolean {
+        val targetRow = widgetToResize.row
+        val targetCol = widgetToResize.column
+
+        if (targetRow + newRowSpan > layout.rows || targetCol + newColSpan > layout.columns) {
+            return false
+        }
+
+        for (item in layout.items) {
+            if (item.id == widgetToResize.id) continue // Skip self
+
+            val horizontalOverlap = (item.column < targetCol + newColSpan) && (item.column + item.columnSpan > targetCol)
+            val verticalOverlap = (item.row < targetRow + newRowSpan) && (item.row + item.rowSpan > targetRow)
+
+            if (horizontalOverlap && verticalOverlap) {
+                return false
+            }
+        }
+        return true
+    }
+
+
+    fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
+        viewModelScope.launch {
+            val currentLayout = _homeLayoutState.value
+
+            // --- Implement Placeholder: Resize Validation ---
+            if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
+                _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
+                return@launch
+            }
+
+            val newItems = currentLayout.items.map {
+                if (it.id == widgetItem.id && it is HomeItem.Widget) {
+                    it.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
+                } else {
+                    it
+                }
+            }
+            val newLayout = currentLayout.copy(items = newItems)
+            settingsRepository.saveHomeLayout(newLayout) // Persist the layout change
+
+            // --- Implement Placeholder: Notify Widget Size Change ---
+            // This requires knowing the screen/cell dimensions. Get from settings or calculate.
+            // For simplicity, assume we can get screen Dp here (might need context or pass from UI)
+            val screenWidthDp = getScreenDimensions(context = appContext).first // Example placeholder - GET ACTUAL VALUE
+            val screenHeightDp = getScreenDimensions(appContext).second // Example placeholder - GET ACTUAL VALUE
+            val (cellWidthDp, cellHeightDp) = getCellSizeDp(
+                screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
+            )
+
+            val minWidth = (newColSpan * cellWidthDp).toInt()
+            val maxWidth = minWidth // Keep min/max same for simplicity now
+            val minHeight = (newRowSpan * cellHeightDp).toInt()
+            val maxHeight = minHeight
+
+            val options = Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
+            }
+            try {
+                appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
+            } catch (e: Exception) {
+                Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
+            }
+        }
+    }
+    fun removeWidget(widgetItem: HomeItem.Widget) {
+        viewModelScope.launch {
+            try {
+                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
+                val currentLayout = _homeLayoutState.value
+                val newItems = currentLayout.items.filterNot { it.id == widgetItem.id }
+                val newLayout = currentLayout.copy(items = newItems)
+                settingsRepository.saveHomeLayout(newLayout)
+            } catch (e: Exception) {
+                Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
+                _errorMessage.value = "Failed to remove widget."
+            }
+        }
+    }
+
+    fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
+        viewModelScope.launch {
+            val providerInfo = getAppWidgetInfo(widgetItem.packageName, widgetItem.providerClassName)
+            if (providerInfo?.configure != null) {
+                try {
+                    val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
+                        component = providerInfo.configure
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetItem.appWidgetId)
+                    }
+                    // Store necessary info if result needs handling (e.g., update state on success/cancel)
+                    // pendingReconfigureWidgetId = widgetItem.appWidgetId
+                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET)) // Use same code or new one
+                } catch (e: Exception) {
+                    Log.e("ViewModelWidget", "Error requesting reconfigure for ${widgetItem.appWidgetId}", e)
+                    _errorMessage.value = "Failed to reconfigure widget."
+                }
+            } else {
+                _errorMessage.value = "This widget cannot be reconfigured."
+            }
+        }
+    }
+
+    // Helper to get provider info at runtime
+    private fun getAppWidgetInfo(packageName: String, className: String): android.appwidget.AppWidgetProviderInfo? {
+        return appWidgetManager.installedProviders.find {
+            it.provider.packageName == packageName && it.provider.className == className
+        }
+    }
+
+    // Handle result from widget configuration Activity
+    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE_CONFIGURE_WIDGET) {
+            val widgetId = pendingWidgetInfo?.appWidgetId ?: data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+
+            if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                if (resultCode == RESULT_OK) {
+                    // Configuration successful
+                    pendingWidgetInfo?.let { info ->
+                        if(info.appWidgetId == widgetId) { // Ensure it's the one we were waiting for
+                            addWidgetToLayout(info.appWidgetId, info.providerInfo)
+                        }
+                    } ?: run {
+                        // Handle reconfigure success if needed (e.g., update UI state)
+                        Log.d("ViewModelWidget", "Widget ID $widgetId reconfigured successfully.")
+                        // Force UI refresh if needed
+                        viewModelScope.launch { settingsRepository.triggerHomeLayoutRefresh() }
+                    }
+                } else {
+                    // Configuration cancelled or failed
+                    Log.w("ViewModelWidget", "Widget configuration cancelled/failed for ID $widgetId")
+                    appWidgetHost.deleteAppWidgetId(widgetId) // Clean up allocated ID
+                    _errorMessage.value = "Widget configuration cancelled."
+                    pendingWidgetInfo = null // Clear pending state
+                }
+            }
+            pendingWidgetInfo = null // Clear pending state regardless
+        }
+        // Handle other activity results if needed
+    }
+
 
     /**
      * Handle first open of the app
@@ -445,42 +744,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 // Refresh home screen state
-                updateHomeScreenState(settingsRepository.settings.first())
+//                updateHomeScreenState(settingsRepository.settings.first())
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to reorder apps: ${e.message}"
             }
         }
     }
-
-    fun resizeWidget(widget: ExternalWidgetModel, newWidth: Int, newHeight: Int) {
-        viewModelScope.launch {
-            try {
-                val updatedWidget = widget.copy(
-                    width = newWidth,
-                    height = newHeight
-                )
-
-                Log.d("MainViewModel", "Resizing widget: id=${widget.id}, size=${newWidth}x${newHeight}")
-                prefsDataStore.updateExternalWidget(updatedWidget)
-
-                // Update widget dimensions in the host
-                val context = getApplication<Application>().applicationContext
-                val widgetHelper = WidgetHelper(context)
-                val density = context.resources.displayMetrics.density
-
-                // Convert dp to pixels based on density
-                val widthPx = (newWidth * 80 * density).toInt()
-                val heightPx = (newHeight * 80 * density).toInt()
-
-                widgetHelper.updateWidgetOptions(widget.appWidgetId, widthPx, heightPx)
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error resizing widget: ${e.message}", e)
-                _errorMessage.value = "Failed to resize widget: ${e.message}"
-            }
-        }
-    }
-
-
 
 
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
@@ -501,28 +770,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-        /**
-         * Add an external widget to preferences
-         */
-        fun addExternalWidget(widget: ExternalWidgetModel) {
-            viewModelScope.launch {
-                try {
-                    Log.d(
-                        "MainViewModel",
-                        "Adding widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
-                    )
-                    prefsDataStore.addExternalWidget(widget)
-
-                    // Emit event to navigate to home screen
-                    _eventsFlow.emit(UiEvent.NavigateBack)
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error adding widget: ${e.message}", e)
-                    _errorMessage.value = "Failed to add widget: ${e.message}"
-                }
-            }
-
-        }
-
     /**
      * Clear error message
      */
@@ -531,82 +778,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _appDrawerState.value = _appDrawerState.value.copy(error = null)
     }
 
+
     /**
-         * Update an existing external widget
-         */
-        fun updateExternalWidget(widget: ExternalWidgetModel) {
-            viewModelScope.launch {
-                try {
-                    Log.d(
-                        "MainViewModel",
-                        "Updating widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
-                    )
-                    prefsDataStore.updateExternalWidget(widget)
-
-                    // Emit event to navigate to home screen
-                    _eventsFlow.emit(UiEvent.NavigateBack)
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error updating widget: ${e.message}", e)
-                    _errorMessage.value = "Failed to update widget: ${e.message}"
-                }
-            }
-        }
-
-        /**
-         * Remove an external widget from preferences
-         */
-        fun removeExternalWidget(widgetId: String) {
-            viewModelScope.launch {
-                try {
-                    Log.d("MainViewModel", "Removing widget: id=$widgetId")
-                    prefsDataStore.removeExternalWidget(widgetId)
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error removing widget: ${e.message}", e)
-                    _errorMessage.value = "Failed to remove widget: ${e.message}"
-                }
-            }
-        }
-
-        /**
-         * Update the order of widgets
-         */
-        fun updateWidgetOrder(widgets: List<ExternalWidgetModel>) {
-            viewModelScope.launch {
-                try {
-                    Log.d("MainViewModel", "Updating widget order for ${widgets.size} widgets")
-
-                    // Update each widget with its new position
-                    widgets.forEachIndexed { index, widget ->
-                        val updatedWidget = widget.copy(position = index)
-                        prefsDataStore.updateExternalWidget(updatedWidget)
-                    }
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error updating widget order: ${e.message}", e)
-                    _errorMessage.value = "Failed to update widget order: ${e.message}"
-                }
-            }
-        }
-
-        /**
-         * Configure an existing widget
-         */
-        fun configureExistingWidget(widget: ExternalWidgetModel) {
-            viewModelScope.launch {
-                try {
-                    Log.d(
-                        "MainViewModel",
-                        "Configuring widget: id=${widget.id}, appWidgetId=${widget.appWidgetId}"
-                    )
-                    _eventsFlow.emit(UiEvent.NavigateToWidgetConfig(widget))
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error navigating to widget config: ${e.message}", e)
-                    _errorMessage.value = "Failed to configure widget: ${e.message}"
-                }
-            }
-        }
-
-
-        /**
          * Reset launcher failed
          */
         fun setLauncherResetFailed(failed: Boolean) {

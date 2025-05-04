@@ -1,10 +1,7 @@
 package app.cclauncher
 
-import android.annotation.SuppressLint
-import android.app.role.RoleManager
+import android.app.Application
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -27,7 +24,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
 import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.PrefsDataStore
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
@@ -41,12 +37,17 @@ import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import android.appwidget.AppWidgetHost
+import androidx.lifecycle.ViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
     val widgetHelper by lazy { WidgetHelper(this) }
+
+    private lateinit var appWidgetHost: AppWidgetHost
+    private val APPWIDGET_HOST_ID = 1024
 
     val widgetRequestLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -96,6 +97,11 @@ class MainActivity : ComponentActivity() {
 
         // Initialize settings repository
         settingsRepository = SettingsRepository(applicationContext)
+
+        appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
+
+        viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
+        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
         // Initialize theme based on settings
         lifecycleScope.launch {
@@ -160,7 +166,8 @@ class MainActivity : ComponentActivity() {
                     currentScreen = currentScreen,
                     onScreenChange = { screen ->
                         currentScreen = screen
-                    }
+                    },
+                    appWidgetHost = appWidgetHost
                 )
             }
         }
@@ -177,36 +184,26 @@ class MainActivity : ComponentActivity() {
         })
     }
 
-    fun addExternalWidget(providerInfo: AppWidgetProviderInfo) {
-        val appWidgetId = widgetHelper.allocateAppWidgetId()
+    override fun onStart() {
+        super.onStart()
+        try {
+            appWidgetHost.startListening()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error starting widget host listening", e)
+        }
+    }
 
-        // Log for debugging
-        Log.d(
-            "MainActivity",
-            "Allocating widget ID: $appWidgetId for ${providerInfo.provider.packageName}"
-        )
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        viewModel.handleActivityResult(requestCode, resultCode, data)
+    }
 
-        // Try to bind the widget
-        if (!widgetHelper.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo)) {
-            // If binding not allowed, request permission
-            Log.d("MainActivity", "Binding not allowed, requesting permission")
-            val bindIntent = widgetHelper.createBindWidgetIntent(appWidgetId, providerInfo)
-            widgetRequestLauncher.launch(bindIntent)
-        } else {
-            // Widget binding succeeded
-            Log.d("MainActivity", "Widget binding succeeded")
-            if (widgetHelper.needsConfiguration(appWidgetId)) {
-                // If widget needs configuration, launch config activity
-                Log.d("MainActivity", "Widget needs configuration")
-                val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-                configIntent?.let {
-                    configWidgetLauncher.launch(it)
-                }
-            } else {
-                // No config needed, proceed to widget size config
-                Log.d("MainActivity", "No config needed, proceeding to size config")
-                viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
-            }
+    override fun onStop() {
+        super.onStop()
+        try {
+            appWidgetHost.stopListening() // Stop listening to save resources
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error stopping widget host listening", e)
         }
     }
 
@@ -294,4 +291,17 @@ class MainActivity : ComponentActivity() {
         widgetHelper.stopListening()
     }
 
+}
+
+class MainViewModelFactory(
+    private val application: Application,
+    private val appWidgetHost: AppWidgetHost
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MainViewModel(application, appWidgetHost) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

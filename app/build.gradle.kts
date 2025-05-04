@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.20"
     id("org.jetbrains.kotlin.plugin.parcelize")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    kotlin("plugin.serialization") version "2.1.20"
 
 }
 
@@ -138,6 +138,7 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.json.v163)
     implementation(libs.gson)
     implementation(libs.androidx.material.icons.extended)
 

@@ -1,6 +1,6 @@
 package app.cclauncher.ui
 
-import app.cclauncher.ui.screens.WidgetSizeConfigScreen
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -22,6 +22,10 @@ import app.cclauncher.ui.screens.*
 import app.cclauncher.ui.util.SystemUIController
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
+import app.cclauncher.ui.screens.WidgetPickerScreen
+import android.appwidget.AppWidgetHost
+import android.util.Log
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -29,7 +33,8 @@ fun CLauncherNavigation(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
     currentScreen: String,
-    onScreenChange: (String) -> Unit
+    onScreenChange: (String) -> Unit,
+    appWidgetHost: AppWidgetHost
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
@@ -69,6 +74,21 @@ fun CLauncherNavigation(
             is UiEvent.NavigateBack -> {
                 onScreenChange(Navigation.HOME)
             }
+            is UiEvent.NavigateToWidgetPicker -> {
+                onScreenChange(Navigation.WIDGET_PICKER)
+            }
+            is UiEvent.StartActivityForResult -> {
+                try {
+                    (context as? Activity)?.startActivityForResult(event.intent, event.requestCode)
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Failed to start activity for result", e)
+                    Toast.makeText(
+                        context,
+                        "Failed to start widget configuration.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    }
+                }
             is UiEvent.ShowToast -> {
                 // Show toast message
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
@@ -226,12 +246,16 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     HomeScreen(
                         viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,  // Pass the settings view model
+                        settingsViewModel = settingsViewModel,
+                        appWidgetHost = appWidgetHost,
                         onNavigateToAppDrawer = {
                             onScreenChange(Navigation.APP_DRAWER)
                         },
                         onNavigateToSettings = {
                             onScreenChange(Navigation.SETTINGS)
+                        },
+                        onNavigateToWidgetPicker = {
+                            viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
                         }
                     )
                 }
@@ -322,17 +346,20 @@ fun CLauncherNavigation(
                 // Widget-related screens
                 Navigation.WIDGET_PICKER -> {
                     WidgetPickerScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = { onScreenChange(Navigation.HOME) }
+                        onWidgetSelected = { providerInfo ->
+                            viewModel.startWidgetConfiguration(providerInfo)
+                                           onScreenChange(Navigation.HOME)
+                        },
+                        onDismiss = { onScreenChange(Navigation.HOME) }
                     )
                 }
-                Navigation.WIDGET_SIZE_CONFIG -> {
-                    WidgetSizeConfigScreen(
-                        viewModel = viewModel,
-                        appWidgetId = widgetIdToConfig,
-                        onNavigateBack = { onScreenChange(Navigation.HOME) }
-                    )
-                }
+//                Navigation.WIDGET_SIZE_CONFIG -> {
+//                    WidgetSizeConfigScreen(
+//                        viewModel = viewModel,
+//                        appWidgetId = widgetIdToConfig,
+//                        onNavigateBack = { onScreenChange(Navigation.HOME) }
+//                    )
+//                }
                 Navigation.WIDGET_CONFIG -> {
                     widgetToConfig?.let { widget ->
                         WidgetConfigSizeScreen(
@@ -349,17 +376,17 @@ fun CLauncherNavigation(
                 }
 
 
-                Navigation.WIDGET_MANAGER -> {
-                    WidgetManagerScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.SETTINGS)
-                        },
-                        onAddWidget = {
-                            onScreenChange(Navigation.WIDGET_PICKER)
-                        }
-                    )
-                }
+//                Navigation.WIDGET_MANAGER -> {
+//                    WidgetManagerScreen(
+//                        viewModel = viewModel,
+//                        onNavigateBack = {
+//                            onScreenChange(Navigation.SETTINGS)
+//                        },
+//                        onAddWidget = {
+//                            onScreenChange(Navigation.WIDGET_PICKER)
+//                        }
+//                    )
+//                }
             }
         }
     }

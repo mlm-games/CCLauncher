@@ -1,6 +1,7 @@
 package app.cclauncher.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -15,6 +16,10 @@ import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlin.reflect.full.memberProperties
+import app.cclauncher.data.HomeLayout
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.coroutines.flow.catch
 
 // Extension property for Context to access the DataStore instance
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher.settings")
@@ -73,6 +78,7 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_RESULTS_USE_HOME_FONT = booleanPreferencesKey("SEARCH_RESULTS_USE_HOME_FONT")
         val SEARCH_RESULTS_FONT_SIZE = floatPreferencesKey("SEARCH_RESULTS_FONT_SIZE")
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
+        val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
         // App keys
         val APP_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_NAME_${it+1}") }
@@ -310,6 +316,41 @@ class SettingsRepository(private val context: Context) {
             }
         }
     }
+
+    fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
+        .map { prefs ->
+            prefs[HOME_LAYOUT]?.let { jsonString ->
+                try {
+                    Json.decodeFromString<HomeLayout>(jsonString)
+                } catch (e: Exception) {
+                    Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e)
+                    HomeLayout() // Return default on error
+                }
+            } ?: HomeLayout() // Return default if key not found
+        }
+        .catch { exception ->
+            Log.e("SettingsRepo", "Error reading HomeLayout", exception)
+            emit(HomeLayout()) // Emit default on error
+        }
+
+    suspend fun saveHomeLayout(layout: HomeLayout) {
+        try {
+            val jsonString = Json.encodeToString(layout)
+            context.settingsDataStore.edit { prefs ->
+                prefs[HOME_LAYOUT] = jsonString
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)
+            // Optionally notify UI of error
+        }
+    }
+
+    suspend fun triggerHomeLayoutRefresh() {
+        // Read the current value and write it back to trigger the flow
+        val currentLayout = getHomeLayout().first()
+        saveHomeLayout(currentLayout)
+    }
+
 
     /**
      * Update a setting by property name

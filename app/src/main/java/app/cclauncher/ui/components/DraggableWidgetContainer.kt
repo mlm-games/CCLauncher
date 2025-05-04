@@ -43,7 +43,6 @@ fun DraggableWidgetContainer(
     onResizeWidget: (ExternalWidgetModel, Int, Int) -> Unit = { _, _, _ -> }
 ) {
     val settings = settingsViewModel.settingsState.collectAsState().value
-    val uiState = mainViewModel.homeScreenState.collectAsState().value
 
     if (widgets.isEmpty()) return
 
@@ -182,18 +181,6 @@ fun DraggableWidgetContainer(
                         Box {
                             when (widget.specialType) {
                                 "home_apps_grid" -> {
-                                    DraggableAppsGrid(
-                                        apps = uiState.homeApps,
-                                        columns = settings.homeScreenColumns,
-                                        showAppIcons = settings.showAppIcons,
-                                        itemSpacing = settings.itemSpacing.dp,
-                                        onAppClick = {app -> mainViewModel.launchApp(app)},
-                                        onAppLongPress = {
-
-                                        },
-                                        onAppsReordered = {},
-                                        editMode = settings.editHomeApps
-                                    )
                                 }
                                 "clock_widget" -> {
                                     // Render clock/date widget

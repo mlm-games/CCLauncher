@@ -7,7 +7,8 @@ androidGradlePlugin = "8.9.2"
 gson = "2.11.0"
 kotlinReflect = "2.1.0"
 kotlinStdlib = "2.1.20"
-kotlinxSerializationJson = "1.5.0"
+kotlinxSerializationJson = "1.5.1"
+kotlinxSerializationJsonVersion = "1.6.3"
 lifecycleExtensions = "2.2.0"
 lifecycleViewmodelCompose = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
@@ -29,6 +30,7 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-serialization-json-v163 = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJsonVersion" }
 lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
