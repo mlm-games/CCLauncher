@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -35,10 +36,10 @@ import app.cclauncher.helper.WidgetHelper
 @Composable
 fun ExternalWidget(
     widget: ExternalWidgetModel,
+    editMode: Boolean,
     onConfigureWidget: (ExternalWidgetModel) -> Unit = {},
     onRemoveWidget: (String) -> Unit = {},
-    onResizeWidget: (ExternalWidgetModel, Int, Int) -> Unit = { _, _, _ -> },
-    editMode: Boolean = false
+    onResizeWidget: (ExternalWidgetModel, Int, Int) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
     val widgetHelper = remember { WidgetHelper(context) }
@@ -46,8 +47,8 @@ fun ExternalWidget(
     val density = LocalDensity.current
 
     // Calculate widget dimensions based on grid size
-    var widthMultiplier by remember { mutableStateOf(widget.width.coerceIn(1, 4)) }
-    var heightMultiplier by remember { mutableStateOf(widget.height.coerceIn(1, 4)) }
+    var widthMultiplier by remember { mutableIntStateOf(widget.width.coerceIn(1, 4)) }
+    var heightMultiplier by remember { mutableIntStateOf(widget.height.coerceIn(1, 4)) }
     var isResizing by remember { mutableStateOf(false) }
 
     // Base unit is 80dp
@@ -58,6 +59,13 @@ fun ExternalWidget(
     // Track widget creation errors
     var hasError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+
+    // Reset resizing state when edit mode changes
+    LaunchedEffect(editMode) {
+        if (!editMode) {
+            isResizing = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -220,7 +228,7 @@ fun ExternalWidget(
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Delete,
+                                        imageVector = Icons.Default.Remove,
                                         contentDescription = "Decrease Width",
                                         tint = Color.White
                                     )
@@ -264,7 +272,7 @@ fun ExternalWidget(
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Delete,
+                                        imageVector = Icons.Default.Remove,
                                         contentDescription = "Decrease Height",
                                         tint = Color.White
                                     )

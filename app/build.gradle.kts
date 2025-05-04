@@ -138,7 +138,8 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation(libs.gson)
+    implementation(libs.androidx.material.icons.extended)
 
 
     //Material dependencies

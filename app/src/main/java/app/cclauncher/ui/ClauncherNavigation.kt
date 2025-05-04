@@ -14,12 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.data.Navigation
-import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.ui.screens.*
 import app.cclauncher.ui.util.SystemUIController
 import app.cclauncher.ui.viewmodels.SettingsViewModel
@@ -29,12 +27,12 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun CLauncherNavigation(
     viewModel: MainViewModel,
-    settingsViewModel: SettingsViewModel,  // Use the new SettingsViewModel
+    settingsViewModel: SettingsViewModel,
     currentScreen: String,
     onScreenChange: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val settings by settingsViewModel.settingsState.collectAsState()  // Get settings from SettingsViewModel
+    val settings by settingsViewModel.settingsState.collectAsState()
 
     // Apply system UI settings
     SystemUIController(showStatusBar = settings.statusBar)
@@ -57,56 +55,65 @@ fun CLauncherNavigation(
     var widgetIdToConfig by remember { mutableIntStateOf(-1) }
     var widgetToConfig by remember { mutableStateOf<ExternalWidgetModel?>(null) }
 
-    // for UI events
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is UiEvent.NavigateToAppDrawer -> {
-                    onScreenChange(Navigation.APP_DRAWER)
-                }
-                is UiEvent.NavigateToSettings -> {
-                    onScreenChange(Navigation.SETTINGS)
-                }
-                is UiEvent.NavigateToHiddenApps -> {
-                    onScreenChange(Navigation.HIDDEN_APPS)
-                }
-                is UiEvent.NavigateBack -> {
-                    onScreenChange(Navigation.HOME)
-                }
-                is UiEvent.ShowToast -> {
-                    // Show toast message
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-                is UiEvent.NavigateToAppSelection -> {
-                    // Store selection type and show dialog
-                    currentSelectionType = event.selectionType
-                    showAppSelectionDialog = true
-                    // Navigate to app drawer with selection mode
-                    onScreenChange(Navigation.APP_DRAWER)
-                }
-                is UiEvent.NavigateToWidgetPicker -> {
-                    onScreenChange(Navigation.WIDGET_PICKER)
-                }
-                is UiEvent.NavigateToWidgetManager -> {
-                    onScreenChange(Navigation.WIDGET_MANAGER)
-                }
-                is UiEvent.NavigateToWidgetSizeConfig -> {
-                    onScreenChange(Navigation.WIDGET_SIZE_CONFIG)
-                    // Store appWidgetId for later use
-                    widgetIdToConfig = event.appWidgetId
-                }
-                is UiEvent.NavigateToWidgetConfig -> {
-                    onScreenChange(Navigation.WIDGET_CONFIG)
-                    // Store widget for later use
-                    widgetToConfig = event.widget
-                }
-
-                else -> {
-                    // Handle other events, presently nothing.
-                }
+    val handleEvent: (UiEvent) -> Unit = { event ->
+        when (event) {
+            is UiEvent.NavigateToAppDrawer -> {
+                onScreenChange(Navigation.APP_DRAWER)
+            }
+            is UiEvent.NavigateToSettings -> {
+                onScreenChange(Navigation.SETTINGS)
+            }
+            is UiEvent.NavigateToHiddenApps -> {
+                onScreenChange(Navigation.HIDDEN_APPS)
+            }
+            is UiEvent.NavigateBack -> {
+                onScreenChange(Navigation.HOME)
+            }
+            is UiEvent.ShowToast -> {
+                // Show toast message
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+            is UiEvent.NavigateToAppSelection -> {
+                // Store selection type and show dialog
+                currentSelectionType = event.selectionType
+                showAppSelectionDialog = true
+                // Navigate to app drawer with selection mode
+                onScreenChange(Navigation.APP_DRAWER)
+            }
+            is UiEvent.NavigateToWidgetPicker -> {
+                onScreenChange(Navigation.WIDGET_PICKER)
+            }
+            is UiEvent.NavigateToWidgetManager -> {
+                onScreenChange(Navigation.WIDGET_MANAGER)
+            }
+            is UiEvent.NavigateToWidgetSizeConfig -> {
+                widgetIdToConfig = event.appWidgetId
+                onScreenChange(Navigation.WIDGET_SIZE_CONFIG)
+            }
+            is UiEvent.NavigateToWidgetConfig -> {
+                widgetToConfig = event.widget
+                onScreenChange(Navigation.WIDGET_CONFIG)
+            }
+            else -> {
+                // Handle other events, presently nothing.
             }
         }
     }
+
+    // Collect events from MainViewModel
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.events.collectLatest { event ->
+            handleEvent(event)
+        }
+    }
+
+    // from SettingsViewModel
+    LaunchedEffect(key1 = settingsViewModel) {
+        settingsViewModel.events.collectLatest { event ->
+            handleEvent(event)
+        }
+    }
+
 
     // Main animation container with content alignment for proper scaling
     AnimatedContent(
@@ -231,7 +238,7 @@ fun CLauncherNavigation(
                 Navigation.APP_DRAWER -> {
                     AppDrawerScreen(
                         viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,  // Pass the settings view model
+                        settingsViewModel = settingsViewModel,
                         onAppClick = { app ->
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
@@ -258,6 +265,12 @@ fun CLauncherNavigation(
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
                                     else -> {}
                                 }
+                                // After selection, reset and go back to settings
+                                currentSelectionType = null
+                                onScreenChange(Navigation.SETTINGS)
+                            } else {
+                                // Normal app launch
+                                viewModel.launchApp(app)
                             }
                         },
                         onSwipeDown = { onScreenChange(Navigation.HOME) },
@@ -346,6 +359,7 @@ fun CLauncherNavigation(
         }
     }
 }
+
 
 @Composable
 fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
