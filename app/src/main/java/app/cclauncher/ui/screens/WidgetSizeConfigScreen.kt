@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.ExternalWidgetModel
@@ -88,7 +89,10 @@ fun WidgetSizeConfigScreen(
                 )
 
                 // Size preview
-                val baseUnit = 80.dp
+                val displayMetrics = LocalContext.current.resources.displayMetrics
+                val screenWidth = with(LocalDensity.current) { displayMetrics.widthPixels.toDp() }
+                val baseUnit = (screenWidth / 5).coerceAtMost(80.dp) // Adaptive sizing with max of 80dp
+
                 val previewWidth = baseUnit * widthMultiplier
                 val previewHeight = baseUnit * heightMultiplier
 

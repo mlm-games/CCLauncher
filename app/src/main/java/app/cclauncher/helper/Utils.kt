@@ -11,11 +11,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
 import android.graphics.Point
 import android.os.UserHandle
 import android.os.UserManager
@@ -37,15 +32,10 @@ import androidx.core.net.toUri
 import app.cclauncher.R
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
-import app.cclauncher.data.PrefsDataStore
 import app.cclauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -58,80 +48,6 @@ fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
 fun Context.showToast(stringResource: Int, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, getString(stringResource), duration).show()
 }
-
-//suspend fun getAppsList(
-//    context: Context,
-//    prefsDataStore: PrefsDataStore,
-//    includeRegularApps: Boolean = true,
-//    includeHiddenApps: Boolean = false,
-//    includeAppIcons: Boolean = true
-//): MutableList<AppModel> {
-//    return withContext(Dispatchers.IO) {
-//        val appList: MutableList<AppModel> = mutableListOf()
-//
-//        try {
-//            val hiddenApps = prefsDataStore.hiddenApps.first()
-////            println("Hidden apps count: ${hiddenApps.size}")
-//
-//            val includeIcons = prefsDataStore.preferences.first().showAppIcons
-//
-//            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-//            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-//            val collator = Collator.getInstance()
-//
-//            for (profile in userManager.userProfiles) {
-//                for (app in launcherApps.getActivityList(null, profile)) {
-//                    // Skip CCLauncher itself
-//                    if (app.applicationInfo.packageName == context.packageName) continue
-//
-//                    val appLabelShown = app.label.toString() +
-//                            if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
-//
-//                    val iconCache = IconCache(context)
-//
-//                    val appIcon = if (includeIcons) {
-//                        iconCache.getIcon(app.applicationInfo.packageName, app.componentName.className, app.user)
-//                    } else {
-//                        null
-//                    }
-//
-//                    val appModel = AppModel(
-//                        appLabelShown,
-//                        collator.getCollationKey(app.label.toString()),
-//                        app.applicationInfo.packageName,
-//                        app.componentName.className,
-//                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
-//                        profile,
-//                        appIcon = appIcon
-//                    )
-//
-//                    val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
-//                    val isHidden = hiddenApps.contains(appKey)
-////                    println("App: $appKey, isHidden: $isHidden")
-//
-//
-//
-//                    if (isHidden) {
-//                        if (includeHiddenApps) {
-//                            appList.add(appModel.copy(isHidden = true))
-//                        }
-//                    } else {
-//                        if (includeRegularApps) {
-//                            appList.add(appModel)
-//                        }
-//                    }
-//                }
-//            }
-//            appList.sortBy { it.appLabel.lowercase() }
-//
-//        } catch (e: Exception) {
-//            println("Error loading apps: ${e.message}")
-//            e.printStackTrace()
-//        }
-//        appList
-//
-//    }
-//}
 
 suspend fun getAppsList(
     context: Context,
@@ -293,81 +209,6 @@ fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
     } ?: context.showToast(context.getString(R.string.unable_to_open_app))
 }
 
-suspend fun getBitmapFromURL(src: String?): Bitmap? {
-    return withContext(Dispatchers.IO) {
-        var bitmap: Bitmap? = null
-        try {
-            val url = URL(src)
-            val connection: HttpURLConnection = url
-                .openConnection() as HttpURLConnection
-            connection.doInput = true
-            connection.connect()
-            val input: InputStream = connection.inputStream
-            bitmap = BitmapFactory.decodeStream(input)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        bitmap
-    }
-}
-
-suspend fun getWallpaperBitmap(originalImage: Bitmap, width: Int, height: Int): Bitmap {
-    return withContext(Dispatchers.IO) {
-
-        val background = createBitmap(width, height)
-
-        val originalWidth: Float = originalImage.width.toFloat()
-        val originalHeight: Float = originalImage.height.toFloat()
-
-        val canvas = Canvas(background)
-        val heightScale: Float = height / originalHeight
-        val widthScale: Float = width / originalWidth
-        val scale = maxOf(heightScale, widthScale)
-
-        val (xTranslation, yTranslation) = if (heightScale > widthScale)
-            Pair((width - originalWidth * heightScale) / 2.0f, 0f)
-        else
-            Pair(0f, (height - originalHeight * widthScale) / 2.0f)
-
-        val transformation = Matrix()
-        transformation.postTranslate(xTranslation, yTranslation)
-        transformation.preScale(scale, scale)
-
-        val paint = Paint()
-        paint.isFilterBitmap = true
-        canvas.drawBitmap(originalImage, transformation, paint)
-
-        background
-    }
-}
-
-suspend fun setWallpaper(appContext: Context, url: String): Boolean {
-    return withContext(Dispatchers.IO) {
-        val originalImageBitmap = getBitmapFromURL(url) ?: return@withContext false
-        if (appContext.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && isTablet(appContext).not())
-            return@withContext false
-
-        val wallpaperManager = WallpaperManager.getInstance(appContext)
-        val (width, height) = getScreenDimensions(appContext)
-        val scaledBitmap = getWallpaperBitmap(originalImageBitmap, width, height)
-
-        try {
-            wallpaperManager.setBitmap(scaledBitmap, null, false, WallpaperManager.FLAG_SYSTEM)
-            wallpaperManager.setBitmap(scaledBitmap, null, false, WallpaperManager.FLAG_LOCK)
-        } catch (e: Exception) {
-            return@withContext false
-        }
-
-        try {
-            originalImageBitmap.recycle()
-            scaledBitmap.recycle()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        true
-    }
-}
-
 fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val point = Point()
@@ -381,16 +222,29 @@ fun openSearch(context: Context) {
     context.startActivity(intent)
 }
 
-@SuppressLint("WrongConstant", "PrivateApi")
+@SuppressLint("WrongConstant")
 fun expandNotificationDrawer(context: Context) {
-    // Source: https://stackoverflow.com/a/51132142
     try {
+        //  (Android 12+)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            val statusBarManager = context.getSystemService(Context.STATUS_BAR_SERVICE) as StatusBarManager
+//            statusBarManager.expandNotificationsPanel()
+//            return
+//        }
+
+        // Fall back -> reflection for older versions
         val statusBarService = context.getSystemService("statusbar")
         val statusBarManager = Class.forName("android.app.StatusBarManager")
         val method = statusBarManager.getMethod("expandNotificationsPanel")
         method.invoke(statusBarService)
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (_: Exception) {
+        // If all else fails, try to use the notification intent
+        try {
+            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+            context.startActivity(intent)
+        } catch (e2: Exception) {
+            e2.printStackTrace()
+        }
     }
 }
 

@@ -30,6 +30,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.input.pointer.pointerInput
 import app.cclauncher.data.HomeAppPreference
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 
 @Composable
 fun HomeScreen(
@@ -74,11 +76,16 @@ fun HomeScreen(
         else -> 8.dp
     }
 
-    // Update time every minute
-    LaunchedEffect(key1 = Unit) {
-        while(true) {
-            currentDate.value = Date()
-            kotlinx.coroutines.delay(60000)
+    val tickerFlow = flow {
+        while (true) {
+            emit(Date())
+            delay(60000)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        tickerFlow.collect { date ->
+            currentDate.value = date
         }
     }
 

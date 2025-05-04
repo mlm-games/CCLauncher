@@ -1,6 +1,7 @@
 package app.cclauncher.ui.components
 
 import android.appwidget.AppWidgetHostView
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,7 +60,9 @@ fun ExternalWidget(
     var heightMultiplier by remember { mutableIntStateOf(widget.height.coerceIn(1, 4)) }
 
     // Base unit is 80dp
-    val baseUnit = 80.dp
+    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val screenWidth = with(LocalDensity.current) { displayMetrics.widthPixels.toDp() }
+    val baseUnit = (screenWidth / 5).coerceAtMost(80.dp)
     val widgetWidth = baseUnit * widthMultiplier
     val widgetHeight = baseUnit * heightMultiplier
 
@@ -87,7 +90,6 @@ fun ExternalWidget(
             )
             .padding(config.padding.dp)
     ) {
-        // Widget content using AndroidView
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
@@ -124,8 +126,10 @@ fun ExternalWidget(
                 }
             },
             update = { view ->
-                // Update widget if needed
-                if (view is AppWidgetHostView) {
+                // Only update when necessary dimensions change
+                if (view is AppWidgetHostView &&
+                    (view.tag as? Pair<Int, Int>)?.let { it.first != widthMultiplier || it.second != heightMultiplier } != false) {
+
                     try {
                         with(density) {
                             val widthPx = widgetWidth.toPx().toInt()
@@ -137,13 +141,16 @@ fun ExternalWidget(
                                 widthPx,
                                 heightPx
                             )
+                            // Store current dimensions as tag
+                            view.tag = Pair(widthMultiplier, heightMultiplier)
                         }
                     } catch (e: Exception) {
-                        // Handle error
+                        Log.e("ExternalWidget", "Error updating widget size: ${e.message}")
                     }
                 }
             }
         )
+
 
         // Show error state if widget creation failed
         if (hasError) {
