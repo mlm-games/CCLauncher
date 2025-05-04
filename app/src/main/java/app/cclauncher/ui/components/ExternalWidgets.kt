@@ -177,17 +177,6 @@ fun ExternalWidget(
                     .padding(4.dp)
             ) {
                 IconButton(
-                    onClick = { onConfigureWidget(widget) },
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Configure Widget",
-                        tint = Color.White
-                    )
-                }
-
-                IconButton(
                     onClick = { onRemoveWidget(widget.id) },
                     modifier = Modifier.size(28.dp)
                 ) {
@@ -215,136 +204,16 @@ fun ExternalWidget(
                             )
                             .padding(4.dp)
                     ) {
-                        // Width controls
-                        Column {
-                            Text("Width", color = Color.White, style = MaterialTheme.typography.labelSmall)
-                            Row {
-                                IconButton(
-                                    onClick = {
-                                        if (widthMultiplier > 1) {
-                                            widthMultiplier--
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Remove,
-                                        contentDescription = "Decrease Width",
-                                        tint = Color.White
-                                    )
-                                }
 
-                                Text(
-                                    text = "$widthMultiplier",
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 4.dp)
-                                )
+//TODO: Need draggable corners?
 
-                                IconButton(
-                                    onClick = {
-                                        if (widthMultiplier < 4) {
-                                            widthMultiplier++
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Increase Width",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Height controls
-                        Column {
-                            Text("Height", color = Color.White, style = MaterialTheme.typography.labelSmall)
-                            Row {
-                                IconButton(
-                                    onClick = {
-                                        if (heightMultiplier > 1) {
-                                            heightMultiplier--
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Remove,
-                                        contentDescription = "Decrease Height",
-                                        tint = Color.White
-                                    )
-                                }
-
-                                Text(
-                                    text = "$heightMultiplier",
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 4.dp)
-                                )
-
-                                IconButton(
-                                    onClick = {
-                                        if (heightMultiplier < 4) {
-                                            heightMultiplier++
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Increase Height",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = {
-                            isResizing = false
-                            onResizeWidget(widget, widthMultiplier, heightMultiplier)
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Apply", style = MaterialTheme.typography.labelSmall)
-                    }
-                } else {
-                    // Size indicator with resize button
-                    Row(
-                        modifier = Modifier
-                            .background(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .clickable { isResizing = true }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = "${widget.width}x${widget.height}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.8f),
-                        )
-
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Resize",
-                            tint = Color.White.copy(alpha = 0.8f),
-                            modifier = Modifier.size(12.dp)
-                        )
                     }
                 }
             }
         }
     }
 
-    // Apply resize changes when dimensions change
+    // Apply resize changes when dimensions change, //TODO: They reset when the screen changes, instead of saving the size
     LaunchedEffect(widthMultiplier, heightMultiplier, isResizing) {
         if (!isResizing && (widthMultiplier != widget.width || heightMultiplier != widget.height)) {
             onResizeWidget(widget, widthMultiplier, heightMultiplier)

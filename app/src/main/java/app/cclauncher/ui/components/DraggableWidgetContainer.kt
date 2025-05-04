@@ -105,7 +105,7 @@ fun DraggableWidgetContainer(
                                                 draggedWidgetIndex = index
                                                 dragOffset = Offset.Zero
                                             },
-                                            onDrag = { change, dragAmount ->
+                                            onDrag = { change, dragAmount -> //TODO: Doesn't work
                                                 change.consume()
                                                 dragOffset += dragAmount
 
