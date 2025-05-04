@@ -343,7 +343,6 @@ fun CLauncherNavigation(
                         }
                     )
                 }
-                // Widget-related screens
                 Navigation.WIDGET_PICKER -> {
                     WidgetPickerScreen(
                         onWidgetSelected = { providerInfo ->
@@ -360,20 +359,20 @@ fun CLauncherNavigation(
 //                        onNavigateBack = { onScreenChange(Navigation.HOME) }
 //                    )
 //                }
-                Navigation.WIDGET_CONFIG -> {
-                    widgetToConfig?.let { widget ->
-                        WidgetConfigSizeScreen(
-                            viewModel = viewModel,
-                            existingWidget = widget,
-                            providerClassName = widget.providerClassName,
-                            label = widget.label,
-                            packageName = widget.packageName,
-                            widgetId = widget.appWidgetId,
-                            onNavigateBack = { onScreenChange(Navigation.HOME) },
-                            onSaveWidget = {} //TODO
-                        )
-                    } ?: onScreenChange(Navigation.HOME)
-                }
+//                Navigation.WIDGET_CONFIG -> {
+//                    widgetToConfig?.let { widget ->
+//                        WidgetConfigSizeScreen(
+//                            viewModel = viewModel,
+//                            existingWidget = widget,
+//                            providerClassName = widget.providerClassName,
+//                            label = widget.label,
+//                            packageName = widget.packageName,
+//                            widgetId = widget.appWidgetId,
+//                            onNavigateBack = { onScreenChange(Navigation.HOME) },
+//                            onSaveWidget = {} //TODO
+//                        )
+//                    } ?: onScreenChange(Navigation.HOME)
+//                }
 
 
 //                Navigation.WIDGET_MANAGER -> {

@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.data.Constants
+import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.data.settings.Setting
 import app.cclauncher.data.settings.SettingCategory
@@ -323,7 +324,7 @@ fun SettingsScreen(
                                 SettingType.APP_PICKER -> {
                                     val appPreference = property.get(uiState)
                                     val appName = when (appPreference) {
-                                        is app.cclauncher.data.AppPreference -> appPreference.label
+                                        is AppPreference -> appPreference.label
                                         else -> "Not set"
                                     }
                                     SettingsItem(

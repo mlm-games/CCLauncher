@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.settings.AppPreference
+import app.cclauncher.data.settings.HomeAppPreference
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.getScreenDimensions
@@ -184,20 +186,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         _appDrawerState.value = _appDrawerState.value.copy(
             apps = _appList.value,
             isLoading = false
-        )
-    }
-
-    // Helper to convert preference to AppModel
-    private fun getAppModelFromPreference(pref: HomeAppPreference): AppModel? {
-        if (pref.packageName.isEmpty()) return null
-
-        val userHandle = getUserHandleFromString(appContext, pref.userString)
-        return AppModel(
-            appLabel = pref.label,
-            key = null,
-            appPackage = pref.packageName,
-            activityClassName = pref.activityClassName,
-            user = userHandle
         )
     }
 
@@ -534,7 +522,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             settingsRepository.setHomeApp(position, HomeAppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
-                icon = app.appIcon,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()))
         }
@@ -730,23 +717,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     isLoading = false,
                     error = e.message
                 )
-            }
-        }
-    }
-
-    fun updateHomeAppOrder(reorderedApps: List<HomeAppPreference>) {
-        viewModelScope.launch {
-            try {
-                // Update each app with its new position
-                reorderedApps.forEachIndexed { index, appPref ->
-                    val updatedPref = appPref.copy(position = index)
-                    settingsRepository.setHomeApp(index, updatedPref)
-                }
-
-                // Refresh home screen state
-//                updateHomeScreenState(settingsRepository.settings.first())
-            } catch (e: Exception) {
-                _errorMessage.value = "Failed to reorder apps: ${e.message}"
             }
         }
     }

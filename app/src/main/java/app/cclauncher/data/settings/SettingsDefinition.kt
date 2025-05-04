@@ -5,8 +5,8 @@ import kotlin.annotation.AnnotationTarget
 
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
-import app.cclauncher.data.AppPreference
 import app.cclauncher.data.Constants
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
@@ -344,6 +344,9 @@ data class AppSettings(
     )
     val plainWallpaper: Boolean = false,
 
+    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
+
+
     // Non-UI settings (not annotated)
     val firstOpen: Boolean = true,
     val firstOpenTime: Long = 0L,
@@ -430,7 +433,11 @@ class SettingsManager {
     /**
      * Check if a setting is enabled based on its dependencies
      */
-    fun isSettingEnabled(settings: AppSettings, property: KProperty1<AppSettings, *>, annotation: Setting): Boolean {
+    fun isSettingEnabled(
+        settings: AppSettings,
+        property: KProperty1<AppSettings, *>,
+        annotation: Setting
+    ): Boolean {
         val dependsOn = annotation.dependsOn
 
         if (dependsOn.isEmpty()) {
@@ -449,3 +456,19 @@ class SettingsManager {
         }
     }
 }
+
+@Serializable
+data class HomeAppPreference(
+    val label: String = "",
+    val packageName: String = "",
+    val activityClassName: String? = null,
+    val userString: String = "",
+)
+
+@Serializable
+data class AppPreference(
+    val label: String = "",
+    val packageName: String = "",
+    val activityClassName: String? = null,
+    val userString: String = ""
+)

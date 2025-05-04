@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.UserManager
 import app.cclauncher.data.AppModel
-import app.cclauncher.data.PrefsDataStore
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.getAppsList
 import kotlinx.coroutines.Dispatchers

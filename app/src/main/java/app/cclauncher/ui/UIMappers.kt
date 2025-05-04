@@ -2,7 +2,7 @@ package app.cclauncher.ui
 
 import android.content.Context
 import app.cclauncher.data.AppModel
-import app.cclauncher.data.HomeAppPreference
+import app.cclauncher.data.settings.HomeAppPreference
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.helper.isPackageInstalled
 
