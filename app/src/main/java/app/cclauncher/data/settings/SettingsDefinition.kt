@@ -242,6 +242,20 @@ data class AppSettings(
     )
     val showIconsInPortrait: Boolean = false,
 
+    @Setting(
+        title = "Home apps edit mode",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.TOGGLE
+    )
+    val editHomeApps: Boolean = false,
+
+    @Setting(
+        title = "Widgets edit mode",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.TOGGLE
+    )
+    val editWidgets: Boolean = false,
+
     // Gestures settings
     @Setting(
         title = "Left Swipe Gesture",

@@ -532,47 +532,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Update orientation based on settings
-     */
-    fun updateOrientation(isLandscape: Boolean) {
-        viewModelScope.launch {
-            val settings = settingsRepository.settings.first()
-            val showIcons = if (settings.showAppIcons) {
-                if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
-            } else {
-                false
-            }
-
-            // Update any UI state that depends on orientation
-            // This would be expanded in a full implementation
-        }
-    }
-
-    /**
-     * Apply font settings to text
-     */
-    fun getFontWeight(settings: AppSettings) = when (settings.fontWeight) {
-        0 -> androidx.compose.ui.text.font.FontWeight.Thin
-        1 -> androidx.compose.ui.text.font.FontWeight.Light
-        2 -> androidx.compose.ui.text.font.FontWeight.Normal
-        3 -> androidx.compose.ui.text.font.FontWeight.Medium
-        4 -> androidx.compose.ui.text.font.FontWeight.Bold
-        5 -> androidx.compose.ui.text.font.FontWeight.Black
-        else -> androidx.compose.ui.text.font.FontWeight.Normal
-    }
-
-    /**
-     * Get item spacing based on settings
-     */
-    fun getItemSpacing(settings: AppSettings) = when (settings.itemSpacing) {
-        0 -> 0
-        1 -> 4
-        2 -> 8
-        3 -> 16
-        else -> 8
-    }
-
-        /**
          * Update an existing external widget
          */
         fun updateExternalWidget(widget: ExternalWidgetModel) {

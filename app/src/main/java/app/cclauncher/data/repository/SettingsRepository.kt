@@ -49,6 +49,8 @@ class SettingsRepository(private val context: Context) {
         val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
         val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
+        val EDIT_HOME_APPS = booleanPreferencesKey("EDIT_HOME_APPS")
+        val EDIT_WIDGETS = booleanPreferencesKey("EDIT_WIDGETS")
         val SWIPE_LEFT_ENABLED = booleanPreferencesKey("SWIPE_LEFT_ENABLED")
         val SWIPE_RIGHT_ENABLED = booleanPreferencesKey("SWIPE_RIGHT_ENABLED")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
@@ -128,6 +130,8 @@ class SettingsRepository(private val context: Context) {
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
+            editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
+            editWidgets = prefs[EDIT_WIDGETS] ?: false,
 
             // Gestures settings
             swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
@@ -226,6 +230,8 @@ class SettingsRepository(private val context: Context) {
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
                         "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
                         "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
+                        "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
+                        "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
 
                         // Gestures settings
                         "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean

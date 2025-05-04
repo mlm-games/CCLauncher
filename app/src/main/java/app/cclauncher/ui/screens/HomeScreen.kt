@@ -44,9 +44,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     // Widget edit mode
-    var widgetEditMode by remember { mutableStateOf(false) }
     // Home apps edit mode
-    var homeEditMode by remember { mutableStateOf(false) }
 
     // Date/time state
     val currentDate = remember { mutableStateOf(Date()) }
@@ -137,41 +135,11 @@ fun HomeScreen(
             val preferences by viewModel.prefsDataStore.preferences.collectAsState(initial = null)
             preferences?.externalWidgets?.let { widgets ->
                 if (widgets.isNotEmpty()) {
-                    // Widget edit header
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (widgetEditMode) {
-                            Text(
-                                text = "Edit Widgets",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Button(onClick = { widgetEditMode = false }) {
-                                Text("Done")
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Edit",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { widgetEditMode = true }
-                                    .padding(8.dp)
-                            )
-                        }
-                    }
 
                     // Widget container
                     DraggableWidgetContainer(
                         widgets = widgets,
-                        editMode = widgetEditMode,
+                        editMode = settings.editWidgets,
                         onWidgetsReordered = { reorderedWidgets ->
                             scope.launch {
                                 viewModel.updateWidgetOrder(reorderedWidgets)
@@ -254,36 +222,6 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
                 ) {
-                    // Home apps edit header
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (homeEditMode) {
-                            Text(
-                                text = "Edit Home Apps",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Button(onClick = { homeEditMode = false }) {
-                                Text("Done")
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Edit",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { homeEditMode = true }
-                                    .padding(8.dp)
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -294,7 +232,7 @@ fun HomeScreen(
                         showAppIcons = shouldShowIcons,
                         itemSpacing = itemSpacing,
                         onAppClick = { app ->
-                            if (!homeEditMode) viewModel.launchApp(app)
+                            if (!settings.editHomeApps) viewModel.launchApp(app)
                         },
                         onAppLongPress = { position ->
                             val selectionType = when (position) {
@@ -331,14 +269,14 @@ fun HomeScreen(
                                 }
                             }.filterNotNull())
                         },
-                        editMode = homeEditMode
+                        editMode = settings.editHomeApps
                     )
                 }
             }
         }
 
         // Add widget FAB - only show in widget edit mode
-        if (widgetEditMode) {
+        if (settings.editWidgets) {
             FloatingActionButton(
                 onClick = { viewModel.emitEvent(UiEvent.NavigateToWidgetPicker) },
                 modifier = Modifier
