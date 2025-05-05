@@ -1,10 +1,8 @@
 package app.cclauncher.data
 
 import android.appwidget.AppWidgetProviderInfo
-import android.os.UserHandle
 import androidx.compose.runtime.Immutable
 import app.cclauncher.data.serializers.AppWidgetProviderInfoSerializer
-import app.cclauncher.data.serializers.UserHandleSerializer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

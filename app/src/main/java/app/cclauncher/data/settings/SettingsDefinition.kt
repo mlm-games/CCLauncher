@@ -7,7 +7,6 @@ import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import app.cclauncher.data.Constants
 import kotlinx.serialization.Serializable
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
@@ -227,7 +226,7 @@ data class AppSettings(
     val showHomeScreenIcons: Boolean = false,
 
     @Setting(
-        title = "Show Home App Icons in Landscape",
+        title = "Show App Icons in Landscape",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
         dependsOn = "showHomeScreenIcons"
@@ -235,7 +234,7 @@ data class AppSettings(
     val showIconsInLandscape: Boolean = false,
 
     @Setting(
-        title = "Show Home App Icons in Portrait",
+        title = "Show App Icons in Portrait",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
         dependsOn = "showHomeScreenIcons"

@@ -90,12 +90,6 @@ class SettingsRepository(private val context: Context) {
 
         val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
-        // App keys
-        val APP_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_NAME_${it+1}") }
-        val APP_PACKAGE_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
-        val APP_ACTIVITY_CLASS_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_${it+1}") }
-        val APP_USER_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_USER_${it+1}") }
-
         val APP_NAME_SWIPE_LEFT = stringPreferencesKey("APP_NAME_SWIPE_LEFT")
         val APP_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_NAME_SWIPE_RIGHT")
         val APP_PACKAGE_SWIPE_LEFT = stringPreferencesKey("APP_PACKAGE_SWIPE_LEFT")
@@ -396,31 +390,18 @@ class SettingsRepository(private val context: Context) {
      * Methods for managing home apps
      */
     suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            if (position >= 0 && position < Constants.HomeAppCount.NUM) {
-                prefs[APP_NAME_KEYS[position]] = app.label
-                prefs[APP_PACKAGE_KEYS[position]] = app.packageName
-                if (app.activityClassName != null) {
-                    prefs[APP_ACTIVITY_CLASS_NAME_KEYS[position]] = app.activityClassName
-                } else {
-                    prefs.remove(APP_ACTIVITY_CLASS_NAME_KEYS[position])
-                }
-                prefs[APP_USER_KEYS[position]] = app.userString
+        updateSetting { currentSettings ->
+            // Create a mutable copy since AppSettings.homeApps is immutable.
+            val newHomeApps = currentSettings.homeApps.toMutableList()
+            if (position in newHomeApps.indices) {
+                newHomeApps[position] = app
             }
+            currentSettings.copy(homeApps = newHomeApps)
         }
     }
 
     suspend fun getHomeApps(): List<HomeAppPreference> {
-        return context.settingsDataStore.data.map { prefs ->
-            List(Constants.HomeAppCount.NUM) { i ->
-                HomeAppPreference(
-                    label = prefs[APP_NAME_KEYS[i]] ?: "",
-                    packageName = prefs[APP_PACKAGE_KEYS[i]] ?: "",
-                    activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_KEYS[i]],
-                    userString = prefs[APP_USER_KEYS[i]] ?: ""
-                )
-            }
-        }.first()
+        return settings.first().homeApps
     }
 
     /**
