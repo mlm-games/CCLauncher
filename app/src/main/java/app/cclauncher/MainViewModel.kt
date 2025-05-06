@@ -22,6 +22,7 @@ import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
@@ -124,13 +125,18 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {
+            Log.d("HomeScreen", "Attempting to add app: ${appModel.appLabel}")
             val currentLayout = _homeLayoutState.value
+            Log.d("HomeScreen", "Current layout has ${currentLayout.items.size} items")
 
             val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1)
+            Log.d("HomeScreen", "Next position: $nextPos")
 
             if (nextPos != null) {
+                val appModelWithUserString = appModel.copy(userString = appModel.user.toString())
+
                 val appItem = HomeItem.App(
-                    appModel = appModel,
+                    appModel = appModelWithUserString,
                     row = nextPos.first,
                     column = nextPos.second
                 )
@@ -143,9 +149,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 // If it exists, don't add it again
                 if (existingItem == null) {
                     val newItems = currentLayout.items + appItem
+                    Log.d("HomeScreen", "Adding app at position (${nextPos.first}, ${nextPos.second})")
                     settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+                    Log.d("HomeScreen", "New layout has ${newItems.size} items")
+                } else {
+                    Log.d("HomeScreen", "App already exists on home screen")
                 }
             } else {
+                Log.d("HomeScreen", "No space available on home screen")
                 _errorMessage.value = "No space available on home screen."
             }
         }
@@ -203,23 +214,26 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
+                Log.d("WidgetDebug", "Starting widget configuration for ${providerInfo.provider}")
                 val appWidgetId = appWidgetHost.allocateAppWidgetId()
+                Log.d("WidgetDebug", "Allocated widget ID: $appWidgetId")
                 pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
 
                 if (providerInfo.configure != null) {
+                    Log.d("WidgetDebug", "Widget needs configuration")
                     val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
                         component = providerInfo.configure
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     }
                     emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
                 } else {
-                    // No configuration needed, add directly
+                    Log.d("WidgetDebug", "Widget doesn't need configuration, adding directly")
                     addWidgetToLayout(appWidgetId, providerInfo)
                 }
             } catch (e: Exception) {
-                Log.e("ViewModelWidget", "Error allocating or configuring widget", e)
+                Log.e("WidgetDebug", "Error allocating or configuring widget", e)
                 _errorMessage.value = "Failed to add widget."
-                pendingWidgetInfo?.let { appWidgetHost.deleteAppWidgetId(it.appWidgetId) } // Clean up allocated ID
+                pendingWidgetInfo?.let { appWidgetHost.deleteAppWidgetId(it.appWidgetId) }
                 pendingWidgetInfo = null
             }
         }
@@ -227,11 +241,35 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
+            Log.d("WidgetDebug", "Adding widget to layout: ID=$appWidgetId, Provider=${providerInfo.provider}")
+
+            // Get screen dimensions to calculate appropriate cell sizes
+            val screenDimensions = getScreenDimensions(context = appContext)
+            val screenWidthDp = screenDimensions.first
+            val screenHeightDp = screenDimensions.second
+
+            // Calculate widget size in cells
+            val currentLayout = _homeLayoutState.value
+            val cellWidthDp = screenWidthDp / currentLayout.columns
+            val cellHeightDp = screenHeightDp / currentLayout.rows
+
+            // Calculate how many cells the widget needs
+            val widgetWidthCells =
+                1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
+            val widgetHeightCells =
+                1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
+
+            Log.d("WidgetDebug", "Widget size: ${providerInfo.minWidth}x${providerInfo.minHeight}dp")
+            Log.d("WidgetDebug", "Cell size: ${cellWidthDp}x${cellHeightDp}dp")
+            Log.d("WidgetDebug", "Widget cells: ${widgetWidthCells}x${widgetHeightCells}")
+
+            // Find next available position
             val nextPos = findNextAvailableGridPosition(
-                _homeLayoutState.value,
-                providerInfo.minResizeWidth / 70, // Approximate cell calculation
-                providerInfo.minResizeHeight / 70
+                currentLayout,
+                widgetWidthCells,
+                widgetHeightCells
             )
+            Log.d("WidgetDebug", "Next position for widget: $nextPos")
 
             if (nextPos != null) {
                 val widgetItem = HomeItem.Widget(
@@ -240,25 +278,27 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     providerClassName = providerInfo.provider.className,
                     row = nextPos.first,
                     column = nextPos.second,
-                    rowSpan = providerInfo.minResizeHeight / 70, // TODO: Example initial size
-                    columnSpan = providerInfo.minResizeWidth / 70,
+                    rowSpan = widgetHeightCells,
+                    columnSpan = widgetWidthCells,
                 )
 
                 val success = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo.provider)
+                Log.d("WidgetDebug", "Widget binding result: $success")
 
                 if(success) {
-                    val currentLayout = _homeLayoutState.value
                     val newItems = currentLayout.items + widgetItem
+                    Log.d("WidgetDebug", "Current layout has ${currentLayout.items.size} items")
+                    Log.d("WidgetDebug", "New layout will have ${newItems.size} items")
                     val newLayout = currentLayout.copy(items = newItems)
                     settingsRepository.saveHomeLayout(newLayout)
+                    Log.d("WidgetDebug", "Layout saved with widget")
                 } else {
-                    Log.e("ViewModelWidget", "Failed to bind widget ID $appWidgetId")
+                    Log.e("WidgetDebug", "Failed to bind widget ID $appWidgetId")
                     _errorMessage.value = "Could not bind widget."
                     appWidgetHost.deleteAppWidgetId(appWidgetId)
                 }
-
             } else {
-                Log.w("ViewModelWidget", "No space found for widget ID $appWidgetId")
+                Log.w("WidgetDebug", "No space found for widget ID $appWidgetId")
                 _errorMessage.value = "No space available on home screen."
                 appWidgetHost.deleteAppWidgetId(appWidgetId)
             }

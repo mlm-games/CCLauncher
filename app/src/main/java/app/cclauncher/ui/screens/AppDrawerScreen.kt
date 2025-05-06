@@ -353,17 +353,7 @@ fun AppDrawerScreen(
                         text = "Add to Home Screen",
                         icon = Icons.Default.Add
                     ) {
-                        coroutineScope.launch {
-                            val homeAppsNum = settings.homeAppsNum
-                            for (i in 0 until homeAppsNum) {
-                                val homeApps = settingsViewModel.settingsRepository.getHomeApps()
-                                val homeApp = homeApps[i]
-                                if (homeApp.packageName.isEmpty()) {
-                                    viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1 + i)
-                                    break
-                                }
-                            }
-                        }
+                        viewModel.addAppToHomeScreen(app)
                         showContextMenu = false
                     }
                 }

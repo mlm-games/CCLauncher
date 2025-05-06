@@ -19,12 +19,6 @@ sealed class UiEvent {
     // Dialog events
     data class ShowDialog(val dialogType: String) : UiEvent()
 
-    // App events
-    data class LaunchApp(val app: AppModel) : UiEvent()
-    data class SetHomeApp(val app: AppModel, val position: Int) : UiEvent()
-    data class SetSwipeApp(val app: AppModel, val isLeft: Boolean) : UiEvent()
-    data class ToggleAppHidden(val app: AppModel) : UiEvent()
-
     // System events
     object ResetLauncher : UiEvent()
     data class ShowToast(val message: String) : UiEvent()

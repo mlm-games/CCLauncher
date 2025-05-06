@@ -1,9 +1,8 @@
 package app.cclauncher.data
 
-import android.appwidget.AppWidgetProviderInfo
 import androidx.compose.runtime.Immutable
-import app.cclauncher.data.serializers.AppWidgetProviderInfoSerializer
-import kotlinx.serialization.Contextual
+import app.cclauncher.data.HomeItemAppSerializer
+import app.cclauncher.data.HomeItemWidgetSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -16,9 +15,9 @@ sealed class HomeItem {
     abstract val rowSpan: Int
     abstract val columnSpan: Int
 
-    @Serializable
+    @Serializable(with = HomeItemAppSerializer::class)
     data class App(
-        val appModel: @Contextual AppModel,
+        val appModel: AppModel,
         override val id: String = appModel.getKey(),
         override val row: Int,
         override val column: Int,
@@ -26,12 +25,11 @@ sealed class HomeItem {
         override val columnSpan: Int = 1,
     ) : HomeItem()
 
-    @Serializable
+    @Serializable(with = HomeItemWidgetSerializer::class)
     data class Widget(
         val appWidgetId: Int,
-        @Serializable(with = AppWidgetProviderInfoSerializer::class)
-        @Transient // Exclude from default serialization, handle manually if needed via serializer
-        val providerInfo: AppWidgetProviderInfo? = null,
+        @Transient
+        val providerInfo: android.appwidget.AppWidgetProviderInfo? = null,
         val packageName: String,
         val providerClassName: String,
         override val id: String = "widget_$appWidgetId",
@@ -42,7 +40,6 @@ sealed class HomeItem {
     ) : HomeItem()
 }
 
-// Simple data class for storing the layout
 @Serializable
 data class HomeLayout(
     val items: List<HomeItem> = emptyList(),
