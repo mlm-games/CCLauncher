@@ -3,19 +3,52 @@ package app.cclauncher.ui.screens
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -23,26 +56,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.data.Constants
-import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.data.settings.Setting
 import app.cclauncher.data.settings.SettingCategory
 import app.cclauncher.data.settings.SettingType
+import app.cclauncher.data.settings.SettingsManager
 import app.cclauncher.helper.isAccessServiceEnabled
 import app.cclauncher.helper.isClauncherDefault
 import app.cclauncher.helper.setPlainWallpaperByTheme
-import app.cclauncher.ui.BackHandler
-import app.cclauncher.ui.dialogs.*
-import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.AppSelectionType
+import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,10 +86,12 @@ fun SettingsScreen(
     val context = LocalContext.current
     val uiState by viewModel.settingsState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val settingsManager = remember { SettingsManager() }
 
     // Dialog states
     var showingDialog by remember { mutableStateOf<String?>(null) }
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
+    var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
 
     // Handle orientation based on settings
     LaunchedEffect(uiState.forceLandscapeMode) {
@@ -73,84 +105,81 @@ fun SettingsScreen(
     }
 
     // Display the appropriate dialog based on setting type
-    when {
-        showingDialog == "slider" && currentProperty != null -> {
-            val prop = currentProperty!!
-            val annotation = prop.findAnnotation<Setting>()
-            if (annotation != null) {
-                SliderSettingDialog(
-                    title = annotation.title,
-                    currentValue = when (prop.returnType.classifier) {
-                        Int::class -> (prop.get(uiState) as Int).toFloat()
-                        Float::class -> prop.get(uiState) as Float
-                        else -> 0f
-                    },
-                    min = annotation.min,
-                    max = annotation.max,
-                    step = annotation.step,
-                    onDismiss = { showingDialog = null },
-                    onValueSelected = { newValue ->
-                        coroutineScope.launch {
-                            when (prop.returnType.classifier) {
-                                Int::class -> viewModel.updateSetting(prop.name, newValue.toInt())
-                                Float::class -> viewModel.updateSetting(prop.name, newValue)
+    when (showingDialog) {
+        "slider" -> {
+            currentProperty?.let { prop ->
+                currentAnnotation?.let { annotation ->
+                    SliderSettingDialog(
+                        title = annotation.title,
+                        currentValue = when (prop.returnType.classifier) {
+                            Int::class -> (prop.get(uiState) as Int).toFloat()
+                            Float::class -> prop.get(uiState) as Float
+                            else -> 0f
+                        },
+                        min = annotation.min,
+                        max = annotation.max,
+                        step = annotation.step,
+                        onDismiss = { showingDialog = null },
+                        onValueSelected = { newValue ->
+                            coroutineScope.launch {
+                                when (prop.returnType.classifier) {
+                                    Int::class -> viewModel.updateSetting(prop.name, newValue.toInt())
+                                    Float::class -> viewModel.updateSetting(prop.name, newValue)
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
-
-        showingDialog == "dropdown" && currentProperty != null -> {
-            val prop = currentProperty!!
-            val annotation = prop.findAnnotation<Setting>()
-            if (annotation != null) {
-                DropdownSettingDialog(
-                    title = annotation.title,
-                    options = annotation.options.toList(),
-                    selectedIndex = when (prop.returnType.classifier) {
-                        Int::class -> prop.get(uiState) as Int
-                        else -> 0
-                    },
-                    onDismiss = { showingDialog = null },
-                    onOptionSelected = { index ->
-                        coroutineScope.launch {
-                            viewModel.updateSetting(prop.name, index)
+        "dropdown" -> {
+            currentProperty?.let { prop ->
+                currentAnnotation?.let { annotation ->
+                    DropdownSettingDialog(
+                        title = annotation.title,
+                        options = annotation.options.toList(),
+                        selectedIndex = when (prop.returnType.classifier) {
+                            Int::class -> prop.get(uiState) as Int
+                            else -> 0
+                        },
+                        onDismiss = { showingDialog = null },
+                        onOptionSelected = { index ->
+                            coroutineScope.launch {
+                                viewModel.updateSetting(prop.name, index)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
+        "app_picker" -> {
+            currentProperty?.let { prop ->
+                coroutineScope.launch {
+                    // Determine which app selection type to use
+                    val selectionType = when (prop.name) {
+                        "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
+                        "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+                        "clockApp" -> AppSelectionType.CLOCK_APP
+                        "calendarApp" -> AppSelectionType.CALENDAR_APP
+                        else -> null
+                    }
 
-        showingDialog == "theme" -> {
-            ThemePickerDialog(
-                show = true,
-                currentTheme = uiState.appTheme,
-                onDismiss = { showingDialog = null },
-                onThemeSelected = { newTheme ->
-                    coroutineScope.launch {
-                        if (uiState.appTheme != newTheme) {
-                            viewModel.updateSetting("appTheme", newTheme)
-                            AppCompatDelegate.setDefaultNightMode(newTheme)
-                            (context as? Activity)?.recreate()
-                        }
+                    selectionType?.let {
+                        viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
+                        showingDialog = null
                     }
                 }
-            )
+            }
         }
-
-        showingDialog == "fontWeight" -> {
-            FontWeightDialog(
-                show = true,
-                currentWeight = uiState.fontWeight,
-                onDismiss = { showingDialog = null },
-                onWeightSelected = { weight ->
-                    coroutineScope.launch {
-                        viewModel.updateSetting("fontWeight", weight)
-                        (context as? Activity)?.recreate()
+        "button" -> {
+            currentProperty?.let { prop ->
+                when (prop.name) {
+                    "plainWallpaper" -> {
+                        setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        showingDialog = null
                     }
                 }
-            )
+            }
         }
     }
 
@@ -182,9 +211,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
         ) {
             // Group settings by category
-            val settingsByCategory = AppSettings::class.memberProperties
-                .filter { it.findAnnotation<Setting>() != null }
-                .groupBy { it.findAnnotation<Setting>()!!.category }
+            val settingsByCategory = settingsManager.getSettingsByCategory()
 
             // Display each category
             for (category in SettingCategory.entries) {
@@ -192,23 +219,9 @@ fun SettingsScreen(
 
                 item {
                     SettingsSection(title = category.name.lowercase().capitalize(Locale.getDefault())) {
-                        categorySettings.forEach { property ->
-                            val annotation = property.findAnnotation<Setting>()!!
-                            val dependsOn = annotation.dependsOn
-
-                            // Check if this setting depends on another setting
-                            val isEnabled = if (dependsOn.isNotEmpty()) {
-                                val dependencyValue = AppSettings::class.memberProperties
-                                    .find { it.name == dependsOn }
-                                    ?.get(uiState)
-
-                                when (dependencyValue) {
-                                    is Boolean -> dependencyValue
-                                    else -> true
-                                }
-                            } else {
-                                true
-                            }
+                        categorySettings.forEach { (property, annotation) ->
+                            // Check if this setting is enabled
+                            val isEnabled = settingsManager.isSettingEnabled(uiState, property, annotation)
 
                             when (annotation.type) {
                                 SettingType.TOGGLE -> {
@@ -256,7 +269,6 @@ fun SettingsScreen(
                                         )
                                     }
                                 }
-
                                 SettingType.SLIDER -> {
                                     SettingsItem(
                                         title = annotation.title,
@@ -269,40 +281,15 @@ fun SettingsScreen(
                                         enabled = isEnabled,
                                         onClick = {
                                             currentProperty = property
+                                            currentAnnotation = annotation
                                             showingDialog = "slider"
                                         }
                                     )
                                 }
-
                                 SettingType.DROPDOWN -> {
                                     val options = annotation.options
 
-                                    // Special handling for theme
-                                    if (property.name == "appTheme") {
-                                        SettingsItem(
-                                            title = annotation.title,
-                                            subtitle = getThemeText(uiState.appTheme),
-                                            description = annotation.description.takeIf { it.isNotEmpty() },
-                                            enabled = isEnabled,
-                                            onClick = {
-                                                showingDialog = "theme"
-                                            }
-                                        )
-                                    }
-                                    // Special handling for font weight
-                                    else if (property.name == "fontWeight") {
-                                        SettingsItem(
-                                            title = annotation.title,
-                                            subtitle = getFontWeightText(uiState.fontWeight),
-                                            description = annotation.description.takeIf { it.isNotEmpty() },
-                                            enabled = isEnabled,
-                                            onClick = {
-                                                showingDialog = "fontWeight"
-                                            }
-                                        )
-                                    }
-                                    // Other dropdowns
-                                    else if (options.isNotEmpty() && property.returnType.classifier == Int::class) {
+                                    if (options.isNotEmpty() && property.returnType.classifier == Int::class) {
                                         val value = property.get(uiState) as Int
                                         val displayText = if (value >= 0 && value < options.size) {
                                             options[value]
@@ -317,28 +304,62 @@ fun SettingsScreen(
                                             enabled = isEnabled,
                                             onClick = {
                                                 currentProperty = property
+                                                currentAnnotation = annotation
                                                 showingDialog = "dropdown"
                                             }
                                         )
                                     }
                                 }
-
                                 SettingType.BUTTON -> {
                                     SettingsAction(
                                         title = annotation.title,
                                         description = annotation.description.takeIf { it.isNotEmpty() },
                                         enabled = isEnabled,
                                         onClick = {
-                                            when (property.name) {
-                                                "usePlainWallpaper" -> {
-                                                    setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                                            currentProperty = property
+                                            showingDialog = "button"
+                                        }
+                                    )
+                                }
+                                SettingType.APP_PICKER -> {
+                                    val appPreference = property.get(uiState)
+                                    val appName = when (appPreference) {
+                                        is AppPreference -> appPreference.label
+                                        else -> "Not set"
+                                    }
+                                    SettingsItem(
+                                        title = annotation.title,
+                                        subtitle = appName,
+                                        description = annotation.description.takeIf { it.isNotEmpty() },
+                                        enabled = isEnabled,
+                                        onClick = {
+                                            val selectionType = when (property.name) {
+                                                "swipeLeftApp" -> {
+                                                    AppSelectionType.SWIPE_LEFT_APP
+                                                }
+                                                "swipeRightApp" -> {
+                                                    AppSelectionType.SWIPE_RIGHT_APP
+                                                }
+                                                "clockApp" -> {
+                                                    AppSelectionType.CLOCK_APP
+                                                }
+                                                "calendarApp" -> {
+                                                    AppSelectionType.CALENDAR_APP
+                                                }
+                                                else -> {
+                                                    null
+                                                }
+                                            }
+
+                                            selectionType?.let {
+                                                coroutineScope.launch {
+                                                    viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
                                                 }
                                             }
                                         }
                                     )
                                 }
-
-                                else -> { /* Handle other types (mainly here for colorpicker (which is not needed but still)) */ }
+                                else -> { /* Why is color picker even needed? */ }
                             }
                         }
                     }
@@ -347,16 +368,52 @@ fun SettingsScreen(
 
             // System section (mostly handled separately)
             item {
+                SettingsSection(title = "Widgets") {
+//                    SettingsItem(
+//                        title = "Manage Widgets",
+//                        subtitle = "Add, remove, and configure widgets",
+//                        onClick = {
+//                            coroutineScope.launch {
+//                                viewModel.emitEvent(UiEvent.NavigateToWidgetManager)
+//                            }
+//                        }
+//                    )
+
+                    SettingsAction(
+                        title = "Add Widget",
+                        description = "Add a widget to your home screen",
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
+                            }
+                        }
+                    )
+                }
+            }
+
+//                    SettingsToggle(
+//                        title = "Transparent Widget Background",
+//                        isChecked = uiState.transparentWidgetBackground,
+//                        onCheckedChange = {
+//                            coroutineScope.launch {
+//                                viewModel.prefsDataStore.setTransparentWidgetBackground(it)
+//                                viewModel.updateSettingsState()
+//                            }
+//                        }
+//                    )
+
+            item {
                 SettingsSection(title = "System") {
                     SettingsItem(
                         title = "Set as Default Launcher",
                         subtitle = if (isClauncherDefault(context)) "CCLauncher is default" else "CCLauncher is not default",
                         onClick = {
+//                             (context as? MainActivity)?.requestDefaultLauncher(context)
                             val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
                             context.startActivity(intent)
                         },
                         transparency = if (isClauncherDefault(context)) 0.7f else 1.0f
-                    )
+                )
 
                     SettingsItem(
                         title = "Hidden Apps",
@@ -390,21 +447,8 @@ fun SettingsScreen(
 }
 
 // Helper functions
-fun getThemeText(theme: Int): String = when(theme) {
-    AppCompatDelegate.MODE_NIGHT_NO -> "Light"
-    AppCompatDelegate.MODE_NIGHT_YES -> "Dark"
-    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> "System"
-    else -> "Dark"
-}
-
-fun getFontWeightText(weight: Int): String = when(weight) {
-    0 -> "Thin"
-    1 -> "Light"
-    2 -> "Normal"
-    3 -> "Medium"
-    4 -> "Bold"
-    5 -> "Black"
-    else -> "Normal"
+fun String.capitalize(locale: Locale): String {
+    return replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
 
 @Composable
@@ -638,7 +682,7 @@ fun DropdownSettingDialog(
         title = { Text(title) },
         text = {
             LazyColumn {
-                items(options.indices.toList()) { index ->
+                items(options.indices.toList().size) { index ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -672,64 +716,3 @@ fun DropdownSettingDialog(
     )
 }
 
-@Composable
-fun FontWeightDialog(
-    show: Boolean,
-    currentWeight: Int,
-    onDismiss: () -> Unit,
-    onWeightSelected: (Int) -> Unit
-) {
-    if (!show) return
-
-    val options = listOf("Thin", "Light", "Normal", "Medium", "Bold", "Black")
-    var selected by remember { mutableIntStateOf(currentWeight) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Font Weight") },
-        text = {
-            LazyColumn {
-                items(options.indices.toList()) { index ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = index }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selected == index,
-                            onClick = { selected = index }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = options[index],
-                            fontWeight = when(index) {
-                                0 -> androidx.compose.ui.text.font.FontWeight.Thin
-                                1 -> androidx.compose.ui.text.font.FontWeight.Light
-                                2 -> androidx.compose.ui.text.font.FontWeight.Normal
-                                3 -> androidx.compose.ui.text.font.FontWeight.Medium
-                                4 -> androidx.compose.ui.text.font.FontWeight.Bold
-                                5 -> androidx.compose.ui.text.font.FontWeight.Black
-                                else -> androidx.compose.ui.text.font.FontWeight.Normal
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onWeightSelected(selected)
-                onDismiss()
-            }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}

@@ -1,6 +1,8 @@
 package app.cclauncher.ui
 
+import android.content.Intent
 import app.cclauncher.data.AppModel
+import app.cclauncher.data.ExternalWidgetModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -17,18 +19,23 @@ sealed class UiEvent {
     // Dialog events
     data class ShowDialog(val dialogType: String) : UiEvent()
 
-    // App events
-    data class LaunchApp(val app: AppModel) : UiEvent()
-    data class SetHomeApp(val app: AppModel, val position: Int) : UiEvent()
-    data class SetSwipeApp(val app: AppModel, val isLeft: Boolean) : UiEvent()
-    data class ToggleAppHidden(val app: AppModel) : UiEvent()
-
     // System events
     object ResetLauncher : UiEvent()
     data class ShowToast(val message: String) : UiEvent()
     data class ShowError(val message: String) : UiEvent()
     data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()
     data class ShowAppSelectionDialog(val selectionType: AppSelectionType) : UiEvent()
+
+    data object NavigateToWidgetPicker : UiEvent()
+    data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
+
+    data class NavigateToWidgetSizeConfig(val appWidgetId: Int) : UiEvent()
+    data class NavigateToWidgetConfig(val widget: ExternalWidgetModel) : UiEvent()
+    data object NavigateToWidgetManager : UiEvent()
+
+
+
+
 }
 
 

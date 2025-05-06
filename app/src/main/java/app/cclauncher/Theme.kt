@@ -22,7 +22,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import app.cclauncher.data.PrefsDataStore
+import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.settings.AppSettings
 
 
 private val DarkColorScheme = darkColorScheme(
@@ -203,20 +204,20 @@ fun CLauncherTheme(
 ) {
 
     val context = LocalContext.current
-    val prefsDataStore = remember { PrefsDataStore(context) }
+    val settingsRepository = remember { SettingsRepository(context) }
 
-    val textSizeScale = prefsDataStore.textSizeScale.collectAsState(initial = 1.0f)
+    val settings = settingsRepository.settings.collectAsState(initial = AppSettings()).value
 
-    val appTheme = prefsDataStore.appTheme.collectAsState(initial = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM).value
+    val textSizeScale = settings.textSizeScale
 
+    val appTheme = settings.appTheme
     val darkTheme = when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
         AppCompatDelegate.MODE_NIGHT_NO -> false
         else -> isSystemInDarkTheme() // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
     }
 
-    val dynamicColor = prefsDataStore.useDynamicTheme.collectAsState(initial = false).value == true
-
+    val dynamicColor = settings.useDynamicTheme
 
     val colorScheme = when {
          dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -231,12 +232,13 @@ fun CLauncherTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            @Suppress("DEPRECATION")
             window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
-    val typography = scaledTypography(textSizeScale.value)
+    val typography = scaledTypography(textSizeScale)
 
     MaterialTheme(
         colorScheme = colorScheme,

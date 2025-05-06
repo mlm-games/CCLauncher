@@ -1,5 +1,6 @@
 package app.cclauncher.ui
 
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -7,33 +8,36 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
+import app.cclauncher.data.ExternalWidgetModel
 import app.cclauncher.data.Navigation
-import app.cclauncher.ui.screens.AppDrawerScreen
-import app.cclauncher.ui.screens.HiddenAppsScreen
-import app.cclauncher.ui.screens.HomeScreen
-import app.cclauncher.ui.screens.SettingsScreen
+import app.cclauncher.ui.screens.*
 import app.cclauncher.ui.util.SystemUIController
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
+import app.cclauncher.ui.screens.WidgetPickerScreen
+import android.appwidget.AppWidgetHost
+import android.util.Log
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CLauncherNavigation(
     viewModel: MainViewModel,
-    settingsViewModel: SettingsViewModel,  // Use the new SettingsViewModel
+    settingsViewModel: SettingsViewModel,
     currentScreen: String,
-    onScreenChange: (String) -> Unit
+    onScreenChange: (String) -> Unit,
+    appWidgetHost: AppWidgetHost
 ) {
     val context = LocalContext.current
-    val settings by settingsViewModel.settingsState.collectAsState()  // Get settings from SettingsViewModel
+    val settings by settingsViewModel.settingsState.collectAsState()
 
     // Apply system UI settings
     SystemUIController(showStatusBar = settings.statusBar)
@@ -52,41 +56,86 @@ fun CLauncherNavigation(
     var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
-    // for UI events
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is UiEvent.NavigateToAppDrawer -> {
-                    onScreenChange(Navigation.APP_DRAWER)
+    // Widget-related state
+    var widgetIdToConfig by remember { mutableIntStateOf(-1) }
+    var widgetToConfig by remember { mutableStateOf<ExternalWidgetModel?>(null) }
+
+    val handleEvent: (UiEvent) -> Unit = { event ->
+        when (event) {
+            is UiEvent.NavigateToAppDrawer -> {
+                onScreenChange(Navigation.APP_DRAWER)
+            }
+            is UiEvent.NavigateToSettings -> {
+                onScreenChange(Navigation.SETTINGS)
+            }
+            is UiEvent.NavigateToHiddenApps -> {
+                onScreenChange(Navigation.HIDDEN_APPS)
+            }
+            is UiEvent.NavigateBack -> {
+                onScreenChange(Navigation.HOME)
+            }
+            is UiEvent.NavigateToWidgetPicker -> {
+                onScreenChange(Navigation.WIDGET_PICKER)
+            }
+            is UiEvent.StartActivityForResult -> {
+                try {
+                    (context as? Activity)?.startActivityForResult(event.intent, event.requestCode)
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Failed to start activity for result", e)
+                    Toast.makeText(
+                        context,
+                        "Failed to start widget configuration.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    }
                 }
-                is UiEvent.NavigateToSettings -> {
-                    onScreenChange(Navigation.SETTINGS)
-                }
-                is UiEvent.NavigateToHiddenApps -> {
-                    onScreenChange(Navigation.HIDDEN_APPS)
-                }
-                is UiEvent.NavigateBack -> {
-                    onScreenChange(Navigation.HOME)
-                }
-                is UiEvent.ShowToast -> {
-                    // Show toast message
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                }
-                is UiEvent.NavigateToAppSelection -> {
-                    // Store selection type and show dialog
-                    currentSelectionType = event.selectionType
-                    showAppSelectionDialog = true
-                    // Navigate to app drawer with selection mode
-                    onScreenChange(Navigation.APP_DRAWER)
-                }
-                else -> {
-                    // Handle other events, presently nothing.
-                }
+            is UiEvent.ShowToast -> {
+                // Show toast message
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+            is UiEvent.NavigateToAppSelection -> {
+                // Store selection type and show dialog
+                currentSelectionType = event.selectionType
+                showAppSelectionDialog = true
+                // Navigate to app drawer with selection mode
+                onScreenChange(Navigation.APP_DRAWER)
+            }
+            is UiEvent.NavigateToWidgetPicker -> {
+                onScreenChange(Navigation.WIDGET_PICKER)
+            }
+            is UiEvent.NavigateToWidgetManager -> {
+                onScreenChange(Navigation.WIDGET_MANAGER)
+            }
+            is UiEvent.NavigateToWidgetSizeConfig -> {
+                widgetIdToConfig = event.appWidgetId
+                onScreenChange(Navigation.WIDGET_SIZE_CONFIG)
+            }
+            is UiEvent.NavigateToWidgetConfig -> {
+                widgetToConfig = event.widget
+                onScreenChange(Navigation.WIDGET_CONFIG)
+            }
+            else -> {
+                // Handle other events, presently nothing.
             }
         }
     }
 
-    // Main animation container
+    // Collect events from MainViewModel
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.events.collectLatest { event ->
+            handleEvent(event)
+        }
+    }
+
+    // from SettingsViewModel
+    LaunchedEffect(key1 = settingsViewModel) {
+        settingsViewModel.events.collectLatest { event ->
+            handleEvent(event)
+        }
+    }
+
+
+    // Main animation container with content alignment for proper scaling
     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
@@ -156,12 +205,40 @@ fun CLauncherNavigation(
                         )
                     )
                 }
+                // Widget screens animations
+                Navigation.WIDGET_PICKER, Navigation.WIDGET_MANAGER -> {
+                    // Settings to widget screens: slide left with fade and scale
+                    (slideInHorizontally(
+                                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                                        animationSpec = tween(300)
+                                    ) + fadeIn(animationSpec = tween(300)) +
+                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                        slideOutHorizontally(
+                                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                                                animationSpec = tween(300)
+                                            ) + fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                    )
+                }
+                Navigation.WIDGET_CONFIG, Navigation.WIDGET_EDIT -> {
+                    // Widget picker to config: zoom in with fade
+                    (fadeIn(animationSpec = tween(300)) +
+                                            scaleIn(initialScale = 0.85f, animationSpec = tween(350))).togetherWith(
+                        fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 1.1f, animationSpec = tween(350))
+                    )
+                }
                 else -> {
-                    // Default animation
-                    fadeIn(animationSpec = tween(300)).togetherWith(fadeOut(animationSpec = tween(300)))
+                    // Default animation with fade and scale
+                    (fadeIn(animationSpec = tween(300)) +
+                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                        fadeOut(animationSpec = tween(300)) +
+                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                    )
                 }
             }
-        }
+        },
+        contentAlignment = Alignment.Center  // Important for proper scaling
     ) { screen ->
         // Render the appropriate screen based on current navigation state
         Box(modifier = Modifier.fillMaxSize()) {
@@ -169,19 +246,23 @@ fun CLauncherNavigation(
                 Navigation.HOME -> {
                     HomeScreen(
                         viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,  // Pass the settings view model
+                        settingsViewModel = settingsViewModel,
+                        appWidgetHost = appWidgetHost,
                         onNavigateToAppDrawer = {
                             onScreenChange(Navigation.APP_DRAWER)
                         },
                         onNavigateToSettings = {
                             onScreenChange(Navigation.SETTINGS)
+                        },
+                        onNavigateToWidgetPicker = {
+                            viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
                         }
                     )
                 }
                 Navigation.APP_DRAWER -> {
                     AppDrawerScreen(
                         viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,  // Pass the settings view model
+                        settingsViewModel = settingsViewModel,
                         onAppClick = { app ->
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
@@ -208,11 +289,12 @@ fun CLauncherNavigation(
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
                                     else -> {}
                                 }
+                                // After selection, reset and go back to settings
                                 currentSelectionType = null
-                                onScreenChange(Navigation.HOME)
+                                onScreenChange(Navigation.SETTINGS)
                             } else {
+                                // Normal app launch
                                 viewModel.launchApp(app)
-                                onScreenChange(Navigation.HOME)
                             }
                         },
                         onSwipeDown = { onScreenChange(Navigation.HOME) },
@@ -261,10 +343,54 @@ fun CLauncherNavigation(
                         }
                     )
                 }
+                Navigation.WIDGET_PICKER -> {
+                    WidgetPickerScreen(
+                        onWidgetSelected = { providerInfo ->
+                            viewModel.startWidgetConfiguration(providerInfo)
+                                           onScreenChange(Navigation.HOME)
+                        },
+                        onDismiss = { onScreenChange(Navigation.HOME) }
+                    )
+                }
+//                Navigation.WIDGET_SIZE_CONFIG -> {
+//                    WidgetSizeConfigScreen(
+//                        viewModel = viewModel,
+//                        appWidgetId = widgetIdToConfig,
+//                        onNavigateBack = { onScreenChange(Navigation.HOME) }
+//                    )
+//                }
+//                Navigation.WIDGET_CONFIG -> {
+//                    widgetToConfig?.let { widget ->
+//                        WidgetConfigSizeScreen(
+//                            viewModel = viewModel,
+//                            existingWidget = widget,
+//                            providerClassName = widget.providerClassName,
+//                            label = widget.label,
+//                            packageName = widget.packageName,
+//                            widgetId = widget.appWidgetId,
+//                            onNavigateBack = { onScreenChange(Navigation.HOME) },
+//                            onSaveWidget = {} //TODO
+//                        )
+//                    } ?: onScreenChange(Navigation.HOME)
+//                }
+
+
+//                Navigation.WIDGET_MANAGER -> {
+//                    WidgetManagerScreen(
+//                        viewModel = viewModel,
+//                        onNavigateBack = {
+//                            onScreenChange(Navigation.SETTINGS)
+//                        },
+//                        onAddWidget = {
+//                            onScreenChange(Navigation.WIDGET_PICKER)
+//                        }
+//                    )
+//                }
             }
         }
     }
 }
+
 
 @Composable
 fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {

@@ -7,7 +7,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
 import app.cclauncher.R
-import app.cclauncher.data.PrefsDataStore
+import app.cclauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,8 +25,8 @@ class MyAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         serviceScope.launch {
-            val prefsDataStore = PrefsDataStore(applicationContext)
-            prefsDataStore.updatePreference { it.copy(lockMode = true) }
+            val prefsDataStore = SettingsRepository(applicationContext)
+            prefsDataStore.updateSetting { it.copy(lockMode = true) }
         }
         super.onServiceConnected()
     }
@@ -35,11 +35,11 @@ class MyAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         try {
             val source: AccessibilityNodeInfo = event.source ?: return
-            if ((source.className == "android.widget.FrameLayout") and
+            if ((source.className == "android.widget.FrameLayout") &&
                 (source.contentDescription == getString(R.string.lock_layout_description))
             )
                 performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return
         }
     }

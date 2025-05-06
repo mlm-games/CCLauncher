@@ -1,18 +1,25 @@
 package app.cclauncher.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import app.cclauncher.data.settings.AppSettings
-import app.cclauncher.data.AppPreference
 import app.cclauncher.data.Constants
-import app.cclauncher.data.HomeAppPreference
+import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.data.settings.SettingsManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
-import kotlinx.coroutines.flow.first
+import kotlin.reflect.full.memberProperties
+import app.cclauncher.data.HomeLayout
+import app.cclauncher.data.settings.AppPreference
+import app.cclauncher.data.settings.HomeAppPreference
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.coroutines.flow.catch
 
 // Extension property for Context to access the DataStore instance
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher.settings")
@@ -21,6 +28,10 @@ val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(na
  * Repository for managing application settings
  */
 class SettingsRepository(private val context: Context) {
+
+    private val json = Json { ignoreUnknownKeys = true; prettyPrint = false } // Configure Json instance
+
+    private val settingsManager = SettingsManager()
 
     companion object {
         // Define all preference keys
@@ -46,6 +57,8 @@ class SettingsRepository(private val context: Context) {
         val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
         val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
+        val EDIT_HOME_APPS = booleanPreferencesKey("EDIT_HOME_APPS")
+        val EDIT_WIDGETS = booleanPreferencesKey("EDIT_WIDGETS")
         val SWIPE_LEFT_ENABLED = booleanPreferencesKey("SWIPE_LEFT_ENABLED")
         val SWIPE_RIGHT_ENABLED = booleanPreferencesKey("SWIPE_RIGHT_ENABLED")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
@@ -69,35 +82,48 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_RESULTS_FONT_SIZE = floatPreferencesKey("SEARCH_RESULTS_FONT_SIZE")
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
 
+        val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
+        val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
+        val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
+        val CLOCK_APP_JSON = stringPreferencesKey("CLOCK_APP_JSON")
+        val CALENDAR_APP_JSON = stringPreferencesKey("CALENDAR_APP_JSON")
 
-        // App keys
-        val APP_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_NAME_${it+1}") }
-        val APP_PACKAGE_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_PACKAGE_${it+1}") }
-        val APP_ICONS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_ICONS_${it+1}")}
-        val APP_ACTIVITY_CLASS_NAME_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_${it+1}") }
-        val APP_USER_KEYS = List(Constants.HomeAppCount.NUM) { stringPreferencesKey("APP_USER_${it+1}") }
+        val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
-        val APP_NAME_SWIPE_LEFT = stringPreferencesKey("APP_NAME_SWIPE_LEFT")
-        val APP_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_NAME_SWIPE_RIGHT")
-        val APP_PACKAGE_SWIPE_LEFT = stringPreferencesKey("APP_PACKAGE_SWIPE_LEFT")
-        val APP_PACKAGE_SWIPE_RIGHT = stringPreferencesKey("APP_PACKAGE_SWIPE_RIGHT")
-        val APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT = stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT")
-        val APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT")
-        val APP_USER_SWIPE_LEFT = stringPreferencesKey("APP_USER_SWIPE_LEFT")
-        val APP_USER_SWIPE_RIGHT = stringPreferencesKey("APP_USER_SWIPE_RIGHT")
-
-        val CLOCK_APP_PACKAGE = stringPreferencesKey("CLOCK_APP_PACKAGE")
-        val CLOCK_APP_USER = stringPreferencesKey("CLOCK_APP_USER")
-        val CLOCK_APP_CLASS_NAME = stringPreferencesKey("CLOCK_APP_CLASS_NAME")
-        val CALENDAR_APP_PACKAGE = stringPreferencesKey("CALENDAR_APP_PACKAGE")
-        val CALENDAR_APP_USER = stringPreferencesKey("CALENDAR_APP_USER")
-        val CALENDAR_APP_CLASS_NAME = stringPreferencesKey("CALENDAR_APP_CLASS_NAME")
     }
+
+    private val defaultAppSettings = AppSettings.getDefault()
+    private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
+    private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
+    private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
+    private val defaultClockApp: AppPreference = defaultAppSettings.clockApp
+    private val defaultCalendarApp: AppPreference = defaultAppSettings.calendarApp
 
     /**
      * Flow of settings that emits whenever any setting changes
      */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
+
+        val homeApps = prefs[HOME_APPS_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultHomeApps)
+        } ?: defaultHomeApps
+
+        val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeLeftApp)
+        } ?: defaultSwipeLeftApp
+
+        val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeRightApp)
+        } ?: defaultSwipeRightApp
+
+        val clockApp = prefs[CLOCK_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultClockApp)
+        } ?: defaultClockApp
+
+        val calendarApp = prefs[CALENDAR_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultCalendarApp)
+        } ?: defaultCalendarApp
+
         AppSettings(
             // General settings
             homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
@@ -127,12 +153,40 @@ class SettingsRepository(private val context: Context) {
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
+            editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
+            editWidgets = prefs[EDIT_WIDGETS] ?: false,
 
             // Gestures settings
             swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
             swipeRightEnabled = prefs[SWIPE_RIGHT_ENABLED] ?: true,
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
+
+            // App selection settings
+//            swipeLeftApp = AppPreference(
+//                label = prefs[APP_NAME_SWIPE_LEFT] ?: "Not set",
+//                packageName = prefs[APP_PACKAGE_SWIPE_LEFT] ?: "",
+//                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT],
+//                userString = prefs[APP_USER_SWIPE_LEFT] ?: ""
+//            ),
+//            swipeRightApp = AppPreference(
+//                label = prefs[APP_NAME_SWIPE_RIGHT] ?: "Not set",
+//                packageName = prefs[APP_PACKAGE_SWIPE_RIGHT] ?: "",
+//                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT],
+//                userString = prefs[APP_USER_SWIPE_RIGHT] ?: ""
+//            ),
+//            clockApp = AppPreference(
+//                label = "Clock",
+//                packageName = prefs[CLOCK_APP_PACKAGE] ?: "",
+//                activityClassName = prefs[CLOCK_APP_CLASS_NAME],
+//                userString = prefs[CLOCK_APP_USER] ?: ""
+//            ),
+//            calendarApp = AppPreference(
+//                label = "Calendar",
+//                packageName = prefs[CALENDAR_APP_PACKAGE] ?: "",
+//                activityClassName = prefs[CALENDAR_APP_CLASS_NAME],
+//                userString = prefs[CALENDAR_APP_USER] ?: ""
+//            ),
 
             // Other properties
             firstOpen = prefs[FIRST_OPEN] ?: true,
@@ -150,375 +204,217 @@ class SettingsRepository(private val context: Context) {
             aboutClicked = prefs[ABOUT_CLICKED] ?: false,
             rateClicked = prefs[RATE_CLICKED] ?: false,
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
-
-            // Search result appearance
             searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
-            searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f
+            searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
+
+            homeApps = homeApps,
+            swipeLeftApp = swipeLeftApp,
+            swipeRightApp = swipeRightApp,
+            clockApp = clockApp,
+            calendarApp = calendarApp
         )
     }
 
+    private inline fun <reified T> Json.decodeFromStringCatching(jsonString: String, default: T): T {
+        return try {
+            this.decodeFromString<T>(jsonString)
+        } catch (e: Exception) {
+            Log.e("SettingsRepo", "Failed to decode JSON for ${T::class.simpleName}: ${e.message}. Using default.")
+            default
+        }
+    }
+
+
     /**
-     * Update a specific setting
+     * Update a specific setting using reflection
      */
     suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
 
         context.settingsDataStore.edit { prefs ->
-            // General settings
-            if (currentSettings.homeAppsNum != updatedSettings.homeAppsNum)
-                prefs[HOME_APPS_NUM] = updatedSettings.homeAppsNum
-            if (currentSettings.showAppNames != updatedSettings.showAppNames)
-                prefs[SHOW_APP_NAMES] = updatedSettings.showAppNames
-            if (currentSettings.showAppIcons != updatedSettings.showAppIcons)
-                prefs[SHOW_APP_ICONS] = updatedSettings.showAppIcons
-            if (currentSettings.autoShowKeyboard != updatedSettings.autoShowKeyboard)
-                prefs[AUTO_SHOW_KEYBOARD] = updatedSettings.autoShowKeyboard
-            if (currentSettings.showHiddenAppsOnSearch != updatedSettings.showHiddenAppsOnSearch)
-                prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = updatedSettings.showHiddenAppsOnSearch
-            if (currentSettings.autoOpenFilteredApp != updatedSettings.autoOpenFilteredApp)
-                prefs[AUTO_OPEN_FILTERED_APP] = updatedSettings.autoOpenFilteredApp
-            if (currentSettings.searchType != updatedSettings.searchType)
-                prefs[SEARCH_TYPE] = updatedSettings.searchType
+            // Use reflection to find changed properties
+            AppSettings::class.memberProperties.forEach { property ->
+                val name = property.name
+                val currentValue = property.get(currentSettings)
+                val newValue = property.get(updatedSettings)
 
-            // Appearance settings
-            if (currentSettings.appTheme != updatedSettings.appTheme)
-                prefs[APP_THEME] = updatedSettings.appTheme
-            if (currentSettings.textSizeScale != updatedSettings.textSizeScale)
-                prefs[TEXT_SIZE_SCALE] = updatedSettings.textSizeScale
-            if (currentSettings.fontWeight != updatedSettings.fontWeight)
-                prefs[FONT_WEIGHT] = updatedSettings.fontWeight
-            if (currentSettings.useSystemFont != updatedSettings.useSystemFont)
-                prefs[USE_SYSTEM_FONT] = updatedSettings.useSystemFont
-            if (currentSettings.useDynamicTheme != updatedSettings.useDynamicTheme)
-                prefs[USE_DYNAMIC_THEME] = updatedSettings.useDynamicTheme
-            if (currentSettings.iconCornerRadius != updatedSettings.iconCornerRadius)
-                prefs[ICON_CORNER_RADIUS] = updatedSettings.iconCornerRadius
-            if (currentSettings.itemSpacing != updatedSettings.itemSpacing)
-                prefs[ITEM_SPACING] = updatedSettings.itemSpacing
+                if (currentValue != newValue) {
+                    when (name) {
+                        // General settings
+                        "homeAppsNum" -> prefs[HOME_APPS_NUM] = newValue as Int
+                        "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
+                        "showAppIcons" -> prefs[SHOW_APP_ICONS] = newValue as Boolean
+                        "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
+                        "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
+                        "autoOpenFilteredApp" -> prefs[AUTO_OPEN_FILTERED_APP] = newValue as Boolean
+                        "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
 
-            // Layout settings
-            if (currentSettings.homeAlignment != updatedSettings.homeAlignment)
-                prefs[HOME_ALIGNMENT] = updatedSettings.homeAlignment
-            if (currentSettings.homeBottomAlignment != updatedSettings.homeBottomAlignment)
-                prefs[HOME_BOTTOM_ALIGNMENT] = updatedSettings.homeBottomAlignment
-            if (currentSettings.statusBar != updatedSettings.statusBar)
-                prefs[STATUS_BAR] = updatedSettings.statusBar
-            if (currentSettings.homeScreenColumns != updatedSettings.homeScreenColumns)
-                prefs[HOME_SCREEN_COLUMNS] = updatedSettings.homeScreenColumns
-            if (currentSettings.dateTimeVisibility != updatedSettings.dateTimeVisibility)
-                prefs[DATE_TIME_VISIBILITY] = updatedSettings.dateTimeVisibility
-            if (currentSettings.forceLandscapeMode != updatedSettings.forceLandscapeMode)
-                prefs[FORCE_LANDSCAPE_MODE] = updatedSettings.forceLandscapeMode
-            if (currentSettings.showHomeScreenIcons != updatedSettings.showHomeScreenIcons)
-                prefs[SHOW_HOME_SCREEN_ICONS] = updatedSettings.showHomeScreenIcons
-            if (currentSettings.showIconsInLandscape != updatedSettings.showIconsInLandscape)
-                prefs[SHOW_ICONS_IN_LANDSCAPE] = updatedSettings.showIconsInLandscape
-            if (currentSettings.showIconsInPortrait != updatedSettings.showIconsInPortrait)
-                prefs[SHOW_ICONS_IN_PORTRAIT] = updatedSettings.showIconsInPortrait
+                        // Appearance settings
+                        "appTheme" -> prefs[APP_THEME] = newValue as Int
+                        "textSizeScale" -> prefs[TEXT_SIZE_SCALE] = newValue as Float
+                        "fontWeight" -> prefs[FONT_WEIGHT] = newValue as Int
+                        "useSystemFont" -> prefs[USE_SYSTEM_FONT] = newValue as Boolean
+                        "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
+                        "iconCornerRadius" -> prefs[ICON_CORNER_RADIUS] = newValue as Int
+                        "itemSpacing" -> prefs[ITEM_SPACING] = newValue as Int
 
-            // Gestures settings
-            if (currentSettings.swipeLeftEnabled != updatedSettings.swipeLeftEnabled)
-                prefs[SWIPE_LEFT_ENABLED] = updatedSettings.swipeLeftEnabled
-            if (currentSettings.swipeRightEnabled != updatedSettings.swipeRightEnabled)
-                prefs[SWIPE_RIGHT_ENABLED] = updatedSettings.swipeRightEnabled
-            if (currentSettings.swipeDownAction != updatedSettings.swipeDownAction)
-                prefs[SWIPE_DOWN_ACTION] = updatedSettings.swipeDownAction
-            if (currentSettings.doubleTapToLock != updatedSettings.doubleTapToLock)
-                prefs[DOUBLE_TAP_TO_LOCK] = updatedSettings.doubleTapToLock
+                        // Layout settings
+                        "homeAlignment" -> prefs[HOME_ALIGNMENT] = newValue as Int
+                        "homeBottomAlignment" -> prefs[HOME_BOTTOM_ALIGNMENT] = newValue as Boolean
+                        "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
+                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
+                        "dateTimeVisibility" -> prefs[DATE_TIME_VISIBILITY] = newValue as Int
+                        "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
+                        "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
+                        "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
+                        "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
+                        "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
+                        "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
 
-            // Other properties
-            if (currentSettings.firstOpen != updatedSettings.firstOpen)
-                prefs[FIRST_OPEN] = updatedSettings.firstOpen
-            if (currentSettings.firstOpenTime != updatedSettings.firstOpenTime)
-                prefs[FIRST_OPEN_TIME] = updatedSettings.firstOpenTime
-            if (currentSettings.firstSettingsOpen != updatedSettings.firstSettingsOpen)
-                prefs[FIRST_SETTINGS_OPEN] = updatedSettings.firstSettingsOpen
-            if (currentSettings.firstHide != updatedSettings.firstHide)
-                prefs[FIRST_HIDE] = updatedSettings.firstHide
-            if (currentSettings.userState != updatedSettings.userState)
-                prefs[USER_STATE] = updatedSettings.userState
-            if (currentSettings.lockMode != updatedSettings.lockMode)
-                prefs[LOCK_MODE] = updatedSettings.lockMode
-            if (currentSettings.keyboardMessage != updatedSettings.keyboardMessage)
-                prefs[KEYBOARD_MESSAGE] = updatedSettings.keyboardMessage
-            if (currentSettings.plainWallpaper != updatedSettings.plainWallpaper)
-                prefs[PLAIN_WALLPAPER] = updatedSettings.plainWallpaper
-            if (currentSettings.appLabelAlignment != updatedSettings.appLabelAlignment)
-                prefs[APP_LABEL_ALIGNMENT] = updatedSettings.appLabelAlignment
-            if (currentSettings.hiddenApps != updatedSettings.hiddenApps)
-                prefs[HIDDEN_APPS] = updatedSettings.hiddenApps
-            if (currentSettings.hiddenAppsUpdated != updatedSettings.hiddenAppsUpdated)
-                prefs[HIDDEN_APPS_UPDATED] = updatedSettings.hiddenAppsUpdated
-            if (currentSettings.showHintCounter != updatedSettings.showHintCounter)
-                prefs[SHOW_HINT_COUNTER] = updatedSettings.showHintCounter
-            if (currentSettings.aboutClicked != updatedSettings.aboutClicked)
-                prefs[ABOUT_CLICKED] = updatedSettings.aboutClicked
-            if (currentSettings.rateClicked != updatedSettings.rateClicked)
-                prefs[RATE_CLICKED] = updatedSettings.rateClicked
-            if (currentSettings.shareShownTime != updatedSettings.shareShownTime)
-                prefs[SHARE_SHOWN_TIME] = updatedSettings.shareShownTime
+                        // Gestures settings
+                        "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean
+                        "swipeRightEnabled" -> prefs[SWIPE_RIGHT_ENABLED] = newValue as Boolean
+                        "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
+                        "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
 
-            // Search result appearance
-            if (currentSettings.searchResultsUseHomeFont != updatedSettings.searchResultsUseHomeFont)
-                prefs[SEARCH_RESULTS_USE_HOME_FONT] = updatedSettings.searchResultsUseHomeFont
-            if (currentSettings.searchResultsFontSize != updatedSettings.searchResultsFontSize)
-                prefs[SEARCH_RESULTS_FONT_SIZE] = updatedSettings.searchResultsFontSize
+                        // Search result appearance
+                        "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
+                        "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
+
+                        // Other properties
+                        "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
+                        "firstOpenTime" -> prefs[FIRST_OPEN_TIME] = newValue as Long
+                        "firstSettingsOpen" -> prefs[FIRST_SETTINGS_OPEN] = newValue as Boolean
+                        "firstHide" -> prefs[FIRST_HIDE] = newValue as Boolean
+                        "userState" -> prefs[USER_STATE] = newValue as String
+                        "lockMode" -> prefs[LOCK_MODE] = newValue as Boolean
+                        "keyboardMessage" -> prefs[KEYBOARD_MESSAGE] = newValue as Boolean
+                        "plainWallpaper" -> prefs[PLAIN_WALLPAPER] = newValue as Boolean
+                        "appLabelAlignment" -> prefs[APP_LABEL_ALIGNMENT] = newValue as Int
+                        "hiddenAppsUpdated" -> prefs[HIDDEN_APPS_UPDATED] = newValue as Boolean
+                        "showHintCounter" -> prefs[SHOW_HINT_COUNTER] = newValue as Int
+                        "aboutClicked" -> prefs[ABOUT_CLICKED] = newValue as Boolean
+                        "rateClicked" -> prefs[RATE_CLICKED] = newValue as Boolean
+                        "shareShownTime" -> prefs[SHARE_SHOWN_TIME] = newValue as Long
+
+                        // Special handling for complex types
+                        "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
+
+                        "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
+                        "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
+                        "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
+                        "clockApp" -> prefs[CLOCK_APP_JSON] = json.encodeToString(newValue)
+                        "calendarApp" -> prefs[CALENDAR_APP_JSON] = json.encodeToString(newValue)
+                    }
+                }
+            }
         }
     }
 
+    fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
+        .map { prefs ->
+            prefs[HOME_LAYOUT]?.let { jsonString ->
+                try {
+                    Json.decodeFromString<HomeLayout>(jsonString)
+                } catch (e: Exception) {
+                    Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e)
+                    HomeLayout() // Return default on error
+                }
+            } ?: HomeLayout() // Return default if key not found
+        }
+        .catch { exception ->
+            Log.e("SettingsRepo", "Error reading HomeLayout", exception)
+            emit(HomeLayout()) // Emit default on error
+        }
+
+    suspend fun saveHomeLayout(layout: HomeLayout) {
+        try {
+            val jsonString = Json.encodeToString(layout)
+            context.settingsDataStore.edit { prefs ->
+                prefs[HOME_LAYOUT] = jsonString
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)
+            // Optionally notify UI of error
+        }
+    }
+
+    suspend fun triggerHomeLayoutRefresh() {
+        // Read the current value and write it back to trigger the flow
+        val currentLayout = getHomeLayout().first()
+        saveHomeLayout(currentLayout)
+    }
+
+
     /**
-     * Convenience methods for updating specific settings
+     * Update a setting by property name
      */
-    suspend fun setHomeAppsNum(value: Int) {
-        updateSetting { it.copy(homeAppsNum = value) }
-    }
-
-    suspend fun setShowAppNames(value: Boolean) {
-        updateSetting { it.copy(showAppNames = value) }
-    }
-
-    suspend fun setShowAppIcons(value: Boolean) {
-        updateSetting { it.copy(showAppIcons = value) }
-    }
-
-    suspend fun setAutoShowKeyboard(value: Boolean) {
-        updateSetting { it.copy(autoShowKeyboard = value) }
-    }
-
-    suspend fun setShowHiddenAppsOnSearch(value: Boolean) {
-        updateSetting { it.copy(showHiddenAppsOnSearch = value) }
-    }
-
-    suspend fun setAutoOpenFilteredApp(value: Boolean) {
-        updateSetting { it.copy(autoOpenFilteredApp = value) }
-    }
-
-    suspend fun setSearchType(value: Int) {
-        updateSetting { it.copy(searchType = value) }
-    }
-
-    suspend fun setAppTheme(value: Int) {
-        updateSetting { it.copy(appTheme = value) }
-    }
-
-    suspend fun setTextSizeScale(value: Float) {
-        updateSetting { it.copy(textSizeScale = value) }
-    }
-
-    suspend fun setFontWeight(value: Int) {
-        updateSetting { it.copy(fontWeight = value) }
-    }
-
-    suspend fun setUseSystemFont(value: Boolean) {
-        updateSetting { it.copy(useSystemFont = value) }
-    }
-
-    suspend fun setUseDynamicTheme(value: Boolean) {
-        updateSetting { it.copy(useDynamicTheme = value) }
-    }
-
-    suspend fun setIconCornerRadius(value: Int) {
-        updateSetting { it.copy(iconCornerRadius = value) }
-    }
-
-    suspend fun setItemSpacing(value: Int) {
-        updateSetting { it.copy(itemSpacing = value) }
-    }
-
-    suspend fun setHomeAlignment(value: Int) {
-        updateSetting { it.copy(homeAlignment = value) }
-    }
-
-    suspend fun setHomeBottomAlignment(value: Boolean) {
-        updateSetting { it.copy(homeBottomAlignment = value) }
-    }
-
-    suspend fun setStatusBar(value: Boolean) {
-        updateSetting { it.copy(statusBar = value) }
-    }
-
-    suspend fun setHomeScreenColumns(value: Int) {
-        updateSetting { it.copy(homeScreenColumns = value) }
-    }
-
-    suspend fun setDateTimeVisibility(value: Int) {
-        updateSetting { it.copy(dateTimeVisibility = value) }
-    }
-
-    suspend fun setForceLandscapeMode(value: Boolean) {
-        updateSetting { it.copy(forceLandscapeMode = value) }
-    }
-
-    suspend fun setShowIconsInLandscape(value: Boolean) {
-        updateSetting { it.copy(showIconsInLandscape = value) }
-    }
-
-    suspend fun setShowIconsInPortrait(value: Boolean) {
-        updateSetting { it.copy(showIconsInPortrait = value) }
-    }
-
-    suspend fun setShowHomeScreenIcons(value: Boolean) {
-        updateSetting { it.copy(showHomeScreenIcons = value) }
-    }
-
-    suspend fun setSwipeLeftEnabled(value: Boolean) {
-        updateSetting { it.copy(swipeLeftEnabled = value) }
-    }
-
-    suspend fun setSwipeRightEnabled(value: Boolean) {
-        updateSetting { it.copy(swipeRightEnabled = value) }
-    }
-
-    suspend fun setSwipeDownAction(value: Int) {
-        updateSetting { it.copy(swipeDownAction = value) }
-    }
-
-    suspend fun setDoubleTapToLock(value: Boolean) {
-        updateSetting { it.copy(doubleTapToLock = value) }
-    }
-
-    suspend fun setFirstOpen(value: Boolean) {
-        updateSetting { it.copy(firstOpen = value) }
-    }
-
-    suspend fun setSearchResultsUseHomeFont(value: Boolean) {
-        updateSetting { it.copy(searchResultsUseHomeFont = value) }
-    }
-
-    suspend fun setSearchResultsFontSize(value: Float) {
-        updateSetting { it.copy(searchResultsFontSize = value) }
+    suspend fun updateSetting(propertyName: String, value: Any) {
+        val currentSettings = settings.first()
+        val updatedSettings = settingsManager.updateSetting(currentSettings, propertyName, value)
+        updateSetting { updatedSettings }
     }
 
     /**
      * Methods for managing home apps
      */
     suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            if (position >= 0 && position < Constants.HomeAppCount.NUM) {
-                prefs[APP_NAME_KEYS[position]] = app.label
-                prefs[APP_PACKAGE_KEYS[position]] = app.packageName
-                if (app.activityClassName != null) {
-                    prefs[APP_ACTIVITY_CLASS_NAME_KEYS[position]] = app.activityClassName
-                } else {
-                    prefs.remove(APP_ACTIVITY_CLASS_NAME_KEYS[position])
-                }
-                prefs[APP_USER_KEYS[position]] = app.userString
+        updateSetting { currentSettings ->
+            // Create a mutable copy since AppSettings.homeApps is immutable.
+            val newHomeApps = currentSettings.homeApps.toMutableList()
+            if (position in newHomeApps.indices) {
+                newHomeApps[position] = app
             }
+            currentSettings.copy(homeApps = newHomeApps)
         }
     }
 
     suspend fun getHomeApps(): List<HomeAppPreference> {
-        return context.settingsDataStore.data.map { prefs ->
-            List(Constants.HomeAppCount.NUM) { i ->
-                HomeAppPreference(
-                    label = prefs[APP_NAME_KEYS[i]] ?: "",
-                    packageName = prefs[APP_PACKAGE_KEYS[i]] ?: "",
-                    activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_KEYS[i]],
-                    userString = prefs[APP_USER_KEYS[i]] ?: ""
-                )
-            }
-        }.first()
+        return settings.first().homeApps
     }
 
     /**
-     * Methods for managing swipe apps
+     * Methods for managing other settable apps
      */
     suspend fun setSwipeLeftApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[APP_NAME_SWIPE_LEFT] = app.label
-            prefs[APP_PACKAGE_SWIPE_LEFT] = app.packageName
-            if (app.activityClassName != null) {
-                prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT] = app.activityClassName
-            } else {
-                prefs.remove(APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT)
-            }
-            prefs[APP_USER_SWIPE_LEFT] = app.userString
+            prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
         }
     }
 
     suspend fun setSwipeRightApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[APP_NAME_SWIPE_RIGHT] = app.label
-            prefs[APP_PACKAGE_SWIPE_RIGHT] = app.packageName
-            if (app.activityClassName != null) {
-                prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT] = app.activityClassName
-            } else {
-                prefs.remove(APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT)
-            }
-            prefs[APP_USER_SWIPE_RIGHT] = app.userString
+            prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun getSwipeLeftApp(): AppPreference {
-        return context.settingsDataStore.data.map { prefs ->
-            AppPreference(
-                label = prefs[APP_NAME_SWIPE_LEFT] ?: "Not set",
-                packageName = prefs[APP_PACKAGE_SWIPE_LEFT] ?: "",
-                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT],
-                userString = prefs[APP_USER_SWIPE_LEFT] ?: ""
-            )
-        }.first()
-    }
-
-    suspend fun getSwipeRightApp(): AppPreference {
-        return context.settingsDataStore.data.map { prefs ->
-            AppPreference(
-                label = prefs[APP_NAME_SWIPE_RIGHT] ?: "Not set",
-                packageName = prefs[APP_PACKAGE_SWIPE_RIGHT] ?: "",
-                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT],
-                userString = prefs[APP_USER_SWIPE_RIGHT] ?: ""
-            )
-        }.first()
-    }
-
-    /**
-     * Methods for managing clock and calendar apps
-     */
     suspend fun setClockApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[CLOCK_APP_PACKAGE] = app.packageName
-            prefs[CLOCK_APP_USER] = app.userString
-            if (app.activityClassName != null) {
-                prefs[CLOCK_APP_CLASS_NAME] = app.activityClassName
-            } else {
-                prefs.remove(CLOCK_APP_CLASS_NAME)
-            }
+            prefs[CLOCK_APP_JSON] = json.encodeToString(app)
         }
     }
 
     suspend fun setCalendarApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[CALENDAR_APP_PACKAGE] = app.packageName
-            prefs[CALENDAR_APP_USER] = app.userString
-            if (app.activityClassName != null) {
-                prefs[CALENDAR_APP_CLASS_NAME] = app.activityClassName
-            } else {
-                prefs.remove(CALENDAR_APP_CLASS_NAME)
-            }
+            prefs[CALENDAR_APP_JSON] = json.encodeToString(app)
         }
     }
 
+    suspend fun getSwipeLeftApp(): AppPreference {
+        return settings.first().swipeLeftApp
+    }
+
+    suspend fun getSwipeRightApp(): AppPreference {
+        return settings.first().swipeRightApp
+    }
+
     suspend fun getClockApp(): AppPreference {
-        return context.settingsDataStore.data.map { prefs ->
-            AppPreference(
-                label = "Clock",
-                packageName = prefs[CLOCK_APP_PACKAGE] ?: "",
-                activityClassName = prefs[CLOCK_APP_CLASS_NAME],
-                userString = prefs[CLOCK_APP_USER] ?: ""
-            )
-        }.first()
+        return settings.first().clockApp
     }
 
     suspend fun getCalendarApp(): AppPreference {
-        return context.settingsDataStore.data.map { prefs ->
-            AppPreference(
-                label = "Calendar",
-                packageName = prefs[CALENDAR_APP_PACKAGE] ?: "",
-                activityClassName = prefs[CALENDAR_APP_CLASS_NAME],
-                userString = prefs[CALENDAR_APP_USER] ?: ""
-            )
-        }.first()
+        return settings.first().calendarApp
     }
 
     /**
@@ -534,5 +430,17 @@ class SettingsRepository(private val context: Context) {
             }
             it.copy(hiddenApps = updatedHiddenApps)
         }
+    }
+
+    suspend fun setFirstOpen(value: Boolean) {
+        updateSetting { it.copy(firstOpen = value) }
+    }
+
+    suspend fun setAppTheme(value: Int) {
+        updateSetting { it.copy(appTheme = value) }
+    }
+
+    suspend fun setStatusBar(value: Boolean) {
+        updateSetting { it.copy(statusBar = value) }
     }
 }

@@ -1,11 +1,14 @@
 package app.cclauncher
 
+import android.app.Application
+import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
@@ -21,6 +24,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
 import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isTablet
@@ -33,13 +37,58 @@ import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import android.appwidget.AppWidgetHost
+import androidx.lifecycle.ViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
+    val widgetHelper by lazy { WidgetHelper(this) }
+
+    private lateinit var appWidgetHost: AppWidgetHost
+    private val APPWIDGET_HOST_ID = 1024
+
+    val widgetRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
+        if (result.resultCode == RESULT_OK) {
+            val appWidgetId =
+                result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
+            if (appWidgetId != -1) {
+                // Check if widget needs configuration
+                if (widgetHelper.needsConfiguration(appWidgetId)) {
+                    Log.d("MainActivity", "Widget needs configuration after binding")
+                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                    configIntent?.let {
+                        configWidgetLauncher.launch(it)
+                    }
+                } else {
+                    // Widget added successfully, proceed to widget configuration screen
+                    Log.d("MainActivity", "Proceeding to widget size config")
+                    viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+                }
+            }
+        }
+    }
+
+    val configWidgetLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        Log.d("MainActivity", "Widget config result: ${result.resultCode}")
+        val appWidgetId =
+            result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (appWidgetId != -1) {
+            // Widget configured successfully, proceed to widget configuration screen
+            Log.d("MainActivity", "Proceeding to widget size config after configuration")
+            viewModel.emitEvent(UiEvent.NavigateToWidgetSizeConfig(appWidgetId))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         // Use hardware acceleration
         window.setFlags(
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -48,6 +97,11 @@ class MainActivity : ComponentActivity() {
 
         // Initialize settings repository
         settingsRepository = SettingsRepository(applicationContext)
+
+        appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
+
+        viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
+        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
         // Initialize theme based on settings
         lifecycleScope.launch {
@@ -112,7 +166,8 @@ class MainActivity : ComponentActivity() {
                     currentScreen = currentScreen,
                     onScreenChange = { screen ->
                         currentScreen = screen
-                    }
+                    },
+                    appWidgetHost = appWidgetHost
                 )
             }
         }
@@ -123,11 +178,35 @@ class MainActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
-                        viewModel.emitEvent(UiEvent.NavigateBack)
+                    viewModel.emitEvent(UiEvent.NavigateBack)
                 }
             }
         })
     }
+
+    override fun onStart() {
+        super.onStart()
+        try {
+            appWidgetHost.startListening()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error starting widget host listening", e)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        viewModel.handleActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            appWidgetHost.stopListening() // Stop listening to save resources
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error stopping widget host listening", e)
+        }
+    }
+
 
     private fun initObservers() {
         lifecycleScope.launch {
@@ -169,7 +248,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
 
         if (intent.action == Intent.ACTION_MAIN &&
-            intent.hasCategory(Intent.CATEGORY_HOME)) {
+            intent.hasCategory(Intent.CATEGORY_HOME)
+        ) {
             lifecycleScope.launch {
                 viewModel.emitEvent(UiEvent.NavigateBack)
             }
@@ -195,5 +275,33 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Force hardware acceleration
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        widgetHelper.stopListening()
+    }
+
+}
+
+class MainViewModelFactory(
+    private val application: Application,
+    private val appWidgetHost: AppWidgetHost
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MainViewModel(application, appWidgetHost) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
