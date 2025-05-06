@@ -1,0 +1,1 @@
+The home screen has been massively changed to be able to add widget support, hence all data is lost (unless you were using the prev. prerelease 8.0.6)
