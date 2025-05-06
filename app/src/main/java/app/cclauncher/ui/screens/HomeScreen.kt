@@ -5,14 +5,18 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,11 +26,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import app.cclauncher.MainViewModel
@@ -62,6 +70,11 @@ fun HomeScreen(
     var showWidgetContextMenu by remember { mutableStateOf<HomeItem.Widget?>(null) }
     var showResizeDialog by remember { mutableStateOf<HomeItem.Widget?>(null) }
 
+    // Add state for widget movement
+    var widgetBeingMoved by remember { mutableStateOf<HomeItem.Widget?>(null) }
+
+    // Store touch position for hit testing
+    var lastTouchPosition by remember { mutableStateOf(Offset.Zero) }
 
     val currentDate = remember { mutableStateOf(Date()) }
 
@@ -82,17 +95,45 @@ fun HomeScreen(
             )
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = { if (settings.doubleTapToLock)
-                                    { viewModel.lockScreen() }
-                                  },
-                    onLongPress = { offset ->
-                        // Check if long press is on empty space to trigger widget contextbox to resize or remove
-                        // This needs hit testing against item bounds, complex.
-                        // Alternative: Add a dedicated button or settings option.
-                        // For now, let's trigger via settings or a FAB maybe.
-                        onNavigateToSettings() // Keep existing long press for settings for now
+                    onDoubleTap = {
+                        if (settings.doubleTapToLock) {
+                            viewModel.lockScreen()
+                        }
                     },
-                    onTap = { /* ... */ }
+                    onLongPress = { offset ->
+                        // Store the touch position for hit testing
+                        lastTouchPosition = offset
+
+                        // Check if we're in widget movement mode
+                        if (widgetBeingMoved != null) {
+                            // End movement mode
+                            widgetBeingMoved = null
+                            return@detectTapGestures
+                        }
+
+                        // Find which widget was long-pressed
+                        val widget = findWidgetAtPosition(homeLayoutState, offset, this.size)
+                        if (widget != null) {
+                            // Show context menu for this widget
+                            showWidgetContextMenu = widget
+                        } else {
+                            // Long press on empty space, go to settings
+                            onNavigateToSettings()
+                        }
+                    },
+                    onTap = { offset ->
+                        // If we're in widget movement mode, handle the tap as a move destination
+                        if (widgetBeingMoved != null) {
+                            // Calculate the grid position from the tap location
+                            val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
+                            if (gridPosition != null) {
+                                // Move the widget to this position
+                                viewModel.moveWidget(widgetBeingMoved!!, gridPosition.first, gridPosition.second)
+                                // Exit movement mode
+                                widgetBeingMoved = null
+                            }
+                        }
+                    }
                 )
             }
     ) {
@@ -102,22 +143,58 @@ fun HomeScreen(
             currentDate = currentDate.value,
             appWidgetHost = appWidgetHost,
             onAppClick = { item -> viewModel.launchApp(item.appModel) },
-            onAppLongPress = { item -> /* Show app context menu? Remove from home? */
-                viewModel.removeAppFromHomeScreen(item) // Example action
+            onAppLongPress = { item ->
+                viewModel.removeAppFromHomeScreen(item)
                 Toast.makeText(context, "Removed ${item.appModel.appLabel}", Toast.LENGTH_SHORT).show()
             },
             onWidgetLongPress = { item -> showWidgetContextMenu = item },
             onTimeClick = { openAlarmApp(context) },
             onDateClick = { openCalendar(context) },
+            widgetBeingMoved = widgetBeingMoved
         )
+
+        // Show visual indicator if a widget is being moved
+        if (widgetBeingMoved != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Tap where you want to move the widget",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(16.dp)
+                )
+            }
+        }
     }
 
     WidgetContextMenu(
         widgetItem = showWidgetContextMenu,
         onDismiss = { showWidgetContextMenu = null },
-        onRemove = { widget -> viewModel.removeWidget(widget) },
-        onResize = { widget -> showResizeDialog = widget },
-        onConfigure = { widget -> viewModel.requestWidgetReconfigure(widget) }
+        onRemove = { widget ->
+            viewModel.removeWidget(widget)
+            showWidgetContextMenu = null
+        },
+        onResize = { widget ->
+            showResizeDialog = widget
+            showWidgetContextMenu = null
+        },
+        onConfigure = { widget ->
+            viewModel.requestWidgetReconfigure(widget)
+            showWidgetContextMenu = null
+        },
+        onMove = { widget ->
+            // Enter widget movement mode
+            widgetBeingMoved = widget
+            showWidgetContextMenu = null
+            Toast.makeText(context, "Tap where you want to move the widget", Toast.LENGTH_SHORT).show()
+        }
     )
 
     ResizeWidgetDialog(
@@ -129,6 +206,51 @@ fun HomeScreen(
             viewModel.resizeWidget(widget, newRowSpan, newColSpan)
         }
     )
+}
+
+// Helper function to find which widget was clicked
+private fun findWidgetAtPosition(
+    homeLayout: HomeLayout,
+    position: Offset,
+    size: IntSize
+): HomeItem.Widget? {
+    // Calculate cell size
+    val cellWidth = size.width.toFloat() / homeLayout.columns
+    val cellHeight = size.height.toFloat() / homeLayout.rows
+
+    // Calculate which grid cell was clicked
+    val column = (position.x / cellWidth).toInt()
+    val row = (position.y / cellHeight).toInt()
+
+    // Find a widget that contains this cell
+    return homeLayout.items.filterIsInstance<HomeItem.Widget>().find { widget ->
+        row >= widget.row &&
+                row < widget.row + widget.rowSpan &&
+                column >= widget.column &&
+                column < widget.column + widget.columnSpan
+    }
+}
+
+// Helper function to calculate grid position from screen position
+private fun calculateGridPosition(
+    position: Offset,
+    homeLayout: HomeLayout,
+    size: IntSize
+): Pair<Int, Int>? {
+    // Calculate cell size
+    val cellWidth = size.width.toFloat() / homeLayout.columns
+    val cellHeight = size.height.toFloat() / homeLayout.rows
+
+    // Calculate which grid cell was clicked
+    val column = (position.x / cellWidth).toInt()
+    val row = (position.y / cellHeight).toInt()
+
+    // Ensure the position is within grid bounds
+    if (row >= 0 && row < homeLayout.rows && column >= 0 && column < homeLayout.columns) {
+        return Pair(row, column)
+    }
+
+    return null
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -143,6 +265,7 @@ fun HomeScreenContent(
     onWidgetLongPress: (HomeItem.Widget) -> Unit,
     onTimeClick: () -> Unit,
     onDateClick: () -> Unit,
+    widgetBeingMoved: HomeItem.Widget? = null
 ) {
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -158,6 +281,7 @@ fun HomeScreenContent(
 
         val cellWidth = usableWidth / homeLayout.columns
         val cellHeight = usableHeight / homeLayout.rows
+
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
@@ -172,10 +296,8 @@ fun HomeScreenContent(
                     top.linkTo(parent.top, margin = item.row.dp * cellHeight.value)
                     start.linkTo(parent.start, margin = item.column.dp * cellWidth.value)
                     // Size based on span
-                    width =
-                        androidx.constraintlayout.compose.Dimension.value(item.columnSpan.dp * cellWidth.value)
-                    height =
-                        androidx.constraintlayout.compose.Dimension.value(item.rowSpan.dp * cellHeight.value)
+                    width = androidx.constraintlayout.compose.Dimension.value(item.columnSpan.dp * cellWidth.value)
+                    height = androidx.constraintlayout.compose.Dimension.value(item.rowSpan.dp * cellHeight.value)
                 }
 
                 when (item) {
@@ -190,6 +312,22 @@ fun HomeScreenContent(
                     }
 
                     is HomeItem.Widget -> {
+                        // Add visual indicator if this widget is being moved
+                        val isBeingMoved = widgetBeingMoved?.id == item.id
+
+                        val widgetModifier = if (isBeingMoved) {
+                            itemModifier
+                                .padding(2.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .alpha(0.7f)
+                        } else {
+                            itemModifier.padding(2.dp)
+                        }
+
                         val providerInfo = remember(item.packageName, item.providerClassName) {
                             // Lookup provider info at runtime
                             widgetManager.installedProviders.find {
@@ -212,13 +350,13 @@ fun HomeScreenContent(
                                     WidgetSizeData(
                                         width = wDp.toPx().roundToInt(),
                                         height = hDp.toPx().roundToInt(),
-                                        minWidthDp = wDp, maxWidthDp = wDp, // Pass cell-based size
+                                        minWidthDp = wDp, maxWidthDp = wDp,
                                         minHeightDp = hDp, maxHeightDp = hDp
                                     )
                                 }
                             }
                             WidgetHostViewContainer(
-                                modifier = itemModifier.padding(2.dp),
+                                modifier = widgetModifier,
                                 appWidgetId = item.appWidgetId,
                                 providerInfo = providerInfo,
                                 appWidgetHost = appWidgetHost,
@@ -246,7 +384,8 @@ fun WidgetContextMenu(
     onDismiss: () -> Unit,
     onRemove: (HomeItem.Widget) -> Unit,
     onResize: (HomeItem.Widget) -> Unit,
-    onConfigure: (HomeItem.Widget) -> Unit
+    onConfigure: (HomeItem.Widget) -> Unit,
+    onMove: (HomeItem.Widget) -> Unit  // Add this parameter
 ) {
     if (widgetItem == null) return
 
@@ -261,14 +400,15 @@ fun WidgetContextMenu(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Widget Options") }, // Use widget label? providerInfo?.loadLabel(context.packageManager)
+        title = { Text("Widget Options") },
         text = {
             Column {
-                DropdownMenuItem(text = { Text("Remove") }, onClick = { onRemove(widgetItem); onDismiss() })
+                DropdownMenuItem(text = { Text("Move") }, onClick = { onMove(widgetItem); onDismiss() })
                 DropdownMenuItem(text = { Text("Resize") }, onClick = { onResize(widgetItem); onDismiss() })
                 if (canReconfigure) {
                     DropdownMenuItem(text = { Text("Configure") }, onClick = { onConfigure(widgetItem); onDismiss() })
                 }
+                DropdownMenuItem(text = { Text("Remove") }, onClick = { onRemove(widgetItem); onDismiss() })
             }
         },
         confirmButton = {

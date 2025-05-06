@@ -369,15 +369,15 @@ fun SettingsScreen(
             // System section (mostly handled separately)
             item {
                 SettingsSection(title = "Widgets") {
-                    SettingsItem(
-                        title = "Manage Widgets",
-                        subtitle = "Add, remove, and configure widgets",
-                        onClick = {
-                            coroutineScope.launch {
-                                viewModel.emitEvent(UiEvent.NavigateToWidgetManager)
-                            }
-                        }
-                    )
+//                    SettingsItem(
+//                        title = "Manage Widgets",
+//                        subtitle = "Add, remove, and configure widgets",
+//                        onClick = {
+//                            coroutineScope.launch {
+//                                viewModel.emitEvent(UiEvent.NavigateToWidgetManager)
+//                            }
+//                        }
+//                    )
 
                     SettingsAction(
                         title = "Add Widget",

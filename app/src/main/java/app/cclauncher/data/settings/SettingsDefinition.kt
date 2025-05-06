@@ -56,14 +56,14 @@ enum class SettingType {
  */
 data class AppSettings(
     // General settings
-    @Setting(
-        title = "Home Apps Number",
-        category = SettingCategory.GENERAL,
-        type = SettingType.SLIDER,
-        min = 0f,
-        max = 16f,
-        step = 1f
-    )
+//    @Setting(
+//        title = "Home Apps Number",
+//        category = SettingCategory.GENERAL,
+//        type = SettingType.SLIDER,
+//        min = 0f,
+//        max = 16f,
+//        step = 1f
+//    )
     val homeAppsNum: Int = 0,
 
     @Setting(
@@ -191,22 +191,22 @@ data class AppSettings(
     )
     val statusBar: Boolean = false,
 
-    @Setting(
-        title = "Number of Columns",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.SLIDER,
-        min = 1f,
-        max = 4f,
-        step = 1f
-    )
+//    @Setting(
+//        title = "Number of Columns",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.SLIDER,
+//        min = 1f,
+//        max = 4f,
+//        step = 1f
+//    )
     val homeScreenColumns: Int = 1,
 
-    @Setting(
-        title = "Date & Time",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.DROPDOWN,
-        options = ["Off", "Date Only", "On"]
-    )
+//    @Setting(
+//        title = "Date & Time",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.DROPDOWN,
+//        options = ["Off", "Date Only", "On"]
+//    )
     val dateTimeVisibility: Int = Constants.DateTime.ON,
 
     @Setting(
@@ -241,18 +241,18 @@ data class AppSettings(
     )
     val showIconsInPortrait: Boolean = false,
 
-    @Setting(
-        title = "Home apps edit mode",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE
-    )
+//    @Setting(
+//        title = "Home apps edit mode",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.TOGGLE
+//    )
     val editHomeApps: Boolean = false,
 
-    @Setting(
-        title = "Widgets edit mode",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE
-    )
+//    @Setting(
+//        title = "Widgets edit mode",
+//        category = SettingCategory.LAYOUT,
+//        type = SettingType.TOGGLE
+//    )
     val editWidgets: Boolean = false,
 
     // Gestures settings

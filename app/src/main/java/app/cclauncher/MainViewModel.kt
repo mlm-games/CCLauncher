@@ -775,6 +775,59 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
+    fun moveWidget(widgetItem: HomeItem.Widget, newRow: Int, newColumn: Int) {
+        viewModelScope.launch {
+            Log.d("WidgetDebug", "Moving widget ${widgetItem.id} from (${widgetItem.row}, ${widgetItem.column}) to ($newRow, $newColumn)")
+
+            val currentLayout = _homeLayoutState.value
+
+            // Check if the new position would cause the widget to go out of bounds
+            if (newRow + widgetItem.rowSpan > currentLayout.rows ||
+                newColumn + widgetItem.columnSpan > currentLayout.columns) {
+                Log.d("WidgetDebug", "New position would cause widget to go out of bounds")
+                _errorMessage.value = "Cannot move widget: would go out of bounds"
+                return@launch
+            }
+
+            // Check if the new position would overlap with other items
+            val wouldOverlap = currentLayout.items.any { item ->
+                if (item.id == widgetItem.id) return@any false // Skip the widget being moved
+
+                val itemEndRow = item.row + item.rowSpan
+                val itemEndCol = item.column + item.columnSpan
+                val newEndRow = newRow + widgetItem.rowSpan
+                val newEndCol = newColumn + widgetItem.columnSpan
+
+                // Check for overlap
+                !(newRow >= itemEndRow || // Widget is below item
+                        newEndRow <= item.row || // Widget is above item
+                        newColumn >= itemEndCol || // Widget is to the right of item
+                        newEndCol <= item.column) // Widget is to the left of item
+            }
+
+            if (wouldOverlap) {
+                Log.d("WidgetDebug", "New position would overlap with existing items")
+                _errorMessage.value = "Cannot move widget: would overlap with other items"
+                return@launch
+            }
+
+            // Update the widget's position
+            val updatedItems = currentLayout.items.map { item ->
+                if (item.id == widgetItem.id && item is HomeItem.Widget) {
+                    item.copy(row = newRow, column = newColumn)
+                } else {
+                    item
+                }
+            }
+
+            // Save the updated layout
+            val newLayout = currentLayout.copy(items = updatedItems)
+            settingsRepository.saveHomeLayout(newLayout)
+
+            Log.d("WidgetDebug", "Widget moved successfully")
+        }
+    }
+
 
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
         val textLower = text.lowercase()
