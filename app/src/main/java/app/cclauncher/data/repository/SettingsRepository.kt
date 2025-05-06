@@ -90,21 +90,6 @@ class SettingsRepository(private val context: Context) {
 
         val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
-        val APP_NAME_SWIPE_LEFT = stringPreferencesKey("APP_NAME_SWIPE_LEFT")
-        val APP_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_NAME_SWIPE_RIGHT")
-        val APP_PACKAGE_SWIPE_LEFT = stringPreferencesKey("APP_PACKAGE_SWIPE_LEFT")
-        val APP_PACKAGE_SWIPE_RIGHT = stringPreferencesKey("APP_PACKAGE_SWIPE_RIGHT")
-        val APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT = stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT")
-        val APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT = stringPreferencesKey("APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT")
-        val APP_USER_SWIPE_LEFT = stringPreferencesKey("APP_USER_SWIPE_LEFT")
-        val APP_USER_SWIPE_RIGHT = stringPreferencesKey("APP_USER_SWIPE_RIGHT")
-
-        val CLOCK_APP_PACKAGE = stringPreferencesKey("CLOCK_APP_PACKAGE")
-        val CLOCK_APP_USER = stringPreferencesKey("CLOCK_APP_USER")
-        val CLOCK_APP_CLASS_NAME = stringPreferencesKey("CLOCK_APP_CLASS_NAME")
-        val CALENDAR_APP_PACKAGE = stringPreferencesKey("CALENDAR_APP_PACKAGE")
-        val CALENDAR_APP_USER = stringPreferencesKey("CALENDAR_APP_USER")
-        val CALENDAR_APP_CLASS_NAME = stringPreferencesKey("CALENDAR_APP_CLASS_NAME")
     }
 
     private val defaultAppSettings = AppSettings.getDefault()
@@ -119,11 +104,25 @@ class SettingsRepository(private val context: Context) {
      */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
 
-        val homeApps = prefs[HOME_APPS_JSON]?.let { json.decodeFromStringCatching(it, defaultHomeApps) } ?: defaultHomeApps
-        val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let { json.decodeFromStringCatching(it, defaultSwipeLeftApp) } ?: defaultSwipeLeftApp
-        val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let { json.decodeFromStringCatching(it, defaultSwipeRightApp) } ?: defaultSwipeRightApp
-        val clockApp = prefs[CLOCK_APP_JSON]?.let { json.decodeFromStringCatching(it, defaultClockApp) } ?: defaultClockApp
-        val calendarApp = prefs[CALENDAR_APP_JSON]?.let { json.decodeFromStringCatching(it, defaultCalendarApp) } ?: defaultCalendarApp
+        val homeApps = prefs[HOME_APPS_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultHomeApps)
+        } ?: defaultHomeApps
+
+        val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeLeftApp)
+        } ?: defaultSwipeLeftApp
+
+        val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeRightApp)
+        } ?: defaultSwipeRightApp
+
+        val clockApp = prefs[CLOCK_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultClockApp)
+        } ?: defaultClockApp
+
+        val calendarApp = prefs[CALENDAR_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultCalendarApp)
+        } ?: defaultCalendarApp
 
         AppSettings(
             // General settings
@@ -304,38 +303,9 @@ class SettingsRepository(private val context: Context) {
 
                         "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
-
-                        "swipeRightApp" -> {
-                            val app = newValue as AppPreference
-                            prefs[APP_NAME_SWIPE_RIGHT] = app.label
-                            prefs[APP_PACKAGE_SWIPE_RIGHT] = app.packageName
-                            if (app.activityClassName != null) {
-                                prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT] = app.activityClassName
-                            } else {
-                                prefs.remove(APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT)
-                            }
-                            prefs[APP_USER_SWIPE_RIGHT] = app.userString
-                        }
-                        "clockApp" -> {
-                            val app = newValue as AppPreference
-                            prefs[CLOCK_APP_PACKAGE] = app.packageName
-                            prefs[CLOCK_APP_USER] = app.userString
-                            if (app.activityClassName != null) {
-                                prefs[CLOCK_APP_CLASS_NAME] = app.activityClassName
-                            } else {
-                                prefs.remove(CLOCK_APP_CLASS_NAME)
-                            }
-                        }
-                        "calendarApp" -> {
-                            val app = newValue as AppPreference
-                            prefs[CALENDAR_APP_PACKAGE] = app.packageName
-                            prefs[CALENDAR_APP_USER] = app.userString
-                            if (app.activityClassName != null) {
-                                prefs[CALENDAR_APP_CLASS_NAME] = app.activityClassName
-                            } else {
-                                prefs.remove(CALENDAR_APP_CLASS_NAME)
-                            }
-                        }
+                        "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
+                        "clockApp" -> prefs[CLOCK_APP_JSON] = json.encodeToString(newValue)
+                        "calendarApp" -> prefs[CALENDAR_APP_JSON] = json.encodeToString(newValue)
                     }
                 }
             }
@@ -405,14 +375,30 @@ class SettingsRepository(private val context: Context) {
     }
 
     /**
-     * Methods for managing swipe apps
+     * Methods for managing other settable apps
      */
     suspend fun setSwipeLeftApp(app: AppPreference) {
-        updateSetting { it.copy(swipeLeftApp = app) }
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
+        }
     }
 
     suspend fun setSwipeRightApp(app: AppPreference) {
-        updateSetting { it.copy(swipeRightApp = app) }
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
+    suspend fun setClockApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[CLOCK_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
+    suspend fun setCalendarApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[CALENDAR_APP_JSON] = json.encodeToString(app)
+        }
     }
 
     suspend fun getSwipeLeftApp(): AppPreference {
@@ -421,17 +407,6 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun getSwipeRightApp(): AppPreference {
         return settings.first().swipeRightApp
-    }
-
-    /**
-     * Methods for managing clock and calendar apps
-     */
-    suspend fun setClockApp(app: AppPreference) {
-        updateSetting { it.copy(clockApp = app) }
-    }
-
-    suspend fun setCalendarApp(app: AppPreference) {
-        updateSetting { it.copy(calendarApp = app) }
     }
 
     suspend fun getClockApp(): AppPreference {

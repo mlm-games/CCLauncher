@@ -124,16 +124,27 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {
-            val nextPos = findNextAvailableGridPosition(_homeLayoutState.value, 1, 1)
+            val currentLayout = _homeLayoutState.value
+
+            val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1)
+
             if (nextPos != null) {
                 val appItem = HomeItem.App(
                     appModel = appModel,
                     row = nextPos.first,
                     column = nextPos.second
                 )
-                val currentLayout = _homeLayoutState.value
-                val newItems = currentLayout.items + appItem
-                settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+
+                // Check if this app is already on the home screen
+                val existingItem = currentLayout.items.find {
+                    it is HomeItem.App && it.appModel.getKey() == appModel.getKey()
+                }
+
+                // If it exists, don't add it again
+                if (existingItem == null) {
+                    val newItems = currentLayout.items + appItem
+                    settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+                }
             } else {
                 _errorMessage.value = "No space available on home screen."
             }
@@ -513,6 +524,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
                 val position = flag - Constants.FLAG_SET_HOME_APP_1
                 setHomeApp(appModel, position)
+
+                addAppToHomeScreen(appModel)
             }
         }
     }
@@ -529,25 +542,64 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private fun setSwipeLeftApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setSwipeLeftApp(AppPreference(
+            // Create AppPreference object
+            val appPreference = AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
-            ))
+            )
+
+            // Save using the JSON serialization approach
+            settingsRepository.setSwipeLeftApp(appPreference)
         }
     }
 
     private fun setSwipeRightApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setSwipeRightApp(AppPreference(
+            val appPreference = AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
-            ))
+            )
+
+            settingsRepository.setSwipeRightApp(appPreference)
         }
     }
+
+    fun launchSwipeLeftApp() {
+        viewModelScope.launch {
+            val swipeLeftApp = settingsRepository.getSwipeLeftApp()
+            if (swipeLeftApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = swipeLeftApp.label,
+                    key = null,
+                    appPackage = swipeLeftApp.packageName,
+                    activityClassName = swipeLeftApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeLeftApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
+
+    fun launchSwipeRightApp() {
+        viewModelScope.launch {
+            val swipeRightApp = settingsRepository.getSwipeRightApp()
+            if (swipeRightApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = swipeRightApp.label,
+                    key = null,
+                    appPackage = swipeRightApp.packageName,
+                    activityClassName = swipeRightApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeRightApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
+
 
     private fun setClockApp(app: AppModel) {
         viewModelScope.launch {
@@ -579,44 +631,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val intent = Intent(appContext, MyAccessibilityService::class.java)
                 intent.action = "LOCK_SCREEN"
                 appContext.startService(intent)
-            }
-        }
-    }
-
-    /**
-     * Launch swipe left app
-     */
-    fun launchSwipeLeftApp() {
-        viewModelScope.launch {
-            val swipeLeftApp = settingsRepository.getSwipeLeftApp()
-            if (swipeLeftApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeLeftApp.label,
-                    key = null,
-                    appPackage = swipeLeftApp.packageName,
-                    activityClassName = swipeLeftApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeLeftApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    /**
-     * Launch swipe right app
-     */
-    fun launchSwipeRightApp() {
-        viewModelScope.launch {
-            val swipeRightApp = settingsRepository.getSwipeRightApp()
-            if (swipeRightApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeRightApp.label,
-                    key = null,
-                    appPackage = swipeRightApp.packageName,
-                    activityClassName = swipeRightApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeRightApp.userString)
-                )
-                launchApp(app)
             }
         }
     }
