@@ -126,7 +126,7 @@ jobs:
           files: artifacts/*.apk
           name: "CCLauncher ${{ needs.prepare-version.outputs.version_name }}"
           tag_name: "${{ needs.prepare-version.outputs.version_name }}"
-          prerelease: false
+          prerelease: true
           fail_on_unmatched_files: false
           body: |
             ## CCLauncher Release ${{ needs.prepare-version.outputs.version_name }}
