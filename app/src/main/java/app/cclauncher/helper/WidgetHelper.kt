@@ -14,24 +14,11 @@ import app.cclauncher.data.ExternalWidgetModel
 /**
  * Helper class to manage external widgets
  */
-class WidgetHelper(private val context: Context) {
+class WidgetHelper(private val context: Context, private val appWidgetManager: AppWidgetManager, private val appWidgetHost: AppWidgetHost) {
     companion object {
-        private const val HOST_ID = 1024
         private const val TAG = "WidgetHelper"
     }
 
-    private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
-    private val appWidgetHost: AppWidgetHost = AppWidgetHost(context, HOST_ID)
-
-    init {
-        // Start listening for widget updates
-        try {
-            appWidgetHost.startListening()
-            Log.d(TAG, "Widget host started listening")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting widget host: ${e.message}")
-        }
-    }
 
     /**
      * Get a list of all available widgets from installed apps
@@ -45,19 +32,6 @@ class WidgetHelper(private val context: Context) {
         }
     }
 
-    /**
-     * Allocate a widget ID for a new widget
-     */
-    fun allocateAppWidgetId(): Int {
-        return try {
-            val id = appWidgetHost.allocateAppWidgetId()
-            Log.d(TAG, "Allocated widget ID: $id")
-            id
-        } catch (e: Exception) {
-            Log.e(TAG, "Error allocating widget ID: ${e.message}")
-            -1
-        }
-    }
 
     /**
      * Create a widget binding
@@ -125,24 +99,6 @@ class WidgetHelper(private val context: Context) {
         }
     }
 
-    /**
-     * Create a widget view
-     */
-    fun createWidget(widgetId: Int): android.view.View {
-        return try {
-            Log.d(TAG, "Creating widget view for ID: $widgetId")
-            val info = appWidgetManager.getAppWidgetInfo(widgetId)
-            val view = appWidgetHost.createView(context, widgetId, info)
-            Log.d(TAG, "Widget view created successfully")
-            view
-        } catch (e: Exception) {
-            Log.e(TAG, "Error creating widget view: ${e.message}")
-            // Create a fallback view
-            android.view.View(context).apply {
-                setBackgroundColor(android.graphics.Color.RED)
-            }
-        }
-    }
 
     /**
      * Update widget options
@@ -162,31 +118,7 @@ class WidgetHelper(private val context: Context) {
         }
     }
 
-    /**
-     * Delete a widget
-     */
-    fun deleteWidget(widgetId: Int) {
-        try {
-            Log.d(TAG, "Deleting widget with ID: $widgetId")
-            appWidgetHost.deleteAppWidgetId(widgetId)
-            Log.d(TAG, "Widget deleted successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error deleting widget: ${e.message}")
-        }
-    }
 
-    /**
-     * Stop listening for widget updates
-     */
-    fun stopListening() {
-        try {
-            Log.d(TAG, "Stopping widget host listening")
-            appWidgetHost.stopListening()
-            Log.d(TAG, "Widget host stopped listening")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error stopping widget host: ${e.message}")
-        }
-    }
 
     /**
      * Get widget info

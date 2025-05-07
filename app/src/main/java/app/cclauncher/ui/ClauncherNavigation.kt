@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.collectLatest
 import app.cclauncher.ui.screens.WidgetPickerScreen
 import android.appwidget.AppWidgetHost
 import android.util.Log
+import app.cclauncher.MainActivity
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -44,7 +45,7 @@ fun CLauncherNavigation(
 
     // Force landscape if setting is enabled
     LaunchedEffect(settings.forceLandscapeMode) {
-        (context as? android.app.Activity)?.let { activity ->
+        (context as? Activity)?.let { activity ->
             if (settings.forceLandscapeMode) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
@@ -77,6 +78,19 @@ fun CLauncherNavigation(
             is UiEvent.NavigateToWidgetPicker -> {
                 onScreenChange(Navigation.WIDGET_PICKER)
             }
+            is UiEvent.LaunchWidgetBindIntent -> {
+                try {
+                    (context as? MainActivity)?.widgetRequestLauncher?.launch(event.intent)
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Failed to launch widget bind intent", e)
+                    Toast.makeText(
+                        context,
+                        "Failed to request widget permission: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
             is UiEvent.StartActivityForResult -> {
                 try {
                     (context as? Activity)?.startActivityForResult(event.intent, event.requestCode)
@@ -99,9 +113,6 @@ fun CLauncherNavigation(
                 showAppSelectionDialog = true
                 // Navigate to app drawer with selection mode
                 onScreenChange(Navigation.APP_DRAWER)
-            }
-            is UiEvent.NavigateToWidgetPicker -> {
-                onScreenChange(Navigation.WIDGET_PICKER)
             }
             is UiEvent.NavigateToWidgetManager -> {
                 onScreenChange(Navigation.WIDGET_MANAGER)

@@ -81,11 +81,11 @@ android {
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isDebuggable = true
-            isMinifyEnabled = false
+            isDebuggable = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("Long", "BUILD_TIME", "0L")
-            isShrinkResources = false
+            isShrinkResources = true
         }
         getByName("debug") {
             isDebuggable = true

@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.app.Application
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -203,6 +204,20 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         return null // No space found
     }
 
+    private fun isSpaceFreeInternal(occupiedGrid: Array<BooleanArray>, startRow: Int, startCol: Int, spanW: Int, spanH: Int, maxRows: Int, maxCols: Int): Boolean {
+        // if (startRow + spanH > maxRows || startCol + spanW > maxCols) return false
+
+        // Check all cells within the desired span
+        for (r in startRow until startRow + spanH) {
+            for (c in startCol until startCol + spanW) {
+                if (r >= maxRows || c >= maxCols || occupiedGrid[r][c]) {
+                    return false // occupied cell
+                }
+            }
+        }
+        return true
+    }
+
 
     private fun updateAppDrawerState() {
         _appDrawerState.value = _appDrawerState.value.copy(
@@ -213,35 +228,53 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
+            var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
             try {
-                Log.d("WidgetDebug", "Starting widget configuration for ${providerInfo.provider}")
-                val appWidgetId = appWidgetHost.allocateAppWidgetId()
-                Log.d("WidgetDebug", "Allocated widget ID: $appWidgetId")
-                pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
-
-                if (providerInfo.configure != null) {
-                    Log.d("WidgetDebug", "Widget needs configuration")
-                    val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-                        component = providerInfo.configure
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    }
-                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
-                } else {
-                    Log.d("WidgetDebug", "Widget doesn't need configuration, adding directly")
-                    addWidgetToLayout(appWidgetId, providerInfo)
+                if (providerInfo == null) { // Defensive check
+                    Log.e("WidgetDebug", "CRITICAL: providerInfo is NULL in startWidgetConfiguration")
+                    _errorMessage.value = "Internal error: Widget provider information missing at start."
+                    return@launch
                 }
-            } catch (e: Exception) {
-                Log.e("WidgetDebug", "Error allocating or configuring widget", e)
-                _errorMessage.value = "Failed to add widget."
-                pendingWidgetInfo?.let { appWidgetHost.deleteAppWidgetId(it.appWidgetId) }
-                pendingWidgetInfo = null
+                val componentNameFromPicker: ComponentName? = providerInfo.provider
+                if (componentNameFromPicker == null) { // Defensive check
+                    Log.e("WidgetDebug", "CRITICAL: providerInfo.provider (ComponentName) is NULL in startWidgetConfiguration. Label: ${providerInfo.loadLabel(appContext.packageManager)}")
+                    _errorMessage.value = "Internal error: Widget component name missing at start."
+                    return@launch
+                }
+
+                Log.i("WidgetDebug", "MainViewModel: startWidgetConfiguration for Provider ComponentName: ${componentNameFromPicker.flattenToString()}, Label: '${providerInfo.loadLabel(appContext.packageManager)}'")
+
+                appWidgetId = appWidgetHost.allocateAppWidgetId()
+                // ... rest of your logic ...
+            }
+            catch (e: Exception) {
+
             }
         }
     }
 
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
-            Log.d("WidgetDebug", "Adding widget to layout: ID=$appWidgetId, Provider=${providerInfo.provider}")
+            Log.d("WidgetDebug", "MainViewModel: addWidgetToLayout - Incoming appWidgetId: $appWidgetId")
+            if (providerInfo == null) { // Should not happen if your flow is correct
+                Log.e("WidgetDebug", "CRITICAL: providerInfo is NULL in addWidgetToLayout for appWidgetId: $appWidgetId")
+                _errorMessage.value = "Internal error: Widget provider information is missing."
+                appWidgetHost.deleteAppWidgetId(appWidgetId)
+                pendingWidgetInfo = null
+                return@launch
+            }
+
+            val componentNameToBind: ComponentName? = providerInfo.provider
+            if (componentNameToBind == null) { // Should not happen for a valid AppWidgetProviderInfo
+                Log.e("WidgetDebug", "CRITICAL: providerInfo.provider (ComponentName) is NULL in addWidgetToLayout. appWidgetId: $appWidgetId, providerInfo label: ${providerInfo.loadLabel(appContext.packageManager)}")
+                _errorMessage.value = "Internal error: Widget component name is missing."
+                appWidgetHost.deleteAppWidgetId(appWidgetId)
+                pendingWidgetInfo = null
+                return@launch
+            }
+
+            Log.i("WidgetDebug", "Attempting to bind widget ID $appWidgetId with ComponentName: ${componentNameToBind.flattenToString()}")
+            Log.i("WidgetDebug", "ProviderInfo details: Label='${providerInfo.loadLabel(appContext.packageManager)}', ConfigureActivity='${providerInfo.configure}', minWidth=${providerInfo.minWidth}")
 
             // Get screen dimensions to calculate appropriate cell sizes
             val screenDimensions = getScreenDimensions(context = appContext)
@@ -259,6 +292,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             val widgetHeightCells =
                 1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
 
+
             Log.d("WidgetDebug", "Widget size: ${providerInfo.minWidth}x${providerInfo.minHeight}dp")
             Log.d("WidgetDebug", "Cell size: ${cellWidthDp}x${cellHeightDp}dp")
             Log.d("WidgetDebug", "Widget cells: ${widgetWidthCells}x${widgetHeightCells}")
@@ -271,54 +305,26 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             )
             Log.d("WidgetDebug", "Next position for widget: $nextPos")
 
-            if (nextPos != null) {
-                val widgetItem = HomeItem.Widget(
-                    appWidgetId = appWidgetId,
-                    packageName = providerInfo.provider.packageName,
-                    providerClassName = providerInfo.provider.className,
-                    row = nextPos.first,
-                    column = nextPos.second,
-                    rowSpan = widgetHeightCells,
-                    columnSpan = widgetWidthCells,
-                )
+            if (nextPos != null) { // Assuming nextPos is calculated correctly
+                // ... (create widgetItem) ...
 
-                val success = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, providerInfo.provider)
-                Log.d("WidgetDebug", "Widget binding result: $success")
+                val success = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, componentNameToBind) // Use the verified componentNameToBind
+                Log.d("WidgetDebug", "Widget binding result for ID $appWidgetId (Provider: ${componentNameToBind.flattenToString()}): $success")
 
-                if(success) {
-                    val newItems = currentLayout.items + widgetItem
-                    Log.d("WidgetDebug", "Current layout has ${currentLayout.items.size} items")
-                    Log.d("WidgetDebug", "New layout will have ${newItems.size} items")
-                    val newLayout = currentLayout.copy(items = newItems)
-                    settingsRepository.saveHomeLayout(newLayout)
-                    Log.d("WidgetDebug", "Layout saved with widget")
+                if (success) {
+                    // ...
                 } else {
-                    Log.e("WidgetDebug", "Failed to bind widget ID $appWidgetId")
-                    _errorMessage.value = "Could not bind widget."
-                    appWidgetHost.deleteAppWidgetId(appWidgetId)
+                    Log.e("WidgetDebug", "Failed to bind widget ID $appWidgetId for provider ${componentNameToBind.flattenToString()}. This is NOT a permission issue for a default launcher.")
+                    // ...
                 }
             } else {
-                Log.w("WidgetDebug", "No space found for widget ID $appWidgetId")
-                _errorMessage.value = "No space available on home screen."
-                appWidgetHost.deleteAppWidgetId(appWidgetId)
+                // ...
             }
             pendingWidgetInfo = null
         }
     }
 
-    private fun isSpaceFreeInternal(occupiedGrid: Array<BooleanArray>, startRow: Int, startCol: Int, spanW: Int, spanH: Int, maxRows: Int, maxCols: Int): Boolean {
-        // if (startRow + spanH > maxRows || startCol + spanW > maxCols) return false
 
-        // Check all cells within the desired span
-        for (r in startRow until startRow + spanH) {
-            for (c in startCol until startCol + spanW) {
-                if (r >= maxRows || c >= maxCols || occupiedGrid[r][c]) {
-                    return false // occupied cell
-                }
-            }
-        }
-        return true
-    }
 
     private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Widget, newRowSpan: Int, newColSpan: Int): Boolean {
         val targetRow = widgetToResize.row

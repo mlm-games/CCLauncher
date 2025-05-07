@@ -44,10 +44,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
-    val widgetHelper by lazy { WidgetHelper(this) }
-
+    private lateinit var appWidgetManagerInstance: AppWidgetManager
     private lateinit var appWidgetHost: AppWidgetHost
     private val APPWIDGET_HOST_ID = 1024
+
+    val widgetHelper by lazy {
+        WidgetHelper(this, appWidgetManagerInstance, appWidgetHost)
+    }
+
 
     val widgetRequestLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -99,9 +103,11 @@ class MainActivity : ComponentActivity() {
         settingsRepository = SettingsRepository(applicationContext)
 
         appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
+        Log.d("MainActivity", "AppWidgetHost created with ID: $APPWIDGET_HOST_ID")
 
         viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+
 
         // Initialize theme based on settings
         lifecycleScope.launch {
@@ -286,7 +292,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        widgetHelper.stopListening()
     }
 
 }

@@ -19,6 +19,8 @@ sealed class UiEvent {
     // Dialog events
     data class ShowDialog(val dialogType: String) : UiEvent()
 
+    data class LaunchWidgetBindIntent(val intent: Intent) : UiEvent()
+
     // System events
     object ResetLauncher : UiEvent()
     data class ShowToast(val message: String) : UiEvent()
