@@ -48,7 +48,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -59,6 +58,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -73,78 +73,62 @@ import app.cclauncher.helper.openSearch
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+// import kotlinx.coroutines.launch // Not directly used, but by LaunchedEffect
+import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawerScreen(
     viewModel: MainViewModel,
-    settingsViewModel: SettingsViewModel = viewModel(), // Add this parameter
+    settingsViewModel: SettingsViewModel = viewModel(),
     onAppClick: (AppModel) -> Unit,
     selectionMode: Boolean = false,
     selectionTitle: String = "",
-    onSwipeDown: () -> Unit,
+    onSwipeDown: () -> Unit, // This is the primary action to go "home" or navigate back
 ) {
     BackHandler(onBack = onSwipeDown)
 
     val context = LocalContext.current
     val uiState by viewModel.appDrawerState.collectAsState()
-    val settings by settingsViewModel.settingsState.collectAsState() // Use the settings state
-    val coroutineScope = rememberCoroutineScope()
+    val settings by settingsViewModel.settingsState.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    var isSearchFocused by remember { mutableStateOf(false) }
 
     val autoShowKeyboard = settings.autoShowKeyboard
     val showAppNames = settings.showAppNames
     val showAppIcons = settings.showAppIcons
     val autoOpenFilteredApp = settings.autoOpenFilteredApp
 
-    // Get current orientation to decide whether to show icons
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Determine if icons should be shown based on orientation settings
     val shouldShowIcons = if (showAppIcons) {
         if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
-    } else {
-        false
-    }
+    } else { false }
 
-    // Get the item spacing
     val itemSpacing = when (settings.itemSpacing) {
-        0 -> 0.dp
-        1 -> 4.dp
-        2 -> 8.dp
-        3 -> 16.dp
-        else -> 4.dp
+        0 -> 0.dp; 1 -> 4.dp; 2 -> 8.dp; 3 -> 16.dp; else -> 4.dp
     }
 
-    // Get font size for search results
     val searchResultsFontSize = if (settings.searchResultsUseHomeFont) {
         settings.textSizeScale
-    } else {
-        settings.searchResultsFontSize
-    }
+    } else { settings.searchResultsFontSize }
 
-    // Get font weight
     val fontWeight = when (settings.fontWeight) {
-        0 -> FontWeight.Thin
-        1 -> FontWeight.Light
-        2 -> FontWeight.Normal
-        3 -> FontWeight.Medium
-        4 -> FontWeight.Bold
-        5 -> FontWeight.Black
+        0 -> FontWeight.Thin; 1 -> FontWeight.Light; 2 -> FontWeight.Normal
+        3 -> FontWeight.Medium; 4 -> FontWeight.Bold; 5 -> FontWeight.Black
         else -> FontWeight.Normal
     }
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
 
-    // Force landscape if setting is enabled
-    LaunchedEffect(settings.forceLandscapeMode) {
+    LaunchedEffect(settings.forceLandscapeMode, context) {
         (context as? Activity)?.let { activity ->
             if (settings.forceLandscapeMode) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -152,58 +136,81 @@ fun AppDrawerScreen(
         }
     }
 
-    // Load apps when screen is shown
-    LaunchedEffect(Unit) {
-        viewModel.loadApps()
-    }
+    LaunchedEffect(Unit) { viewModel.loadApps() }
+    LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
-    // Update search results when query changes
-    LaunchedEffect(searchQuery) {
-        viewModel.searchApps(searchQuery)
-    }
-
-    // Auto-focus search field and show keyboard
-    LaunchedEffect(Unit) {
+    LaunchedEffect(autoShowKeyboard, focusRequester) {
         if (autoShowKeyboard) {
-            delay(100) // Small delay to ensure UI is ready
+            yield()
             focusRequester.requestFocus()
-            keyboardController?.show()
         }
     }
 
     val scrollState = rememberLazyListState()
-    var lastScrollIndex by remember { mutableIntStateOf(0) }
-    var keyboardVisible by remember { mutableStateOf(autoShowKeyboard) }
-    var lastScrollOffset by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(scrollState) {
-        snapshotFlow {
-            Pair(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset)
-        }.collect { (currentIndex, scrollOffset) ->
-            if (currentIndex > lastScrollIndex) {
-                // Scrolling down
-                keyboardController?.hide()
-                keyboardVisible = false
-            } else if (currentIndex < lastScrollIndex) {
-                // Scrolling up
-                keyboardController?.show()
-                keyboardVisible = true
-            } else if (currentIndex == 0 && scrollOffset < -50 && lastScrollOffset >= -50) {
-                // trying to scroll down further (overscroll)
-                // Go back to home screen (for some reason, only works with search bar)
-                onSwipeDown()
-            }
-
-            lastScrollIndex = currentIndex
-            lastScrollOffset = scrollOffset
+    LaunchedEffect(searchQuery, scrollState) {
+        // Scroll to top when search query is cleared, if not already at top
+        if (searchQuery.isEmpty() && (scrollState.firstVisibleItemIndex != 0 || scrollState.firstVisibleItemScrollOffset != 0) ) {
+            scrollState.scrollToItem(0)
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .detectSwipeGestures(onSwipeDown = onSwipeDown)
-        .statusBarsPadding()) {
+    // Keyboard and scroll interaction logic
+    LaunchedEffect(scrollState, keyboardController, focusManager, focusRequester, isSearchFocused) {
+        var previousIndex = scrollState.firstVisibleItemIndex
+        var previousOffset = scrollState.firstVisibleItemScrollOffset
 
+        snapshotFlow {
+            Triple(
+                scrollState.firstVisibleItemIndex,
+                scrollState.firstVisibleItemScrollOffset,
+                scrollState.isScrollInProgress
+            )
+        }.collect { (currentIndex, currentOffset, isScrolling) ->
+            if (isScrolling) {
+                val actualScrollHappened = currentIndex != previousIndex || currentOffset != previousOffset
+                if (actualScrollHappened) {
+                    // Determine scroll direction: positive for down, negative for up
+                    var verticalScrollDelta = 0
+                    if (currentIndex > previousIndex) verticalScrollDelta = 1 // Major scroll down
+                    else if (currentIndex < previousIndex) verticalScrollDelta = -1 // Major scroll up
+                    else verticalScrollDelta = currentOffset - previousOffset // Minor scroll in same item
+
+                    if (verticalScrollDelta > 0) { // User scrolled DOWN (content moved UP)
+                        if (isSearchFocused) {
+                            focusManager.clearFocus() // Will trigger onFocusStateChanged(false)
+                        }
+                        keyboardController?.hide()
+                    } else if (verticalScrollDelta < 0) { // User scrolled up
+                        if (currentIndex == 0 && currentOffset == 0) { // Reached the very top of the list
+                            if (!isSearchFocused) {
+                                focusRequester.requestFocus() // Will trigger onFocusStateChanged(true) & show keyboard
+                            }
+                        }
+                    }
+                }
+            }
+            previousIndex = currentIndex
+            previousOffset = currentOffset
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .detectSwipeGestures(
+                onSwipeDown = { // General swipe down (anywhere) to trigger onSwipeDown action (e.g., go home)
+                    onSwipeDown()
+                },
+                onSwipeUp = { // Swipe up when at the very top of the list to trigger onSwipeDown action
+                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0) {
+                        onSwipeDown()
+                    }
+                    // If not at the top, LazyColumn handles the swipe for its own scrolling.
+                }
+            )
+            .statusBarsPadding()
+    ) {
         if (selectionMode) {
             TopAppBar(
                 title = { Text(selectionTitle) },
@@ -211,67 +218,38 @@ fun AppDrawerScreen(
             )
         }
 
-        // Search field
         AppDrawerSearch(
             searchQuery = searchQuery,
-            onSearchChanged = { query ->
-                searchQuery = query
-                if (query.isEmpty()) {
-                    coroutineScope.launch {
-                        delay(100) // Updation delay
-                        scrollState.scrollToItem(0)
-                    }
-                }
-            },
+            onSearchChanged = { query -> searchQuery = query },
             modifier = Modifier.focusRequester(focusRequester),
             onEnterPressed = {
-                val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-                if (appsToShow.isNotEmpty()) {
-                    onAppClick(appsToShow[0])
-                }
+                val appsToOpen = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+                if (appsToOpen.isNotEmpty()) onAppClick(appsToOpen[0])
+                // Keyboard is hidden by AppDrawerSearch's onSearch action
+            },
+            onFocusStateChanged = { focused ->
+                isSearchFocused = focused
+                // Keyboard visibility is handled by onFocusChanged in AppDrawerSearch for focus gain,
+                // and by scroll logic or IME actions for focus loss/hide.
             }
         )
 
+        val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+
+        LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, onAppClick) {
+            if (searchQuery.isNotEmpty() && appsToShow.size == 1 && autoOpenFilteredApp) {
+                onAppClick(appsToShow[0])
+            }
+        }
+
         when {
-            // Loading state
-            uiState.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            // Error state
-            uiState.error != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Error: ${uiState.error}")
-                }
-            }
-
-            // Empty app list
-            uiState.apps.isEmpty() && searchQuery.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No apps found")
-                }
-            }
-
-            // Empty search results
+            uiState.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
+            uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(Modifier.fillMaxSize(), Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("No apps found matching \"$searchQuery\"")
-
                         Button(
                             onClick = {
                                 if (searchQuery.startsWith("!")) {
@@ -281,112 +259,56 @@ fun AppDrawerScreen(
                                 }
                             },
                             modifier = Modifier.padding(top = 16.dp)
-                        ) {
-                            Text("Search Web")
-                        }
+                        ) { Text("Search Web") }
                     }
                 }
             }
-
-            // Show filtered app list
             else -> {
-                val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-
                 LazyColumn(
                     state = scrollState,
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(itemSpacing) // Apply item spacing
+                    verticalArrangement = Arrangement.spacedBy(itemSpacing)
                 ) {
                     items(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
                         AppListItem(
-                            app = app,
-                            showAppIcon = shouldShowIcons, // Use conditional icon display
-                            showAppNames = showAppNames,
-                            fontScale = searchResultsFontSize, // Apply font scaling
-                            fontWeight = fontWeight, // Apply font weight
-                            iconCornerRadius = settings.iconCornerRadius.dp, // Apply icon corner radius
-                            onClick = {
-                                if (appsToShow.size == 1 && searchQuery.isNotEmpty()) {
-                                    onAppClick(appsToShow[0])
-                                } else {
-                                    onAppClick(app)
-                                }
-                            },
-                            onLongClick = {
-                                selectedApp = app
-                                showContextMenu = true
-                            },
+                            app = app, showAppIcon = shouldShowIcons, showAppNames = showAppNames,
+                            fontScale = searchResultsFontSize, fontWeight = fontWeight,
+                            iconCornerRadius = settings.iconCornerRadius.dp,
+                            onClick = { onAppClick(app) },
+                            onLongClick = { selectedApp = app; showContextMenu = true },
                         )
                     }
-                }
-
-                if ((appsToShow.size == 1) and autoOpenFilteredApp) {
-                    onAppClick(appsToShow[0])
                 }
             }
         }
     }
 
-    // App context menu
     if (showContextMenu && selectedApp != null) {
         val app = selectedApp!!
         val hiddenApps by viewModel.hiddenApps.collectAsState()
         val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
 
         AlertDialog(
-            onDismissRequest = {
-                showContextMenu = false
-                selectedApp = null
-            },
+            onDismissRequest = { showContextMenu = false; selectedApp = null },
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    // App actions
-                    ContextMenuItem(
-                        text = "Open App",
-                        icon = Icons.Default.Info
-                    ) {
-                        onAppClick(app)
-                        showContextMenu = false
-                    }
-
-                    ContextMenuItem(
-                        text = if (isHidden) "Unhide App" else "Hide App",
-                        icon = Icons.Default.Settings
-                    ) {
-                        viewModel.toggleAppHidden(app)
-                        showContextMenu = false
-                    }
-
-                    ContextMenuItem(
-                        text = "App Info",
-                        icon = Icons.Default.Info
-                    ) {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    ContextMenuItem("Open App", Icons.Default.Info) { onAppClick(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("App Info", Icons.Default.Info) {
+                        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                             data = Uri.fromParts("package", app.appPackage, null)
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent)
-                        showContextMenu = false
+                        })
+                        showContextMenu = false; selectedApp = null
                     }
-
-                    ContextMenuItem(
-                        text = "Add to Home Screen",
-                        icon = Icons.Default.Add
-                    ) {
-                        viewModel.addAppToHomeScreen(app)
-                        showContextMenu = false
-                    }
+                    ContextMenuItem("Add to Home Screen", Icons.Default.Add) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
                 }
             },
-            confirmButton = {
-                TextButton(onClick = { showContextMenu = false }) {
-                    Text("Close")
-                }
-            }
+            confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
         )
     }
 }
@@ -394,77 +316,42 @@ fun AppDrawerScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AppListItem(
-    app: AppModel,
-    showAppNames: Boolean,
-    showAppIcon: Boolean,
-    fontScale: Float = 1.0f,
-    fontWeight: FontWeight = FontWeight.Normal,
-    iconCornerRadius: Dp = 8.dp,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit,
+    app: AppModel, showAppNames: Boolean, showAppIcon: Boolean,
+    fontScale: Float, fontWeight: FontWeight, iconCornerRadius: Dp,
+    onClick: () -> Unit, onLongClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showAppIcon && app.appIcon != null) {
-            Surface(
-                shape = RoundedCornerShape(iconCornerRadius),
-                modifier = Modifier.padding(end = 16.dp)
-            ) {
-                androidx.compose.foundation.Image(
-                    bitmap = app.appIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
+            Surface(shape = RoundedCornerShape(iconCornerRadius), modifier = Modifier.padding(end = 16.dp)) {
+                androidx.compose.foundation.Image(app.appIcon, app.appLabel, Modifier.size(40.dp))
             }
         }
-
-        val textLabelShown = if (showAppNames) app.appLabel else ""
-
         Text(
-            text = textLabelShown,
+            if (showAppNames) app.appLabel else "",
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
                 fontWeight = fontWeight
             ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
+            maxLines = 1, overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-private fun ContextMenuItem(
-    text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
+private fun ContextMenuItem(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.padding(end = 16.dp)
-        )
-
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Icon(icon, text, Modifier.padding(end = 16.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -474,9 +361,9 @@ fun AppDrawerSearch(
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     onEnterPressed: () -> Unit = {},
+    onFocusStateChanged: (Boolean) -> Unit // Callback to notify parent of focus state
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var isFocused by remember { mutableStateOf(false) }
 
     TextField(
         value = searchQuery,
@@ -484,28 +371,26 @@ fun AppDrawerSearch(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 8.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
-                if (isFocused) {
-                    keyboardController?.show()
+            .onFocusChanged { focusState ->
+                val focused = focusState.isFocused
+                onFocusStateChanged(focused) // Notify parent of focus change
+                if (focused) {
+                    keyboardController?.show() // Show keyboard when TextField gains focus
                 }
+                // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
             },
         placeholder = { Text("Search apps...") },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                keyboardController?.hide()
-                onEnterPressed()
-            }
-        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = {
+            keyboardController?.hide() // Hide keyboard on IME "Search" action
+            onEnterPressed()
+        }),
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
         )
     )
 }
