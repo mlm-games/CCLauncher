@@ -79,7 +79,7 @@ fun HomeAppItem(
     val iconCornerRadius = settings.iconCornerRadius.dp
 
     // Item Layout (Icon next to Text)
-    Row(
+    Column(
         modifier = modifier
             .fillMaxSize() // Fill the cell provided by the grid/layout
             .pointerInput(Unit) {
@@ -89,8 +89,8 @@ fun HomeAppItem(
                 )
             }
             .padding(4.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = if (settings.homeBottomAlignment) Alignment.Bottom else Alignment.CenterVertically
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         if (showIcons && loadedIcon != null) {

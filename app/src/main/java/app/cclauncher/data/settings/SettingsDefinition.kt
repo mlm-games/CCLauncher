@@ -229,7 +229,7 @@ data class AppSettings(
         title = "Show App Icons in Landscape",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
-        dependsOn = "showHomeScreenIcons"
+//        dependsOn = "showHomeScreenIcons"
     )
     val showIconsInLandscape: Boolean = false,
 
@@ -237,7 +237,7 @@ data class AppSettings(
         title = "Show App Icons in Portrait",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
-        dependsOn = "showHomeScreenIcons"
+//        dependsOn = "showHomeScreenIcons"
     )
     val showIconsInPortrait: Boolean = false,
 

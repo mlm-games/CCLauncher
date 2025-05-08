@@ -46,3 +46,4 @@ data class HomeLayout(
     val rows: Int = 8, // TODO: configurable?
     val columns: Int = 4 // TODO: configurable?
 )
+

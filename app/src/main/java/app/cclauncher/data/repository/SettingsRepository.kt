@@ -27,6 +27,7 @@ val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(na
 /**
  * Repository for managing application settings
  */
+@Suppress("NullableBooleanElvis")
 class SettingsRepository(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = false } // Configure Json instance
@@ -240,6 +241,7 @@ class SettingsRepository(private val context: Context) {
                 val newValue = property.get(updatedSettings)
 
                 if (currentValue != newValue) {
+                    @Suppress("UNCHECKED_CAST")
                     when (name) {
                         // General settings
                         "homeAppsNum" -> prefs[HOME_APPS_NUM] = newValue as Int
@@ -370,10 +372,6 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun getHomeApps(): List<HomeAppPreference> {
-        return settings.first().homeApps
-    }
-
     /**
      * Methods for managing other settable apps
      */
@@ -440,7 +438,4 @@ class SettingsRepository(private val context: Context) {
         updateSetting { it.copy(appTheme = value) }
     }
 
-    suspend fun setStatusBar(value: Boolean) {
-        updateSetting { it.copy(statusBar = value) }
-    }
 }
