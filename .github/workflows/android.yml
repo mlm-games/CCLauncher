@@ -3,7 +3,18 @@ name: Android App Releases
 on:
   schedule:
     - cron: '0 0 1 */2 *'  # Every other month on the 1st
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch: 
+    inputs:
+      upload_releases:
+        description: 'Upload releases'
+        required: true
+        default: 'true'
+        type: boolean
+      mark_prerelease:
+        description: 'Mark as prerelease'
+        required: true
+        default: 'false'
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -78,6 +89,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      UPLOAD_RELEASES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload_releases || 'false' }}
+      MARK_PRERELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mark_prerelease || 'false' }}
+
     
     steps:
       - uses: actions/checkout@v4
@@ -120,13 +135,14 @@ jobs:
           find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} artifacts/ \;
 
       - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch' && env.UPLOAD_RELEASES == 'true'
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*.apk
           name: "CCLauncher ${{ needs.prepare-version.outputs.version_name }}"
           tag_name: "${{ needs.prepare-version.outputs.version_name }}"
-          prerelease: false
+          prerelease: ${{ env.MARK_PRERELEASE }}
           fail_on_unmatched_files: false
           body: |
             ## CCLauncher Release ${{ needs.prepare-version.outputs.version_name }}
