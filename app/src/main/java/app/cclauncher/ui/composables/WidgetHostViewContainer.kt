@@ -7,6 +7,8 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -16,12 +18,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun WidgetHostViewContainer(
@@ -35,6 +42,12 @@ fun WidgetHostViewContainer(
     val context = LocalContext.current
     val widgetManager = AppWidgetManager.getInstance(context)
     var errorLoading by remember { mutableStateOf(false) }
+
+    // Track touch state for manual handling
+    var touchStartTime by remember { mutableLongStateOf(0L) }
+    var touchStartPosition by remember { mutableStateOf(Offset.Zero) }
+    var longPressJob by remember { mutableStateOf<Job?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     if (errorLoading) {
         Box(modifier = modifier) { /* Error state */ }
@@ -66,30 +79,107 @@ fun WidgetHostViewContainer(
     }
 
     if (widgetView != null) {
+        // Box with rounded corners that will clip its content
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp)) // This will clip the widget view to rounded corners
         ) {
+            // The widget view will be clipped to the rounded shape of its parent
             AndroidView(
                 factory = { widgetView },
-                modifier = Modifier.fillMaxSize()
-            )
-
-            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(0f) // Make it completely transparent
+                    // Use raw pointer input to manually handle all touch events
                     .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = { onLongPress() },
-                            onTap = { /* Do nothing, let widget handle taps */ }
-                        )
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+                                // Process based on event type
+                                when (event.type) {
+                                    PointerEventType.Press -> {
+                                        // Cancel any previous job
+                                        longPressJob?.cancel()
+
+                                        // Record start position and time
+                                        touchStartPosition = event.changes.first().position
+                                        touchStartTime = System.currentTimeMillis()
+
+                                        // Start long press detection
+                                        longPressJob = coroutineScope.launch {
+                                            delay(ViewConfiguration.getLongPressTimeout().toLong())
+                                            // If we reach here, it's a long press
+                                            onLongPress()
+                                        }
+
+                                        // Forward touch down event to widget
+                                        val motionEvent = MotionEvent.obtain(
+                                            touchStartTime, touchStartTime,
+                                            MotionEvent.ACTION_DOWN,
+                                            touchStartPosition.x, touchStartPosition.y,
+                                            0
+                                        )
+                                        widgetView.dispatchTouchEvent(motionEvent)
+                                        motionEvent.recycle()
+                                    }
+
+                                    PointerEventType.Move -> {
+                                        val currentPosition = event.changes.first().position
+                                        val distance = (currentPosition - touchStartPosition).getDistance()
+
+                                        // If moved more than touch slop, cancel long press and let widget handle scrolling
+                                        if (distance > touchSlop) {
+                                            longPressJob?.cancel()
+                                            longPressJob = null
+                                        }
+
+                                        // Forward touch move event to widget
+                                        val motionEvent = MotionEvent.obtain(
+                                            touchStartTime, System.currentTimeMillis(),
+                                            MotionEvent.ACTION_MOVE,
+                                            currentPosition.x, currentPosition.y,
+                                            0
+                                        )
+                                        widgetView.dispatchTouchEvent(motionEvent)
+                                        motionEvent.recycle()
+                                    }
+
+                                    PointerEventType.Release, PointerEventType.Exit -> {
+                                        // Cancel long press detection
+                                        longPressJob?.cancel()
+                                        longPressJob = null
+
+                                        // Forward touch up event to widget
+                                        val action = if (event.type == PointerEventType.Release)
+                                            MotionEvent.ACTION_UP else MotionEvent.ACTION_CANCEL
+
+                                        val currentPosition = event.changes.first().position
+                                        val motionEvent = MotionEvent.obtain(
+                                            touchStartTime, System.currentTimeMillis(),
+                                            action,
+                                            currentPosition.x, currentPosition.y,
+                                            0
+                                        )
+                                        widgetView.dispatchTouchEvent(motionEvent)
+                                        motionEvent.recycle()
+                                    }
+                                }
+                            }
+                        }
                     }
             )
         }
     } else {
         Box(modifier = modifier) { /* Error placeholder */ }
+    }
+
+    // Clean up coroutines when the composable leaves composition
+    DisposableEffect(Unit) {
+        onDispose {
+            longPressJob?.cancel()
+        }
     }
 }
 
