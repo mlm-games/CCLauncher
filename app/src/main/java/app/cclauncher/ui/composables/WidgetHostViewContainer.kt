@@ -11,12 +11,16 @@ import android.view.ViewGroup
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
@@ -25,7 +29,7 @@ fun WidgetHostViewContainer(
     appWidgetId: Int,
     providerInfo: AppWidgetProviderInfo,
     appWidgetHost: AppWidgetHost,
-    widgetSizeData: WidgetSizeData, // Pass size info
+    widgetSizeData: WidgetSizeData,
     onLongPress: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -33,15 +37,11 @@ fun WidgetHostViewContainer(
     var errorLoading by remember { mutableStateOf(false) }
 
     if (errorLoading) {
-        // Optionally display an error placeholder
         Box(modifier = modifier) { /* Error state */ }
         return
     }
 
-    // Calculate size in Dp based on cell spans (you might need a more robust calculation)
-    val widthDp = with(LocalDensity.current) { widgetSizeData.width.toDp() }
-    val heightDp = with(LocalDensity.current) { widgetSizeData.height.toDp() }
-
+    // Create the widget view
     val widgetView = remember(appWidgetId) {
         try {
             appWidgetHost.createView(context, appWidgetId, providerInfo)?.apply {
@@ -66,23 +66,30 @@ fun WidgetHostViewContainer(
     }
 
     if (widgetView != null) {
-        AndroidView(
-            factory = { widgetView },
+        Box(
             modifier = modifier
-                .fillMaxSize() // Fill the constrained space
-                .pointerInput(Unit) {
-                    detectTapGestures(onLongPress = { onLongPress() })
-                }
-        )
-    } else {
-        // Handle case where view creation failed but didn't immediately throw
-        Box(modifier = modifier) { /* Error placeholder or empty */ }
-    }
+                .fillMaxSize()
+                .clip(RoundedCornerShape(16.dp)) // This will clip the widget view to rounded corners
+        ) {
+            AndroidView(
+                factory = { widgetView },
+                modifier = Modifier.fillMaxSize()
+            )
 
-    DisposableEffect(appWidgetId) {
-        onDispose {
-            // Optionally cleanup view, though AppWidgetHost usually handles it
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0f) // Make it completely transparent
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { onLongPress() },
+                            onTap = { /* Do nothing, let widget handle taps */ }
+                        )
+                    }
+            )
         }
+    } else {
+        Box(modifier = modifier) { /* Error placeholder */ }
     }
 }
 
@@ -90,7 +97,7 @@ fun WidgetHostViewContainer(
 data class WidgetSizeData(
     val width: Int, // Size in pixels for layout
     val height: Int,
-    val minWidthDp: Dp, // Size in Dp for widget options
+    val minWidthDp: Dp,
     val maxWidthDp: Dp,
     val minHeightDp: Dp,
     val maxHeightDp: Dp
