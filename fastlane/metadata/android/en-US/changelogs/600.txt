@@ -1,0 +1,1 @@
+Make the text of home app show in the bottom, make "show app icons" setting works now without enabling home icons setting
