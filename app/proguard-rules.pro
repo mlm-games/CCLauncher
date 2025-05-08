@@ -34,3 +34,10 @@
 -keepclasseswithmembers class * {
     @app.cclauncher.data.settings.Setting <fields>;
 }
+
+-keepattributes *Annotation*,EnclosingMethod,Signature,KotlinMetadata
+
+-keep class kotlin.Metadata { *; }
+
+-keep class kotlin.reflect.** { *; }
+

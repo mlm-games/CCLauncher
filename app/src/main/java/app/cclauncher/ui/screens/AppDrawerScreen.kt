@@ -9,7 +9,15 @@ import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,8 +28,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -36,21 +65,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
-import app.cclauncher.helper.openUrl
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.util.detectSwipeGestures
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.ui.viewmodels.SettingsViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -107,13 +131,13 @@ fun AppDrawerScreen(
 
     // Get font weight
     val fontWeight = when (settings.fontWeight) {
-        0 -> androidx.compose.ui.text.font.FontWeight.Thin
-        1 -> androidx.compose.ui.text.font.FontWeight.Light
-        2 -> androidx.compose.ui.text.font.FontWeight.Normal
-        3 -> androidx.compose.ui.text.font.FontWeight.Medium
-        4 -> androidx.compose.ui.text.font.FontWeight.Bold
-        5 -> androidx.compose.ui.text.font.FontWeight.Black
-        else -> androidx.compose.ui.text.font.FontWeight.Normal
+        0 -> FontWeight.Thin
+        1 -> FontWeight.Light
+        2 -> FontWeight.Normal
+        3 -> FontWeight.Medium
+        4 -> FontWeight.Bold
+        5 -> FontWeight.Black
+        else -> FontWeight.Normal
     }
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
