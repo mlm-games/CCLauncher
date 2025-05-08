@@ -1,0 +1,1 @@
+Fix setting dialog boxes not showing up in release builds
