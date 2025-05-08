@@ -41,3 +41,31 @@
 
 -keep class kotlin.reflect.** { *; }
 
+
+-keepattributes RuntimeVisibleAnnotations
+-keepclassmembers class app.cclauncher.data.settings.AppSettings {
+    @app.cclauncher.data.settings.Setting *;
+}
+
+# Keep all Setting annotations
+-keep @interface app.cclauncher.data.settings.Setting
+-keepattributes *Annotation*
+
+# Keep all enum classes used in annotations
+-keepclassmembers enum app.cclauncher.data.settings.SettingCategory { *; }
+-keepclassmembers enum app.cclauncher.data.settings.SettingType { *; }
+
+# Keep all reflection metadata
+-keepattributes Signature, InnerClasses
+-keep class kotlin.Metadata { *; }
+-keep class kotlin.reflect.** { *; }
+-keep class kotlin.jvm.internal.** { *; }
+
+-keepclassmembers class app.cclauncher.data.settings.AppSettings {
+    <fields>;
+    <methods>;
+}
+
+-keep class app.cclauncher.data.settings.SettingsManager { *; }
+
+-keep class app.cclauncher.ui.screens.SettingsScreenKt { *; }
