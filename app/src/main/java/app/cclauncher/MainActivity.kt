@@ -21,7 +21,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import app.cclauncher.data.Constants
 import app.cclauncher.data.Navigation
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.helper.WidgetHelper
@@ -29,7 +28,6 @@ import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaper
-import app.cclauncher.helper.showLauncherSelector
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
@@ -256,27 +254,6 @@ class MainActivity : ComponentActivity() {
         ) {
             lifecycleScope.launch {
                 viewModel.emitEvent(UiEvent.NavigateBack)
-            }
-        }
-    }
-
-    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        when (result.resultCode) {
-            RESULT_OK -> {
-                when (result.data?.getIntExtra("requestCode", 0)) {
-                    Constants.REQUEST_CODE_ENABLE_ADMIN -> {
-                        lifecycleScope.launch {
-                            settingsRepository.updateSetting { it.copy(lockMode = true) }
-                        }
-                    }
-                    Constants.REQUEST_CODE_LAUNCHER_SELECTOR -> {
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                            startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-                        } else {
-                            showLauncherSelector(Constants.REQUEST_CODE_LAUNCHER_SELECTOR)
-                        }
-                    }
-                }
             }
         }
     }

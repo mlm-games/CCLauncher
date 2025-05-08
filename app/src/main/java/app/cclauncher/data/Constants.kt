@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatDelegate
 
 object Constants {
 
+    const val REQUEST_CODE_BIND_WIDGET = 102
+    const val REQUEST_CODE_CONFIGURE_WIDGET = 101
+
     object Key {
         const val FLAG = "flag"
         const val RENAME = "rename"
