@@ -6,14 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppSettings
-import app.cclauncher.data.settings.SettingsManager
 import app.cclauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     internal val settingsRepository = SettingsRepository(application.applicationContext)
-    private val settingsManager = SettingsManager()
 
     // UI state for settings
     private val _settingsState = MutableStateFlow(AppSettings())

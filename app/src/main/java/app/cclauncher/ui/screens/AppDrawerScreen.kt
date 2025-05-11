@@ -45,7 +45,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -172,9 +171,9 @@ fun AppDrawerScreen(
                 if (actualScrollHappened) {
                     // Determine scroll direction: positive for down, negative for up
                     var verticalScrollDelta = 0
-                    if (currentIndex > previousIndex) verticalScrollDelta = 1 // Major scroll down
-                    else if (currentIndex < previousIndex) verticalScrollDelta = -1 // Major scroll up
-                    else verticalScrollDelta = currentOffset - previousOffset // Minor scroll in same item
+                    verticalScrollDelta = if (currentIndex > previousIndex) 1 // Major scroll down
+                    else if (currentIndex < previousIndex) -1 // Major scroll up
+                    else currentOffset - previousOffset // Minor scroll in same item
 
                     if (verticalScrollDelta > 0) { // User scrolled DOWN (content moved UP)
                         if (isSearchFocused) {

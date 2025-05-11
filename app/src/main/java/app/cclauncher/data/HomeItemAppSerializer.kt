@@ -1,7 +1,5 @@
 package app.cclauncher.data
 
-import app.cclauncher.data.AppModel
-import app.cclauncher.data.HomeItem
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor

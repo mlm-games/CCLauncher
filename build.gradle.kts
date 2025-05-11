@@ -4,11 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
     kotlin("plugin.serialization") version "2.1.20" apply false
-//    kotlin("jvm") version "1.7.20" apply false // Example: kotlin("jvm") version "1.9.20" apply false
 }
-
-group = "app.cclauncher"
-version = "5.2.7"
 
 tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)

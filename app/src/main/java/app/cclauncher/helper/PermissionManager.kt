@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 
 /**
  * Manager for handling permission-related operations
@@ -51,7 +50,7 @@ class PermissionManager(private val context: Context) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Fallback if specific settings page not available
             openAppSettings()
         }
@@ -65,7 +64,7 @@ class PermissionManager(private val context: Context) {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             openAppSettings()
         }
     }

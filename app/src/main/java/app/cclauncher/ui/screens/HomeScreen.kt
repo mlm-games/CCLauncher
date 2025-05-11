@@ -40,8 +40,6 @@ import app.cclauncher.data.Constants
 import app.cclauncher.data.HomeItem
 import app.cclauncher.data.HomeLayout
 import app.cclauncher.data.settings.AppSettings
-import app.cclauncher.helper.openAlarmApp
-import app.cclauncher.helper.openCalendar
 import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
 import app.cclauncher.ui.composables.WidgetSizeData
@@ -49,7 +47,6 @@ import app.cclauncher.ui.dialogs.ResizeAppDialog
 import app.cclauncher.ui.dialogs.ResizeWidgetDialog
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
-import java.util.Date
 import kotlin.math.roundToInt
 
 @Composable
@@ -59,7 +56,6 @@ fun HomeScreen(
     appWidgetHost: AppWidgetHost,
     onNavigateToAppDrawer: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToWidgetPicker: () -> Unit
 ) {
     val context = LocalContext.current
     val homeLayoutState by viewModel.homeLayoutState.collectAsState()
@@ -78,7 +74,6 @@ fun HomeScreen(
     // Store touch position for hit testing
     var lastTouchPosition by remember { mutableStateOf(Offset.Zero) }
 
-    val currentDate = remember { mutableStateOf(Date()) }
 
     Box(
         modifier = Modifier
@@ -149,13 +144,10 @@ fun HomeScreen(
         HomeScreenContent(
             homeLayout = homeLayoutState,
             settings = settings,
-            currentDate = currentDate.value,
             appWidgetHost = appWidgetHost,
             onAppClick = { item -> viewModel.launchApp(item.appModel) },
             onAppLongPress = { item -> showAppContextMenu = item },
             onWidgetLongPress = { item -> showWidgetContextMenu = item },
-            onTimeClick = { openAlarmApp(context) },
-            onDateClick = { openCalendar(context) },
             widgetBeingMoved = widgetBeingMoved
         )
 
@@ -295,13 +287,10 @@ private fun calculateGridPosition(
 fun HomeScreenContent(
     homeLayout: HomeLayout,
     settings: AppSettings,
-    currentDate: Date,
     appWidgetHost: AppWidgetHost,
     onAppClick: (HomeItem.App) -> Unit,
     onAppLongPress: (HomeItem.App) -> Unit,
     onWidgetLongPress: (HomeItem.Widget) -> Unit,
-    onTimeClick: () -> Unit,
-    onDateClick: () -> Unit,
     widgetBeingMoved: HomeItem.Widget? = null
 ) {
     val density = LocalDensity.current

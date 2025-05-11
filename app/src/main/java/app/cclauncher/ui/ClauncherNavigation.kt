@@ -264,9 +264,6 @@ fun CLauncherNavigation(
                         },
                         onNavigateToSettings = {
                             onScreenChange(Navigation.SETTINGS)
-                        },
-                        onNavigateToWidgetPicker = {
-                            viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
                         }
                     )
                 }

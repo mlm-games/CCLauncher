@@ -3,7 +3,6 @@ package app.cclauncher.data.repository
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
-import android.os.UserManager
 import app.cclauncher.data.AppModel
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.getAppsList
@@ -19,7 +18,6 @@ class AppRepository(
     private val settingsRepository: SettingsRepository
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     private val iconCache = IconCache(context)
 
     private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())

@@ -1,6 +1,5 @@
 package app.cclauncher.helper
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.graphics.Bitmap
@@ -36,7 +35,7 @@ class IconCache(context: Context) {
         // Load icon if not in cache
         return withContext(Dispatchers.IO) {
             try {
-                val component = ComponentName(packageName, className ?: "")
+//                val component = ComponentName(packageName, className ?: "")
                 val appInfo = launcherApps.getActivityList(packageName, user)
                     .find { it.componentName.className == className }
 
@@ -52,7 +51,7 @@ class IconCache(context: Context) {
                     }
                     bitmap?.asImageBitmap()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

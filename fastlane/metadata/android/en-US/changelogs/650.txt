@@ -1,0 +1,1 @@
+Add context menu (similar to widgets) to Home apps too, and add a setting to scale home apps based on the size.
