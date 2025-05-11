@@ -24,14 +24,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
@@ -47,6 +45,7 @@ import app.cclauncher.helper.openCalendar
 import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
 import app.cclauncher.ui.composables.WidgetSizeData
+import app.cclauncher.ui.dialogs.ResizeAppDialog
 import app.cclauncher.ui.dialogs.ResizeWidgetDialog
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
@@ -65,10 +64,13 @@ fun HomeScreen(
     val context = LocalContext.current
     val homeLayoutState by viewModel.homeLayoutState.collectAsState()
     val settings by settingsViewModel.settingsState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
+
+    var showAppContextMenu by remember { mutableStateOf<HomeItem.App?>(null) }
+    var appBeingMoved by remember { mutableStateOf<HomeItem.App?>(null) }
 
     var showWidgetContextMenu by remember { mutableStateOf<HomeItem.Widget?>(null) }
     var showResizeDialog by remember { mutableStateOf<HomeItem.Widget?>(null) }
+    var resizeAppDialog by remember { mutableStateOf<HomeItem.App?>(null) }
 
     // Add state for widget movement
     var widgetBeingMoved by remember { mutableStateOf<HomeItem.Widget?>(null) }
@@ -133,6 +135,13 @@ fun HomeScreen(
                                 widgetBeingMoved = null
                             }
                         }
+                         if (appBeingMoved != null) {
+                                val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
+                                if (gridPosition != null) {
+                                    viewModel.moveApp(appBeingMoved!!, gridPosition.first, gridPosition.second)
+                                    appBeingMoved = null
+                                }
+                        }
                     }
                 )
             }
@@ -143,10 +152,7 @@ fun HomeScreen(
             currentDate = currentDate.value,
             appWidgetHost = appWidgetHost,
             onAppClick = { item -> viewModel.launchApp(item.appModel) },
-            onAppLongPress = { item ->
-                viewModel.removeAppFromHomeScreen(item)
-                Toast.makeText(context, "Removed ${item.appModel.appLabel}", Toast.LENGTH_SHORT).show()
-            },
+            onAppLongPress = { item -> showAppContextMenu = item },
             onWidgetLongPress = { item -> showWidgetContextMenu = item },
             onTimeClick = { openAlarmApp(context) },
             onDateClick = { openCalendar(context) },
@@ -172,6 +178,27 @@ fun HomeScreen(
                 )
             }
         }
+
+        showAppContextMenu?.let {
+            HomeAppContextMenu(
+                appItem = it,
+                onDismiss = { showAppContextMenu = null },
+                onRemove = { app ->
+                    viewModel.removeAppFromHomeScreen(app)
+                    showAppContextMenu = null
+                },
+                onResize = { app ->
+                    resizeAppDialog = app
+                    showAppContextMenu = null
+                },
+                onMove = { app ->
+                    appBeingMoved = app
+                    showAppContextMenu = null
+                    Toast.makeText(context, "Tap where you want to move the app", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+
     }
 
     WidgetContextMenu(
@@ -204,6 +231,16 @@ fun HomeScreen(
         onDismiss = { showResizeDialog = null },
         onResize = { widget, newRowSpan, newColSpan ->
             viewModel.resizeWidget(widget, newRowSpan, newColSpan)
+        }
+    )
+
+    ResizeAppDialog(
+        appItem = resizeAppDialog,
+        currentRows = homeLayoutState.rows,
+        currentColumns = homeLayoutState.columns,
+        onDismiss = { resizeAppDialog = null },
+        onResize = { app, newRowSpan, newColSpan ->
+            viewModel.resizeApp(app, newRowSpan, newColSpan)
         }
     )
 }
@@ -268,7 +305,6 @@ fun HomeScreenContent(
     widgetBeingMoved: HomeItem.Widget? = null
 ) {
     val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val parentWidthDp = maxWidth
         val parentHeightDp = maxHeight
@@ -306,6 +342,8 @@ fun HomeScreenContent(
                             modifier = itemModifier.padding(4.dp),
                             app = item.appModel,
                             settings = settings,
+                            appWidth = cellWidth,
+                            appHeight = cellHeight,
                             onClick = { onAppClick(item) },
                             onLongClick = { onAppLongPress(item) }
                         )
@@ -369,7 +407,6 @@ fun HomeScreenContent(
                                 "HomeScreen",
                                 "Provider not found for widget ID ${item.appWidgetId}"
                             )
-                            // TODO: auto-removing this item from layout state
                         }
                     }
                 }
@@ -385,7 +422,7 @@ fun WidgetContextMenu(
     onRemove: (HomeItem.Widget) -> Unit,
     onResize: (HomeItem.Widget) -> Unit,
     onConfigure: (HomeItem.Widget) -> Unit,
-    onMove: (HomeItem.Widget) -> Unit  // Add this parameter
+    onMove: (HomeItem.Widget) -> Unit
 ) {
     if (widgetItem == null) return
 
@@ -409,6 +446,30 @@ fun WidgetContextMenu(
                     DropdownMenuItem(text = { Text("Configure") }, onClick = { onConfigure(widgetItem); onDismiss() })
                 }
                 DropdownMenuItem(text = { Text("Remove") }, onClick = { onRemove(widgetItem); onDismiss() })
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Close") }
+        }
+    )
+}
+
+@Composable
+fun HomeAppContextMenu(
+    appItem: HomeItem.App,
+    onDismiss: () -> Unit,
+    onRemove: (HomeItem.App) -> Unit,
+    onResize: (HomeItem.App) -> Unit,
+    onMove: (HomeItem.App) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("App Options") },
+        text = {
+            Column {
+                DropdownMenuItem(text = { Text("Move") }, onClick = { onMove(appItem); onDismiss() })
+                DropdownMenuItem(text = { Text("Resize") }, onClick = { onResize(appItem); onDismiss() })
+                DropdownMenuItem(text = { Text("Remove") }, onClick = { onRemove(appItem); onDismiss() })
             }
         },
         confirmButton = {

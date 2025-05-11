@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +28,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.IconCache
@@ -41,7 +42,9 @@ fun HomeAppItem(
     app: AppModel,
     settings: AppSettings,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    appWidth: Dp,
+    appHeight: Dp
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -78,6 +81,11 @@ fun HomeAppItem(
     }
     val iconCornerRadius = settings.iconCornerRadius.dp
 
+    val baselineCellHeight = 80.dp
+    val scaleFactor = appHeight / baselineCellHeight
+    val scaledFontSize = (MaterialTheme.typography.bodyMedium.fontSize.value * scaleFactor).sp
+
+
     // Item Layout (Icon next to Text)
     Column(
         modifier = modifier
@@ -97,7 +105,7 @@ fun HomeAppItem(
             Surface(
                 shape = RoundedCornerShape(iconCornerRadius),
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(minOf(appWidth, appHeight) * 0.6f) // Size of icon is set here
                     .aspectRatio(1f) // Ensure square aspect ratio
             ) {
                 Image(
@@ -112,6 +120,7 @@ fun HomeAppItem(
         if (showName) {
             Text(
                 text = app.appLabel,
+                fontSize = scaledFontSize,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
                     fontWeight = fontWeight

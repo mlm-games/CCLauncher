@@ -1,8 +1,6 @@
 package app.cclauncher.data
 
 import androidx.compose.runtime.Immutable
-import app.cclauncher.data.HomeItemAppSerializer
-import app.cclauncher.data.HomeItemWidgetSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
