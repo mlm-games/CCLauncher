@@ -81,10 +81,16 @@ fun HomeAppItem(
     }
     val iconCornerRadius = settings.iconCornerRadius.dp
 
-    val baselineCellHeight = 80.dp
-    val scaleFactor = appHeight / baselineCellHeight
-    val scaledFontSize = (MaterialTheme.typography.bodyMedium.fontSize.value * scaleFactor).sp
-
+    val (iconSize, scaledFontSize) = if (settings.scaleHomeApps) {
+        val computedIconSize = (minOf(appWidth, appHeight) * 0.6f)
+        // Use a baseline cell height (e.g. 80.dp) to compute scale factor; adjust as needed.
+        val baselineCellHeight = 80.dp
+        val scaleFactor = appWidth / baselineCellHeight
+        val computedFontSize = (MaterialTheme.typography.bodyMedium.fontSize.value * scaleFactor).sp
+        Pair(computedIconSize, computedFontSize)
+    } else {
+        Pair(48.dp, MaterialTheme.typography.bodyMedium.fontSize)
+    }
 
     // Item Layout (Icon next to Text)
     Column(
@@ -105,7 +111,7 @@ fun HomeAppItem(
             Surface(
                 shape = RoundedCornerShape(iconCornerRadius),
                 modifier = Modifier
-                    .size(minOf(appWidth, appHeight) * 0.6f) // Size of icon is set here
+                    .size(iconSize)
                     .aspectRatio(1f) // Ensure square aspect ratio
             ) {
                 Image(

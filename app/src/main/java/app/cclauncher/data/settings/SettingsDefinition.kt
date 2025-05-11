@@ -191,6 +191,13 @@ data class AppSettings(
     )
     val statusBar: Boolean = false,
 
+    @Setting(
+        title = "Scale Home Apps",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.TOGGLE
+    )
+    val scaleHomeApps: Boolean = true,
+
 //    @Setting(
 //        title = "Number of Columns",
 //        category = SettingCategory.LAYOUT,

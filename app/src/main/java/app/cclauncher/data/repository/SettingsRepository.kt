@@ -82,6 +82,7 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_RESULTS_USE_HOME_FONT = booleanPreferencesKey("SEARCH_RESULTS_USE_HOME_FONT")
         val SEARCH_RESULTS_FONT_SIZE = floatPreferencesKey("SEARCH_RESULTS_FONT_SIZE")
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
+        val SCALE_HOME_APPS = booleanPreferencesKey("SCALE_HOME_APPS")
 
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
@@ -156,6 +157,7 @@ class SettingsRepository(private val context: Context) {
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
             editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
             editWidgets = prefs[EDIT_WIDGETS] ?: false,
+            scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
 
             // Gestures settings
             swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
@@ -273,6 +275,7 @@ class SettingsRepository(private val context: Context) {
                         "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
                         "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
                         "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
+                        "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
 
                         // Gestures settings
                         "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean

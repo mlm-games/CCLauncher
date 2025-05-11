@@ -342,8 +342,8 @@ fun HomeScreenContent(
                             modifier = itemModifier.padding(4.dp),
                             app = item.appModel,
                             settings = settings,
-                            appWidth = cellWidth,
-                            appHeight = cellHeight,
+                            appWidth = item.columnSpan.dp * cellWidth.value,
+                            appHeight = item.rowSpan.dp * cellHeight.value,
                             onClick = { onAppClick(item) },
                             onLongClick = { onAppLongPress(item) }
                         )
