@@ -72,6 +72,7 @@ import app.cclauncher.helper.openSearch
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
+import kotlinx.coroutines.delay
 // import kotlinx.coroutines.launch // Not directly used, but by LaunchedEffect
 import kotlinx.coroutines.yield
 
@@ -236,6 +237,7 @@ fun AppDrawerScreen(
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
         LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, onAppClick) {
+            delay(300)
             if (searchQuery.isNotEmpty() && appsToShow.size == 1 && autoOpenFilteredApp) {
                 onAppClick(appsToShow[0])
             }
