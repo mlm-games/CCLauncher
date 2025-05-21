@@ -130,7 +130,7 @@ class SettingsRepository(private val context: Context) {
             // General settings
             homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
             showAppNames = prefs[SHOW_APP_NAMES] ?: true,
-            showAppIcons = prefs[SHOW_APP_ICONS] ?: false,
+            showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,

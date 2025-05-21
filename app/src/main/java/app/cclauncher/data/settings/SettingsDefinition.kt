@@ -73,12 +73,12 @@ data class AppSettings(
     )
     val showAppNames: Boolean = true,
 
-    @Setting(
-        title = "Show App Icons",
-        category = SettingCategory.GENERAL,
-        type = SettingType.TOGGLE
-    )
-    val showAppIcons: Boolean = false,
+//    @Setting(
+//        title = "Show App Icons",
+//        category = SettingCategory.GENERAL,
+//        type = SettingType.TOGGLE
+//    )
+    val showAppIcons: Boolean = true,
 
     @Setting(
         title = "Auto Show Keyboard",

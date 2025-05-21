@@ -1,5 +1,6 @@
 package app.cclauncher.ui.composables
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,9 +53,15 @@ fun HomeAppItem(
     val iconCache = remember { IconCache(context) }
     var loadedIcon by remember(app.getKey()) { mutableStateOf(app.appIcon) }
 
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val showHomeIcons = if (settings.showHomeScreenIcons) {
+        if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
+    } else { false }
+
     // Load icon asynchronously if needed and not already loaded
-    LaunchedEffect(app.getKey(), settings.showHomeScreenIcons) {
-        if (settings.showHomeScreenIcons && loadedIcon == null) {
+    LaunchedEffect(app.getKey(), showHomeIcons) {
+        if (showHomeIcons && loadedIcon == null) {
             coroutineScope.launch {
                 val icon = iconCache.getIcon(
                     packageName = app.appPackage,
@@ -65,8 +73,8 @@ fun HomeAppItem(
         }
     }
 
-    val showIcons = settings.showHomeScreenIcons
-    val showName = if (settings.showHomeScreenIcons) settings.showAppNames else true //TODO: Add a separate setting later? When settings are arranged properly ig
+    val showIcons = showHomeIcons
+    val showName = if (showHomeIcons) settings.showAppNames else true //TODO: Add a separate setting later? When settings are arranged properly ig
     val fontScale = settings.textSizeScale
     val fontWeight = remember(settings.fontWeight) {
         when (settings.fontWeight) {
