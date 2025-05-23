@@ -93,6 +93,9 @@ class SettingsRepository(private val context: Context) {
 
         val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
+        val LOCK_SETTINGS = booleanPreferencesKey("LOCK_SETTINGS")
+        val SETTINGS_LOCK_PIN = stringPreferencesKey("SETTINGS_LOCK_PIN")
+
     }
 
     private val defaultAppSettings = AppSettings.getDefault()
@@ -175,31 +178,8 @@ class SettingsRepository(private val context: Context) {
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
 
-            // App selection settings
-//            swipeLeftApp = AppPreference(
-//                label = prefs[APP_NAME_SWIPE_LEFT] ?: "Not set",
-//                packageName = prefs[APP_PACKAGE_SWIPE_LEFT] ?: "",
-//                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT],
-//                userString = prefs[APP_USER_SWIPE_LEFT] ?: ""
-//            ),
-//            swipeRightApp = AppPreference(
-//                label = prefs[APP_NAME_SWIPE_RIGHT] ?: "Not set",
-//                packageName = prefs[APP_PACKAGE_SWIPE_RIGHT] ?: "",
-//                activityClassName = prefs[APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT],
-//                userString = prefs[APP_USER_SWIPE_RIGHT] ?: ""
-//            ),
-//            clockApp = AppPreference(
-//                label = "Clock",
-//                packageName = prefs[CLOCK_APP_PACKAGE] ?: "",
-//                activityClassName = prefs[CLOCK_APP_CLASS_NAME],
-//                userString = prefs[CLOCK_APP_USER] ?: ""
-//            ),
-//            calendarApp = AppPreference(
-//                label = "Calendar",
-//                packageName = prefs[CALENDAR_APP_PACKAGE] ?: "",
-//                activityClassName = prefs[CALENDAR_APP_CLASS_NAME],
-//                userString = prefs[CALENDAR_APP_USER] ?: ""
-//            ),
+            lockSettings = prefs[LOCK_SETTINGS] ?: false,
+            settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
 
             // Other properties
             firstOpen = prefs[FIRST_OPEN] ?: true,
@@ -297,6 +277,9 @@ class SettingsRepository(private val context: Context) {
                         // Search result appearance
                         "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
                         "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
+
+                        "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
+                        "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
 
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
@@ -420,6 +403,22 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun getSwipeRightApp(): AppPreference {
         return settings.first().swipeRightApp
+    }
+
+    suspend fun setSettingsLock(locked: Boolean) {
+        updateSetting { it.copy(lockSettings = locked) }
+    }
+
+    suspend fun setSettingsLockPin(pin: String) {
+        updateSetting { it.copy(settingsLockPin = pin) }
+    }
+
+    suspend fun isSettingsLocked(): Boolean {
+        return settings.first().lockSettings
+    }
+
+    suspend fun validateSettingsPin(pin: String): Boolean {
+        return settings.first().settingsLockPin == pin
     }
 
     /**

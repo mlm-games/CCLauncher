@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.data.Constants
@@ -73,6 +77,7 @@ import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.reflect.KProperty1
+import app.cclauncher.ui.dialogs.SettingsLockDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +86,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToHiddenApps: () -> Unit = {}
 ) {
-    BackHandler(onBack = onNavigateBack)
+//    BackHandler(onBack = onNavigateBack)
 
     val context = LocalContext.current
     val uiState by viewModel.settingsState.collectAsState()
@@ -92,6 +97,41 @@ fun SettingsScreen(
     var showingDialog by remember { mutableStateOf<String?>(null) }
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
     var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.resetUnlockState()
+        }
+    }
+
+    val effectiveLockState by viewModel.effectiveLockState.collectAsState()
+    val showLockDialog by viewModel.showLockDialog.collectAsState()
+    val isSettingPin by viewModel.isSettingPin.collectAsState()
+
+    BackHandler(onBack = {
+        viewModel.resetUnlockState()
+        onNavigateBack()
+    })
+
+    if (showLockDialog) {
+        SettingsLockDialog(
+            isSettingPin = isSettingPin,
+            onDismiss = { viewModel.setShowLockDialog(false) },
+            onConfirm = { pin ->
+                if (isSettingPin) {
+                    viewModel.setPin(pin)
+                    viewModel.toggleLockSettings(true)
+                    viewModel.setShowLockDialog(false)
+                } else {
+                    if (viewModel.validatePin(pin)) {
+                        viewModel.setShowLockDialog(false)
+                    } else {
+                        // Show error (handled in dialog)
+                    }
+                }
+            }
+        )
+    }
 
     // Handle orientation based on settings
     LaunchedEffect(uiState.forceLandscapeMode) {
@@ -204,8 +244,60 @@ fun SettingsScreen(
             }
             return@Scaffold
         }
+        if (effectiveLockState) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(0.8f)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "Settings Locked",
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
 
-        LazyColumn(
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Settings are locked",
+                            style = MaterialTheme.typography.headlineSmall,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Enter your PIN to access settings",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = { viewModel.setShowLockDialog(true, false) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Unlock Settings")
+                        }
+                    }
+                }
+            }
+            return@Scaffold
+        }
+
+            LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -413,7 +505,22 @@ fun SettingsScreen(
                             context.startActivity(intent)
                         },
                         transparency = if (isClauncherDefault(context)) 0.7f else 1.0f
-                )
+                    )
+
+                    SettingsToggle(
+                        title = "Lock Settings",
+                        description = "Prevent changes to settings without a PIN",
+                        isChecked = uiState.lockSettings,
+                        onCheckedChange = { locked ->
+                            if (locked) {
+                                // When enabling lock, show dialog to set PIN
+                                viewModel.setShowLockDialog(true, true)
+                            } else {
+                                // When disabling, just turn it off (no PIN required to disable)
+                                viewModel.toggleLockSettings(false)
+                            }
+                        }
+                    )
 
                     SettingsItem(
                         title = "Hidden Apps",

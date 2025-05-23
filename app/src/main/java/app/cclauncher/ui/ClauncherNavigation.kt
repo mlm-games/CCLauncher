@@ -73,6 +73,7 @@ fun CLauncherNavigation(
             }
             is UiEvent.NavigateBack -> {
                 onScreenChange(Navigation.HOME)
+                settingsViewModel.resetUnlockState()
             }
             is UiEvent.NavigateToWidgetPicker -> {
                 onScreenChange(Navigation.WIDGET_PICKER)

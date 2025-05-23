@@ -232,6 +232,16 @@ data class AppSettings(
     )
     val showHomeScreenIcons: Boolean = false,
 
+//    @Setting(
+//        title = "Lock Settings",
+//        category = SettingCategory.SYSTEM,
+//        type = SettingType.TOGGLE,
+//        description = "Prevent changes to settings without unlocking"
+//    )
+    val lockSettings: Boolean = false,
+
+    val settingsLockPin: String = "",
+
     @Setting(
         title = "Show App Icons in Landscape",
         category = SettingCategory.LAYOUT,
