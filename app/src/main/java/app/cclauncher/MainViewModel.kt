@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.app.Application
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,7 +15,6 @@ import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.HomeAppPreference
 import app.cclauncher.helper.MyAccessibilityService
-import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
@@ -33,7 +31,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val appContext = application.applicationContext
     val settingsRepository = SettingsRepository(appContext) // New settings repository
     private val appRepository = AppRepository(appContext, settingsRepository) // Will need refactoring in future
-    private val permissionManager = PermissionManager(appContext)
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = 101
     private var pendingWidgetInfo: PendingWidgetInfo? = null
@@ -52,10 +49,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     // App list state
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
-    val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
     private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
-    val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
 
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
@@ -68,7 +63,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val _launcherResetFailed = MutableStateFlow(false)
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
-    val appWidgetManager =  AppWidgetManager.getInstance(appContext)
+    val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
 
     init {
 
@@ -230,6 +225,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
+                @Suppress("SENSELESS_COMPARISON")
                 if (providerInfo == null) {
                     Log.e("WidgetDebug", "CRITICAL: providerInfo is NULL in startWidgetConfiguration")
                     _errorMessage.value = "Internal error: Widget provider information missing."
@@ -766,44 +762,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
     /**
-     * Open the configured clock app
-     */
-    fun openClockApp() {
-        viewModelScope.launch {
-            val clockApp = settingsRepository.getClockApp()
-            if (clockApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = "Clock",
-                    key = null,
-                    appPackage = clockApp.packageName,
-                    activityClassName = clockApp.activityClassName,
-                    user = getUserHandleFromString(appContext, clockApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    /**
-     * Open the configured calendar app
-     */
-    fun openCalendarApp() {
-        viewModelScope.launch {
-            val calendarApp = settingsRepository.getCalendarApp()
-            if (calendarApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = "Calendar",
-                    key = null,
-                    appPackage = calendarApp.packageName,
-                    activityClassName = calendarApp.activityClassName,
-                    user = getUserHandleFromString(appContext, calendarApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    /**
      * Search apps by query
      */
     fun searchApps(query: String) {
@@ -944,21 +902,13 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         _errorMessage.value = null
         _appDrawerState.value = _appDrawerState.value.copy(error = null)
     }
-
-
+    
     /**
-         * Reset launcher failed
-         */
-        fun setLauncherResetFailed(failed: Boolean) {
-            _launcherResetFailed.value = failed
-        }
-
-        /**
-         * Emit UI event
-         */
-        fun emitEvent(event: UiEvent) {
-            viewModelScope.launch {
-                _eventsFlow.emit(event)
-            }
+     * Emit UI event
+     */
+    fun emitEvent(event: UiEvent) {
+        viewModelScope.launch {
+            _eventsFlow.emit(event)
         }
     }
+}
