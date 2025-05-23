@@ -49,8 +49,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     // App list state
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
+    val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
     private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
+    val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
 
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
@@ -601,9 +603,9 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             try {
                 appRepository.toggleAppHidden(app)
-                // Reload the app lists to reflect changes
-                loadApps()
-                getHiddenApps()
+                // No need to reload the app list as changes are already reflected
+//                loadApps()
+//                getHiddenApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to toggle app visibility: ${e.message}"
             }
@@ -778,7 +780,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 val filteredApps = if (query.isBlank()) {
                     _appList.value
                 } else {
-                    val listToFilter = if (settings.showHiddenAppsOnSearch) _appListAll else _appList
+                    val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
 
                     when (searchType) {
                         Constants.SearchType.FUZZY -> {

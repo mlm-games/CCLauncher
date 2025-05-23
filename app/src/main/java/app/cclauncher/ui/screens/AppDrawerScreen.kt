@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -286,6 +287,7 @@ fun AppDrawerScreen(
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { onAppClick(app) },
                             onLongClick = { selectedApp = app; showContextMenu = true },
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
                         )
                     }
                 }
@@ -365,12 +367,13 @@ private fun AppListItem(
     fontWeight: FontWeight,
     iconCornerRadius: Dp,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-//            .animateItem(animationSpec = tween(durationMillis = 300))
+            .animateContentSize(animationSpec = tween(durationMillis = 300))
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
