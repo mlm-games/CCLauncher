@@ -41,6 +41,7 @@ import app.cclauncher.data.Constants
 import app.cclauncher.data.HomeItem
 import app.cclauncher.data.HomeLayout
 import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
 import app.cclauncher.ui.composables.WidgetSizeData
@@ -80,12 +81,20 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .detectSwipeGestures(
-                onSwipeUp = { onNavigateToAppDrawer() },
+                onSwipeUp = { when (settings.swipeUpAction) {
+                    Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                    Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
+                    Constants.SwipeDownAction.APP -> viewModel.launchSwipeUpApp()
+                    Constants.SwipeDownAction.NULL -> {}
+                        else -> onNavigateToAppDrawer()
+                } },
                 onSwipeDown = {
                     when (settings.swipeDownAction) {
-                        Constants.SwipeDownAction.NOTIFICATIONS -> app.cclauncher.helper.expandNotificationDrawer(context)
+                        Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
-                        else -> app.cclauncher.helper.expandNotificationDrawer(context)
+                        Constants.SwipeDownAction.APP -> viewModel.launchSwipeDownApp()
+                        Constants.SwipeDownAction.NULL -> {null}
+                        else -> expandNotificationDrawer(context)
                     }
                 },
                 onSwipeLeft = { viewModel.launchSwipeLeftApp() },

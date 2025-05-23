@@ -60,6 +60,7 @@ data class SettingsScreenUiState(
     val swipeLeftAppName: String = "Camera",
     val swipeRightAppName: String = "Phone",
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
+    val swipeUpAction: Int = Constants.SwipeDownAction.SEARCH,
     val doubleTapToLock: Boolean = false,
     val searchType: Int = Constants.SearchType.CONTAINS,
     val isLoading: Boolean = false,
@@ -99,6 +100,7 @@ data class SettingsScreenUiState(
     val swipeDownText: String get() = when(swipeDownAction) {
         Constants.SwipeDownAction.NOTIFICATIONS -> "Notifications"
         Constants.SwipeDownAction.SEARCH -> "Search"
+        Constants.SwipeDownAction.NULL -> "None"
         else -> "Notifications"
     }
 

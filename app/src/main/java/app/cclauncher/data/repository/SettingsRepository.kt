@@ -63,6 +63,7 @@ class SettingsRepository(private val context: Context) {
         val SWIPE_LEFT_ENABLED = booleanPreferencesKey("SWIPE_LEFT_ENABLED")
         val SWIPE_RIGHT_ENABLED = booleanPreferencesKey("SWIPE_RIGHT_ENABLED")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
+        val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
         val FIRST_OPEN = booleanPreferencesKey("FIRST_OPEN")
         val FIRST_OPEN_TIME = longPreferencesKey("FIRST_OPEN_TIME")
@@ -88,8 +89,8 @@ class SettingsRepository(private val context: Context) {
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
         val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
-        val CLOCK_APP_JSON = stringPreferencesKey("CLOCK_APP_JSON")
-        val CALENDAR_APP_JSON = stringPreferencesKey("CALENDAR_APP_JSON")
+        val SWIPE_UP_APP_JSON = stringPreferencesKey("SWIPE_UP_APP_JSON")
+        val SWIPE_DOWN_APP_JSON = stringPreferencesKey("SWIPE_DOWN_APP_JSON")
 
         val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
 
@@ -102,8 +103,8 @@ class SettingsRepository(private val context: Context) {
     private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
     private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
     private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
-    private val defaultClockApp: AppPreference = defaultAppSettings.clockApp
-    private val defaultCalendarApp: AppPreference = defaultAppSettings.calendarApp
+    private val defaultSwipeUpApp: AppPreference = defaultAppSettings.swipeUpApp
+    private val defaultSwipeDownApp: AppPreference = defaultAppSettings.swipeDownApp
 
     /**
      * Flow of settings that emits whenever any setting changes
@@ -122,13 +123,13 @@ class SettingsRepository(private val context: Context) {
             json.decodeFromStringCatching(it, defaultSwipeRightApp)
         } ?: defaultSwipeRightApp
 
-        val clockApp = prefs[CLOCK_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultClockApp)
-        } ?: defaultClockApp
+        val swipeUpApp = prefs[SWIPE_UP_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeUpApp)
+        } ?: defaultSwipeUpApp
 
-        val calendarApp = prefs[CALENDAR_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultCalendarApp)
-        } ?: defaultCalendarApp
+        val swipeDownApp = prefs[SWIPE_DOWN_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultSwipeDownApp)
+        } ?: defaultSwipeDownApp
 
         val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
             try {
@@ -176,6 +177,7 @@ class SettingsRepository(private val context: Context) {
             swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
             swipeRightEnabled = prefs[SWIPE_RIGHT_ENABLED] ?: true,
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
+            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeDownAction.SEARCH,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
@@ -203,8 +205,8 @@ class SettingsRepository(private val context: Context) {
             homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
-            clockApp = clockApp,
-            calendarApp = calendarApp,
+            swipeUpApp = swipeUpApp,
+            swipeDownApp = swipeDownApp,
             renamedApps = renamedApps
         )
     }
@@ -272,6 +274,7 @@ class SettingsRepository(private val context: Context) {
                         "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean
                         "swipeRightEnabled" -> prefs[SWIPE_RIGHT_ENABLED] = newValue as Boolean
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
+                        "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
                         "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
 
                         // Search result appearance
@@ -303,8 +306,8 @@ class SettingsRepository(private val context: Context) {
                         "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
-                        "clockApp" -> prefs[CLOCK_APP_JSON] = json.encodeToString(newValue)
-                        "calendarApp" -> prefs[CALENDAR_APP_JSON] = json.encodeToString(newValue)
+                        "clockApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
+                        "calendarApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
                     }
                 }
@@ -385,15 +388,15 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun setClockApp(app: AppPreference) {
+    suspend fun setSwipeUpApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[CLOCK_APP_JSON] = json.encodeToString(app)
+            prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun setCalendarApp(app: AppPreference) {
+    suspend fun setSwipeDownApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[CALENDAR_APP_JSON] = json.encodeToString(app)
+            prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
         }
     }
 

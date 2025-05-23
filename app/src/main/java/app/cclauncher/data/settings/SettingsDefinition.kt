@@ -232,7 +232,7 @@ data class AppSettings(
     )
     val showHomeScreenIcons: Boolean = false,
 
-//    @Setting(
+//    @Setting( // Already present in SettingsScreen
 //        title = "Lock Settings",
 //        category = SettingCategory.SYSTEM,
 //        type = SettingType.TOGGLE,
@@ -291,9 +291,33 @@ data class AppSettings(
         title = "Swipe Down Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["Notifications", "Search"]
+        options = ["Search", "Notifications", "App", "None"]
     )
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
+
+    @Setting(
+        title = "Swipe Down App",
+        category = SettingCategory.GESTURES,
+        type = SettingType.APP_PICKER,
+    )
+    val swipeDownApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Swipe Up Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["Search", "Notifications", "App", "None"]
+    )
+    val swipeUpAction: Int = Constants.SwipeDownAction.SEARCH,
+
+
+    @Setting(
+        title = "Swipe Up App",
+        category = SettingCategory.GESTURES,
+        type = SettingType.APP_PICKER
+    )
+    val swipeUpApp: AppPreference = AppPreference(),
+
 
     @Setting(
         title = "Double Tap to Lock Screen",
@@ -337,20 +361,6 @@ data class AppSettings(
         dependsOn = "swipeRightEnabled"
     )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
-
-//    @Setting(
-//        title = "Clock App",
-//        category = SettingCategory.GENERAL,
-//        type = SettingType.APP_PICKER
-//    )
-    val clockApp: AppPreference = AppPreference(),
-//
-//    @Setting(
-//        title = "Calendar App",
-//        category = SettingCategory.GENERAL,
-//        type = SettingType.APP_PICKER
-//    )
-    val calendarApp: AppPreference = AppPreference(),
 
     @Setting(
         title = "Set Plain Wallpaper",

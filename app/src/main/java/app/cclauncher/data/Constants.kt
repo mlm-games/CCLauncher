@@ -39,6 +39,8 @@ object Constants {
     object SwipeDownAction {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
+        const val APP = 3
+        const val NULL = 4
     }
 
     object TextSize {
@@ -78,8 +80,8 @@ object Constants {
 
     const val FLAG_SET_SWIPE_LEFT_APP = 17
     const val FLAG_SET_SWIPE_RIGHT_APP = 18
-    const val FLAG_SET_CLOCK_APP = 19
-    const val FLAG_SET_CALENDAR_APP = 20
+    const val FLAG_SET_SWIPE_UP_APP = 19
+    const val FLAG_SET_SWIPE_DOWN_APP = 20
 
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678

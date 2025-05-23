@@ -68,6 +68,6 @@ enum class AppSelectionType {
     HOME_APP_16,
     SWIPE_LEFT_APP,
     SWIPE_RIGHT_APP,
-    CLOCK_APP,
-    CALENDAR_APP,
+    SWIPE_UP_APP,
+    SWIPE_DOWN_APP,
 }

@@ -642,12 +642,12 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 setSwipeRightApp(appModel)
             }
 
-            Constants.FLAG_SET_CLOCK_APP -> {
-                setClockApp(appModel)
+            Constants.FLAG_SET_SWIPE_UP_APP -> {
+                setSwipeUpApp(appModel)
             }
 
-            Constants.FLAG_SET_CALENDAR_APP -> {
-                setCalendarApp(appModel)
+            Constants.FLAG_SET_SWIPE_DOWN_APP -> {
+                setSwipeDownApp(appModel)
             }
             in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
                 val position = flag - Constants.FLAG_SET_HOME_APP_1
@@ -696,6 +696,38 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
+    fun launchSwipeUpApp() {
+        viewModelScope.launch {
+            val swipeUpApp = settingsRepository.settings.first().swipeUpApp
+            if (swipeUpApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = swipeUpApp.label,
+                    key = null,
+                    appPackage = swipeUpApp.packageName,
+                    activityClassName = swipeUpApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeUpApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
+
+    fun launchSwipeDownApp() {
+        viewModelScope.launch {
+            val swipeDownApp = settingsRepository.settings.first().swipeDownApp
+            if (swipeDownApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = swipeDownApp.label,
+                    key = null,
+                    appPackage = swipeDownApp.packageName,
+                    activityClassName = swipeDownApp.activityClassName,
+                    user = getUserHandleFromString(appContext, swipeDownApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
+
     fun launchSwipeLeftApp() {
         viewModelScope.launch {
             val swipeLeftApp = settingsRepository.getSwipeLeftApp()
@@ -729,9 +761,9 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
 
-    private fun setClockApp(app: AppModel) {
+    private fun setSwipeUpApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setClockApp(AppPreference(
+            settingsRepository.setSwipeUpApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
@@ -740,9 +772,9 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    private fun setCalendarApp(app: AppModel) {
+    private fun setSwipeDownApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setCalendarApp(AppPreference(
+            settingsRepository.setSwipeDownApp(AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,

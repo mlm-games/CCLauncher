@@ -199,8 +199,8 @@ fun SettingsScreen(
                     val selectionType = when (prop.name) {
                         "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
                         "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
-                        "clockApp" -> AppSelectionType.CLOCK_APP
-                        "calendarApp" -> AppSelectionType.CALENDAR_APP
+                        "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
+                        "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
                         else -> null
                     }
 
@@ -432,11 +432,11 @@ fun SettingsScreen(
                                                 "swipeRightApp" -> {
                                                     AppSelectionType.SWIPE_RIGHT_APP
                                                 }
-                                                "clockApp" -> {
-                                                    AppSelectionType.CLOCK_APP
+                                                "swipeUpApp" -> {
+                                                    AppSelectionType.SWIPE_UP_APP
                                                 }
-                                                "calendarApp" -> {
-                                                    AppSelectionType.CALENDAR_APP
+                                                "swipeDownApp" -> {
+                                                    AppSelectionType.SWIPE_DOWN_APP
                                                 }
                                                 else -> {
                                                     null

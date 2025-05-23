@@ -293,8 +293,8 @@ fun CLauncherNavigation(
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
                                 when (currentSelectionType) {
-                                    AppSelectionType.CLOCK_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CLOCK_APP)
-                                    AppSelectionType.CALENDAR_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_CALENDAR_APP)
+                                    AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
+                                    AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
                                     AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
                                     AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
                                     AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
@@ -326,8 +326,8 @@ fun CLauncherNavigation(
                         onSwipeDown = { onScreenChange(Navigation.HOME) },
                         selectionMode = currentSelectionType != null,
                         selectionTitle = when (currentSelectionType) {
-                            AppSelectionType.CLOCK_APP -> "Select Clock App"
-                            AppSelectionType.CALENDAR_APP -> "Select Calendar App"
+                            AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
+                            AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
                             AppSelectionType.HOME_APP_1,
                             AppSelectionType.HOME_APP_2,
                             AppSelectionType.HOME_APP_3,
