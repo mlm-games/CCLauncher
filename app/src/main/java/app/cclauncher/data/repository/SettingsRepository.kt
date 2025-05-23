@@ -142,7 +142,7 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             // General settings
             homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
-            showAppNames = prefs[SHOW_APP_NAMES] ?: true,
+            showAppNames = prefs[SHOW_APP_NAMES] ?: false,
             showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
@@ -155,7 +155,7 @@ class SettingsRepository(private val context: Context) {
             fontWeight = prefs[FONT_WEIGHT] ?: 2,
             useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
-            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 8,
+            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 25,
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
 
             // Layout settings
@@ -239,7 +239,7 @@ class SettingsRepository(private val context: Context) {
                         // General settings
                         "homeAppsNum" -> prefs[HOME_APPS_NUM] = newValue as Int
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
-                        "showAppIcons" -> prefs[SHOW_APP_ICONS] = newValue as Boolean
+                        "showAppIcons" -> prefs[SHOW_APP_ICONS] = true // as Boolean
                         "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
                         "autoOpenFilteredApp" -> prefs[AUTO_OPEN_FILTERED_APP] = newValue as Boolean

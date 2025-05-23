@@ -71,7 +71,7 @@ data class AppSettings(
         category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE
     )
-    val showAppNames: Boolean = true,
+    val showAppNames: Boolean = false,
 
 //    @Setting(
 //        title = "Show App Icons",
@@ -158,7 +158,7 @@ data class AppSettings(
         max = 50f,
         step = 1f
     )
-    val iconCornerRadius: Int = 8,
+    val iconCornerRadius: Int = 25,
 
     @Setting(
         title = "Item Spacing",
