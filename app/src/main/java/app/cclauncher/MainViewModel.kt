@@ -437,6 +437,19 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         return true
     }
 
+    fun renameApp(app: AppModel, newName: String) {
+        viewModelScope.launch {
+            val appKey = app.getKey()
+            if (newName.isBlank() || newName == app.appLabel) {
+                settingsRepository.removeAppCustomName(appKey)
+            } else {
+                settingsRepository.setAppCustomName(appKey, newName)
+            }
+            // Reload apps to reflect changes
+            loadApps()
+        }
+    }
+
 
     fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
@@ -614,7 +627,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
             try {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
                 appRepository.loadApps()
-                appRepository.loadAllApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value =

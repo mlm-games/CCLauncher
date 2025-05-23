@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
 import app.cclauncher.data.AppModel
-import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.getAppsList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -18,7 +17,6 @@ class AppRepository(
     private val settingsRepository: SettingsRepository
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private val iconCache = IconCache(context)
 
     private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
     val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
@@ -29,16 +27,6 @@ class AppRepository(
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
-    suspend fun loadAllApps() {
-        withContext(Dispatchers.IO) {
-            try {
-                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true, includeAppIcons = true)
-                _appListAll.value = apps
-            } catch (e: Exception) {
-                throw e
-            }
-        }
-    }
 
     /**
      * Load all visible apps
@@ -46,7 +34,7 @@ class AppRepository(
     suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false, includeAppIcons = true)
+                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
                 _appList.value = apps
             } catch (e: Exception) {
                 throw e
@@ -107,37 +95,6 @@ class AppRepository(
                 throw AppLaunchException("Failed to launch ${appModel.appLabel}", e)
             }
         }
-    }
-
-    /**
-     * Search apps by query
-     */
-    suspend fun searchApps(query: String): List<AppModel> {
-        return withContext(Dispatchers.Default) {
-            if (query.isBlank()) {
-                _appList.value
-            } else {
-                _appList.value.filter {
-                    it.appLabel.contains(query, ignoreCase = true)
-                }
-            }
-        }
-    }
-
-    /**
-     * Check if app is hidden
-     */
-    suspend fun isAppHidden(app: AppModel): Boolean {
-        val settings = settingsRepository.settings.first()
-        val appKey = "${app.appPackage}/${app.user}"
-        return settings.hiddenApps.contains(appKey)
-    }
-
-    /**
-     * Clear app cache
-     */
-    fun clearCache() {
-        iconCache.clearCache()
     }
 
     /**

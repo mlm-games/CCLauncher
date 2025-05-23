@@ -54,7 +54,6 @@ suspend fun getAppsList(
     settingsRepository: SettingsRepository,
     includeRegularApps: Boolean = true,
     includeHiddenApps: Boolean = false,
-    includeAppIcons: Boolean = false
 ): MutableList<AppModel> {
     return withContext(Dispatchers.IO) {
         val appList: MutableList<AppModel> = mutableListOf()
@@ -63,18 +62,39 @@ suspend fun getAppsList(
             val settings = settingsRepository.settings.first()
             val hiddenApps = settings.hiddenApps
             val includeIcons = settings.showAppIcons
+            val renamedApps = settings.renamedApps
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
             val collator = Collator.getInstance()
+
 
             for (profile in userManager.userProfiles) {
                 for (app in launcherApps.getActivityList(null, profile)) {
                     // Skip CCLauncher itself
                     if (app.applicationInfo.packageName == context.packageName) continue
 
-                    val appLabelShown = app.label.toString() +
+                    val tempAppModel = AppModel(
+                        "temp",
+                        null,
+                        app.applicationInfo.packageName,
+                        app.componentName.className,
+                        false,
+                        profile,
+                        null,
+                        false,
+                        profile.toString()
+                    )
+                    val appKey = tempAppModel.getKey()
+//                    val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
+
+                    val defaultLabel = app.label.toString() +
                             if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
+
+                    val appLabelShown = renamedApps[appKey] ?: defaultLabel
+
+//                    val appLabelShown = app.label.toString() +
+//                            if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
 
                     val iconCache = IconCache(context)
 
@@ -94,8 +114,10 @@ suspend fun getAppsList(
                         appIcon = appIcon
                     )
 
-                    val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
-                    val isHidden = hiddenApps.contains(appKey)
+                    val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
+
+
+                    val isHidden = hiddenApps.contains(dupAppKey)
 
                     if (isHidden) {
                         if (includeHiddenApps) {

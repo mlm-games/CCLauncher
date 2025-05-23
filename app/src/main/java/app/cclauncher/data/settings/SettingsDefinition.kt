@@ -361,6 +361,7 @@ data class AppSettings(
     val userState: String = Constants.UserState.START,
     val lockMode: Boolean = false,
     val keyboardMessage: Boolean = false,
+    val renamedApps: Map<String, String> = mapOf(),
     val appLabelAlignment: Int = Gravity.START,
     val hiddenApps: Set<String> = emptySet(),
     val hiddenAppsUpdated: Boolean = false,

@@ -83,6 +83,7 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_RESULTS_FONT_SIZE = floatPreferencesKey("SEARCH_RESULTS_FONT_SIZE")
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
         val SCALE_HOME_APPS = booleanPreferencesKey("SCALE_HOME_APPS")
+        val RENAMED_APPS_JSON = stringPreferencesKey("RENAMED_APPS_JSON")
 
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
@@ -125,6 +126,15 @@ class SettingsRepository(private val context: Context) {
         val calendarApp = prefs[CALENDAR_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultCalendarApp)
         } ?: defaultCalendarApp
+
+        val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
+            try {
+                json.decodeFromString<Map<String, String>>(it)
+            } catch (e: Exception) {
+                Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}")
+                mapOf<String, String>()
+            }
+        } ?: mapOf()
 
         AppSettings(
             // General settings
@@ -214,7 +224,8 @@ class SettingsRepository(private val context: Context) {
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
             clockApp = clockApp,
-            calendarApp = calendarApp
+            calendarApp = calendarApp,
+            renamedApps = renamedApps
         )
     }
 
@@ -311,6 +322,7 @@ class SettingsRepository(private val context: Context) {
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
                         "clockApp" -> prefs[CLOCK_APP_JSON] = json.encodeToString(newValue)
                         "calendarApp" -> prefs[CALENDAR_APP_JSON] = json.encodeToString(newValue)
+                        "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
                     }
                 }
             }
@@ -440,5 +452,31 @@ class SettingsRepository(private val context: Context) {
     suspend fun setAppTheme(value: Int) {
         updateSetting { it.copy(appTheme = value) }
     }
+
+    suspend fun setAppCustomName(appKey: String, customName: String) {
+        val currentSettings = settings.first()
+        val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
+
+        if (customName.isBlank()) {
+            updatedRenamedApps.remove(appKey)
+        } else {
+            updatedRenamedApps[appKey] = customName
+        }
+
+        context.settingsDataStore.edit { prefs ->
+            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
+        }
+    }
+
+    suspend fun removeAppCustomName(appKey: String) {
+        val currentSettings = settings.first()
+        val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
+        updatedRenamedApps.remove(appKey)
+
+        context.settingsDataStore.edit { prefs ->
+            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
+        }
+    }
+
 
 }

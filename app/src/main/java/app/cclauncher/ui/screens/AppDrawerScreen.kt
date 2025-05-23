@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -27,6 +28,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdsClick
+import androidx.compose.material.icons.filled.ChangeCircle
+import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -237,6 +240,8 @@ fun AppDrawerScreen(
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
+        Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
+
         LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, onAppClick) {
             delay(300)
             if (searchQuery.isNotEmpty() && appsToShow.size == 1 && autoOpenFilteredApp) {
@@ -293,6 +298,9 @@ fun AppDrawerScreen(
         val hiddenApps by viewModel.hiddenApps.collectAsState()
         val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
 
+        var renameDialogVisible by remember { mutableStateOf(false) }
+        var newAppName by remember { mutableStateOf(app.appLabel) }
+
         AlertDialog(
             onDismissRequest = { showContextMenu = false; selectedApp = null },
             title = { Text(app.appLabel) },
@@ -300,6 +308,8 @@ fun AppDrawerScreen(
                 Column {
                     ContextMenuItem("Open App", Icons.Default.AdsClick) { onAppClick(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
+//                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related for images.
                     ContextMenuItem("App Info", Icons.Default.Info) {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                             data = Uri.fromParts("package", app.appPackage, null)
@@ -312,6 +322,36 @@ fun AppDrawerScreen(
             },
             confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
         )
+
+        if (renameDialogVisible) {
+            AlertDialog(
+                onDismissRequest = { renameDialogVisible = false },
+                title = { Text("Rename ${app.appLabel}") },
+                text = {
+                    TextField(
+                        value = newAppName,
+                        onValueChange = { newAppName = it },
+                        label = { Text("New name") },
+                        singleLine = true
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.renameApp(app, newAppName)
+                        renameDialogVisible = false
+                        showContextMenu = false
+                        selectedApp = null
+                    }) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { renameDialogVisible = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
 }
 
