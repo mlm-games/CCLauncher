@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -28,7 +29,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdsClick
-import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
@@ -358,33 +358,49 @@ fun AppDrawerScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AppListItem(
-    app: AppModel, showAppNames: Boolean, showAppIcon: Boolean,
-    fontScale: Float, fontWeight: FontWeight, iconCornerRadius: Dp,
-    onClick: () -> Unit, onLongClick: () -> Unit
+    app: AppModel,
+    showAppNames: Boolean,
+    showAppIcon: Boolean,
+    fontScale: Float,
+    fontWeight: FontWeight,
+    iconCornerRadius: Dp,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+//            .animateItem(animationSpec = tween(durationMillis = 300))
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showAppIcon && app.appIcon != null) {
-            Surface(shape = RoundedCornerShape(iconCornerRadius), modifier = Modifier.padding(end = 16.dp)) {
-                androidx.compose.foundation.Image(app.appIcon, app.appLabel, Modifier.size(40.dp))
+            Surface(
+                shape = RoundedCornerShape(iconCornerRadius),
+                modifier = Modifier.padding(end = 16.dp)
+            ) {
+                androidx.compose.foundation.Image(
+                    bitmap = app.appIcon,
+                    contentDescription = app.appLabel,
+                    modifier = Modifier.size(40.dp)
+                )
             }
         }
         Text(
-            if (showAppNames) app.appLabel else "",
+            text = if (showAppNames) app.appLabel else "",
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
                 fontWeight = fontWeight
             ),
-            maxLines = 1, overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f)
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
         )
     }
 }
+
 
 @Composable
 private fun ContextMenuItem(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {

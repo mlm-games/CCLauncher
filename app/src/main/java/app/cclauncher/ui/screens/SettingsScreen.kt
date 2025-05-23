@@ -274,7 +274,7 @@ fun SettingsScreen(
                                         title = annotation.title,
                                         subtitle = when (property.returnType.classifier) {
                                             Int::class -> "${property.get(uiState) as Int}"
-                                            Float::class -> String.format("%.1f", property.get(uiState) as Float)
+                                            Float::class -> String.format(Locale.getDefault(), "%.1f", property.get(uiState) as Float)
                                             else -> ""
                                         },
                                         description = annotation.description.takeIf { it.isNotEmpty() },
@@ -637,7 +637,7 @@ fun SliderSettingDialog(
         title = { Text(title) },
         text = {
             Column {
-                Text(String.format("%.1f", sliderValue))
+                Text(String.format(Locale.getDefault(), "%.1f", sliderValue))
                 Spacer(modifier = Modifier.height(16.dp))
                 Slider(
                     value = sliderValue,

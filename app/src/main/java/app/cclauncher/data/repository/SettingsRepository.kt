@@ -422,14 +422,6 @@ class SettingsRepository(private val context: Context) {
         return settings.first().swipeRightApp
     }
 
-    suspend fun getClockApp(): AppPreference {
-        return settings.first().clockApp
-    }
-
-    suspend fun getCalendarApp(): AppPreference {
-        return settings.first().calendarApp
-    }
-
     /**
      * Methods for managing hidden apps
      */

@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import android.appwidget.AppWidgetHost
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
@@ -64,15 +63,28 @@ class MainActivity : ComponentActivity() {
             val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
             Log.d("MainActivity", "Widget ID from result: $appWidgetId")
             if (appWidgetId != -1) {
-                // Check if widget needs configuration
                 if (widgetHelper.needsConfiguration(appWidgetId)) {
                     Log.d("MainActivity", "Widget needs configuration after binding")
-                    // Use the new method instead of createConfigurationIntent
-                    widgetHelper.startWidgetConfiguration(this, appWidgetId, REQUEST_CONFIGURE_WIDGET)
+                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
+                    if (configIntent != null) {
+                        configureWidgetLauncher.launch(configIntent)
+                    }
                 }
             }
         }
     }
+
+    private val configureWidgetLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val requestCode = REQUEST_CONFIGURE_WIDGET
+        val resultCode = result.resultCode
+        val data = result.data
+
+        viewModel.handleActivityResult(requestCode, resultCode, data)
+    }
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -178,13 +190,6 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("MainActivity", "Error starting widget host listening", e)
         }
-    }
-
-
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        viewModel.handleActivityResult(requestCode, resultCode, data)
     }
 
     override fun onStop() {

@@ -12,6 +12,7 @@ import android.content.pm.LauncherApps
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Point
+import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
 import android.provider.AlarmClock
@@ -233,10 +234,22 @@ fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
 
 fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val point = Point()
-    windowManager.defaultDisplay.getRealSize(point)
-    return Pair(point.x, point.y)
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val metrics = windowManager.currentWindowMetrics
+        val bounds = metrics.bounds
+        Pair(bounds.width(), bounds.height())
+    } else {
+        // Fallback for older versions
+        @Suppress("DEPRECATION")
+        val display = windowManager.defaultDisplay
+        val point = Point()
+        @Suppress("DEPRECATION")
+        display.getRealSize(point)
+        Pair(point.x, point.y)
+    }
 }
+
 
 fun openSearch(context: Context) {
     val intent = Intent(Intent.ACTION_WEB_SEARCH)
@@ -314,15 +327,33 @@ fun isAccessServiceEnabled(context: Context): Boolean {
 }
 
 fun isTablet(context: Context): Boolean {
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val metrics = DisplayMetrics()
-    windowManager.defaultDisplay.getMetrics(metrics)
-    val widthInches = metrics.widthPixels / metrics.xdpi
-    val heightInches = metrics.heightPixels / metrics.ydpi
-    val diagonalInches = sqrt(widthInches.toDouble().pow(2.0) + heightInches.toDouble().pow(2.0))
-    if (diagonalInches >= 7.0) return true
-    return false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val metrics = context.resources.displayMetrics
+
+        val bounds = windowManager.currentWindowMetrics.bounds
+        val widthPixels = bounds.width()
+        val heightPixels = bounds.height()
+
+        val widthInches = widthPixels / metrics.xdpi
+        val heightInches = heightPixels / metrics.ydpi
+        val diagonalInches = sqrt(widthInches.toDouble().pow(2.0) + heightInches.toDouble().pow(2.0))
+
+        return diagonalInches >= 7.0
+    } else {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val metrics = DisplayMetrics()
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay.getMetrics(metrics)
+
+        val widthInches = metrics.widthPixels / metrics.xdpi
+        val heightInches = metrics.heightPixels / metrics.ydpi
+        val diagonalInches = sqrt(widthInches.toDouble().pow(2.0) + heightInches.toDouble().pow(2.0))
+
+        return diagonalInches >= 7.0
+    }
 }
+
 
 fun Context.isDarkThemeOn(): Boolean {
     return resources.configuration.uiMode and

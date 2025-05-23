@@ -2,7 +2,6 @@ package app.cclauncher.ui
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
-import app.cclauncher.data.ExternalWidgetModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 

@@ -20,7 +20,6 @@ import app.cclauncher.data.AppModel
 fun AppItem(
     modifier: Modifier = Modifier,
     app: AppModel,
-    showApps: Boolean = false,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
