@@ -91,7 +91,12 @@ class WidgetHelper(private val context: Context, private val appWidgetManager: A
             Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
                 component = providerInfo.configure
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                        Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    addFlags(Intent.FLAG_ACTIVITY_MATCH_EXTERNAL)
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error creating configuration intent: ${e.message}")
