@@ -3,6 +3,7 @@ package app.cclauncher.ui.screens
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -197,6 +198,7 @@ fun HomeScreen(
         widgetItem = showWidgetContextMenu,
         onDismiss = { showWidgetContextMenu = null },
         onRemove = { widget ->
+            appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
             viewModel.removeWidget(widget)
             showWidgetContextMenu = null
         },
@@ -222,6 +224,13 @@ fun HomeScreen(
         currentColumns = homeLayoutState.columns,
         onDismiss = { showResizeDialog = null },
         onResize = { widget, newRowSpan, newColSpan ->
+            val options = Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, newColSpan)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, newColSpan)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, newRowSpan)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, newRowSpan)
+            }
+            viewModel.appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, options)
             viewModel.resizeWidget(widget, newRowSpan, newColSpan)
         }
     )

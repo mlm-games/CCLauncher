@@ -181,6 +181,12 @@ fun WidgetHostViewContainer(
     DisposableEffect(Unit) {
         onDispose {
             longPressJob?.cancel()
+            // Ensure widget view is properly cleaned up
+            widgetView?.apply {
+                if (parent != null) {
+                    (parent as? ViewGroup)?.removeView(this)
+                }
+            }
         }
     }
 }
