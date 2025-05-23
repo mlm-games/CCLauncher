@@ -30,9 +30,6 @@ sealed class UiEvent {
     data object NavigateToWidgetPicker : UiEvent()
     data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
 
-    data class NavigateToWidgetSizeConfig(val appWidgetId: Int) : UiEvent()
-    data class NavigateToWidgetConfig(val widget: ExternalWidgetModel) : UiEvent()
-    data object NavigateToWidgetManager : UiEvent()
 
 
 
