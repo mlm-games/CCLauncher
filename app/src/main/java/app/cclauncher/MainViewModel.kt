@@ -261,10 +261,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
                         // Request configuration via activity
                         emitEvent(UiEvent.ConfigureWidget(appWidgetId, providerInfo))
-                    } else {
-                        // No configuration needed, add directly
-                        addWidgetToLayout(appWidgetId, providerInfo)
                     }
+                    addWidgetToLayout(appWidgetId, providerInfo)
                 } else {
                     Log.d("WidgetDebug", "Widget binding needs permission for ID: $appWidgetId")
 
