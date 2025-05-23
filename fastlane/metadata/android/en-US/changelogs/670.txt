@@ -1,0 +1,1 @@
+Added an option to rename apps
