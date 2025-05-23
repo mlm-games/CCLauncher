@@ -37,15 +37,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import android.appwidget.AppWidgetHost
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
-    private lateinit var appWidgetManagerInstance: AppWidgetManager
     private lateinit var appWidgetHost: AppWidgetHost
     private val APPWIDGET_HOST_ID = 1024
     private val REQUEST_CONFIGURE_WIDGET = 1001
+
+    private val appWidgetManagerInstance: AppWidgetManager by lazy {
+        AppWidgetManager.getInstance(applicationContext)
+    }
 
     val widgetHelper by lazy {
         WidgetHelper(this, appWidgetManagerInstance, appWidgetHost)
@@ -63,9 +67,8 @@ class MainActivity : ComponentActivity() {
                 // Check if widget needs configuration
                 if (widgetHelper.needsConfiguration(appWidgetId)) {
                     Log.d("MainActivity", "Widget needs configuration after binding")
-//                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-//                    configIntent?.let {
-//                    }
+                    // Use the new method instead of createConfigurationIntent
+                    widgetHelper.startWidgetConfiguration(this, appWidgetId, REQUEST_CONFIGURE_WIDGET)
                 }
             }
         }
@@ -150,7 +153,8 @@ class MainActivity : ComponentActivity() {
                     onScreenChange = { screen ->
                         currentScreen = screen
                     },
-                    appWidgetHost = appWidgetHost
+                    appWidgetHost = appWidgetHost,
+                    widgetHelper = widgetHelper
                 )
             }
         }

@@ -259,14 +259,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         // Save pending info for result handling
                         pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
 
-                        // Create configuration intent
-                        val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-                            component = providerInfo.configure
-                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        }
-
                         // Request configuration via activity
-                        emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
+                        emitEvent(UiEvent.ConfigureWidget(appWidgetId, providerInfo))
                     } else {
                         // No configuration needed, add directly
                         addWidgetToLayout(appWidgetId, providerInfo)
@@ -296,43 +290,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
-                Log.d(
-                    "WidgetDebug",
-                    "MainViewModel: addWidgetToLayout - Incoming appWidgetId: $appWidgetId"
-                )
-                if (providerInfo == null) { // Should not happen if your flow is correct
-                    Log.e(
-                        "WidgetDebug",
-                        "CRITICAL: providerInfo is NULL in addWidgetToLayout for appWidgetId: $appWidgetId"
-                    )
-                    _errorMessage.value = "Internal error: Widget provider information is missing."
-                    appWidgetHost.deleteAppWidgetId(appWidgetId)
-                    pendingWidgetInfo = null
-                    return@launch
-                }
-
-                val componentNameToBind: ComponentName? = providerInfo.provider
-                if (componentNameToBind == null) { // Should not happen for a valid AppWidgetProviderInfo
-                    Log.e(
-                        "WidgetDebug",
-                        "CRITICAL: providerInfo.provider (ComponentName) is NULL in addWidgetToLayout. appWidgetId: $appWidgetId, providerInfo label: ${
-                            providerInfo.loadLabel(appContext.packageManager)
-                        }"
-                    )
-                    _errorMessage.value = "Internal error: Widget component name is missing."
-                    appWidgetHost.deleteAppWidgetId(appWidgetId)
-                    pendingWidgetInfo = null
-                    return@launch
-                }
-
-                Log.i(
-                    "WidgetDebug",
-                    "Attempting to bind widget ID $appWidgetId with ComponentName: ${componentNameToBind.flattenToString()}"
-                )
-                Log.i(
-                    "WidgetDebug",
-                    "ProviderInfo details: Label='${providerInfo.loadLabel(appContext.packageManager)}', ConfigureActivity='${providerInfo.configure}', minWidth=${providerInfo.minWidth}"
-                )
+                Log.d("WidgetDebug", "Adding widget to layout: ID=$appWidgetId, Provider=${providerInfo.provider.flattenToString()}")
 
                 // Get screen dimensions to calculate appropriate cell sizes
                 val screenDimensions = getScreenDimensions(context = appContext)
@@ -345,25 +303,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val cellHeightDp = screenHeightDp / currentLayout.rows
 
                 // Calculate how many cells the widget needs
-                val widgetWidthCells =
-                    1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
-                val widgetHeightCells =
-                    1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
+                val widgetWidthCells = 1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
+                val widgetHeightCells = 1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
 
-
-                Log.d(
-                    "WidgetDebug",
-                    "Widget size: ${providerInfo.minWidth}x${providerInfo.minHeight}dp"
-                )
+                Log.d("WidgetDebug", "Widget size: ${providerInfo.minWidth}x${providerInfo.minHeight}dp")
                 Log.d("WidgetDebug", "Cell size: ${cellWidthDp}x${cellHeightDp}dp")
                 Log.d("WidgetDebug", "Widget cells: ${widgetWidthCells}x${widgetHeightCells}")
 
                 // Find next available position
-                val nextPos = findNextAvailableGridPosition(
-                    currentLayout,
-                    widgetWidthCells,
-                    widgetHeightCells
-                )
+                val nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells)
 
                 if (nextPos != null) {
                     // Create widget item
@@ -372,7 +320,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         appWidgetId = appWidgetId,
                         packageName = providerInfo.provider.packageName,
                         providerClassName = providerInfo.provider.className,
-//                        label = providerInfo.loadLabel(appContext.packageManager).toString(),
                         row = nextPos.first,
                         column = nextPos.second,
                         rowSpan = widgetHeightCells,
@@ -380,8 +327,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     )
 
                     // Update layout with the new widget
-                    val currentLayout = _homeLayoutState.value
                     val newItems = currentLayout.items + widgetItem
+                    Log.d("WidgetDebug", "Saving layout with new widget. Total items: ${newItems.size}")
                     settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
 
                     // Update widget options with the size
@@ -394,6 +341,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
 
                     Log.d("WidgetDebug", "Widget added successfully to layout")
+
+                    // Force refresh of home layout (if needed)
+                    settingsRepository.triggerHomeLayoutRefresh()
                 } else {
                     Log.e("WidgetDebug", "No space available for widget")
                     _errorMessage.value = "No space available for widget on home screen."
@@ -407,8 +357,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 } catch (e2: Exception) {
                     Log.e("WidgetDebug", "Error cleaning up widget ID", e2)
                 }
-            } finally {
-                pendingWidgetInfo = null // Clear pending state
             }
         }
     }

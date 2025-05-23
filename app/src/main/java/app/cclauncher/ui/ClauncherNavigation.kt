@@ -1,6 +1,7 @@
 package app.cclauncher.ui
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -23,9 +24,11 @@ import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 import app.cclauncher.ui.screens.WidgetPickerScreen
 import android.appwidget.AppWidgetHost
+import android.content.Intent
+import android.os.Build
 import android.util.Log
 import app.cclauncher.MainActivity
-
+import app.cclauncher.helper.WidgetHelper
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -34,7 +37,8 @@ fun CLauncherNavigation(
     settingsViewModel: SettingsViewModel,
     currentScreen: String,
     onScreenChange: (String) -> Unit,
-    appWidgetHost: AppWidgetHost
+    appWidgetHost: AppWidgetHost,
+    widgetHelper: WidgetHelper
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
@@ -85,19 +89,56 @@ fun CLauncherNavigation(
                     ).show()
                 }
             }
+            is UiEvent.ConfigureWidget -> {
+                val activity = context as? Activity
+                if (activity != null) {
+                    val REQUEST_CODE_CONFIGURE_WIDGET = 1001
+                    widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
+                }
+            }
+
 
             is UiEvent.StartActivityForResult -> {
                 try {
-                    (context as? Activity)?.startActivityForResult(event.intent, event.requestCode)
+                    val activity = context as? Activity
+                    if (activity != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            // For Android 14+ with background activity restrictions
+                            val options = ActivityOptions.makeBasic().apply {
+                                pendingIntentBackgroundActivityStartMode = ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                            }
+                            activity.startActivityForResult(event.intent, event.requestCode, options.toBundle())
+                        } else {
+                            // Standard approach for older versions
+                            activity.startActivityForResult(event.intent, event.requestCode)
+                        }
+                    }
+                } catch (e: SecurityException) {
+                    // Handle cases where the activity isn't exported
+                    Log.e("Navigation", "Security exception starting activity", e)
+                    try {
+                        // Try again with different flags
+                        event.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                        context.startActivity(event.intent)
+                    } catch (e2: Exception) {
+                        Log.e("Navigation", "Fallback failed too", e2)
+                        Toast.makeText(
+                            context,
+                            "Failed to configure widget. Please check app permissions.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
                     Toast.makeText(
                         context,
-                        "Failed to start widget configuration.",
-                        Toast.LENGTH_SHORT
+                        "Failed to start widget configuration: ${e.localizedMessage}",
+                        Toast.LENGTH_LONG
                     ).show()
-                    }
                 }
+            }
             is UiEvent.ShowToast -> {
                 // Show toast message
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
