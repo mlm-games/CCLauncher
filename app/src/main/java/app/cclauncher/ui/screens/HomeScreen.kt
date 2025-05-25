@@ -220,7 +220,6 @@ fun HomeScreen(
             showWidgetContextMenu = null
         },
         onMove = { widget ->
-            // Enter widget movement mode
             widgetBeingMoved = widget
             showWidgetContextMenu = null
             Toast.makeText(context, "Tap where you want to move the widget", Toast.LENGTH_SHORT).show()
@@ -316,11 +315,11 @@ fun HomeScreenContent(
         val parentWidthDp = maxWidth
         val parentHeightDp = maxHeight
 
-        // TODO: Calculate cell size based on available space and padding
+        // Define consistent padding
         val horizontalPadding = 16.dp
         val verticalPadding = 16.dp
         val usableWidth = parentWidthDp - horizontalPadding * 2
-        val usableHeight = parentHeightDp - verticalPadding * 2 // Adjust if date/time takes space
+        val usableHeight = parentHeightDp - verticalPadding * 2
 
         val cellWidth = usableWidth / homeLayout.columns
         val cellHeight = usableHeight / homeLayout.rows
@@ -328,29 +327,29 @@ fun HomeScreenContent(
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding)
         ) {
             val refs = homeLayout.items.associate { it.id to createRef() }
             val widgetManager = AppWidgetManager.getInstance(LocalContext.current)
 
             homeLayout.items.forEach { item ->
                 val itemModifier = Modifier.constrainAs(refs.getValue(item.id)) {
-                    // Position based on row/column
-                    top.linkTo(parent.top, margin = item.row.dp * cellHeight.value)
-                    start.linkTo(parent.start, margin = item.column.dp * cellWidth.value)
-                    // Size based on span
-                    width = androidx.constraintlayout.compose.Dimension.value(item.columnSpan.dp * cellWidth.value)
-                    height = androidx.constraintlayout.compose.Dimension.value(item.rowSpan.dp * cellHeight.value)
+
+                    top.linkTo(parent.top, margin = cellHeight * item.row)
+                    start.linkTo(parent.start, margin = cellWidth * item.column)
+
+                    width = androidx.constraintlayout.compose.Dimension.value(cellWidth * item.columnSpan)
+                    height = androidx.constraintlayout.compose.Dimension.value(cellHeight * item.rowSpan)
                 }
 
                 when (item) {
                     is HomeItem.App -> {
                         HomeAppItem(
-                            modifier = itemModifier.padding(4.dp),
+                            modifier = itemModifier.padding(2.dp),
                             app = item.appModel,
                             settings = settings,
-                            appWidth = item.columnSpan.dp * cellWidth.value,
-                            appHeight = item.rowSpan.dp * cellHeight.value,
+                            appWidth = cellWidth * item.columnSpan,
+                            appHeight = cellHeight * item.rowSpan,
                             onClick = { onAppClick(item) },
                             onLongClick = { onAppLongPress(item) }
                         )
@@ -390,8 +389,8 @@ fun HomeScreenContent(
                             ) {
                                 with(density) {
                                     // Calculate sizes based on determined cell dimensions
-                                    val wDp = item.columnSpan.dp * cellWidth.value
-                                    val hDp = item.rowSpan.dp * cellHeight.value
+                                    val wDp = cellWidth * item.columnSpan
+                                    val hDp = cellHeight * item.rowSpan
                                     WidgetSizeData(
                                         width = wDp.toPx().roundToInt(),
                                         height = hDp.toPx().roundToInt(),

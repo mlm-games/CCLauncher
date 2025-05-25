@@ -112,7 +112,7 @@ fun HomeAppItem(
             }
             .padding(4.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = if (settings.showHomeScreenIcons) Alignment.CenterHorizontally else Alignment.Start
     ) {
 
         if (showIcons && loadedIcon != null) {
@@ -140,7 +140,7 @@ fun HomeAppItem(
                     fontWeight = fontWeight
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
+                textAlign = if (settings.showHomeScreenIcons) TextAlign.Center else TextAlign.Start,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
