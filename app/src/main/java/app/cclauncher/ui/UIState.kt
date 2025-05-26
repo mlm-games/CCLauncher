@@ -59,8 +59,8 @@ data class SettingsScreenUiState(
     val swipeRightEnabled: Boolean = true,
     val swipeLeftAppName: String = "Camera",
     val swipeRightAppName: String = "Phone",
-    val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
-    val swipeUpAction: Int = Constants.SwipeDownAction.SEARCH,
+    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
+    val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
     val doubleTapToLock: Boolean = false,
     val searchType: Int = Constants.SearchType.CONTAINS,
     val isLoading: Boolean = false,
@@ -95,13 +95,6 @@ data class SettingsScreenUiState(
         Constants.TextSize.SIX -> "6"
         Constants.TextSize.SEVEN -> "7 (Largest)"
         else -> "4 (Default)"
-    }
-
-    val swipeDownText: String get() = when(swipeDownAction) {
-        Constants.SwipeDownAction.NOTIFICATIONS -> "Notifications"
-        Constants.SwipeDownAction.SEARCH -> "Search"
-        Constants.SwipeDownAction.NULL -> "None"
-        else -> "Notifications"
     }
 
     val searchTypeText: String get() = when(searchType) {

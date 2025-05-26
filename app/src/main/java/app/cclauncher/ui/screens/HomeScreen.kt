@@ -82,36 +82,36 @@ fun HomeScreen(
             .fillMaxSize()
             .detectSwipeGestures(
                 onSwipeUp = { when (settings.swipeUpAction) {
-                    Constants.SwipeUpAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                    Constants.SwipeUpAction.SEARCH -> onNavigateToAppDrawer()
-                    Constants.SwipeUpAction.APP -> viewModel.launchSwipeUpApp()
-                    Constants.SwipeUpAction.NULL -> {}
+                    Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                    Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                    Constants.SwipeAction.APP -> viewModel.launchSwipeUpApp()
+                    Constants.SwipeAction.NULL -> {}
                         else -> onNavigateToAppDrawer()
                 } },
                 onSwipeDown = {
                     when (settings.swipeDownAction) {
-                        Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeDownAction.APP -> viewModel.launchSwipeDownApp()
-                        Constants.SwipeDownAction.NULL -> {}
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeDownApp()
+                        Constants.SwipeAction.NULL -> {}
                         else -> expandNotificationDrawer(context)
                     }
                 },
                 onSwipeLeft = {
                     when (settings.swipeLeftAction) {
-                        Constants.SwipeLeftAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeLeftAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeLeftAction.APP -> viewModel.launchSwipeLeftApp()
-                        Constants.SwipeLeftAction.NULL -> { /* Do nothing */ }
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeLeftApp()
+                        Constants.SwipeAction.NULL -> { /* Do nothing */ }
                         else -> { /* Do nothing by default */ }
                     }
                 },
                 onSwipeRight = {
                     when (settings.swipeRightAction) {
-                        Constants.SwipeRightAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeRightAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeRightAction.APP -> viewModel.launchSwipeRightApp()
-                        Constants.SwipeRightAction.NULL -> {}
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeRightApp()
+                        Constants.SwipeAction.NULL -> {}
                         else -> {}
                     }
                 }

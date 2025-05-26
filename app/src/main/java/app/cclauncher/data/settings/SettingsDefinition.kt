@@ -278,7 +278,7 @@ data class AppSettings(
         type = SettingType.DROPDOWN,
         options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
+    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
 
     @Setting(
         title = "Swipe Down App",
@@ -293,7 +293,7 @@ data class AppSettings(
         type = SettingType.DROPDOWN,
         options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeUpAction: Int = Constants.SwipeUpAction.SEARCH,
+    val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
 
 
     @Setting(
@@ -336,7 +336,7 @@ data class AppSettings(
         type = SettingType.DROPDOWN,
         options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeLeftAction: Int = Constants.SwipeLeftAction.NULL,
+    val swipeLeftAction: Int = Constants.SwipeAction.NULL,
 
     @Setting(
         title = "Left Swipe App",
@@ -353,7 +353,7 @@ data class AppSettings(
         type = SettingType.DROPDOWN,
         options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeRightAction: Int = Constants.SwipeRightAction.NULL,
+    val swipeRightAction: Int = Constants.SwipeAction.NULL,
 
 
     @Setting(

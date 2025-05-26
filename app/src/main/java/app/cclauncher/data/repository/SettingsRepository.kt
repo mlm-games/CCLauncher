@@ -175,11 +175,11 @@ class SettingsRepository(private val context: Context) {
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
 
             // Gestures settings
-            swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
-            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeDownAction.SEARCH,
+            swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
+            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
-            swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeLeftAction.NULL,
-            swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeRightAction.NULL,
+            swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
+            swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
             settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",

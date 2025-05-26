@@ -36,28 +36,7 @@ object Constants {
         }
     }
 
-    object SwipeDownAction {
-        const val SEARCH = 1
-        const val NOTIFICATIONS = 2
-        const val APP = 3
-        const val NULL = 0
-    }
-
-    object SwipeUpAction {
-        const val SEARCH = 1
-        const val NOTIFICATIONS = 2
-        const val APP = 3
-        const val NULL = 0
-    }
-
-    object SwipeLeftAction {
-        const val SEARCH = 1
-        const val NOTIFICATIONS = 2
-        const val APP = 3
-        const val NULL = 0
-    }
-
-    object SwipeRightAction {
+    object SwipeAction {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
         const val APP = 3
