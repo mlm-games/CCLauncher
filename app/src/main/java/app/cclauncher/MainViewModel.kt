@@ -399,7 +399,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
 
-            // --- Implement Placeholder: Resize Validation ---
             if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
                 _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
                 return@launch
@@ -413,19 +412,19 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 }
             }
             val newLayout = currentLayout.copy(items = newItems)
-            settingsRepository.saveHomeLayout(newLayout) // Persist the layout change
 
-            // --- Implement Placeholder: Notify Widget Size Change ---
-            // This requires knowing the screen/cell dimensions. Get from settings or calculate.
-            // For simplicity, assume we can get screen Dp here (might need context or pass from UI)
-            val screenWidthDp = getScreenDimensions(context = appContext).first // Example placeholder - GET ACTUAL VALUE
-            val screenHeightDp = getScreenDimensions(appContext).second // Example placeholder - GET ACTUAL VALUE
+            // Update state immediately
+            _homeLayoutState.value = newLayout
+
+            // Update widget options
+            val screenWidthDp = getScreenDimensions(context = appContext).first
+            val screenHeightDp = getScreenDimensions(appContext).second
             val (cellWidthDp, cellHeightDp) = getCellSizeDp(
                 screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
             )
 
             val minWidth = (newColSpan * cellWidthDp).toInt()
-            val maxWidth = minWidth // Keep min/max same for simplicity now
+            val maxWidth = minWidth
             val minHeight = (newRowSpan * cellHeightDp).toInt()
             val maxHeight = minHeight
 
@@ -435,27 +434,44 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
             }
+
             try {
                 appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
+                // Persist the changes
+                settingsRepository.saveHomeLayout(newLayout)
+                // Force refresh
+                settingsRepository.triggerHomeLayoutRefresh()
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
             }
         }
     }
+
     fun removeWidget(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             try {
-                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
+                // First, remove from layout
                 val currentLayout = _homeLayoutState.value
                 val newItems = currentLayout.items.filterNot { it.id == widgetItem.id }
                 val newLayout = currentLayout.copy(items = newItems)
+
+                // Update the layout state immediately
+                _homeLayoutState.value = newLayout
+
+                // Then delete the widget ID and persist
+                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
                 settingsRepository.saveHomeLayout(newLayout)
+
+                // Force a refresh of the widget host
+                settingsRepository.triggerHomeLayoutRefresh()
+
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
                 _errorMessage.value = "Failed to remove widget."
             }
         }
     }
+
 
     fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
@@ -529,28 +545,28 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
 
             if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                 if (resultCode == RESULT_OK) {
-                    // Configuration successful
                     pendingWidgetInfo?.let { info ->
-                        if(info.appWidgetId == widgetId) { // Ensure it's the one we were waiting for
+                        if(info.appWidgetId == widgetId) {
                             addWidgetToLayout(info.appWidgetId, info.providerInfo)
                         }
                     } ?: run {
-                        // Handle reconfigure success if needed (e.g., update UI state)
+                        // Handle reconfigure success - force widget refresh
                         Log.d("ViewModelWidget", "Widget ID $widgetId reconfigured successfully.")
-                        // Force UI refresh if needed
-                        viewModelScope.launch { settingsRepository.triggerHomeLayoutRefresh() }
+                        viewModelScope.launch {
+                            // Force immediate UI refresh (maybe too many refreshes?)
+                            val currentLayout = _homeLayoutState.value
+                            _homeLayoutState.value = currentLayout.copy() // Trigger recomposition
+                            settingsRepository.triggerHomeLayoutRefresh()
+                        }
                     }
                 } else {
-                    // Configuration cancelled or failed
                     Log.w("ViewModelWidget", "Widget configuration cancelled/failed for ID $widgetId")
-                    appWidgetHost.deleteAppWidgetId(widgetId) // Clean up allocated ID
+                    appWidgetHost.deleteAppWidgetId(widgetId)
                     _errorMessage.value = "Widget configuration cancelled."
-                    pendingWidgetInfo = null // Clear pending state
                 }
             }
-            pendingWidgetInfo = null // Clear pending state regardless
+            pendingWidgetInfo = null
         }
-        // Handle other activity results if needed
     }
 
 
