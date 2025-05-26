@@ -60,8 +60,6 @@ class SettingsRepository(private val context: Context) {
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
         val EDIT_HOME_APPS = booleanPreferencesKey("EDIT_HOME_APPS")
         val EDIT_WIDGETS = booleanPreferencesKey("EDIT_WIDGETS")
-        val SWIPE_LEFT_ENABLED = booleanPreferencesKey("SWIPE_LEFT_ENABLED")
-        val SWIPE_RIGHT_ENABLED = booleanPreferencesKey("SWIPE_RIGHT_ENABLED")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
@@ -96,6 +94,9 @@ class SettingsRepository(private val context: Context) {
 
         val LOCK_SETTINGS = booleanPreferencesKey("LOCK_SETTINGS")
         val SETTINGS_LOCK_PIN = stringPreferencesKey("SETTINGS_LOCK_PIN")
+
+        val SWIPE_LEFT_ACTION = intPreferencesKey("SWIPE_LEFT_ACTION")
+        val SWIPE_RIGHT_ACTION = intPreferencesKey("SWIPE_RIGHT_ACTION")
 
     }
 
@@ -174,11 +175,11 @@ class SettingsRepository(private val context: Context) {
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
 
             // Gestures settings
-            swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
-            swipeRightEnabled = prefs[SWIPE_RIGHT_ENABLED] ?: true,
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
             swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeDownAction.SEARCH,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
+            swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeLeftAction.NULL,
+            swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeRightAction.NULL,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
             settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
@@ -271,11 +272,11 @@ class SettingsRepository(private val context: Context) {
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
 
                         // Gestures settings
-                        "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean
-                        "swipeRightEnabled" -> prefs[SWIPE_RIGHT_ENABLED] = newValue as Boolean
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
                         "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
                         "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
+                        "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
+                        "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
 
                         // Search result appearance
                         "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
@@ -414,10 +415,6 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setSettingsLockPin(pin: String) {
         updateSetting { it.copy(settingsLockPin = pin) }
-    }
-
-    suspend fun isSettingsLocked(): Boolean {
-        return settings.first().lockSettings
     }
 
     suspend fun validateSettingsPin(pin: String): Boolean {

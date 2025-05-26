@@ -82,10 +82,10 @@ fun HomeScreen(
             .fillMaxSize()
             .detectSwipeGestures(
                 onSwipeUp = { when (settings.swipeUpAction) {
-                    Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                    Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
-                    Constants.SwipeDownAction.APP -> viewModel.launchSwipeUpApp()
-                    Constants.SwipeDownAction.NULL -> {}
+                    Constants.SwipeUpAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                    Constants.SwipeUpAction.SEARCH -> onNavigateToAppDrawer()
+                    Constants.SwipeUpAction.APP -> viewModel.launchSwipeUpApp()
+                    Constants.SwipeUpAction.NULL -> {}
                         else -> onNavigateToAppDrawer()
                 } },
                 onSwipeDown = {
@@ -93,12 +93,28 @@ fun HomeScreen(
                         Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
                         Constants.SwipeDownAction.APP -> viewModel.launchSwipeDownApp()
-                        Constants.SwipeDownAction.NULL -> {null}
+                        Constants.SwipeDownAction.NULL -> {}
                         else -> expandNotificationDrawer(context)
                     }
                 },
-                onSwipeLeft = { viewModel.launchSwipeLeftApp() },
-                onSwipeRight = { viewModel.launchSwipeRightApp() }
+                onSwipeLeft = {
+                    when (settings.swipeLeftAction) {
+                        Constants.SwipeLeftAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeLeftAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeLeftAction.APP -> viewModel.launchSwipeLeftApp()
+                        Constants.SwipeLeftAction.NULL -> { /* Do nothing */ }
+                        else -> { /* Do nothing by default */ }
+                    }
+                },
+                onSwipeRight = {
+                    when (settings.swipeRightAction) {
+                        Constants.SwipeRightAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeRightAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeRightAction.APP -> viewModel.launchSwipeRightApp()
+                        Constants.SwipeRightAction.NULL -> {}
+                        else -> {}
+                    }
+                }
             )
             .pointerInput(Unit) {
                 detectTapGestures(

@@ -272,26 +272,11 @@ data class AppSettings(
 //    )
     val editWidgets: Boolean = false,
 
-    // Gestures settings
-    @Setting(
-        title = "Left Swipe Gesture",
-        category = SettingCategory.GESTURES,
-        type = SettingType.TOGGLE
-    )
-    val swipeLeftEnabled: Boolean = true,
-
-    @Setting(
-        title = "Right Swipe Gesture",
-        category = SettingCategory.GESTURES,
-        type = SettingType.TOGGLE
-    )
-    val swipeRightEnabled: Boolean = true,
-
     @Setting(
         title = "Swipe Down Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["Search", "Notifications", "App", "None"]
+        options = ["None", "Search", "Notifications", "App"]
     )
     val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
 
@@ -306,9 +291,9 @@ data class AppSettings(
         title = "Swipe Up Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["Search", "Notifications", "App", "None"]
+        options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeUpAction: Int = Constants.SwipeDownAction.SEARCH,
+    val swipeUpAction: Int = Constants.SwipeUpAction.SEARCH,
 
 
     @Setting(
@@ -345,7 +330,14 @@ data class AppSettings(
     )
     val searchResultsFontSize: Float = 1.0f,
 
-    // App selection settings
+    @Setting(
+        title = "Swipe Left Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App"]
+    )
+    val swipeLeftAction: Int = Constants.SwipeLeftAction.NULL,
+
     @Setting(
         title = "Left Swipe App",
         category = SettingCategory.GESTURES,
@@ -354,6 +346,16 @@ data class AppSettings(
     )
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
+
+    @Setting(
+        title = "Swipe Right Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App"]
+    )
+    val swipeRightAction: Int = Constants.SwipeRightAction.NULL,
+
+
     @Setting(
         title = "Right Swipe App",
         category = SettingCategory.GESTURES,
@@ -361,6 +363,7 @@ data class AppSettings(
         dependsOn = "swipeRightEnabled"
     )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
+
 
     @Setting(
         title = "Set Plain Wallpaper",

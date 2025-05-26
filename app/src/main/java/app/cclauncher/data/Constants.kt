@@ -43,6 +43,27 @@ object Constants {
         const val NULL = 4
     }
 
+    object SwipeUpAction {
+        const val SEARCH = 1
+        const val NOTIFICATIONS = 2
+        const val APP = 3
+        const val NULL = 4
+    }
+
+    object SwipeLeftAction {
+        const val SEARCH = 1
+        const val NOTIFICATIONS = 2
+        const val APP = 3
+        const val NULL = 4
+    }
+
+    object SwipeRightAction {
+        const val SEARCH = 1
+        const val NOTIFICATIONS = 2
+        const val APP = 3
+        const val NULL = 4
+    }
+
     object TextSize {
         const val ONE = 0.6f
         const val TWO = 0.75f
