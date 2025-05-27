@@ -105,15 +105,11 @@ fun AppDrawerScreen(
 
     var isSearchFocused by remember { mutableStateOf(false) }
 
-    val autoShowKeyboard = settings.autoShowKeyboard
-    val showAppNames = settings.showAppNames
-    val showAppIcons = settings.showAppIcons
-    val autoOpenFilteredApp = settings.autoOpenFilteredApp
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val shouldShowIcons = if (showAppIcons) {
+    val shouldShowIcons = if (settings.showAppIcons) {
         if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
     } else { false }
 
@@ -160,8 +156,8 @@ fun AppDrawerScreen(
     LaunchedEffect(Unit) { viewModel.loadApps() }
     LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
-    LaunchedEffect(autoShowKeyboard, focusRequester) {
-        if (autoShowKeyboard) {
+    LaunchedEffect(settings.autoShowKeyboard, focusRequester) {
+        if (settings.autoShowKeyboard) {
             yield()
             focusRequester.requestFocus()
         }
@@ -259,9 +255,9 @@ fun AppDrawerScreen(
 
         Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
 
-        LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, handleAppClick) {
+        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
             delay(300)
-            if (searchQuery.isNotEmpty() && appsToShow.size == 1 && autoOpenFilteredApp) {
+            if (searchQuery.isNotEmpty() && appsToShow.size == 1 && settings.autoOpenFilteredApp) {
                 handleAppClick(appsToShow[0])
             }
         }
@@ -298,7 +294,7 @@ fun AppDrawerScreen(
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
                         AppListItem(
-                            app = app, showAppIcon = shouldShowIcons, showAppNames = showAppNames,
+                            app = app, showAppIcon = shouldShowIcons, showAppNames = settings.showAppNames,
                             fontScale = searchResultsFontSize, fontWeight = fontWeight,
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { handleAppClick(app) },

@@ -159,7 +159,7 @@ data class AppSettings(
         max = 50f,
         step = 1f
     )
-    val iconCornerRadius: Int = 25,
+    val iconCornerRadius: Int = 0,
 
     @Setting(
         title = "Item Spacing",

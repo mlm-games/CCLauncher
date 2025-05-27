@@ -162,7 +162,7 @@ class SettingsRepository(private val context: Context) {
             fontWeight = prefs[FONT_WEIGHT] ?: 2,
             useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
-            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 25,
+            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 0,
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
 
             // Layout settings

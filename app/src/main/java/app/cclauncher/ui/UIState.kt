@@ -43,7 +43,7 @@ data class SettingsScreenUiState(
     val homeAppsNum: Int = 0,
     val homeScreenColumns: Int = 1,
     val showAppNames: Boolean = true,
-    val showAppIcons : Boolean = false,
+    val showAppIcons : Boolean = true,
     val autoShowKeyboard: Boolean = true,
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
     val textSizeScale: Float = 1.0f,
