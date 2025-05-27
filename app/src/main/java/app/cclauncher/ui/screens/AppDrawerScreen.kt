@@ -133,6 +133,21 @@ fun AppDrawerScreen(
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
 
+    // Clear search when returning to this screen
+    LaunchedEffect(Unit) {
+        searchQuery = ""
+        viewModel.searchApps("")
+    }
+
+    val handleAppClick: (AppModel) -> Unit = { app -> // Opens app after cleaning search
+        searchQuery = ""
+        viewModel.searchApps("")
+        focusManager.clearFocus()
+        keyboardController?.hide()
+        onAppClick(app)
+    }
+
+
     LaunchedEffect(settings.forceLandscapeMode, context) {
         (context as? Activity)?.let { activity ->
             if (settings.forceLandscapeMode) {
@@ -229,7 +244,7 @@ fun AppDrawerScreen(
             modifier = Modifier.focusRequester(focusRequester),
             onEnterPressed = {
                 val appsToOpen = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-                if (appsToOpen.isNotEmpty()) onAppClick(appsToOpen[0])
+                if (appsToOpen.isNotEmpty()) handleAppClick(appsToOpen[0])
                 // Keyboard is hidden by AppDrawerSearch's onSearch action
             },
             onFocusStateChanged = { focused ->
@@ -243,10 +258,10 @@ fun AppDrawerScreen(
 
         Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
 
-        LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, onAppClick) {
+        LaunchedEffect(appsToShow, autoOpenFilteredApp, searchQuery, handleAppClick) {
             delay(300)
             if (searchQuery.isNotEmpty() && appsToShow.size == 1 && autoOpenFilteredApp) {
-                onAppClick(appsToShow[0])
+                handleAppClick(appsToShow[0])
             }
         }
 
@@ -285,7 +300,7 @@ fun AppDrawerScreen(
                             app = app, showAppIcon = shouldShowIcons, showAppNames = showAppNames,
                             fontScale = searchResultsFontSize, fontWeight = fontWeight,
                             iconCornerRadius = settings.iconCornerRadius.dp,
-                            onClick = { onAppClick(app) },
+                            onClick = { handleAppClick(app) },
                             onLongClick = { selectedApp = app; showContextMenu = true },
                             modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
                         )
@@ -308,7 +323,7 @@ fun AppDrawerScreen(
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    ContextMenuItem("Open App", Icons.Default.AdsClick) { onAppClick(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
 //                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related for images.
