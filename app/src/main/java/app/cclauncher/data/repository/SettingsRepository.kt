@@ -36,7 +36,6 @@ class SettingsRepository(private val context: Context) {
 
     companion object {
         // Define all preference keys
-        val HOME_APPS_NUM = intPreferencesKey("HOME_APPS_NUM")
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
@@ -50,15 +49,10 @@ class SettingsRepository(private val context: Context) {
         val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
-        val HOME_ALIGNMENT = intPreferencesKey("HOME_ALIGNMENT")
-        val HOME_BOTTOM_ALIGNMENT = booleanPreferencesKey("HOME_BOTTOM_ALIGNMENT")
         val STATUS_BAR = booleanPreferencesKey("STATUS_BAR")
-        val DATE_TIME_VISIBILITY = intPreferencesKey("DATE_TIME_VISIBILITY")
         val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
         val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
-        val EDIT_HOME_APPS = booleanPreferencesKey("EDIT_HOME_APPS")
-        val EDIT_WIDGETS = booleanPreferencesKey("EDIT_WIDGETS")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
@@ -148,7 +142,6 @@ class SettingsRepository(private val context: Context) {
 
         AppSettings(
             // General settings
-            homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
             showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
@@ -166,16 +159,11 @@ class SettingsRepository(private val context: Context) {
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
 
             // Layout settings
-            homeAlignment = prefs[HOME_ALIGNMENT] ?: Gravity.CENTER,
-            homeBottomAlignment = prefs[HOME_BOTTOM_ALIGNMENT] ?: false,
             statusBar = prefs[STATUS_BAR] ?: false,
-            dateTimeVisibility = prefs[DATE_TIME_VISIBILITY] ?: Constants.DateTime.ON,
             forceLandscapeMode = prefs[FORCE_LANDSCAPE_MODE] ?: false,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
-            editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
-            editWidgets = prefs[EDIT_WIDGETS] ?: false,
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
             homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
             homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
@@ -247,7 +235,6 @@ class SettingsRepository(private val context: Context) {
                     @Suppress("UNCHECKED_CAST")
                     when (name) {
                         // General settings
-                        "homeAppsNum" -> prefs[HOME_APPS_NUM] = newValue as Int
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
                         "showAppIcons" -> prefs[SHOW_APP_ICONS] = true // as Boolean
                         "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
@@ -265,16 +252,11 @@ class SettingsRepository(private val context: Context) {
                         "itemSpacing" -> prefs[ITEM_SPACING] = newValue as Int
 
                         // Layout settings
-                        "homeAlignment" -> prefs[HOME_ALIGNMENT] = newValue as Int
-                        "homeBottomAlignment" -> prefs[HOME_BOTTOM_ALIGNMENT] = newValue as Boolean
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "dateTimeVisibility" -> prefs[DATE_TIME_VISIBILITY] = newValue as Int
                         "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
                         "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
                         "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
-                        "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
-                        "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
                         "homeScreenRows" -> prefs[HOME_SCREEN_ROWS] = newValue as Int
                         "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int

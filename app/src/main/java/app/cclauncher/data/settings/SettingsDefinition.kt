@@ -56,16 +56,6 @@ enum class SettingType {
  * Central data class for all application settings
  */
 data class AppSettings(
-    // General settings
-//    @Setting(
-//        title = "Home Apps Number",
-//        category = SettingCategory.GENERAL,
-//        type = SettingType.SLIDER,
-//        min = 0f,
-//        max = 16f,
-//        step = 1f
-//    )
-    val homeAppsNum: Int = 0,
 
     @Setting(
         title = "Show App Names",
@@ -169,22 +159,6 @@ data class AppSettings(
     )
     val itemSpacing: Int = 1,
 
-    // Layout settings
-//    @Setting(
-//        title = "Alignment",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.DROPDOWN,
-//        options = ["Left", "Center", "Right"]
-//    )
-    val homeAlignment: Int = Gravity.CENTER,
-
-//    @Setting(
-//        title = "Bottom Alignment",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val homeBottomAlignment: Boolean = false,
-
     @Setting(
         title = "Show Status Bar",
         category = SettingCategory.LAYOUT,
@@ -220,14 +194,6 @@ data class AppSettings(
         description = "Number of columns in the home screen grid"
     )
     val homeScreenColumns: Int = 4,
-
-//    @Setting(
-//        title = "Date & Time",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.DROPDOWN,
-//        options = ["Off", "Date Only", "On"]
-//    )
-    val dateTimeVisibility: Int = Constants.DateTime.ON,
 
     @Setting(
         title = "Force Landscape Mode",
@@ -278,20 +244,6 @@ data class AppSettings(
 //        dependsOn = "showHomeScreenIcons"
     )
     val showIconsInPortrait: Boolean = false,
-
-//    @Setting(
-//        title = "Home apps edit mode",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val editHomeApps: Boolean = false,
-
-//    @Setting(
-//        title = "Widgets edit mode",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val editWidgets: Boolean = false,
 
     @Setting(
         title = "Swipe Down Action",
