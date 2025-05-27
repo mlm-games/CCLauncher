@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package app.cclauncher.helper
 
 import android.annotation.SuppressLint
@@ -302,6 +304,7 @@ fun openCalendar(context: Context) {
             .build()
         context.startActivity(Intent(Intent.ACTION_VIEW, calendarUri))
     } catch (e: Exception) {
+        e.printStackTrace()
         try {
             val intent = Intent(Intent.ACTION_MAIN).setClassName(
                 context,
@@ -319,6 +322,7 @@ fun isAccessServiceEnabled(context: Context): Boolean {
     val enabled = try {
         Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
     } catch (e: Exception) {
+        e.printStackTrace()
         0
     }
     if (enabled == 1) {
