@@ -12,20 +12,32 @@ import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap
+import app.cclauncher.helper.iconpack.IconPackManager
 
 /**
- * Cache for app icons to improve performance
+ * Enhanced cache for app icons with icon pack support
  */
-class IconCache(context: Context) {
-    private val launcherApps =
-        context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+class IconCache(private val context: Context) {
+    private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     private val iconCache = LruCache<String, Bitmap>(200)
+    private val iconPackManager = IconPackManager(context)
 
     /**
-     * Get an app icon, either from cache or by loading it
+     * Get available icon packs
      */
-    suspend fun getIcon(packageName: String, className: String?, user: UserHandle): ImageBitmap? {
-        val cacheKey = "$packageName|$className|${user.hashCode()}"
+    suspend fun getAvailableIconPacks() = iconPackManager.getAvailableIconPacks()
+
+    /**
+     * Get an app icon with icon pack support
+     */
+    suspend fun getIcon(
+        packageName: String,
+        className: String?,
+        user: UserHandle,
+        iconPackName: String = "default"
+    ): ImageBitmap? {
+        val componentName = "$packageName/${className ?: ""}"
+        val cacheKey = "$iconPackName|$packageName|$className|${user.hashCode()}"
 
         // Check cache first
         synchronized(iconCache) {
@@ -35,23 +47,32 @@ class IconCache(context: Context) {
         // Load icon if not in cache
         return withContext(Dispatchers.IO) {
             try {
-//                val component = ComponentName(packageName, className ?: "")
+                // Get original icon first
                 val appInfo = launcherApps.getActivityList(packageName, user)
                     .find { it.componentName.className == className }
 
-                appInfo?.let {
-                    val icon = it.getIcon(0)
-                    val bitmap = drawableToBitmap(icon)
+                val originalIcon = appInfo?.getIcon(0)
 
-                    // Cache the bitmap
+                // Get icon from icon pack (with fallback to original)
+                val finalIcon = if (iconPackName != "default") {
+                    iconPackManager.getIconFromPack(iconPackName, componentName, originalIcon)
+                } else {
+                    originalIcon?.let { drawableToBitmap(it)?.asImageBitmap() }
+                }
+
+                // Cache the final bitmap
+                finalIcon?.let { imageBitmap ->
+                    val bitmap = drawableToBitmap(originalIcon ?: return@let)
                     bitmap?.let {
                         synchronized(iconCache) {
                             iconCache.put(cacheKey, it)
                         }
                     }
-                    bitmap?.asImageBitmap()
                 }
-            } catch (_: Exception) {
+
+                finalIcon
+            } catch (e: Exception) {
+                e.printStackTrace()
                 null
             }
         }
@@ -85,5 +106,6 @@ class IconCache(context: Context) {
         synchronized(iconCache) {
             iconCache.evictAll()
         }
+        iconPackManager.clearCache()
     }
 }

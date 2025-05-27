@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import app.cclauncher.data.AppModel
 import app.cclauncher.helper.getAppsList
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -14,7 +16,8 @@ import kotlinx.coroutines.withContext
  */
 class AppRepository(
     private val context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val coroutineScope: CoroutineScope
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
@@ -27,6 +30,21 @@ class AppRepository(
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
+
+    init {
+        // Reload apps when icon pack changes
+        coroutineScope.launch {
+            settingsRepository.settings
+                .map { it.selectedIconPack }
+                .distinctUntilChanged()
+                .drop(1) // Skip initial value
+                .collect {
+                    // Reload apps to get new icons
+                    loadApps()
+                    loadHiddenApps()
+                }
+        }
+    }
 
     /**
      * Load all visible apps

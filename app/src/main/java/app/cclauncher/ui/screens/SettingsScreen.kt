@@ -66,6 +66,8 @@ import app.cclauncher.data.settings.Setting
 import app.cclauncher.data.settings.SettingCategory
 import app.cclauncher.data.settings.SettingType
 import app.cclauncher.data.settings.SettingsManager
+import app.cclauncher.helper.IconCache
+import app.cclauncher.helper.iconpack.IconPackManager
 import app.cclauncher.helper.isAccessServiceEnabled
 import app.cclauncher.helper.isClauncherDefault
 import app.cclauncher.helper.setPlainWallpaperByTheme
@@ -494,6 +496,43 @@ fun SettingsScreen(
                                         }
                                     )
                                 }
+                                SettingType.ICON_PACK_PICKER -> {
+                                    val iconCache = remember { IconCache(context) }
+                                    var availableIconPacks by remember { mutableStateOf<List<IconPackManager.IconPackInfo>>(emptyList()) }
+                                    var showIconPackDialog by remember { mutableStateOf(false) }
+
+                                    LaunchedEffect(Unit) {
+                                        availableIconPacks = iconCache.getAvailableIconPacks()
+                                    }
+
+                                    val selectedPackName = property.get(uiState) as String
+                                    val selectedPackDisplayName = availableIconPacks.find {
+                                        it.packageName == selectedPackName
+                                    }?.name ?: "Default Icons"
+
+                                    SettingsItem(
+                                        title = annotation.title,
+                                        subtitle = selectedPackDisplayName,
+                                        description = annotation.description.takeIf { it.isNotEmpty() },
+                                        enabled = isEnabled,
+                                        onClick = { showIconPackDialog = true }
+                                    )
+
+                                    if (showIconPackDialog) {
+                                        IconPackSelectionDialog(
+                                            iconPacks = availableIconPacks,
+                                            selectedPack = selectedPackName,
+                                            onDismiss = { showIconPackDialog = false },
+                                            onPackSelected = { selectedPack ->
+                                                coroutineScope.launch {
+                                                    viewModel.updateSetting(property.name, selectedPack)
+                                                    iconCache.clearCache()
+                                                    showIconPackDialog = false
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
                                 else -> { /* Why is color picker even needed? */ }
                             }
                         }
@@ -890,3 +929,48 @@ fun GridSizeWarningDialog(
     )
 }
 
+@Composable
+fun IconPackSelectionDialog(
+    iconPacks: List<IconPackManager.IconPackInfo>,
+    selectedPack: String,
+    onDismiss: () -> Unit,
+    onPackSelected: (String) -> Unit
+) {
+    var selected by remember { mutableStateOf(selectedPack) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Icon Pack") },
+        text = {
+            LazyColumn {
+                items(iconPacks.size) { index ->
+                    val pack = iconPacks[index]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selected = pack.packageName }
+                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selected == pack.packageName,
+                            onClick = { selected = pack.packageName }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(pack.name)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onPackSelected(selected) }) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}

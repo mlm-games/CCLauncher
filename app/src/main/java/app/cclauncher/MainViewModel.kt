@@ -13,7 +13,9 @@ import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppPreference
+import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.data.settings.HomeAppPreference
+import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
@@ -29,8 +31,8 @@ import kotlin.math.ceil
  */
 class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    val settingsRepository = SettingsRepository(appContext) // New settings repository
-    private val appRepository = AppRepository(appContext, settingsRepository) // Will need refactoring in future
+    val settingsRepository = SettingsRepository(appContext)
+    private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = 101
     private var pendingWidgetInfo: PendingWidgetInfo? = null
@@ -74,10 +76,11 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 settingsRepository.getHomeLayout(),
                 settingsRepository.settings
             ) { layout, settings ->
-                layout.copy(
+                val updatedLayout = layout.copy(
                     rows = settings.homeScreenRows,
                     columns = settings.homeScreenColumns
                 )
+                loadIconsForHomeLayout(updatedLayout, settings)
             }.collect { updatedLayout ->
                 _homeLayoutState.value = updatedLayout
             }
@@ -104,6 +107,87 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 _hiddenApps.value = apps
             }
         }
+
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { it.selectedIconPack }
+                .distinctUntilChanged()
+                .drop(1) // Skip initial value
+                .collect { newIconPack ->
+                    refreshHomeScreenAppIcons()
+                }
+        }
+    }
+
+    /**
+     * Load icons for all apps in the home layout
+     */
+    private suspend fun loadIconsForHomeLayout(layout: HomeLayout, settings: AppSettings): HomeLayout {
+        if (!settings.showHomeScreenIcons) {
+            return layout // Don't load icons if they're not shown
+        }
+
+        val iconCache = IconCache(appContext)
+
+        val updatedItems = layout.items.map { item ->
+            when (item) {
+                is HomeItem.App -> {
+                    // Load icon with current icon pack
+                    val icon = iconCache.getIcon(
+                        packageName = item.appModel.appPackage,
+                        className = item.appModel.activityClassName,
+                        user = item.appModel.user,
+                        iconPackName = settings.selectedIconPack,
+                    )
+
+                    // Update AppModel with loaded icon
+                    val updatedAppModel = item.appModel.copy(appIcon = icon)
+                    item.copy(appModel = updatedAppModel)
+                }
+                is HomeItem.Widget -> item
+            }
+        }
+
+        return layout.copy(items = updatedItems)
+    }
+
+    /**
+     * Refresh icons for apps on home screen
+     */
+    private suspend fun refreshHomeScreenAppIcons() {
+        val currentLayout = _homeLayoutState.value
+        val settings = settingsRepository.settings.first()
+        val iconCache = IconCache(appContext)
+
+        val updatedItems = currentLayout.items.map { item ->
+            when (item) {
+                is HomeItem.App -> {
+                    // Get updated icon for this app
+                    val updatedIcon = if (settings.showHomeScreenIcons) {
+                        iconCache.getIcon(
+                            packageName = item.appModel.appPackage,
+                            className = item.appModel.activityClassName,
+                            user = item.appModel.user,
+                            iconPackName = settings.selectedIconPack,
+                        )
+                    } else {
+                        null
+                    }
+
+                    // Create updated AppModel with new icon
+                    val updatedAppModel = item.appModel.copy(appIcon = updatedIcon)
+                    item.copy(appModel = updatedAppModel)
+                }
+                is HomeItem.Widget -> item // Widgets don't need icon updates
+            }
+        }
+
+        // Update the layout with new icons
+        val updatedLayout = currentLayout.copy(items = updatedItems)
+        _homeLayoutState.value = updatedLayout
+
+        // Also save to persistence
+        settingsRepository.saveHomeLayout(updatedLayout)
     }
 
     suspend fun updateGridSize(newRows: Int, newColumns: Int) {

@@ -100,6 +100,8 @@ class SettingsRepository(private val context: Context) {
         val HOME_SCREEN_ROWS = intPreferencesKey("HOME_SCREEN_ROWS")
         val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
 
+        val SELECTED_ICON_PACK = stringPreferencesKey("SELECTED_ICON_PACK")
+
 
     }
 
@@ -206,6 +208,7 @@ class SettingsRepository(private val context: Context) {
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
             searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
+            selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
 
             homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
@@ -289,6 +292,7 @@ class SettingsRepository(private val context: Context) {
 
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
                         "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
+                        "selectedIconPack" -> prefs[SELECTED_ICON_PACK] = newValue as String
 
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean

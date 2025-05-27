@@ -64,11 +64,13 @@ suspend fun getAppsList(
             val hiddenApps = settings.hiddenApps
             val includeIcons = settings.showAppIcons
             val renamedApps = settings.renamedApps
+            val selectedIconPack = settings.selectedIconPack
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
             val collator = Collator.getInstance()
 
+            val iconCache = IconCache(context)
 
             for (profile in userManager.userProfiles) {
                 for (app in launcherApps.getActivityList(null, profile)) {
@@ -87,20 +89,20 @@ suspend fun getAppsList(
                         profile.toString()
                     )
                     val appKey = tempAppModel.getKey()
-//                    val appKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
 
                     val defaultLabel = app.label.toString() +
                             if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
 
                     val appLabelShown = renamedApps[appKey] ?: defaultLabel
 
-//                    val appLabelShown = app.label.toString() +
-//                            if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
-
-                    val iconCache = IconCache(context)
-
+                    // Pass the selected icon pack to getIcon
                     val appIcon = if (includeIcons) {
-                        iconCache.getIcon(app.applicationInfo.packageName, app.componentName.className, app.user)
+                        iconCache.getIcon(
+                            app.applicationInfo.packageName,
+                            app.componentName.className,
+                            app.user,
+                            selectedIconPack
+                        )
                     } else {
                         null
                     }
@@ -116,7 +118,6 @@ suspend fun getAppsList(
                     )
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
-
 
                     val isHidden = hiddenApps.contains(dupAppKey)
 
@@ -140,6 +141,7 @@ suspend fun getAppsList(
         appList
     }
 }
+
 
 
 // This is to ensure backward compatibility with older app versions

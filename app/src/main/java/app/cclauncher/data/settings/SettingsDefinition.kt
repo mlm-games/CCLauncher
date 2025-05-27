@@ -48,7 +48,8 @@ enum class SettingType {
     DROPDOWN,
     BUTTON,
     COLOR_PICKER,
-    APP_PICKER
+    APP_PICKER,
+    ICON_PACK_PICKER
 }
 
 /**
@@ -243,6 +244,14 @@ data class AppSettings(
         description = "Display app icons on the home screen"
     )
     val showHomeScreenIcons: Boolean = false,
+
+    @Setting(
+        title = "Icon Pack",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.ICON_PACK_PICKER,
+        description = "Choose custom icon pack for apps"
+    )
+    val selectedIconPack: String = "default",
 
 //    @Setting( // Already present in SettingsScreen
 //        title = "Lock Settings",
