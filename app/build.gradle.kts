@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
@@ -30,7 +32,9 @@ android {
         versionCode = 700
         versionName = "v9.6.1"
 
-        resourceConfigurations += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
+        androidResources {
+            localeFilters += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -139,7 +143,6 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.kotlinx.serialization.json.v163)
     implementation(libs.gson)
     implementation(libs.androidx.material.icons.extended)
 
