@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -121,7 +122,8 @@ fun HomeAppItem(
                 shape = RoundedCornerShape(iconCornerRadius),
                 modifier = Modifier
                     .size(iconSize)
-                    .aspectRatio(1f) // Ensure square aspect ratio
+                    .aspectRatio(1f), // Ensure square aspect ratio
+                color = Color.Transparent
             ) {
                 Image(
                     bitmap = loadedIcon!!,

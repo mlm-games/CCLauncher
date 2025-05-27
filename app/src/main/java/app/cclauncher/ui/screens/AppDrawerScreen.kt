@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -396,9 +397,10 @@ private fun AppListItem(
         if (showAppIcon && app.appIcon != null) {
             Surface(
                 shape = RoundedCornerShape(iconCornerRadius),
-                modifier = Modifier.padding(end = 16.dp)
+                modifier = Modifier.padding(end = 16.dp),
+                color = Color.Transparent
             ) {
-                androidx.compose.foundation.Image(
+                Image(
                     bitmap = app.appIcon,
                     contentDescription = app.appLabel,
                     modifier = Modifier.size(40.dp)
