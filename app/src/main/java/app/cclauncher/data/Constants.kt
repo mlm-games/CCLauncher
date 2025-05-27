@@ -22,19 +22,19 @@ object Constants {
         const val SHARE = "SHARE"
     }
 
-    object DateTime {
-        const val OFF = 0
-        const val ON = 1
-        const val DATE_ONLY = 2
-
-        fun isTimeVisible(dateTimeVisibility: Int): Boolean {
-            return dateTimeVisibility == ON
-        }
-
-        fun isDateVisible(dateTimeVisibility: Int): Boolean {
-            return dateTimeVisibility == ON || dateTimeVisibility == DATE_ONLY
-        }
-    }
+//    object DateTime {
+//        const val OFF = 0
+//        const val ON = 1
+//        const val DATE_ONLY = 2
+//
+//        fun isTimeVisible(dateTimeVisibility: Int): Boolean {
+//            return dateTimeVisibility == ON
+//        }
+//
+//        fun isDateVisible(dateTimeVisibility: Int): Boolean {
+//            return dateTimeVisibility == ON || dateTimeVisibility == DATE_ONLY
+//        }
+//    }
 
     object SwipeAction {
         const val SEARCH = 1

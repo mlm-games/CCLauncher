@@ -47,7 +47,7 @@ enum class SettingType {
     SLIDER,
     DROPDOWN,
     BUTTON,
-    COLOR_PICKER,
+//    COLOR_PICKER,
     APP_PICKER,
     ICON_PACK_PICKER
 }
@@ -451,6 +451,7 @@ class SettingsManager {
     /**
      * Get a setting value from an AppSettings instance
      */
+    @Suppress("unused")
     fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
         return property.get(settings)
     }
