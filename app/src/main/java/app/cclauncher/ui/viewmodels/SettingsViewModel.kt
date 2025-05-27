@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.cclauncher.MainViewModel
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.ui.UiEvent
@@ -60,6 +62,30 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     suspend fun updateSetting(propertyName: String, value: Any) {
         settingsRepository.updateSetting(propertyName, value)
     }
+
+    suspend fun updateGridSize(propertyName: String, newValue: Int) {
+        val currentSettings = settingsState.value
+
+        updateSetting(propertyName, newValue)
+
+    }
+
+    /**
+     * Check if grid size change will affect existing items
+     */
+    suspend fun willGridChangeAffectItems(propertyName: String, newValue: Int): Boolean {
+        val currentSettings = settingsState.value
+        val currentLayout = settingsRepository.getHomeLayout().first()
+
+        val newRows = if (propertyName == "homeScreenRows") newValue else currentSettings.homeScreenRows
+        val newColumns = if (propertyName == "homeScreenColumns") newValue else currentSettings.homeScreenColumns
+
+        // Check if any items would be out of bounds
+        return currentLayout.items.any { item ->
+            item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
+        }
+    }
+
 
     /**
      * Emit UI event

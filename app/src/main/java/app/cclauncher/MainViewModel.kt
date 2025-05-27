@@ -70,17 +70,18 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     init {
 
         viewModelScope.launch {
-            settingsRepository.getHomeLayout().collect { layout ->
-                _homeLayoutState.value = layout
+            combine(
+                settingsRepository.getHomeLayout(),
+                settingsRepository.settings
+            ) { layout, settings ->
+                layout.copy(
+                    rows = settings.homeScreenRows,
+                    columns = settings.homeScreenColumns
+                )
+            }.collect { updatedLayout ->
+                _homeLayoutState.value = updatedLayout
             }
         }
-
-        // Initialize UI states from settings
-//        viewModelScope.launch {
-//            settingsRepository.settings.collect { settings ->
-//                updateHomeScreenState(settings)
-//            }
-//        }
 
         viewModelScope.launch {
             appRepository.appListAll.collect { apps ->
@@ -104,23 +105,54 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             }
         }
     }
-//
-//    private fun updateHomeScreenState(settings: AppSettings) {
-//        viewModelScope.launch {
-//            val homeApps = settingsRepository.getHomeApps()
-//
-//            _homeScreenState.value = HomeScreenUiState(
-//                homeAppsNum = settings.homeAppsNum,
-//                homeScreenColumns = settings.homeScreenColumns,
-//                dateTimeVisibility = settings.dateTimeVisibility,
-////                homeAlignment = settings.homeAlignment,
-//                homeBottomAlignment = settings.homeBottomAlignment,
-//                homeApps = homeApps.map { app ->
-//                    getAppModelFromPreference(app)
-//                }
-//            )
-//        }
-//    }
+
+    suspend fun updateGridSize(newRows: Int, newColumns: Int) {
+        val currentLayout = _homeLayoutState.value
+
+        // Check if any items would be out of bounds with new grid size
+        val itemsOutOfBounds = currentLayout.items.filter { item ->
+            item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
+        }
+
+        if (itemsOutOfBounds.isNotEmpty()) {
+            // Move out-of-bounds items to valid positions
+            val updatedItems = currentLayout.items.map { item ->
+                if (item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns) {
+                    // Find a new valid position for this item
+                    val newPosition = findNextAvailableGridPosition(
+                        currentLayout.copy(rows = newRows, columns = newColumns),
+                        item.columnSpan,
+                        item.rowSpan
+                    )
+
+                    when (item) {
+                        is HomeItem.App -> item.copy(
+                            row = newPosition?.first ?: 0,
+                            column = newPosition?.second ?: 0
+                        )
+                        is HomeItem.Widget -> item.copy(
+                            row = newPosition?.first ?: 0,
+                            column = newPosition?.second ?: 0
+                        )
+                    }
+                } else {
+                    item
+                }
+            }
+
+            // Save the updated layout
+            val newLayout = currentLayout.copy(
+                items = updatedItems,
+                rows = newRows,
+                columns = newColumns
+            )
+            settingsRepository.saveHomeLayout(newLayout)
+        } else {
+            // No items out of bounds, just update grid size
+            val newLayout = currentLayout.copy(rows = newRows, columns = newColumns)
+            settingsRepository.saveHomeLayout(newLayout)
+        }
+    }
 
     fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {

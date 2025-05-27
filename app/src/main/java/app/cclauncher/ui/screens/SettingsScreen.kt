@@ -98,6 +98,9 @@ fun SettingsScreen(
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
     var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
 
+    var showGridWarningDialog by remember { mutableStateOf(false) }
+    var pendingGridChange by remember { mutableStateOf<Pair<String, Int>?>(null) }
+
     DisposableEffect(Unit) {
         onDispose {
             viewModel.resetUnlockState()
@@ -144,6 +147,25 @@ fun SettingsScreen(
         }
     }
 
+    if (showGridWarningDialog && pendingGridChange != null) {
+        GridSizeWarningDialog(
+            title = "Grid Size Change",
+            message = "Changing the grid size will move some apps and widgets to inaccessible positions. Do you want to continue?",
+            onConfirm = {
+                coroutineScope.launch {
+                    val (propertyName, newValue) = pendingGridChange!!
+                    viewModel.updateGridSize(propertyName, newValue)
+                    showGridWarningDialog = false
+                    pendingGridChange = null
+                }
+            },
+            onDismiss = {
+                showGridWarningDialog = false
+                pendingGridChange = null
+            }
+        )
+    }
+
     // Display the appropriate dialog based on setting type
     when (showingDialog) {
         "slider" -> {
@@ -162,9 +184,30 @@ fun SettingsScreen(
                         onDismiss = { showingDialog = null },
                         onValueSelected = { newValue ->
                             coroutineScope.launch {
-                                when (prop.returnType.classifier) {
-                                    Int::class -> viewModel.updateSetting(prop.name, newValue.toInt())
-                                    Float::class -> viewModel.updateSetting(prop.name, newValue)
+                                val propertyName = prop.name
+                                val intValue = newValue.toInt()
+
+                                // Check if this is a grid size change that affects items
+                                if ((propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") &&
+                                    viewModel.willGridChangeAffectItems(propertyName, intValue)) {
+
+                                    // Show warning dialog
+                                    pendingGridChange = propertyName to intValue
+                                    showGridWarningDialog = true
+                                    showingDialog = null
+                                } else {
+                                    // Safe to change directly
+                                    when (prop.returnType.classifier) {
+                                        Int::class -> {
+                                            if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
+                                                viewModel.updateGridSize(propertyName, intValue)
+                                            } else {
+                                                viewModel.updateSetting(propertyName, intValue)
+                                            }
+                                        }
+                                        Float::class -> viewModel.updateSetting(propertyName, newValue)
+                                    }
+                                    showingDialog = null
                                 }
                             }
                         }
@@ -813,6 +856,30 @@ fun DropdownSettingDialog(
                 onDismiss()
             }) {
                 Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun GridSizeWarningDialog(
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Continue")
             }
         },
         dismissButton = {

@@ -198,15 +198,27 @@ data class AppSettings(
     )
     val scaleHomeApps: Boolean = true,
 
-//    @Setting(
-//        title = "Number of Columns",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.SLIDER,
-//        min = 1f,
-//        max = 4f,
-//        step = 1f
-//    )
-    val homeScreenColumns: Int = 1,
+    @Setting(
+        title = "Home Screen Rows",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.SLIDER,
+        min = 4f,
+        max = 12f,
+        step = 1f,
+        description = "Number of rows in the home screen grid"
+    )
+    val homeScreenRows: Int = 8,
+
+    @Setting(
+        title = "Home Screen Columns",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.SLIDER,
+        min = 2f,
+        max = 8f,
+        step = 1f,
+        description = "Number of columns in the home screen grid"
+    )
+    val homeScreenColumns: Int = 4,
 
 //    @Setting(
 //        title = "Date & Time",
@@ -372,6 +384,8 @@ data class AppSettings(
         description = "Set a plain black/white wallpaper based on theme"
     )
     val plainWallpaper: Boolean = false,
+
+
 
     val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
 

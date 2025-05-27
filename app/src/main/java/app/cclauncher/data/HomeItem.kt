@@ -41,7 +41,7 @@ sealed class HomeItem {
 @Serializable
 data class HomeLayout(
     val items: List<HomeItem> = emptyList(),
-    val rows: Int = 8, // TODO: configurable?
-    val columns: Int = 4 // TODO: configurable?
+    val rows: Int = 8, // Will be overridden
+    val columns: Int = 4
 )
 

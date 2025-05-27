@@ -43,6 +43,16 @@ object Constants {
         const val NULL = 0
     }
 
+    object GridSize {
+        const val MIN_ROWS = 4
+        const val MAX_ROWS = 12
+        const val MIN_COLUMNS = 2
+        const val MAX_COLUMNS = 8
+        const val DEFAULT_ROWS = 8
+        const val DEFAULT_COLUMNS = 4
+    }
+
+
     object TextSize {
         const val ONE = 0.6f
         const val TWO = 0.75f

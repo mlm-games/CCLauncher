@@ -37,7 +37,6 @@ class SettingsRepository(private val context: Context) {
     companion object {
         // Define all preference keys
         val HOME_APPS_NUM = intPreferencesKey("HOME_APPS_NUM")
-        val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
@@ -97,6 +96,10 @@ class SettingsRepository(private val context: Context) {
 
         val SWIPE_LEFT_ACTION = intPreferencesKey("SWIPE_LEFT_ACTION")
         val SWIPE_RIGHT_ACTION = intPreferencesKey("SWIPE_RIGHT_ACTION")
+
+        val HOME_SCREEN_ROWS = intPreferencesKey("HOME_SCREEN_ROWS")
+        val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
+
 
     }
 
@@ -164,7 +167,6 @@ class SettingsRepository(private val context: Context) {
             homeAlignment = prefs[HOME_ALIGNMENT] ?: Gravity.CENTER,
             homeBottomAlignment = prefs[HOME_BOTTOM_ALIGNMENT] ?: false,
             statusBar = prefs[STATUS_BAR] ?: false,
-            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 1,
             dateTimeVisibility = prefs[DATE_TIME_VISIBILITY] ?: Constants.DateTime.ON,
             forceLandscapeMode = prefs[FORCE_LANDSCAPE_MODE] ?: false,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
@@ -173,6 +175,8 @@ class SettingsRepository(private val context: Context) {
             editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
             editWidgets = prefs[EDIT_WIDGETS] ?: false,
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
+            homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
+            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
 
             // Gestures settings
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
@@ -261,7 +265,6 @@ class SettingsRepository(private val context: Context) {
                         "homeAlignment" -> prefs[HOME_ALIGNMENT] = newValue as Int
                         "homeBottomAlignment" -> prefs[HOME_BOTTOM_ALIGNMENT] = newValue as Boolean
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
                         "dateTimeVisibility" -> prefs[DATE_TIME_VISIBILITY] = newValue as Int
                         "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
@@ -270,6 +273,8 @@ class SettingsRepository(private val context: Context) {
                         "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
                         "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
+                        "homeScreenRows" -> prefs[HOME_SCREEN_ROWS] = newValue as Int
+                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
 
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
