@@ -16,7 +16,7 @@ materialIconsExtended = "1.7.8"
 navigationFragmentKtx = "2.9.0"
 recyclerview = "1.4.0"
 workRuntimeKtx = "2.10.1"
-kotlin = "2.1.20"
+kotlin = "2.1.21"
 material3Android = "1.3.2"
 constraintlayoutComposeAndroid = "1.1.1"
 
