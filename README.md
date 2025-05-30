@@ -1,7 +1,8 @@
-![CCLauncher]()
-
-
 # CCLauncher | CLauncher rewritten for compose UI
+
+[![F-Droid Version](https://img.shields.io/f-droid/v/app.cclauncher)](https://f-droid.org/packages/app.cclauncher/)
+[![GitHub Release](https://img.shields.io/github/v/release/mlm-games/cclauncher)](https://github.com/mlm-games/cclauncher/releases/latest)
+
 
 Only open applications that you had in mind, Instead of opening or seeing the apps before searching
 
