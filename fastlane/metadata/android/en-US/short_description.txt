@@ -1,1 +1,1 @@
-Minimal home launcher, rewritten using Compose
+Minimal launcher that hides apps by default to reduce distractions. Rewrite of Clauncher
