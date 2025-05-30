@@ -1,23 +1,20 @@
-  
-  This is just Clauncher but written entirely in kotlin (using compose for UI).
+CCLauncher is a minimalist Android launcher designed to help reduce screen time and distractions due to all the apps present (like social media apps for example). Unlike traditional launchers, apps are hidden by default.
 
-  Original Clauncher's readme below:
-  
-  Yet another Olauncher Fork where apps are invisible by default, you only need to type which apps you want to open. It should reduce your screen time from opening apps you didn't plan on opening.
-  
-  Would recommend using a grey or black wallpaper (for immersion?, idk just recommending)
+Key Features:
+• Apps invisible by default (type to search)
+• Digital wellbeing tools (screen time tracking)
+• Double-tap to lock screen
+• Customizable gestures (swipe left/right/up/down shortcuts)
+• App renaming/hiding capabilities
+• Plain black/white wallpapers for focus
+• No ads, no tracking, no internet permission - 100% private
 
-  FEATURES
+Usage Tips:
+1. Swipe up to search apps
+2. Long press empty space for settings
+3. Enable double-tap lock in Accessibility settings
+4. Rename duplicate-named apps for easier launching
 
-  * No ads
-  * FOSS forever
-  * Clean, fast and lightweight
+This is a modern rewrite of Clauncher using Kotlin and Jetpack Compose, maintaining all the minimalism while improving functionality (and maybe performance...)
 
-
-  HOW TO USE
-
-  * Swipe up to see all the apps and quick search
-  * Swipe down for notification drawer
-  * Long press home apps to change them
-  * <b>Important</b>: Long press on empty space to open settings
-
+License: GNU GPLv3
