@@ -78,7 +78,7 @@ jobs:
 
       - name: Generate Release Notes
         id: release-notes
-        uses: mlm-games/multi-release-notes@v1.0.2
+        uses: mlm-games/release-notes-generator@main
         with:
           version: ${{ steps.version.outputs.version_name }}
           changelog-path: 'CHANGELOG.md'
