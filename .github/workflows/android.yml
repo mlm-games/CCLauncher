@@ -76,6 +76,18 @@ jobs:
           echo "VERSION_NAME=$NEW_VERSION_NAME" >> $GITHUB_ENV
           echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
 
+      - name: Generate Release Notes
+        id: release-notes
+        uses: mlm-games/multi-release-notes@v1.0.2
+        with:
+          version: ${{ steps.version.outputs.version_name }}
+          changelog-path: 'CHANGELOG.md'
+          version-file-path: './fastlane/metadata/android/en-US/changelogs/${{ steps.version.outputs.version_code }}.txt'
+          version-code: '${{ steps.version.outputs.version_code }}'
+          format: '- {{subject}} by @{{author}}'
+          exclude-patterns: 'chore:,ci:,docs:,build:,Bump version,Merge pull request,[skip ci]'
+          auto-commit: 'false'
+
       - name: Commit Version Changes
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
