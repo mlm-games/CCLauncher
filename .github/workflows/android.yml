@@ -36,11 +36,12 @@ jobs:
       version_name: ${{ steps.version.outputs.version_name }}
       base_version_code: ${{ steps.version.outputs.version_code }}
       build_date: ${{ steps.version.outputs.build_date }}
+      release_notes: ${{ steps.release-notes.outputs.release-notes }}
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
-          fetch-depth: 0  # Full history for better versioning
+          fetch-depth: 0
       
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -73,9 +74,6 @@ jobs:
           sed -i "s/versionCode = $OLD_VERSION_CODE/versionCode = $NEW_VERSION_CODE/" $BUILD_GRADLE_PATH
           sed -i "s/versionName = \"$OLD_VERSION_NAME\"/versionName = \"$NEW_VERSION_NAME\"/" $BUILD_GRADLE_PATH
 
-          echo "VERSION_NAME=$NEW_VERSION_NAME" >> $GITHUB_ENV
-          echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
-
       - name: Generate Release Notes
         id: release-notes
         uses: mlm-games/release-notes-generator@main
@@ -84,16 +82,16 @@ jobs:
           changelog-path: 'CHANGELOG.md'
           version-file-path: './fastlane/metadata/android/en-US/changelogs/${{ steps.version.outputs.version_code }}.txt'
           version-code: '${{ steps.version.outputs.version_code }}'
-          format: '- {{subject}} by @{{author}}'
+          format: '- {{subject}}'
           exclude-patterns: 'chore:,ci:,docs:,build:,Bump version,Merge pull request,[skip ci]'
           auto-commit: 'false'
 
-      - name: Commit Version Changes
+      - name: Commit Changes
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add $BUILD_GRADLE_PATH
-          git commit -m "Bump version to ${{ steps.version.outputs.version_name }} (code: ${{ steps.version.outputs.version_code }}) [skip ci]" || echo "No changes to commit"
+          git add .
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version_name }} [skip ci]" || echo "No changes to commit"
           git push
 
   build-and-release:
@@ -101,10 +99,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      UPLOAD_RELEASES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.upload_releases || 'false' }}
-      MARK_PRERELEASE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mark_prerelease || 'false' }}
-
     
     steps:
       - uses: actions/checkout@v4
@@ -122,18 +116,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-        
-      - name: Update Version Code and Version Name if not updated before cloning
-        run: |
-          sed -i "s/versionCode = [0-9]*/versionCode = ${{needs.prepare-version.outputs.base_version_code}}/" $BUILD_GRADLE_PATH
-          sed -i "s/versionName = \"${{needs.prepare-version.outputs.old_version_name}}\"/versionName = \"${{needs.prepare-version.outputs.version_name}}\"/" $BUILD_GRADLE_PATH
           
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" > release.keystore.asc
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSPHRASE }}" --batch release.keystore.asc > release.keystore
 
-      - name: Build APKs for all architectures
+      - name: Build APKs
         run: |
           ./gradlew clean assembleRelease \
             -Pandroid.injected.signing.store.file=$PWD/release.keystore \
@@ -141,43 +130,43 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      - name: Prepare APKs for release
+      - name: Prepare APKs
         run: |
           mkdir -p artifacts
-          find app/build/outputs/apk/release/ -name "*.apk" -exec cp {} artifacts/ \;
+          
+          # Rename APKs with version
+          for apk in app/build/outputs/apk/release/*.apk; do
+            if [ -f "$apk" ]; then
+              arch=$(echo "$apk" | grep -oE '(arm64-v8a|armeabi-v7a|x86_64|x86)')
+              if [ -n "$arch" ]; then
+                cp "$apk" "artifacts/cclauncher-${{ needs.prepare-version.outputs.version_name }}-${arch}.apk"
+              fi
+            fi
+          done
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         if: inputs.upload_releases == false || github.event_name != 'workflow_dispatch'
         with:
-          name: release-${{ github.event.repository.name }}
+          name: release-${{ needs.prepare-version.outputs.version_name }}
           path: artifacts/*.apk
 
       - name: Create GitHub Release
-        if: github.event_name == 'workflow_dispatch' && env.UPLOAD_RELEASES == 'true'
-        id: create_release
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_releases == true
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*.apk
-          name: "CCLauncher ${{ needs.prepare-version.outputs.version_name }}"
-          tag_name: "${{ needs.prepare-version.outputs.version_name }}"
-          prerelease: ${{ env.MARK_PRERELEASE }}
-          fail_on_unmatched_files: false
+          name: CCLauncher ${{ needs.prepare-version.outputs.version_name }}
+          tag_name: v${{ needs.prepare-version.outputs.version_name }}
+          prerelease: ${{ inputs.mark_prerelease }}
           body: |
-            ## CCLauncher Release ${{ needs.prepare-version.outputs.version_name }}
+            ## What's New
+            ${{ needs.prepare-version.outputs.release_notes }}
             
-            **Build Date**: ${{ needs.prepare-version.outputs.build_date }}
-            **Base Version Code**: ${{ needs.prepare-version.outputs.base_version_code }}
-            
-            ### 📝 Version Codes by Architecture
-            - ARM64 (arm64-v8a): ${{ needs.prepare-version.outputs.base_version_code }}
-            - ARM (armeabi-v7a): ${{ needs.prepare-version.outputs.base_version_code }} - 1
-            - x86_64: ${{ needs.prepare-version.outputs.base_version_code }} - 2
-            - x86: ${{ needs.prepare-version.outputs.base_version_code }} - 3
-            
-            ### 📦 Available APKs
-            - ARM64 (64-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk
-            - ARM (32-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk
-            - x86 (32-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk
-            - x86_64 (64-bit): cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk
-          generate_release_notes: true
+            ### Downloads
+            | Architecture | APK |
+            |-------------|-----|
+            | ARM64 (Most phones) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk` |
+            | ARM32 (Older phones) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk` |
+            | x86_64 (Emulators) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk` |
+            | x86 (Old emulators) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk` |
