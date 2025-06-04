@@ -1,13 +1,13 @@
 CCLauncher is a minimalist Android launcher designed to help reduce screen time and distractions due to all the apps present (like social media apps for example). Unlike traditional launchers, apps are hidden by default.
 
 Key Features:
-• Apps invisible by default (type to search)
-• Digital wellbeing tools (screen time tracking)
-• Double-tap to lock screen
-• Customizable gestures (swipe left/right/up/down shortcuts)
-• App renaming/hiding capabilities
-• Plain black/white wallpapers for focus
-• No ads, no tracking, no internet permission - 100% private
+- Apps invisible by default (type to search)
+- Digital wellbeing tools (screen time tracking)
+- Double-tap to lock screen
+- Customizable gestures (swipe left/right/up/down shortcuts)
+- App renaming/hiding capabilities
+- Plain black/white wallpapers for focus
+- No ads, no tracking, no internet permission - 100% private
 
 Usage Tips:
 1. Swipe up to search apps
@@ -15,6 +15,4 @@ Usage Tips:
 3. Enable double-tap lock in Accessibility settings
 4. Rename duplicate-named apps for easier launching
 
-This is a modern rewrite of Clauncher using Kotlin and Jetpack Compose, maintaining all the minimalism while improving functionality (and maybe performance...)
-
-License: GNU GPLv3
+This is a modern rewrite of Clauncher using Kotlin and Jetpack Compose, maintaining most of the minimalism while improving functionality (and maybe performance...)
