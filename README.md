@@ -30,4 +30,11 @@ A privacy-focused, minimalist Android launcher designed to reduce screen time by
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/app.cclauncher)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/app.cclauncher)
 
+## Other Donation Methods
+
+If this project helps you, consider supporting its development:
+
+**Ethereum**: `0xDf54ed8eD1705BC5bE232Bc220932BA004720907`
+
+
 **License:** [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
