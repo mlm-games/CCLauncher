@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.21"
     id("org.jetbrains.kotlin.plugin.parcelize")
-    kotlin("plugin.serialization") version "2.1.21"
+    kotlin("plugin.serialization") version "2.2.0"
 
 }
 
