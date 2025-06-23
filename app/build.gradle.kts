@@ -7,7 +7,7 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.21"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
     id("org.jetbrains.kotlin.plugin.parcelize")
     kotlin("plugin.serialization") version "2.2.0"
 
