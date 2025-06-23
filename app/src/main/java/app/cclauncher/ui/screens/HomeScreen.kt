@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,7 +76,14 @@ fun HomeScreen(
 
     // Store touch position for hit testing
     var lastTouchPosition by remember { mutableStateOf(Offset.Zero) }
-
+    
+    // Add a way to cancel movement mode
+    var showCancelMovementButton by remember { mutableStateOf(false) }
+    
+    // Update this when any movement starts
+    LaunchedEffect(widgetBeingMoved, appBeingMoved) {
+        showCancelMovementButton = widgetBeingMoved != null || appBeingMoved != null
+    }
 
     Box(
         modifier = Modifier
@@ -127,10 +135,10 @@ fun HomeScreen(
                         // Store the touch position for hit testing
                         lastTouchPosition = offset
 
-                        // Check if we're in widget movement mode
-                        if (widgetBeingMoved != null) {
-                            // End movement mode
+                        // If we're in movement mode, cancel it first
+                        if (widgetBeingMoved != null || appBeingMoved != null) {
                             widgetBeingMoved = null
+                            appBeingMoved = null
                             return@detectTapGestures
                         }
 
@@ -140,8 +148,14 @@ fun HomeScreen(
                             // Show context menu for this widget
                             showWidgetContextMenu = widget
                         } else {
-                            // Long press on empty space, go to settings
-                            onNavigateToSettings()
+                            // Check if we long-pressed on an app
+                            val app = findAppAtPosition(homeLayoutState, offset, this.size)
+                            if (app != null) {
+                                showAppContextMenu = app
+                            } else {
+                                // Long press on empty space, go to settings
+                                onNavigateToSettings()
+                            }
                         }
                     },
                     onTap = { offset ->
@@ -155,13 +169,12 @@ fun HomeScreen(
                                 // Exit movement mode
                                 widgetBeingMoved = null
                             }
-                        }
-                         if (appBeingMoved != null) {
-                                val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
-                                if (gridPosition != null) {
-                                    viewModel.moveApp(appBeingMoved!!, gridPosition.first, gridPosition.second)
-                                    appBeingMoved = null
-                                }
+                        } else if (appBeingMoved != null) {
+                            val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
+                            if (gridPosition != null) {
+                                viewModel.moveApp(appBeingMoved!!, gridPosition.first, gridPosition.second)
+                                appBeingMoved = null
+                            }
                         }
                     }
                 )
@@ -174,26 +187,53 @@ fun HomeScreen(
             onAppClick = { item -> viewModel.launchApp(item.appModel) },
             onAppLongPress = { item -> showAppContextMenu = item },
             onWidgetLongPress = { item -> showWidgetContextMenu = item },
-            widgetBeingMoved = widgetBeingMoved
+            widgetBeingMoved = widgetBeingMoved,
+            appBeingMoved = appBeingMoved
         )
 
-        // Show visual indicator if a widget is being moved
-        if (widgetBeingMoved != null) {
-            Box(
+        // Show visual indicator if a widget or app is being moved
+        if (widgetBeingMoved != null || appBeingMoved != null) {
+            Column(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    "Tap where you want to move the widget",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                Box(
                     modifier = Modifier
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Tap where you want to move the ${if (widgetBeingMoved != null) "widget" else "app"}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(16.dp)
+                    )
+                }
+                
+                // Add a cancel button at the bottom
+                TextButton(
+                    onClick = {
+                        widgetBeingMoved = null
+                        appBeingMoved = null
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 24.dp)
                         .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            MaterialTheme.colorScheme.errorContainer,
                             shape = RoundedCornerShape(8.dp)
                         )
-                        .padding(16.dp)
-                )
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        "Cancel Movement",
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
             }
         }
 
@@ -270,7 +310,29 @@ fun HomeScreen(
     )
 }
 
-// Helper function to find which widget was clicked
+    // helper function to find app at position
+    private fun findAppAtPosition(
+        homeLayout: HomeLayout,
+        position: Offset,
+        size: IntSize
+    ): HomeItem.App? {
+        // Calculate cell size
+        val cellWidth = size.width.toFloat() / homeLayout.columns
+        val cellHeight = size.height.toFloat() / homeLayout.rows
+
+        // Calculate which grid cell was clicked
+        val column = (position.x / cellWidth).toInt()
+        val row = (position.y / cellHeight).toInt()
+
+        // Find an app that contains this cell
+        return homeLayout.items.filterIsInstance<HomeItem.App>().find { app ->
+            row >= app.row &&
+                    row < app.row + app.rowSpan &&
+                    column >= app.column &&
+                    column < app.column + app.columnSpan
+        }
+    }
+
 private fun findWidgetAtPosition(
     homeLayout: HomeLayout,
     position: Offset,
@@ -324,7 +386,8 @@ fun HomeScreenContent(
     onAppClick: (HomeItem.App) -> Unit,
     onAppLongPress: (HomeItem.App) -> Unit,
     onWidgetLongPress: (HomeItem.Widget) -> Unit,
-    widgetBeingMoved: HomeItem.Widget? = null
+    widgetBeingMoved: HomeItem.Widget? = null,
+    appBeingMoved: HomeItem.App? = null
 ) {
     val density = LocalDensity.current
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -360,8 +423,24 @@ fun HomeScreenContent(
 
                 when (item) {
                     is HomeItem.App -> {
+
+                        val isBeingMoved = appBeingMoved?.id == item.id
+                
+                        val appModifier = if (isBeingMoved) {
+                            itemModifier
+                                .padding(2.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .alpha(0.7f)
+                        } else {
+                            itemModifier.padding(2.dp)
+                        }
+                        
                         HomeAppItem(
-                            modifier = itemModifier.padding(2.dp),
+                            modifier = appModifier,
                             app = item.appModel,
                             settings = settings,
                             appWidth = cellWidth * item.columnSpan,
@@ -499,4 +578,3 @@ fun HomeAppContextMenu(
         }
     )
 }
-
