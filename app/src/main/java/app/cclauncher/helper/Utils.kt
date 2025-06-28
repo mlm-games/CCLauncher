@@ -88,7 +88,7 @@ suspend fun getAppsList(
                         profile,
                         null,
                         false,
-                        profile.toString()
+                        profile.toString(),
                     )
                     val appKey = tempAppModel.getKey()
 
@@ -116,7 +116,8 @@ suspend fun getAppsList(
                         app.componentName.className,
                         (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
                         profile,
-                        appIcon = appIcon
+                        appIcon = appIcon,
+                        lastLaunchTime = settings.recentAppHistory[appKey] ?: 0
                     )
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
@@ -134,7 +135,22 @@ suspend fun getAppsList(
                     }
                 }
             }
-            appList.sortBy { it.appLabel.lowercase() }
+
+            when (settings.searchSortOrder) {
+                Constants.SortOrder.ALPHABETICAL -> {
+                    appList.sortBy { it.appLabel.lowercase() }
+                }
+                Constants.SortOrder.REVERSE_ALPHABETICAL -> {
+                    appList.sortByDescending { it.appLabel.lowercase() }
+                }
+                Constants.SortOrder.RECENT_FIRST -> {
+                    appList.sortWith(compareByDescending<AppModel> { it.lastLaunchTime }
+                        .thenBy { it.appLabel.lowercase() })
+                }
+                else -> {
+                    appList.sortBy { it.appLabel.lowercase() }
+                }
+            }
 
         } catch (e: Exception) {
             println("Error loading apps: ${e.message}")

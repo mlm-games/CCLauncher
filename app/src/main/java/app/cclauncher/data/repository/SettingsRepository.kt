@@ -96,6 +96,10 @@ class SettingsRepository(private val context: Context) {
 
         val SELECTED_ICON_PACK = stringPreferencesKey("SELECTED_ICON_PACK")
 
+        val SEARCH_SORT_ORDER = intPreferencesKey("SEARCH_SORT_ORDER")
+
+        val RECENT_APP_HISTORY = stringPreferencesKey("RECENT_APP_HISTORY")
+
 
     }
 
@@ -140,6 +144,15 @@ class SettingsRepository(private val context: Context) {
             }
         } ?: mapOf()
 
+        val recentAppHistory = prefs[RECENT_APP_HISTORY]?.let {
+            try {
+                json.decodeFromString<Map<String, Long>>(it)
+            } catch (e: Exception) {
+                Log.e("SettingsRepo", "Failed to decode recent app history JSON: ${e.message}")
+                mapOf<String, Long>()
+            }
+        } ?: mapOf()
+
         AppSettings(
             // General settings
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
@@ -148,6 +161,7 @@ class SettingsRepository(private val context: Context) {
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,
             searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.CONTAINS,
+            searchSortOrder = prefs[SEARCH_SORT_ORDER] ?: Constants.SortOrder.ALPHABETICAL,
 
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
@@ -203,7 +217,8 @@ class SettingsRepository(private val context: Context) {
             swipeRightApp = swipeRightApp,
             swipeUpApp = swipeUpApp,
             swipeDownApp = swipeDownApp,
-            renamedApps = renamedApps
+            renamedApps = renamedApps,
+            recentAppHistory = recentAppHistory
         )
     }
 
@@ -241,6 +256,7 @@ class SettingsRepository(private val context: Context) {
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
                         "autoOpenFilteredApp" -> prefs[AUTO_OPEN_FILTERED_APP] = newValue as Boolean
                         "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
+                        "searchSortOrder" -> prefs[SEARCH_SORT_ORDER] = newValue as Int
 
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
@@ -301,6 +317,7 @@ class SettingsRepository(private val context: Context) {
                         "clockApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
                         "calendarApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
+                        "recentAppHistory" -> prefs[RECENT_APP_HISTORY] = json.encodeToString(newValue)
                     }
                 }
             }
@@ -459,6 +476,24 @@ class SettingsRepository(private val context: Context) {
             prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
         }
     }
+
+    suspend fun updateAppLaunchTime(appKey: String) {
+        val currentSettings = settings.first()
+        val updatedHistory = currentSettings.recentAppHistory.toMutableMap()
+        updatedHistory[appKey] = System.currentTimeMillis()
+
+        // Limit history size
+        if (updatedHistory.size > 100) {
+            val oldest = updatedHistory.entries.sortedBy { it.value }.take(20)
+            oldest.forEach { updatedHistory.remove(it.key) }
+        }
+
+        // Save the updated history
+        context.settingsDataStore.edit { prefs ->
+            prefs[RECENT_APP_HISTORY] = json.encodeToString(updatedHistory)
+        }
+    }
+
 
 
 }

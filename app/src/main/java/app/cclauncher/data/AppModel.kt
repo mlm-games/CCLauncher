@@ -21,7 +21,9 @@ data class AppModel(
     @Transient
     val appIcon: ImageBitmap? = null,
     val isHidden: Boolean = false,
-    val userString: String = user.toString()
+    val userString: String = user.toString(),
+    @Transient
+    val lastLaunchTime: Long = 0
 ) : Comparable<AppModel> {
     override fun compareTo(other: AppModel): Int = when {
         key != null && other.key != null -> key.compareTo(other.key)

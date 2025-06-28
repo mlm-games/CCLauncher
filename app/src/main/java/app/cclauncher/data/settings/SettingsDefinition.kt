@@ -346,6 +346,14 @@ data class AppSettings(
     )
     val plainWallpaper: Boolean = false,
 
+    @Setting(
+        title = "Search Sort Order",
+        category = SettingCategory.GENERAL,
+        type = SettingType.DROPDOWN,
+        options = ["Alphabetical", "Reverse Alpha", "Last Launch"]
+    )
+    val searchSortOrder: Int = Constants.SortOrder.ALPHABETICAL,
+
 
 
     val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
@@ -360,6 +368,7 @@ data class AppSettings(
     val lockMode: Boolean = false,
     val keyboardMessage: Boolean = false,
     val renamedApps: Map<String, String> = mapOf(),
+    val recentAppHistory: Map<String, Long> = emptyMap(),
     val appLabelAlignment: Int = Gravity.START,
     val hiddenApps: Set<String> = emptySet(),
     val hiddenAppsUpdated: Boolean = false,

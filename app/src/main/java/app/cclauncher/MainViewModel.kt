@@ -751,6 +751,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             try {
                 appRepository.launchApp(app)
+                settingsRepository.updateAppLaunchTime(app.getKey())
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to launch app: ${e.message}"
             }

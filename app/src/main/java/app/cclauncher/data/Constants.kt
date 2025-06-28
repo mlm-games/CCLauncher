@@ -22,6 +22,13 @@ object Constants {
         const val SHARE = "SHARE"
     }
 
+    object SortOrder {
+        const val ALPHABETICAL = 0
+        const val REVERSE_ALPHABETICAL = 1
+        const val RECENT_FIRST = 2
+    }
+
+
 //    object DateTime {
 //        const val OFF = 0
 //        const val ON = 1
