@@ -1,3 +1,8 @@
+## vv9.6.5
+
+- Add suggestion from #76
+
+
 ## vv9.6.4
 
 - Update android.yml
