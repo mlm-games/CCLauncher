@@ -262,6 +262,12 @@ fun AppDrawerScreen(
             }
         }
 
+        LaunchedEffect(appsToShow, settings.searchSortOrder) {
+            if (settings.searchSortOrder == Constants.SortOrder.RECENT_FIRST) {
+                scrollState.animateScrollToItem(0)
+            }
+        }
+
         when {
             uiState.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
             uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
