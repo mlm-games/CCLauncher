@@ -1,3 +1,8 @@
+## vv9.6.6
+
+- Autoscroll to first element on list change (only in recent apps sort order) #76
+
+
 ## vv9.6.5
 
 - Add suggestion from #76

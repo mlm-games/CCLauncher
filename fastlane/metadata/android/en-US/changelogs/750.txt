@@ -1,0 +1,1 @@
+- Autoscroll to first element on list change (only in recent apps sort order) #76
