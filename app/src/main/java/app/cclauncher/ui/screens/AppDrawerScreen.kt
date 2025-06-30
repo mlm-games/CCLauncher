@@ -264,7 +264,7 @@ fun AppDrawerScreen(
 
         LaunchedEffect(appsToShow, settings.searchSortOrder) {
             if (settings.searchSortOrder == Constants.SortOrder.RECENT_FIRST) {
-                yield()
+                delay(150)
                 scrollState.animateScrollToItem(0)
             }
         }
