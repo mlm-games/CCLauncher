@@ -55,24 +55,24 @@ class AppRepository(
         withContext(Dispatchers.IO) {
             try {
                 val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
-                var loadedApps = apps
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     val privateSpaceHelper = PrivateSpaceHelper(context)
 
+                    // Only filter private space apps if private space is locked
                     if (privateSpaceHelper.isPrivateSpaceLocked()) {
-                        // Filter out apps from the Private Space profile
                         val privateSpaceUser = privateSpaceHelper.getPrivateSpaceUser()
                         if (privateSpaceUser != null) {
-                            loadedApps = apps.filter { app ->
+                            _appList.value = apps.filter { app ->
                                 app.user != privateSpaceUser
-                            } as MutableList<AppModel>
+                            }
+                            return@withContext
                         }
                     }
                 }
 
-                _appList.value = loadedApps
-
+                // If we reach here, either private space isn't relevant or we couldn't filter
+                _appList.value = apps
             } catch (e: Exception) {
                 throw e
             }

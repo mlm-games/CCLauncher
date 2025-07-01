@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.os.UserHandle
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -329,7 +328,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     }
 
                     if (!privateSpaceHelper.isPrivateSpaceSetUp()) {
-                        _errorMessage.value = "Private Space is not set up on this device"
+                        _errorMessage.value = "Private Space is not set up on this device. Set it up in Android Settings."
                         return@launch
                     }
 
@@ -338,22 +337,23 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         return@launch
                     }
 
-                    // NOTE: This is very experimental since am not actually that clear yet with this
-                    val isInPrivateSpace = isAppInPrivateSpace(app)
+                    val isInPrivateSpace = privateSpaceHelper.isPrivateSpaceProfile(app.user)
 
-                    // For now, just show a message
-                    if (isInPrivateSpace) {
-                        _errorMessage.value = "App removed from Private Space"
+                    // Direct the user to system settings for managing Private Space apps
+                    val message = if (isInPrivateSpace) {
+                        "To remove apps from Private Space, use Android Settings > Private Space settings"
                     } else {
-                        _errorMessage.value = "App added to Private Space"
+                        "To add apps to Private Space, use Android Settings > Private Space settings"
                     }
 
-                    // Refresh app lists after changing Private Space
+                    _errorMessage.value = message
+
+                    // Refresh app lists
                     loadApps()
                     updatePrivateSpaceState()
                 } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error toggling app in Private Space", e)
-                    _errorMessage.value = "Failed to modify Private Space: ${e.message}"
+                    Log.e("MainViewModel", "Error with Private Space operation", e)
+                    _errorMessage.value = "Private Space operation failed: ${e.message}"
                 }
             }
         } else {
@@ -774,11 +774,37 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
      */
     fun updatePrivateSpaceState() {
         viewModelScope.launch {
-            _privateSpaceState.value = when {
-                !privateSpaceHelper.isPrivateSpaceSupported() -> PrivateSpaceState.Unsupported
-                !privateSpaceHelper.isPrivateSpaceSetUp() -> PrivateSpaceState.NotSetUp
-                privateSpaceHelper.isPrivateSpaceLocked() -> PrivateSpaceState.Locked
-                else -> PrivateSpaceState.Unlocked
+            try {
+                if (!privateSpaceHelper.isPrivateSpaceSupported()) {
+                    _privateSpaceState.value = PrivateSpaceState.Unsupported
+                    return@launch
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // Force refresh the private space setup status
+                    val isSetUp = privateSpaceHelper.isPrivateSpaceSetUp()
+                    Log.d("PrivateSpace", "Is Private Space set up: $isSetUp")
+
+                    if (!isSetUp) {
+                        _privateSpaceState.value = PrivateSpaceState.NotSetUp
+                        return@launch
+                    }
+
+                    val isLocked = privateSpaceHelper.isPrivateSpaceLocked()
+                    Log.d("PrivateSpace", "Is Private Space locked: $isLocked")
+
+                    _privateSpaceState.value = if (isLocked) {
+                        PrivateSpaceState.Locked
+                    } else {
+                        PrivateSpaceState.Unlocked
+                    }
+                } else {
+                    _privateSpaceState.value = PrivateSpaceState.Unsupported
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error updating Private Space state", e)
+                // Default to NotSetUp on error
+                _privateSpaceState.value = PrivateSpaceState.NotSetUp
             }
         }
     }

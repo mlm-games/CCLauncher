@@ -63,7 +63,7 @@
 <!--        </receiver>-->
 
         <receiver
-            android:name=".helper.receivers.PrivateSpaceReceiver"
+            android:name=".helper.PrivateSpaceReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PROFILE_AVAILABLE" />

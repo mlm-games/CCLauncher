@@ -29,6 +29,7 @@ class PrivateSpaceHelper(private val context: Context) {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun getPrivateSpaceUser(): UserHandle? {
         if (!isPrivateSpaceSupported()) {
+            Log.d(TAG, "Private Space not supported on this device")
             return null
         }
 
@@ -36,9 +37,17 @@ class PrivateSpaceHelper(private val context: Context) {
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
-            return userManager.userProfiles.firstOrNull { userHandle ->
-                launcherApps.getLauncherUserInfo(userHandle)?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+            Log.d(TAG, "Checking ${userManager.userProfiles.size} user profiles for Private Space")
+
+            val privateSpaceUser = userManager.userProfiles.firstOrNull { userHandle ->
+                val userInfo = launcherApps.getLauncherUserInfo(userHandle)
+                val isPrivate = userInfo?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+                Log.d(TAG, "User ${userHandle}: userType=${userInfo?.userType}, isPrivate=$isPrivate")
+                isPrivate
             }
+
+            Log.d(TAG, "Private Space user found: ${privateSpaceUser != null}")
+            return privateSpaceUser
         } catch (e: Exception) {
             Log.e(TAG, "Error getting private space user", e)
             return null
@@ -54,12 +63,12 @@ class PrivateSpaceHelper(private val context: Context) {
             return false
         }
 
-        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         try {
-            val userType = launcherApps.getLauncherUserInfo(userHandle)?.userType
-            return userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+            val userInfo = launcherApps.getLauncherUserInfo(userHandle)
+            return userInfo?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to retrieve launcher user info", e)
+            Log.e(TAG, "Failed to determine if profile is Private Space", e)
             return false
         }
     }
@@ -73,7 +82,24 @@ class PrivateSpaceHelper(private val context: Context) {
             return false
         }
 
-        return getPrivateSpaceUser() != null
+        try {
+            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
+
+            // Check if any user profile is a Private Space profile
+            return userManager.userProfiles.any { userHandle ->
+                try {
+                    val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                    val userInfo = launcherApps.getLauncherUserInfo(userHandle)
+                    userInfo?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error checking user profile type", e)
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error determining if Private Space is set up", e)
+            return false
+        }
     }
 
     /**

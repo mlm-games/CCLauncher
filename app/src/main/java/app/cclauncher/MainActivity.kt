@@ -269,6 +269,8 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
         )
+
+        viewModel.updatePrivateSpaceState()
     }
 
     override fun onDestroy() {
