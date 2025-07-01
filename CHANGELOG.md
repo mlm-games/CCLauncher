@@ -1,3 +1,9 @@
+## vv9.6.7
+
+- Update AppDrawerScreen.kt to use delay instead
+- Try fixing recents first keyboard bug
+
+
 ## vv9.6.6
 
 - Autoscroll to first element on list change (only in recent apps sort order) #76
