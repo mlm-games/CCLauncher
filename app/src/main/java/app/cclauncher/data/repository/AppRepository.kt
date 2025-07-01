@@ -3,7 +3,9 @@ package app.cclauncher.data.repository
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
+import android.os.Build
 import app.cclauncher.data.AppModel
+import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.getAppsList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +19,7 @@ import kotlinx.coroutines.withContext
 class AppRepository(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
@@ -53,7 +55,24 @@ class AppRepository(
         withContext(Dispatchers.IO) {
             try {
                 val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
-                _appList.value = apps
+                var loadedApps = apps
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    val privateSpaceHelper = PrivateSpaceHelper(context)
+
+                    if (privateSpaceHelper.isPrivateSpaceLocked()) {
+                        // Filter out apps from the Private Space profile
+                        val privateSpaceUser = privateSpaceHelper.getPrivateSpaceUser()
+                        if (privateSpaceUser != null) {
+                            loadedApps = apps.filter { app ->
+                                app.user != privateSpaceUser
+                            } as MutableList<AppModel>
+                        }
+                    }
+                }
+
+                _appList.value = loadedApps
+
             } catch (e: Exception) {
                 throw e
             }

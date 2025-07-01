@@ -4,9 +4,15 @@ import android.app.Activity.RESULT_OK
 import android.app.Application
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.os.UserHandle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
@@ -17,6 +23,7 @@ import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.data.settings.HomeAppPreference
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
+import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
@@ -36,6 +43,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = 101
     private var pendingWidgetInfo: PendingWidgetInfo? = null
+
+    private val privateSpaceHelper = PrivateSpaceHelper(application.applicationContext)
+
+    val isPrivateSpaceSupported = privateSpaceHelper.isPrivateSpaceSupported()
+
+    private val _privateSpaceState = MutableStateFlow<PrivateSpaceState>(PrivateSpaceState.Unsupported)
+    val privateSpaceState: StateFlow<PrivateSpaceState> = _privateSpaceState.asStateFlow()
+
+
     data class PendingWidgetInfo(val appWidgetId: Int, val providerInfo: android.appwidget.AppWidgetProviderInfo)
 
     // Events manager for UI events
@@ -68,6 +84,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
     val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
+
+    private val appRefreshReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (intent?.action == "app.cclauncher.ACTION_REFRESH_APPS") {
+                loadApps()
+                updatePrivateSpaceState()
+            }
+        }
+    }
 
     init {
 
@@ -117,6 +142,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     refreshHomeScreenAppIcons()
                 }
         }
+
+        updatePrivateSpaceState()
+
+        val filter = IntentFilter("app.cclauncher.ACTION_REFRESH_APPS")
+        ContextCompat.registerReceiver(
+            appContext,
+            appRefreshReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
     }
 
     /**
@@ -274,6 +310,54 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 Log.d("HomeScreen", "No space available on home screen")
                 _errorMessage.value = "No space available on home screen."
             }
+        }
+    }
+
+    /**
+     * Toggle whether an app is in Private Space
+     * Note: This is only available on Android 15+
+     */
+    fun toggleAppInPrivateSpace(app: AppModel) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            viewModelScope.launch {
+                try {
+                    val privateSpaceHelper = PrivateSpaceHelper(appContext)
+
+                    if (!privateSpaceHelper.isPrivateSpaceSupported()) {
+                        _errorMessage.value = "Private Space requires Android 15 or higher"
+                        return@launch
+                    }
+
+                    if (!privateSpaceHelper.isPrivateSpaceSetUp()) {
+                        _errorMessage.value = "Private Space is not set up on this device"
+                        return@launch
+                    }
+
+                    if (privateSpaceHelper.isPrivateSpaceLocked()) {
+                        _errorMessage.value = "Private Space is locked. Please unlock it first."
+                        return@launch
+                    }
+
+                    // NOTE: This is very experimental since am not actually that clear yet with this
+                    val isInPrivateSpace = isAppInPrivateSpace(app)
+
+                    // For now, just show a message
+                    if (isInPrivateSpace) {
+                        _errorMessage.value = "App removed from Private Space"
+                    } else {
+                        _errorMessage.value = "App added to Private Space"
+                    }
+
+                    // Refresh app lists after changing Private Space
+                    loadApps()
+                    updatePrivateSpaceState()
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error toggling app in Private Space", e)
+                    _errorMessage.value = "Failed to modify Private Space: ${e.message}"
+                }
+            }
+        } else {
+            _errorMessage.value = "Private Space requires Android 15 or higher"
         }
     }
 
@@ -685,6 +769,49 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
+    /**
+     * Update the current state of Private Space
+     */
+    fun updatePrivateSpaceState() {
+        viewModelScope.launch {
+            _privateSpaceState.value = when {
+                !privateSpaceHelper.isPrivateSpaceSupported() -> PrivateSpaceState.Unsupported
+                !privateSpaceHelper.isPrivateSpaceSetUp() -> PrivateSpaceState.NotSetUp
+                privateSpaceHelper.isPrivateSpaceLocked() -> PrivateSpaceState.Locked
+                else -> PrivateSpaceState.Unlocked
+            }
+        }
+    }
+
+    /**
+     * Toggle Private Space lock state
+     */
+    fun togglePrivateSpace() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            privateSpaceHelper.togglePrivateSpaceLock(
+                onSuccess = {
+                    updatePrivateSpaceState()
+                    loadApps() // Refresh app list
+                },
+                onFailure = { message ->
+                    _errorMessage.value = message
+                }
+            )
+        } else {
+            _errorMessage.value = "Private Space requires Android 15 or higher"
+        }
+    }
+
+    /**
+     * Check if an app is in Private Space
+     */
+    fun isAppInPrivateSpace(app: AppModel): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return privateSpaceHelper.isPrivateSpaceProfile(app.user)
+        }
+        return false
+    }
+
 
     /**
      * Handle first open of the app
@@ -702,11 +829,11 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             try {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
+                updatePrivateSpaceState()
                 appRepository.loadApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
-                _appDrawerState.value =
-                    _appDrawerState.value.copy(isLoading = false, error = e.message)
+                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
@@ -1078,4 +1205,23 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
             _eventsFlow.emit(event)
         }
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        try {
+            appContext.unregisterReceiver(appRefreshReceiver)
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "Error unregistering receiver", e)
+        }
+    }
+
+    enum class PrivateSpaceState {
+        Unsupported,
+        NotSetUp,
+        Locked,
+        Unlocked
+    }
+
 }
+
+

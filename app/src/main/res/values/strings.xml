@@ -153,4 +153,11 @@
     <string name="home_screen">Home screen</string>
     <string name="show_app_names">Show app names</string>
     <string name="set">Set</string>
+    <string name="private_space">Private Space</string>
+    <string name="private_space_locked">Private Space is locked</string>
+    <string name="private_space_unlocked">Private Space is unlocked</string>
+    <string name="private_space_not_setup">Private Space is not set up</string>
+    <string name="private_space_toggle">Toggle Private Space</string>
+    <string name="private_space_unsupported">Private Space requires Android 15 or higher</string>
+    <string name="private_space_description">Private Space allows you to hide apps and data from your main profile. Apps in Private Space are only accessible when it\'s unlocked.</string>
 </resources>

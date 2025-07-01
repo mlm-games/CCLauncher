@@ -36,13 +36,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import android.appwidget.AppWidgetHost
+import android.content.IntentFilter
 import androidx.lifecycle.ViewModel
+import app.cclauncher.helper.PrivateSpaceReceiver
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
+    private lateinit var privateSpaceReceiver: PrivateSpaceReceiver
     private val APPWIDGET_HOST_ID = 1024
     private val REQUEST_CONFIGURE_WIDGET = 1001
 
@@ -100,6 +103,15 @@ class MainActivity : ComponentActivity() {
 
         appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
         Log.d("MainActivity", "AppWidgetHost created with ID: $APPWIDGET_HOST_ID")
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            privateSpaceReceiver = PrivateSpaceReceiver()
+            val intentFilter = IntentFilter().apply {
+                addAction(Intent.ACTION_PROFILE_AVAILABLE)
+                addAction(Intent.ACTION_PROFILE_UNAVAILABLE)
+            }
+            registerReceiver(privateSpaceReceiver, intentFilter)
+        }
 
         viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
@@ -260,6 +272,14 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            try {
+                unregisterReceiver(privateSpaceReceiver)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error unregistering receiver", e)
+            }
+        }
+
         super.onDestroy()
     }
 

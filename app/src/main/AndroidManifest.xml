@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.ACCESS_HIDDEN_PROFILES" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -60,6 +61,15 @@
 <!--                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />-->
 <!--            </intent-filter>-->
 <!--        </receiver>-->
+
+        <receiver
+            android:name=".helper.receivers.PrivateSpaceReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.PROFILE_AVAILABLE" />
+                <action android:name="android.intent.action.PROFILE_UNAVAILABLE" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".helper.MyAccessibilityService"

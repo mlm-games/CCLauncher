@@ -17,11 +17,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +36,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdsClick
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -76,10 +80,11 @@ import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
 import app.cclauncher.ui.BackHandler
+import app.cclauncher.ui.components.PrivateSpaceIndicator
+import app.cclauncher.ui.components.PrivateSpaceToggle
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
-// import kotlinx.coroutines.launch // Not directly used, but by LaunchedEffect
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -235,21 +240,39 @@ fun AppDrawerScreen(
             )
         }
 
-        AppDrawerSearch(
-            searchQuery = searchQuery,
-            onSearchChanged = { query -> searchQuery = query },
-            modifier = Modifier.focusRequester(focusRequester),
-            onEnterPressed = {
-                val appsToOpen = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
-                if (appsToOpen.isNotEmpty()) handleAppClick(appsToOpen[0])
-                // Keyboard is hidden by AppDrawerSearch's onSearch action
-            },
-            onFocusStateChanged = { focused ->
-                isSearchFocused = focused
-                // Keyboard visibility is handled by onFocusChanged in AppDrawerSearch for focus gain,
-                // and by scroll logic or IME actions for focus loss/hide.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            AppDrawerSearch(
+                searchQuery = searchQuery,
+                onSearchChanged = { query -> searchQuery = query },
+                modifier = Modifier.focusRequester(focusRequester).weight(1f),
+                onEnterPressed = {
+                    val appsToOpen =
+                        if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+                    if (appsToOpen.isNotEmpty()) handleAppClick(appsToOpen[0])
+                    // Keyboard is hidden by AppDrawerSearch's onSearch action
+                },
+                onFocusStateChanged = { focused ->
+                    isSearchFocused = focused
+                    // Keyboard visibility is handled by onFocusChanged in AppDrawerSearch for focus gain,
+                    // and by scroll logic or IME actions for focus loss/hide.
+                }
+            )
+
+            if (viewModel.isPrivateSpaceSupported) {
+                if (viewModel.privateSpaceState.collectAsState().value != MainViewModel.PrivateSpaceState.NotSetUp) {
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                    PrivateSpaceToggle(viewModel)
+                }
             }
-        )
+        }
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
@@ -306,7 +329,8 @@ fun AppDrawerScreen(
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { handleAppClick(app) },
                             onLongClick = { selectedApp = app; showContextMenu = true },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
+                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300)),
+                            viewModel = viewModel
                         )
                     }
                 }
@@ -339,6 +363,20 @@ fun AppDrawerScreen(
                         showContextMenu = false; selectedApp = null
                     }
                     ContextMenuItem("Add to Home Screen", Icons.Default.Add) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
+                    if (viewModel.isPrivateSpaceSupported &&
+                        viewModel.privateSpaceState.collectAsState().value == MainViewModel.PrivateSpaceState.Unlocked) {
+
+                        val isInPrivateSpace = viewModel.isAppInPrivateSpace(app)
+
+                        ContextMenuItem(
+                            text = if (isInPrivateSpace) "Remove from Private Space" else "Add to Private Space",
+                            icon = Icons.Default.Lock
+                        ) {
+                             viewModel.toggleAppInPrivateSpace(app)
+                            showContextMenu = false
+                            selectedApp = null
+                        }
+                    }
                 }
             },
             confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
@@ -376,6 +414,8 @@ fun AppDrawerScreen(
     }
 }
 
+
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AppListItem(
@@ -387,8 +427,12 @@ private fun AppListItem(
     iconCornerRadius: Dp,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
 ) {
+    val isInPrivateSpace = viewModel.isPrivateSpaceSupported &&
+            viewModel.isAppInPrivateSpace(app)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -408,6 +452,15 @@ private fun AppListItem(
                     contentDescription = app.appLabel,
                     modifier = Modifier.size(40.dp)
                 )
+            }
+            if (isInPrivateSpace) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Top)
+                        .offset(x = 4.dp, y = (-4).dp)
+                ) {
+                    PrivateSpaceIndicator(true)
+                }
             }
         }
         Text(

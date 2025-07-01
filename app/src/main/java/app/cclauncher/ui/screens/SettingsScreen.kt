@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.AppSettings
@@ -85,6 +86,7 @@ import app.cclauncher.ui.dialogs.SettingsLockDialog
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToHiddenApps: () -> Unit = {}
 ) {
@@ -533,7 +535,7 @@ fun SettingsScreen(
                                         )
                                     }
                                 }
-                                else -> { /* Why is color picker even needed? */ }
+//                                else -> { /* Why is color picker even needed? */ }
                             }
                         }
                     }
@@ -576,7 +578,44 @@ fun SettingsScreen(
 //                        }
 //                    )
 
-            item {
+                item {
+                    SettingsSection(title = "Private Space") {
+                        // Only show if Private Space is supported
+                        if (mainViewModel.isPrivateSpaceSupported) {
+                            val privateSpaceState by mainViewModel.privateSpaceState.collectAsState()
+
+                            val subtitle = when (privateSpaceState) {
+                                MainViewModel.PrivateSpaceState.NotSetUp -> "Private Space is not set up"
+                                MainViewModel.PrivateSpaceState.Locked -> "Private Space is locked"
+                                MainViewModel.PrivateSpaceState.Unlocked -> "Private Space is unlocked"
+                                else -> ""
+                            }
+
+                            SettingsItem(
+                                title = "Toggle Private Space",
+                                subtitle = subtitle,
+                                onClick = { mainViewModel.togglePrivateSpace() }
+                            )
+
+                            Text(
+                                text = "Private Space allows you to hide apps from your main profile. " +
+                                        "Apps in Private Space are only accessible when it's unlocked.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        } else {
+                            SettingsItem(
+                                title = "Private Space",
+                                subtitle = "Requires Android 15 or higher",
+                                enabled = false,
+                                onClick = {}
+                            )
+                        }
+                    }
+                }
+
+                item {
                 SettingsSection(title = "System") {
                     SettingsItem(
                         title = "Set as Default Launcher",
