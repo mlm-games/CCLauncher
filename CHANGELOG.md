@@ -1,3 +1,12 @@
+## vv9.7.1
+
+- Add refresh trigger for settings screen
+- Add some for logging to check later, used wrong name (cp)
+- Move towards private space implementation (experimental)
+- Update AppDrawerScreen.kt to use delay instead
+- Try fixing recents first keyboard bug
+
+
 ## vv9.6.7
 
 - Update AppDrawerScreen.kt to use delay instead
