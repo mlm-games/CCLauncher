@@ -43,6 +43,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val REQUEST_CODE_CONFIGURE_WIDGET = 101
     private var pendingWidgetInfo: PendingWidgetInfo? = null
 
+    private val _refreshTrigger = MutableStateFlow(0)
+    val refreshTrigger = _refreshTrigger.asStateFlow()
+
+
     private val privateSpaceHelper = PrivateSpaceHelper(application.applicationContext)
 
     val isPrivateSpaceSupported = privateSpaceHelper.isPrivateSpaceSupported()
@@ -818,6 +822,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 onSuccess = {
                     updatePrivateSpaceState()
                     loadApps() // Refresh app list
+                    _refreshTrigger.value++
                 },
                 onFailure = { message ->
                     _errorMessage.value = message

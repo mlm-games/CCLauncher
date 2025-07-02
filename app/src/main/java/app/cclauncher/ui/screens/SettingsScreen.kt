@@ -115,6 +115,8 @@ fun SettingsScreen(
     val showLockDialog by viewModel.showLockDialog.collectAsState()
     val isSettingPin by viewModel.isSettingPin.collectAsState()
 
+    val refreshTrigger by mainViewModel.refreshTrigger.collectAsState()
+
     BackHandler(onBack = {
         viewModel.resetUnlockState()
         onNavigateBack()
@@ -578,7 +580,7 @@ fun SettingsScreen(
 //                        }
 //                    )
 
-                item {
+                item(key = "private_space_$refreshTrigger") {
                     SettingsSection(title = "Private Space") {
                         // Only show if Private Space is supported
                         if (mainViewModel.isPrivateSpaceSupported) {
