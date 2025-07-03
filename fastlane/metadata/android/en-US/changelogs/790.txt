@@ -1,0 +1,2 @@
+- fix #81 (non-performant)
+- disable font weight when custom font is used

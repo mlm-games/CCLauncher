@@ -1,3 +1,9 @@
+## vv9.7.3
+
+- fix #81 (non-performant)
+- disable font weight when custom font is used
+
+
 ## vv9.7.2
 
 - Add more context for private space, add font selection from file from #79
