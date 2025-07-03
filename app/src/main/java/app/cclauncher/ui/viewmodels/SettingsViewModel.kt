@@ -1,16 +1,16 @@
 package app.cclauncher.ui.viewmodels
 
 import android.app.Application
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import app.cclauncher.MainViewModel
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     internal val settingsRepository = SettingsRepository(application.applicationContext)
@@ -26,9 +26,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
-
     private val _isLocked = MutableStateFlow(false)
-    val isLocked: StateFlow<Boolean> = _isLocked
 
     private val _showLockDialog = MutableStateFlow(false)
     val showLockDialog: StateFlow<Boolean> = _showLockDialog
@@ -37,11 +35,34 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val isSettingPin: StateFlow<Boolean> = _isSettingPin
 
     private val _isTemporarilyUnlocked = MutableStateFlow(false)
-    val isTemporarilyUnlocked: StateFlow<Boolean> = _isTemporarilyUnlocked
 
     val effectiveLockState: StateFlow<Boolean> = combine(_isLocked, _isTemporarilyUnlocked) { locked, tempUnlocked ->
         locked && !tempUnlocked
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val customFontInfo: StateFlow<Pair<String, Long>?> = settingsRepository.settings
+        .map { settings ->
+            val path = settings.customFontPath
+            if (path.isNotEmpty()) {
+                try {
+                    val file = File(path)
+                    if (file.exists()) {
+                        Pair(file.name, file.length())
+                    } else {
+                        null // File path is saved but file doesn't exist
+                    }
+                } catch (_: Exception) {
+                    null // Error accessing file
+                }
+            } else {
+                null // No custom font path
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = null
+        )
 
 
 
@@ -54,6 +75,19 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 _isLocked.value = settings.lockSettings
             }
         }
+
+    }
+
+    fun setCustomFont(uri: Uri) {
+        viewModelScope.launch {
+            settingsRepository.setCustomFont(uri)
+        }
+    }
+
+    fun clearCustomFont() {
+        viewModelScope.launch {
+            settingsRepository.clearCustomFont()
+        }
     }
 
     /**
@@ -64,10 +98,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     suspend fun updateGridSize(propertyName: String, newValue: Int) {
-        val currentSettings = settingsState.value
-
         updateSetting(propertyName, newValue)
-
     }
 
     /**

@@ -48,6 +48,7 @@ enum class SettingType {
     DROPDOWN,
     BUTTON,
 //    COLOR_PICKER,
+    FONT_PICKER,
     APP_PICKER,
     ICON_PACK_PICKER
 }
@@ -353,6 +354,14 @@ data class AppSettings(
         options = ["Alphabetical", "Reverse Alpha", "Last Launch"]
     )
     val searchSortOrder: Int = Constants.SortOrder.ALPHABETICAL,
+
+    @Setting(
+        title = "Custom Font",
+        description = "Select a custom font file",
+        type = SettingType.FONT_PICKER,
+        category = SettingCategory.APPEARANCE
+    )
+    val customFontPath: String = "",
 
 
 

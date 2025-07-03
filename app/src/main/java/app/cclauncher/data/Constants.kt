@@ -75,6 +75,8 @@ object Constants {
         const val NUM = 16
     }
 
+    const val CUSTOM_FONT_FILENAME = "custom_font.ttf"
+
     const val FLAG_LAUNCH_APP = 100
     const val FLAG_HIDDEN_APPS = 101
 

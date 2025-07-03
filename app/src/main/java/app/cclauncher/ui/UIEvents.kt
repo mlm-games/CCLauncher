@@ -2,8 +2,6 @@ package app.cclauncher.ui
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * UI Events for navigation and actions
@@ -21,11 +19,9 @@ sealed class UiEvent {
     data class LaunchWidgetBindIntent(val intent: Intent) : UiEvent()
 
     // System events
-    object ResetLauncher : UiEvent()
     data class ShowToast(val message: String) : UiEvent()
-    data class ShowError(val message: String) : UiEvent()
     data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()
-    data class ShowAppSelectionDialog(val selectionType: AppSelectionType) : UiEvent()
+
 
     data object NavigateToWidgetPicker : UiEvent()
     data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
@@ -34,19 +30,6 @@ sealed class UiEvent {
 
 
 
-}
-
-
-/**
- * Class to manage events
- */
-class EventsManager {
-    private val _events = MutableSharedFlow<UiEvent>()
-    val events: SharedFlow<UiEvent> = _events
-
-    suspend fun emitEvent(event: UiEvent) {
-        _events.emit(event)
-    }
 }
 
 enum class AppSelectionType {

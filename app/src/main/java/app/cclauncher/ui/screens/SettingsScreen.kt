@@ -5,8 +5,12 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.Settings
+import android.text.format.Formatter
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
@@ -104,6 +109,16 @@ fun SettingsScreen(
 
     var showGridWarningDialog by remember { mutableStateOf(false) }
     var pendingGridChange by remember { mutableStateOf<Pair<String, Int>?>(null) }
+
+    val pickFontLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                viewModel.setCustomFont(it)
+            }
+        }
+    )
+
 
     DisposableEffect(Unit) {
         onDispose {
@@ -267,6 +282,24 @@ fun SettingsScreen(
                         setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                         showingDialog = null
                     }
+                }
+            }
+        }
+        "font_picker" -> {
+            currentProperty?.let { prop ->
+                currentAnnotation?.let { annotation ->
+                    FontPickerDialog(
+                        title = annotation.title,
+                        onDismiss = { showingDialog = null },
+                        onSelectClicked = {
+                            pickFontLauncher.launch("font/*")
+                        },
+                        viewModel = viewModel,
+                        onResetClicked = {
+                            viewModel.clearCustomFont()
+                            showingDialog = null
+                        }
+                    )
                 }
             }
         }
@@ -537,6 +570,22 @@ fun SettingsScreen(
                                         )
                                     }
                                 }
+                                SettingType.FONT_PICKER -> {
+                                    val fontPath = property.get(uiState) as String
+                                    val displayText = if (fontPath.isEmpty()) "System default" else fontPath.split("/").last()
+
+                                    SettingsItem(
+                                        title = annotation.title,
+                                        subtitle = displayText,
+                                        description = annotation.description.takeIf { it.isNotEmpty() },
+                                        enabled = isEnabled,
+                                        onClick = {
+                                            currentProperty = property
+                                            currentAnnotation = annotation
+                                            showingDialog = "font_picker"
+                                        }
+                                    )
+                                }
 //                                else -> { /* Why is color picker even needed? */ }
                             }
                         }
@@ -587,7 +636,7 @@ fun SettingsScreen(
                             val privateSpaceState by mainViewModel.privateSpaceState.collectAsState()
 
                             val subtitle = when (privateSpaceState) {
-                                MainViewModel.PrivateSpaceState.NotSetUp -> "Private Space is not set up"
+                                MainViewModel.PrivateSpaceState.NotSetUp -> "Private Space is not set up (or is not the default launcher)"
                                 MainViewModel.PrivateSpaceState.Locked -> "Private Space is locked"
                                 MainViewModel.PrivateSpaceState.Unlocked -> "Private Space is unlocked"
                                 else -> ""
@@ -611,7 +660,8 @@ fun SettingsScreen(
                                 title = "Private Space",
                                 subtitle = "Requires Android 15 or higher",
                                 enabled = false,
-                                onClick = {}
+                                onClick = {},
+                                transparency = 0.7f
                             )
                         }
                     }
@@ -1011,6 +1061,76 @@ fun IconPackSelectionDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun FontPickerDialog(
+    title: String,
+    onDismiss: () -> Unit,
+    onSelectClicked: () -> Unit,
+    onResetClicked: () -> Unit,
+    viewModel: SettingsViewModel
+) {
+    val fontInfo by viewModel.customFontInfo.collectAsState()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column {
+                Text(
+                    "Current font: ${fontInfo?.first ?: "System default"}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                if (fontInfo != null) {
+                    Text(
+                        "Size: ${Formatter.formatFileSize(LocalContext.current, fontInfo!!.second)}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "ABCDEFGabcdefg123",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(onClick = onSelectClicked) {
+                        Text("Select Font")
+                    }
+
+                    if (fontInfo != null) {
+                        Button(
+                            onClick = onResetClicked,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Reset to Default")
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
             }
         }
     )

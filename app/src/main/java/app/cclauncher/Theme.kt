@@ -2,6 +2,7 @@ package app.cclauncher
 
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -19,11 +20,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppSettings
+import java.io.File
 
 
 private val DarkColorScheme = darkColorScheme(
@@ -238,7 +243,55 @@ fun CLauncherTheme(
         }
     }
 
-    val typography = scaledTypography(textSizeScale)
+    val customFontPath = settings.customFontPath
+
+    val fontFamily = remember(customFontPath) {
+        if (customFontPath.isNotEmpty()) {
+            try {
+                val fontFile = File(customFontPath)
+                if (fontFile.exists()) {
+                    FontFamily(
+                        Font(
+                            file = fontFile,
+                            weight = FontWeight.Normal,
+                            style = FontStyle.Normal,
+                        )
+                    )
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("CLauncherTheme", "Error loading custom font: ${e.message}")
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    val baseTypography = scaledTypography(textSizeScale) // Call only ONCE
+
+    val typography = if (fontFamily != null) {
+        baseTypography.copy(
+            displayLarge = baseTypography.displayLarge.copy(fontFamily = fontFamily),
+            displayMedium = baseTypography.displayMedium.copy(fontFamily = fontFamily),
+            displaySmall = baseTypography.displaySmall.copy(fontFamily = fontFamily),
+            labelSmall = baseTypography.labelSmall.copy(fontFamily = fontFamily),
+            labelLarge = baseTypography.labelLarge.copy(fontFamily = fontFamily),
+            labelMedium = baseTypography.labelMedium.copy(fontFamily = fontFamily),
+            bodyLarge = baseTypography.bodyLarge.copy(fontFamily = fontFamily),
+            bodySmall = baseTypography.bodySmall.copy(fontFamily = fontFamily),
+            bodyMedium = baseTypography.bodyMedium.copy(fontFamily = fontFamily),
+            headlineLarge = baseTypography.headlineLarge.copy(fontFamily = fontFamily),
+            headlineSmall = baseTypography.headlineSmall.copy(fontFamily = fontFamily),
+            headlineMedium = baseTypography.headlineMedium.copy(fontFamily = fontFamily),
+            titleSmall = baseTypography.titleSmall.copy(fontFamily = fontFamily),
+            titleLarge = baseTypography.titleLarge.copy(fontFamily = fontFamily),
+            titleMedium = baseTypography.titleMedium.copy(fontFamily = fontFamily)
+        )
+    } else {
+        baseTypography
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -43,6 +43,7 @@ fun CLauncherNavigation(
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
 
+
     // Apply system UI settings
     SystemUIController(showStatusBar = settings.statusBar)
 

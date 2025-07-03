@@ -1,6 +1,7 @@
 package app.cclauncher.data.repository
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
@@ -13,13 +14,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
+import app.cclauncher.data.Constants.CUSTOM_FONT_FILENAME
 import kotlin.reflect.full.memberProperties
 import app.cclauncher.data.HomeLayout
 import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.HomeAppPreference
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.catch
+import java.io.File
+import java.io.FileOutputStream
 
 // Extension property for Context to access the DataStore instance
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher.settings")
@@ -100,6 +103,8 @@ class SettingsRepository(private val context: Context) {
 
         val RECENT_APP_HISTORY = stringPreferencesKey("RECENT_APP_HISTORY")
 
+        val CUSTOM_FONT_PATH = stringPreferencesKey("CUSTOM_FONT_PATH")
+
 
     }
 
@@ -171,6 +176,7 @@ class SettingsRepository(private val context: Context) {
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
             iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 0,
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
+            customFontPath = prefs[CUSTOM_FONT_PATH] ?: "",
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
@@ -266,6 +272,7 @@ class SettingsRepository(private val context: Context) {
                         "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
                         "iconCornerRadius" -> prefs[ICON_CORNER_RADIUS] = newValue as Int
                         "itemSpacing" -> prefs[ITEM_SPACING] = newValue as Int
+                        "customFontPath" -> prefs[CUSTOM_FONT_PATH] = newValue as String
 
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
@@ -427,6 +434,43 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun validateSettingsPin(pin: String): Boolean {
         return settings.first().settingsLockPin == pin
+    }
+
+    suspend fun setCustomFont(uri: Uri) {
+        try {
+            val fontFile = File(context.filesDir, CUSTOM_FONT_FILENAME)
+
+            // Copy and overwrite the file in internal storage
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(fontFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            // Save the internal path to preferences
+            context.settingsDataStore.edit { prefs ->
+                prefs[CUSTOM_FONT_PATH] = fontFile.absolutePath
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsRepo", "Failed to copy font file", e)
+        }
+    }
+
+    suspend fun clearCustomFont() { // Pass context
+        val currentPath = settings.first().customFontPath
+        if (currentPath.isNotEmpty()) {
+            try {
+                // Delete the single font file
+                File(currentPath).delete()
+            } catch (e: Exception) {
+                Log.e("SettingsRepo", "Error deleting old font file", e)
+            }
+        }
+
+        // Clear the setting
+        context.settingsDataStore.edit { prefs ->
+            prefs[CUSTOM_FONT_PATH] = ""
+        }
     }
 
     /**
