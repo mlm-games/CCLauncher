@@ -1,3 +1,8 @@
+## vv9.7.2
+
+- Add more context for private space, add font selection from file from #79
+
+
 ## vv9.7.1
 
 - Add refresh trigger for settings screen
