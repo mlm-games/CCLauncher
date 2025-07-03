@@ -124,7 +124,8 @@ data class AppSettings(
         title = "Font Weight",
         category = SettingCategory.APPEARANCE,
         type = SettingType.DROPDOWN,
-        options = ["Thin", "Light", "Normal", "Medium", "Bold", "Black"]
+        options = ["Thin", "Light", "Normal", "Medium", "Bold", "Black"],
+        dependsOn = "isSystemFont"
     )
     val fontWeight: Int = 2,
 
@@ -384,8 +385,12 @@ data class AppSettings(
     val showHintCounter: Int = 1,
     val aboutClicked: Boolean = false,
     val rateClicked: Boolean = false,
-    val shareShownTime: Long = 0L
+    val shareShownTime: Long = 0L,
+
 ) {
+    @Suppress("unused") // Used for disabling font weight
+    val isSystemFont: Boolean
+        get() = customFontPath.isEmpty()
     companion object {
         // Helper method to get default settings
         fun getDefault(): AppSettings = AppSettings()
