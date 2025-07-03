@@ -56,6 +56,8 @@ class AppRepository(
             try {
                 val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
 
+                _appListAll.value = getAppsList(context, settingsRepository, true, true)
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     val privateSpaceHelper = PrivateSpaceHelper(context)
 
