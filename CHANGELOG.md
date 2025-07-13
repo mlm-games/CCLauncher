@@ -1,3 +1,10 @@
+## vv9.8.1
+
+- Bump ver
+- Add screen orientation options from #83 and remove other redundant checks
+- update gradle to 8.14.3
+
+
 ## vv9.7.3
 
 - fix #81 (non-performant)

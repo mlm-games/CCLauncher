@@ -1,0 +1,3 @@
+- Bump ver
+- Add screen orientation options from #83 and remove other redundant checks
+- update gradle to 8.14.3
