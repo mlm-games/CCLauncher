@@ -1,5 +1,6 @@
 package app.cclauncher
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.content.Intent
@@ -26,7 +27,6 @@ import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
-import app.cclauncher.helper.isTablet
 import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration
@@ -156,10 +157,10 @@ class MainActivity : ComponentActivity() {
         // Set up orientation observer
         lifecycleScope.launch {
             settingsRepository.settings.collect { settings ->
-                if (settings.forceLandscapeMode) {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                } else if (!isTablet(this@MainActivity) && Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                when (settings.screenOrientation) {
+                    0 -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    1 -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    2 -> requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE // Force landscape
                 }
             }
         }

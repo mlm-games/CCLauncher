@@ -1,6 +1,7 @@
 package app.cclauncher.data.repository
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
@@ -53,7 +54,7 @@ class SettingsRepository(private val context: Context) {
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
         val STATUS_BAR = booleanPreferencesKey("STATUS_BAR")
-        val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
+        val SCREEN_ORIENTATION = intPreferencesKey("SCREEN_ORIENTATION")
         val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
@@ -180,7 +181,7 @@ class SettingsRepository(private val context: Context) {
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
-            forceLandscapeMode = prefs[FORCE_LANDSCAPE_MODE] ?: false,
+            screenOrientation = prefs[SCREEN_ORIENTATION] ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
@@ -276,7 +277,7 @@ class SettingsRepository(private val context: Context) {
 
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
+                        "screenOrientation" -> prefs[SCREEN_ORIENTATION] = newValue as Int
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
                         "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
                         "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean

@@ -198,12 +198,12 @@ data class AppSettings(
     val homeScreenColumns: Int = 4,
 
     @Setting(
-        title = "Force Landscape Mode",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE,
-        description = "Force landscape orientation on smartphones"
+        title = "Screen Orientation",
+        type = SettingType.DROPDOWN,
+        options = ["System Default", "Force Portrait", "Force Landscape"],
+        category = SettingCategory.APPEARANCE
     )
-    val forceLandscapeMode: Boolean = false,
+    var screenOrientation: Int = 0,
 
     @Setting(
         title = "Show App Icons on Home Screen",

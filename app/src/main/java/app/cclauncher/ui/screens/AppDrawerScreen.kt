@@ -1,8 +1,6 @@
 package app.cclauncher.ui.screens
 
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
@@ -65,6 +63,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -149,15 +148,6 @@ fun AppDrawerScreen(
         onAppClick(app)
     }
 
-
-    LaunchedEffect(settings.forceLandscapeMode, context) {
-        (context as? Activity)?.let { activity ->
-            if (settings.forceLandscapeMode) {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
-        }
-    }
-
     LaunchedEffect(Unit) { viewModel.loadApps() }
     LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
@@ -193,8 +183,7 @@ fun AppDrawerScreen(
                 val actualScrollHappened = currentIndex != previousIndex || currentOffset != previousOffset
                 if (actualScrollHappened) {
                     // Determine scroll direction: positive for down, negative for up
-                    var verticalScrollDelta = 0
-                    verticalScrollDelta = if (currentIndex > previousIndex) 1 // Major scroll down
+                    val verticalScrollDelta: Int = if (currentIndex > previousIndex) 1 // Major scroll down
                     else if (currentIndex < previousIndex) -1 // Major scroll up
                     else currentOffset - previousOffset // Minor scroll in same item
 
@@ -203,7 +192,7 @@ fun AppDrawerScreen(
                             focusManager.clearFocus() // Will trigger onFocusStateChanged(false)
                         }
                         keyboardController?.hide()
-                    } else if (verticalScrollDelta < 0) { // User scrolled up
+                    } else { // User scrolled up
                         if (currentIndex == 0 && currentOffset == 0) { // Reached the very top of the list
                             if (!isSearchFocused) {
                                 focusRequester.requestFocus() // Will trigger onFocusStateChanged(true) & show keyboard
@@ -479,7 +468,7 @@ private fun AppListItem(
 
 
 @Composable
-private fun ContextMenuItem(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun ContextMenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
