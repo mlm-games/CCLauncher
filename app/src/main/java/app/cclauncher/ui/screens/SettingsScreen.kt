@@ -279,7 +279,7 @@ fun SettingsScreen(
             currentProperty?.let { prop ->
                 when (prop.name) {
                     "plainWallpaper" -> {
-                        setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        setPlainWallpaperByTheme(context, appTheme = uiState.appTheme)
                         showingDialog = null
                     }
                 }
