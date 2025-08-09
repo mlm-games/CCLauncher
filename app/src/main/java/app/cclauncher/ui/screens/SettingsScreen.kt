@@ -1,6 +1,7 @@
 package app.cclauncher.ui.screens
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
@@ -72,9 +73,8 @@ import app.cclauncher.data.settings.SettingCategory
 import app.cclauncher.data.settings.SettingType
 import app.cclauncher.data.settings.SettingsManager
 import app.cclauncher.helper.IconCache
+import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.iconpack.IconPackManager
-import app.cclauncher.helper.isAccessServiceEnabled
-import app.cclauncher.helper.isClauncherDefault
 import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.BackHandler
@@ -1126,4 +1126,14 @@ fun FontPickerDialog(
             }
         }
     )
+}
+
+fun isAccessServiceEnabled(context: Context): Boolean {
+    val permissionManager = PermissionManager(context)
+    return permissionManager.hasAccessibilityPermission()
+}
+
+fun isClauncherDefault(context: Context): Boolean {
+    val permissionManager = PermissionManager(context)
+    return permissionManager.isDefaultLauncher()
 }
