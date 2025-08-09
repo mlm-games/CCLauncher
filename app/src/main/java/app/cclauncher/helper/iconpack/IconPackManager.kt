@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import app.cclauncher.helper.BitmapUtils
+import app.cclauncher.helper.BitmapUtils.drawableToBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -139,7 +141,7 @@ class IconPackManager(private val context: Context) {
     }
 
     /**
-     * Parse appfilter.xml from icon pack
+     * Parse app-filter.xml from icon pack
      */
     private fun parseAppFilter(resources: Resources, packageName: String): Map<String, String> {
         val componentMap = mutableMapOf<String, String>()
@@ -169,26 +171,6 @@ class IconPackManager(private val context: Context) {
         }
 
         return componentMap
-    }
-
-    /**
-     * Convert drawable to bitmap (reuse from IconCache)
-     */
-    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        return try {
-            val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
-            val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
-
-            val bitmap = androidx.core.graphics.createBitmap(width, height)
-            val canvas = android.graphics.Canvas(bitmap)
-
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-
-            bitmap
-        } catch (e: Exception) {
-            null
-        }
     }
 
     /**

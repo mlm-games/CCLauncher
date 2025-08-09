@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.graphics.createBitmap
+import app.cclauncher.helper.BitmapUtils.drawableToBitmap
 
 data class WidgetListItem(
     val appName: String,
@@ -171,21 +171,13 @@ private suspend fun loadInstalledWidgets(context: Context, widgetManager: AppWid
 }
 
 // Helper to load widget preview (can be slow)
-private suspend fun loadWidgetPreview(context: Context, widgetInfo: AppWidgetProviderInfo): android.graphics.Bitmap? {
+private suspend fun loadWidgetPreview(
+    context: Context,
+    widgetInfo: AppWidgetProviderInfo
+): android.graphics.Bitmap? {
     return withContext(Dispatchers.IO) {
         widgetInfo.loadPreviewImage(context, 0)?.let { drawable ->
-            // Convert drawable to bitmap (similar to IconCache)
-            try {
-                val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 100
-                val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 100
-                val bitmap = createBitmap(width, height)
-                val canvas = android.graphics.Canvas(bitmap)
-                drawable.setBounds(0, 0, canvas.width, canvas.height)
-                drawable.draw(canvas)
-                bitmap
-            } catch (_: Exception) {
-                null
-            }
+            drawableToBitmap(drawable, defaultSize = 100)
         }
     }
 }

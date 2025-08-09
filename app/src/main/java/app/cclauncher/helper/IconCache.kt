@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.graphics.createBitmap
 import app.cclauncher.helper.iconpack.IconPackManager
 
 /**
@@ -57,12 +56,12 @@ class IconCache(private val context: Context) {
                 val finalIcon = if (iconPackName != "default") {
                     iconPackManager.getIconFromPack(iconPackName, componentName, originalIcon)
                 } else {
-                    originalIcon?.let { drawableToBitmap(it)?.asImageBitmap() }
+                    originalIcon?.let { BitmapUtils.drawableToBitmap(it)?.asImageBitmap() }
                 }
 
                 // Cache the final bitmap
                 finalIcon?.let { imageBitmap ->
-                    val bitmap = drawableToBitmap(originalIcon ?: return@let)
+                    val bitmap = BitmapUtils.drawableToBitmap(originalIcon)
                     bitmap?.let {
                         synchronized(iconCache) {
                             iconCache.put(cacheKey, it)
@@ -75,27 +74,6 @@ class IconCache(private val context: Context) {
                 e.printStackTrace()
                 null
             }
-        }
-    }
-
-    /**
-     * Convert a drawable to a bitmap
-     */
-    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        try {
-            val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
-            val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
-
-            val bitmap = createBitmap(width, height)
-            val canvas = Canvas(bitmap)
-
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-
-            return bitmap
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
         }
     }
 
