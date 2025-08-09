@@ -1,7 +1,6 @@
 package app.cclauncher.data.repository
 
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
@@ -20,7 +19,6 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileOutputStream
 
-// Extension property for Context to access the DataStore instance
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher.settings")
 
 /**
@@ -29,8 +27,6 @@ val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(na
 class SettingsRepository(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = false }
-    private val settingsManager = SettingsManager()
-    private val updater = SettingsUpdater(context.settingsDataStore, json)
 
     companion object {
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
@@ -73,66 +69,114 @@ class SettingsRepository(private val context: Context) {
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
         val SCALE_HOME_APPS = booleanPreferencesKey("SCALE_HOME_APPS")
         val RENAMED_APPS_JSON = stringPreferencesKey("RENAMED_APPS_JSON")
-
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
         val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
         val SWIPE_UP_APP_JSON = stringPreferencesKey("SWIPE_UP_APP_JSON")
         val SWIPE_DOWN_APP_JSON = stringPreferencesKey("SWIPE_DOWN_APP_JSON")
-
         val HOME_LAYOUT = stringPreferencesKey("HOME_LAYOUT_JSON")
-
         val LOCK_SETTINGS = booleanPreferencesKey("LOCK_SETTINGS")
         val SETTINGS_LOCK_PIN = stringPreferencesKey("SETTINGS_LOCK_PIN")
-
         val SWIPE_LEFT_ACTION = intPreferencesKey("SWIPE_LEFT_ACTION")
         val SWIPE_RIGHT_ACTION = intPreferencesKey("SWIPE_RIGHT_ACTION")
-
         val HOME_SCREEN_ROWS = intPreferencesKey("HOME_SCREEN_ROWS")
         val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
-
         val SELECTED_ICON_PACK = stringPreferencesKey("SELECTED_ICON_PACK")
-
         val SEARCH_SORT_ORDER = intPreferencesKey("SEARCH_SORT_ORDER")
-
         val RECENT_APP_HISTORY = stringPreferencesKey("RECENT_APP_HISTORY")
-
         val CUSTOM_FONT_PATH = stringPreferencesKey("CUSTOM_FONT_PATH")
-
-
     }
 
+    /**
+     * Single source of truth for all settings mappings
+     */
+    private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
+        // Boolean settings
+        "showAppNames" to SettingDefinition.BooleanSetting("showAppNames", SHOW_APP_NAMES) { it.showAppNames },
+        "showAppIcons" to SettingDefinition.BooleanSetting("showAppIcons", SHOW_APP_ICONS) { it.showAppIcons },
+        "autoShowKeyboard" to SettingDefinition.BooleanSetting("autoShowKeyboard", AUTO_SHOW_KEYBOARD) { it.autoShowKeyboard },
+        "showHiddenAppsOnSearch" to SettingDefinition.BooleanSetting("showHiddenAppsOnSearch", SHOW_HIDDEN_APPS_IN_SEARCH) { it.showHiddenAppsOnSearch },
+        "autoOpenFilteredApp" to SettingDefinition.BooleanSetting("autoOpenFilteredApp", AUTO_OPEN_FILTERED_APP) { it.autoOpenFilteredApp },
+        "useSystemFont" to SettingDefinition.BooleanSetting("useSystemFont", USE_SYSTEM_FONT) { it.useSystemFont },
+        "useDynamicTheme" to SettingDefinition.BooleanSetting("useDynamicTheme", USE_DYNAMIC_THEME) { it.useDynamicTheme },
+        "statusBar" to SettingDefinition.BooleanSetting("statusBar", STATUS_BAR) { it.statusBar },
+        "showHomeScreenIcons" to SettingDefinition.BooleanSetting("showHomeScreenIcons", SHOW_HOME_SCREEN_ICONS) { it.showHomeScreenIcons },
+        "showIconsInLandscape" to SettingDefinition.BooleanSetting("showIconsInLandscape", SHOW_ICONS_IN_LANDSCAPE) { it.showIconsInLandscape },
+        "showIconsInPortrait" to SettingDefinition.BooleanSetting("showIconsInPortrait", SHOW_ICONS_IN_PORTRAIT) { it.showIconsInPortrait },
+        "scaleHomeApps" to SettingDefinition.BooleanSetting("scaleHomeApps", SCALE_HOME_APPS) { it.scaleHomeApps },
+        "doubleTapToLock" to SettingDefinition.BooleanSetting("doubleTapToLock", DOUBLE_TAP_TO_LOCK) { it.doubleTapToLock },
+        "firstOpen" to SettingDefinition.BooleanSetting("firstOpen", FIRST_OPEN) { it.firstOpen },
+        "firstSettingsOpen" to SettingDefinition.BooleanSetting("firstSettingsOpen", FIRST_SETTINGS_OPEN) { it.firstSettingsOpen },
+        "firstHide" to SettingDefinition.BooleanSetting("firstHide", FIRST_HIDE) { it.firstHide },
+        "lockMode" to SettingDefinition.BooleanSetting("lockMode", LOCK_MODE) { it.lockMode },
+        "keyboardMessage" to SettingDefinition.BooleanSetting("keyboardMessage", KEYBOARD_MESSAGE) { it.keyboardMessage },
+        "plainWallpaper" to SettingDefinition.BooleanSetting("plainWallpaper", PLAIN_WALLPAPER) { it.plainWallpaper },
+        "hiddenAppsUpdated" to SettingDefinition.BooleanSetting("hiddenAppsUpdated", HIDDEN_APPS_UPDATED) { it.hiddenAppsUpdated },
+        "aboutClicked" to SettingDefinition.BooleanSetting("aboutClicked", ABOUT_CLICKED) { it.aboutClicked },
+        "rateClicked" to SettingDefinition.BooleanSetting("rateClicked", RATE_CLICKED) { it.rateClicked },
+        "searchResultsUseHomeFont" to SettingDefinition.BooleanSetting("searchResultsUseHomeFont", SEARCH_RESULTS_USE_HOME_FONT) { it.searchResultsUseHomeFont },
+        "lockSettings" to SettingDefinition.BooleanSetting("lockSettings", LOCK_SETTINGS) { it.lockSettings },
+
+        // Int settings
+        "searchType" to SettingDefinition.IntSetting("searchType", SEARCH_TYPE) { it.searchType },
+        "appTheme" to SettingDefinition.IntSetting("appTheme", APP_THEME) { it.appTheme },
+        "fontWeight" to SettingDefinition.IntSetting("fontWeight", FONT_WEIGHT) { it.fontWeight },
+        "iconCornerRadius" to SettingDefinition.IntSetting("iconCornerRadius", ICON_CORNER_RADIUS) { it.iconCornerRadius },
+        "itemSpacing" to SettingDefinition.IntSetting("itemSpacing", ITEM_SPACING) { it.itemSpacing },
+        "screenOrientation" to SettingDefinition.IntSetting("screenOrientation", SCREEN_ORIENTATION) { it.screenOrientation },
+        "swipeDownAction" to SettingDefinition.IntSetting("swipeDownAction", SWIPE_DOWN_ACTION) { it.swipeDownAction },
+        "swipeUpAction" to SettingDefinition.IntSetting("swipeUpAction", SWIPE_UP_ACTION) { it.swipeUpAction },
+        "swipeLeftAction" to SettingDefinition.IntSetting("swipeLeftAction", SWIPE_LEFT_ACTION) { it.swipeLeftAction },
+        "swipeRightAction" to SettingDefinition.IntSetting("swipeRightAction", SWIPE_RIGHT_ACTION) { it.swipeRightAction },
+        "appLabelAlignment" to SettingDefinition.IntSetting("appLabelAlignment", APP_LABEL_ALIGNMENT) { it.appLabelAlignment },
+        "showHintCounter" to SettingDefinition.IntSetting("showHintCounter", SHOW_HINT_COUNTER) { it.showHintCounter },
+        "homeScreenRows" to SettingDefinition.IntSetting("homeScreenRows", HOME_SCREEN_ROWS) { it.homeScreenRows },
+        "homeScreenColumns" to SettingDefinition.IntSetting("homeScreenColumns", HOME_SCREEN_COLUMNS) { it.homeScreenColumns },
+        "searchSortOrder" to SettingDefinition.IntSetting("searchSortOrder", SEARCH_SORT_ORDER) { it.searchSortOrder },
+
+        // Float settings
+        "textSizeScale" to SettingDefinition.FloatSetting("textSizeScale", TEXT_SIZE_SCALE) { it.textSizeScale },
+        "searchResultsFontSize" to SettingDefinition.FloatSetting("searchResultsFontSize", SEARCH_RESULTS_FONT_SIZE) { it.searchResultsFontSize },
+
+        // String settings
+        "userState" to SettingDefinition.StringSetting("userState", USER_STATE) { it.userState },
+        "selectedIconPack" to SettingDefinition.StringSetting("selectedIconPack", SELECTED_ICON_PACK) { it.selectedIconPack },
+        "customFontPath" to SettingDefinition.StringSetting("customFontPath", CUSTOM_FONT_PATH) { it.customFontPath },
+        "settingsLockPin" to SettingDefinition.StringSetting("settingsLockPin", SETTINGS_LOCK_PIN) { it.settingsLockPin },
+
+        // Long settings
+        "firstOpenTime" to SettingDefinition.LongSetting("firstOpenTime", FIRST_OPEN_TIME) { it.firstOpenTime },
+        "shareShownTime" to SettingDefinition.LongSetting("shareShownTime", SHARE_SHOWN_TIME) { it.shareShownTime },
+
+        // String Set settings
+        "hiddenApps" to SettingDefinition.StringSetSetting("hiddenApps", HIDDEN_APPS) { it.hiddenApps }
+    )
+
     private val defaultAppSettings = AppSettings.getDefault()
-    private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
-    private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
-    private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
-    private val defaultSwipeUpApp: AppPreference = defaultAppSettings.swipeUpApp
-    private val defaultSwipeDownApp: AppPreference = defaultAppSettings.swipeDownApp
 
     /**
      * Flow of settings that emits whenever any setting changes
      */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
-
         val homeApps = prefs[HOME_APPS_JSON]?.let {
             json.decodeFromStringCatching(it, defaultAppSettings.homeApps)
         } ?: defaultAppSettings.homeApps
 
         val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeLeftApp)
-        } ?: defaultSwipeLeftApp
+            json.decodeFromStringCatching(it, defaultAppSettings.swipeLeftApp)
+        } ?: defaultAppSettings.swipeLeftApp
 
         val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeRightApp)
-        } ?: defaultSwipeRightApp
+            json.decodeFromStringCatching(it, defaultAppSettings.swipeRightApp)
+        } ?: defaultAppSettings.swipeRightApp
 
         val swipeUpApp = prefs[SWIPE_UP_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeUpApp)
-        } ?: defaultSwipeUpApp
+            json.decodeFromStringCatching(it, defaultAppSettings.swipeUpApp)
+        } ?: defaultAppSettings.swipeUpApp
 
         val swipeDownApp = prefs[SWIPE_DOWN_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeDownApp)
-        } ?: defaultSwipeDownApp
+            json.decodeFromStringCatching(it, defaultAppSettings.swipeDownApp)
+        } ?: defaultAppSettings.swipeDownApp
 
         val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
             try {
@@ -174,7 +218,7 @@ class SettingsRepository(private val context: Context) {
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
-            screenOrientation = prefs[SCREEN_ORIENTATION] ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED,
+            screenOrientation = prefs[SCREEN_ORIENTATION] ?: 0,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
@@ -223,97 +267,106 @@ class SettingsRepository(private val context: Context) {
     }
 
     /**
-     * Simplified update methods using the new updater
-     */
-    suspend fun setShowAppNames(value: Boolean) = updater.updateBoolean(SHOW_APP_NAMES, value)
-    suspend fun setShowAppIcons(value: Boolean) = updater.updateBoolean(SHOW_APP_ICONS, value)
-    suspend fun setAutoShowKeyboard(value: Boolean) = updater.updateBoolean(AUTO_SHOW_KEYBOARD, value)
-    suspend fun setSearchType(value: Int) = updater.updateInt(SEARCH_TYPE, value)
-    suspend fun setAppTheme(value: Int) = updater.updateInt(APP_THEME, value)
-    suspend fun setTextSizeScale(value: Float) = updater.updateFloat(TEXT_SIZE_SCALE, value)
-    suspend fun setFontWeight(value: Int) = updater.updateInt(FONT_WEIGHT, value)
-    suspend fun setFirstOpen(value: Boolean) = updater.updateBoolean(FIRST_OPEN, value)
-    suspend fun setDoubleTapToLock(value: Boolean) = updater.updateBoolean(DOUBLE_TAP_TO_LOCK, value)
-    suspend fun setStatusBar(value: Boolean) = updater.updateBoolean(STATUS_BAR, value)
-    suspend fun setScreenOrientation(value: Int) = updater.updateInt(SCREEN_ORIENTATION, value)
-    suspend fun setHomeScreenRows(value: Int) = updater.updateInt(HOME_SCREEN_ROWS, value)
-    suspend fun setHomeScreenColumns(value: Int) = updater.updateInt(HOME_SCREEN_COLUMNS, value)
-    suspend fun setSelectedIconPack(value: String) = updater.updateString(SELECTED_ICON_PACK, value)
-    suspend fun setSettingsLock(locked: Boolean) = updater.updateBoolean(LOCK_SETTINGS, locked)
-    suspend fun setSettingsLockPin(pin: String) = updater.updateString(SETTINGS_LOCK_PIN, pin)
-
-    /**
-     * Generic update method for when property name is dynamic
+     * Update method using property name
      */
     suspend fun updateSetting(propertyName: String, value: Any) {
-        when (propertyName) {
-            "showAppNames" -> setShowAppNames(value as Boolean)
-            "showAppIcons" -> setShowAppIcons(value as Boolean)
-            "autoShowKeyboard" -> setAutoShowKeyboard(value as Boolean)
-            "searchType" -> setSearchType(value as Int)
-            "appTheme" -> setAppTheme(value as Int)
-            "textSizeScale" -> setTextSizeScale(value as Float)
-            "fontWeight" -> setFontWeight(value as Int)
-            "statusBar" -> setStatusBar(value as Boolean)
-            "screenOrientation" -> setScreenOrientation(value as Int)
-            "homeScreenRows" -> setHomeScreenRows(value as Int)
-            "homeScreenColumns" -> setHomeScreenColumns(value as Int)
-            "selectedIconPack" -> setSelectedIconPack(value as String)
-            "doubleTapToLock" -> setDoubleTapToLock(value as Boolean)
-            // Need to add other mappings (skip for hybrid)
-            else -> Log.w("SettingsRepo", "Unknown setting: $propertyName")
+        val definition = settingDefinitions[propertyName]
+        if (definition != null) {
+            context.settingsDataStore.edit { prefs ->
+                when (definition) {
+                    is SettingDefinition.BooleanSetting -> {
+                        prefs[definition.key] = value as Boolean
+                    }
+                    is SettingDefinition.IntSetting -> {
+                        prefs[definition.key] = value as Int
+                    }
+                    is SettingDefinition.FloatSetting -> {
+                        prefs[definition.key] = value as Float
+                    }
+                    is SettingDefinition.StringSetting -> {
+                        prefs[definition.key] = value as String
+                    }
+                    is SettingDefinition.LongSetting -> {
+                        prefs[definition.key] = value as Long
+                    }
+                    is SettingDefinition.StringSetSetting -> {
+                        @Suppress("UNCHECKED_CAST")
+                        prefs[definition.key] = value as Set<String>
+                    }
+                }
+            }
+        } else {
+            Log.w("SettingsRepo", "Unknown setting: $propertyName")
         }
     }
 
     /**
-     * Complex update using lambda (replacing the old reflection-based method)
+     * Batch update without reflection
      */
     suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
 
-        // Use batch update for efficiency
-        updater.updateMultiple { prefs ->
-            // Only update changed values
-            if (currentSettings.showAppNames != updatedSettings.showAppNames) {
-                prefs[SHOW_APP_NAMES] = updatedSettings.showAppNames
-            }
-            if (currentSettings.autoShowKeyboard != updatedSettings.autoShowKeyboard) {
-                prefs[AUTO_SHOW_KEYBOARD] = updatedSettings.autoShowKeyboard
-            }
-            if (currentSettings.searchType != updatedSettings.searchType) {
-                prefs[SEARCH_TYPE] = updatedSettings.searchType
-            }
-            if (currentSettings.appTheme != updatedSettings.appTheme) {
-                prefs[APP_THEME] = updatedSettings.appTheme
-            }
-            if (currentSettings.textSizeScale != updatedSettings.textSizeScale) {
-                prefs[TEXT_SIZE_SCALE] = updatedSettings.textSizeScale
-            }
-            if (currentSettings.fontWeight != updatedSettings.fontWeight) {
-                prefs[FONT_WEIGHT] = updatedSettings.fontWeight
-            }
-            if (currentSettings.statusBar != updatedSettings.statusBar) {
-                prefs[STATUS_BAR] = updatedSettings.statusBar
-            }
-            if (currentSettings.doubleTapToLock != updatedSettings.doubleTapToLock) {
-                prefs[DOUBLE_TAP_TO_LOCK] = updatedSettings.doubleTapToLock
-            }
-            // Add other properties (skip for hybrid)
+        context.settingsDataStore.edit { prefs ->
+            // Process all defined settings
+            settingDefinitions.values.forEach { definition ->
+                val currentValue = definition.getValue(currentSettings)
+                val newValue = definition.getValue(updatedSettings)
 
-            // Handle complex types
-            if (currentSettings.hiddenApps != updatedSettings.hiddenApps) {
-                prefs[HIDDEN_APPS] = updatedSettings.hiddenApps
+                if (currentValue != newValue) {
+                    when (definition) {
+                        is SettingDefinition.BooleanSetting -> {
+                            prefs[definition.key] = newValue as Boolean
+                        }
+                        is SettingDefinition.IntSetting -> {
+                            prefs[definition.key] = newValue as Int
+                        }
+                        is SettingDefinition.FloatSetting -> {
+                            prefs[definition.key] = newValue as Float
+                        }
+                        is SettingDefinition.StringSetting -> {
+                            prefs[definition.key] = newValue as String
+                        }
+                        is SettingDefinition.LongSetting -> {
+                            prefs[definition.key] = newValue as Long
+                        }
+                        is SettingDefinition.StringSetSetting -> {
+                            prefs[definition.key] = newValue as Set<String>
+                        }
+                    }
+                }
             }
+
+            // Handle complex JSON types separately
             if (currentSettings.homeApps != updatedSettings.homeApps) {
                 prefs[HOME_APPS_JSON] = json.encodeToString(updatedSettings.homeApps)
+            }
+            if (currentSettings.swipeLeftApp != updatedSettings.swipeLeftApp) {
+                prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(updatedSettings.swipeLeftApp)
+            }
+            if (currentSettings.swipeRightApp != updatedSettings.swipeRightApp) {
+                prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(updatedSettings.swipeRightApp)
+            }
+            if (currentSettings.swipeUpApp != updatedSettings.swipeUpApp) {
+                prefs[SWIPE_UP_APP_JSON] = json.encodeToString(updatedSettings.swipeUpApp)
+            }
+            if (currentSettings.swipeDownApp != updatedSettings.swipeDownApp) {
+                prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(updatedSettings.swipeDownApp)
             }
             if (currentSettings.renamedApps != updatedSettings.renamedApps) {
                 prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedSettings.renamedApps)
             }
+            if (currentSettings.recentAppHistory != updatedSettings.recentAppHistory) {
+                prefs[RECENT_APP_HISTORY] = json.encodeToString(updatedSettings.recentAppHistory)
+            }
         }
     }
 
+    // Direct access methods for commonly used settings
+    suspend fun setFirstOpen(value: Boolean) = updateSetting("firstOpen", value)
+    suspend fun setAppTheme(value: Int) = updateSetting("appTheme", value)
+
+    // Keep all existing helper methods unchanged
     fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
         .map { prefs ->
             prefs[HOME_LAYOUT]?.let { jsonString ->
@@ -331,7 +384,14 @@ class SettingsRepository(private val context: Context) {
         }
 
     suspend fun saveHomeLayout(layout: HomeLayout) {
-        updater.updateJson(HOME_LAYOUT, layout)
+        try {
+            val jsonString = Json.encodeToString(layout)
+            context.settingsDataStore.edit { prefs ->
+                prefs[HOME_LAYOUT] = jsonString
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)
+        }
     }
 
     suspend fun triggerHomeLayoutRefresh() {
@@ -349,14 +409,35 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun setSwipeLeftApp(app: AppPreference) = updater.updateJson(SWIPE_LEFT_APP_JSON, app)
-    suspend fun setSwipeRightApp(app: AppPreference) = updater.updateJson(SWIPE_RIGHT_APP_JSON, app)
-    suspend fun setSwipeUpApp(app: AppPreference) = updater.updateJson(SWIPE_UP_APP_JSON, app)
-    suspend fun setSwipeDownApp(app: AppPreference) = updater.updateJson(SWIPE_DOWN_APP_JSON, app)
+    suspend fun setSwipeLeftApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
+    suspend fun setSwipeRightApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
+    suspend fun setSwipeUpApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
+    suspend fun setSwipeDownApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
+        }
+    }
 
     suspend fun getSwipeLeftApp(): AppPreference = settings.first().swipeLeftApp
     suspend fun getSwipeRightApp(): AppPreference = settings.first().swipeRightApp
 
+    suspend fun setSettingsLock(locked: Boolean) = updateSetting("lockSettings", locked)
+    suspend fun setSettingsLockPin(pin: String) = updateSetting("settingsLockPin", pin)
     suspend fun validateSettingsPin(pin: String): Boolean = settings.first().settingsLockPin == pin
 
     suspend fun setCustomFont(uri: Uri) {
@@ -367,7 +448,7 @@ class SettingsRepository(private val context: Context) {
                     input.copyTo(output)
                 }
             }
-            updater.updateString(CUSTOM_FONT_PATH, fontFile.absolutePath)
+            updateSetting("customFontPath", fontFile.absolutePath)
         } catch (e: Exception) {
             Log.e("SettingsRepo", "Failed to copy font file", e)
         }
@@ -382,7 +463,7 @@ class SettingsRepository(private val context: Context) {
                 Log.e("SettingsRepo", "Error deleting old font file", e)
             }
         }
-        updater.updateString(CUSTOM_FONT_PATH, "")
+        updateSetting("customFontPath", "")
     }
 
     suspend fun toggleAppHidden(packageKey: String) {
@@ -407,14 +488,19 @@ class SettingsRepository(private val context: Context) {
             updatedRenamedApps[appKey] = customName
         }
 
-        updater.updateJson(RENAMED_APPS_JSON, updatedRenamedApps)
+        context.settingsDataStore.edit { prefs ->
+            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
+        }
     }
 
     suspend fun removeAppCustomName(appKey: String) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
         updatedRenamedApps.remove(appKey)
-        updater.updateJson(RENAMED_APPS_JSON, updatedRenamedApps)
+
+        context.settingsDataStore.edit { prefs ->
+            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
+        }
     }
 
     suspend fun updateAppLaunchTime(appKey: String) {
@@ -427,7 +513,9 @@ class SettingsRepository(private val context: Context) {
             oldest.forEach { updatedHistory.remove(it.key) }
         }
 
-        updater.updateJson(RECENT_APP_HISTORY, updatedHistory)
+        context.settingsDataStore.edit { prefs ->
+            prefs[RECENT_APP_HISTORY] = json.encodeToString(updatedHistory)
+        }
     }
 
     private inline fun <reified T> Json.decodeFromStringCatching(jsonString: String, default: T): T {

@@ -5,6 +5,7 @@ import kotlin.annotation.AnnotationTarget
 
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.datastore.preferences.core.Preferences
 import app.cclauncher.data.Constants
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty1
@@ -27,6 +28,51 @@ annotation class Setting(
     val step: Float = 1f,
     val options: Array<String> = []
 )
+
+/**
+ * Definition for a setting that maps between AppSettings property and DataStore key
+ */
+sealed class SettingDefinition<T> {
+    abstract val key: Preferences.Key<T>
+    abstract val getValue: (AppSettings) -> T
+    abstract val propertyName: String
+
+    data class BooleanSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<Boolean>,
+        override val getValue: (AppSettings) -> Boolean
+    ) : SettingDefinition<Boolean>()
+
+    data class IntSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<Int>,
+        override val getValue: (AppSettings) -> Int
+    ) : SettingDefinition<Int>()
+
+    data class FloatSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<Float>,
+        override val getValue: (AppSettings) -> Float
+    ) : SettingDefinition<Float>()
+
+    data class StringSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<String>,
+        override val getValue: (AppSettings) -> String
+    ) : SettingDefinition<String>()
+
+    data class LongSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<Long>,
+        override val getValue: (AppSettings) -> Long
+    ) : SettingDefinition<Long>()
+
+    data class StringSetSetting(
+        override val propertyName: String,
+        override val key: Preferences.Key<Set<String>>,
+        override val getValue: (AppSettings) -> Set<String>
+    ) : SettingDefinition<Set<String>>()
+}
 
 /**
  * Categories for organizing settings

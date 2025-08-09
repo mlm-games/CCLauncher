@@ -163,6 +163,7 @@ dependencies {
     implementation(libs.constraintlayout.compose.android)
     implementation(libs.kotlin.reflect)
     implementation(libs.androidbrowserhelper)
+    implementation(libs.androidx.datastore.preferences.core)
 
     // Testing
 //    androidTestImplementation(libs.androidx.ui.test.junit4)
