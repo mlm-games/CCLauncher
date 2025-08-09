@@ -294,30 +294,6 @@ fun HomeScreen(
             )
         }
     }
-// Not needed, sliders work as intended without this
-//    resizeDialogItem?.let { item ->
-//        // Get the fresh item from current state
-//        val currentItem = homeLayoutState.items.find { it.id == item.id }
-//
-//        currentItem?.let {
-//            ResizeDialog(
-//                item = it,  // Use the current item from state
-//                currentRows = homeLayoutState.rows,
-//                currentColumns = homeLayoutState.columns,
-//                onDismiss = { resizeDialogItem = null },
-//                onResize = { item, newRowSpan, newColSpan ->
-//                    when (item) {
-//                        is HomeItem.Widget -> {
-//                            viewModel.resizeWidget(item, newRowSpan, newColSpan)
-//                        }
-//                        is HomeItem.App -> {
-//                            viewModel.resizeApp(item, newRowSpan, newColSpan)
-//                        }
-//                    }
-//                }
-//            )
-//        }
-//    }
 
     ResizeDialog(
         item = resizeDialogItem,

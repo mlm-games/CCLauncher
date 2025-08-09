@@ -80,6 +80,7 @@ import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.components.ConfirmationDialog
 import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -1003,20 +1004,12 @@ fun GridSizeWarningDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Continue")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
+    ConfirmationDialog( // Maybe worse for maintaining / Another abstraction?
+        title = title,
+        message = message,
+        confirmText = "Continue",
+        onConfirm = onConfirm,
+        onDismiss = onDismiss
     )
 }
 
