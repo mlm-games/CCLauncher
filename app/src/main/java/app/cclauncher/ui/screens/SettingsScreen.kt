@@ -40,7 +40,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -51,8 +50,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -80,12 +77,14 @@ import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.components.ConfirmationDialog
+import app.cclauncher.ui.dialogs.DropdownSettingDialog
+import app.cclauncher.ui.dialogs.SettingsLockDialog
+import app.cclauncher.ui.dialogs.SliderSettingDialog
 import app.cclauncher.ui.util.updateStatusBarVisibility
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.reflect.KProperty1
-import app.cclauncher.ui.dialogs.SettingsLockDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -170,8 +169,6 @@ fun SettingsScreen(
 
     if (showGridWarningDialog && pendingGridChange != null) {
         GridSizeWarningDialog(
-            title = "Grid Size Change",
-            message = "Changing the grid size will move some apps and widgets to inaccessible positions. Do you want to continue?",
             onConfirm = {
                 coroutineScope.launch {
                     val (propertyName, newValue) = pendingGridChange!!
@@ -901,111 +898,13 @@ fun SettingsAction(
 }
 
 @Composable
-fun SliderSettingDialog(
-    title: String,
-    currentValue: Float,
-    min: Float,
-    max: Float,
-    step: Float,
-    onDismiss: () -> Unit,
-    onValueSelected: (Float) -> Unit
-) {
-    var sliderValue by remember { mutableFloatStateOf(currentValue) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column {
-                Text(String.format(Locale.getDefault(), "%.1f", sliderValue))
-                Spacer(modifier = Modifier.height(16.dp))
-                Slider(
-                    value = sliderValue,
-                    onValueChange = {
-                        // Round to nearest step
-                        val steps = ((it - min) / step).toInt()
-                        sliderValue = min + (steps * step)
-                    },
-                    valueRange = min..max,
-                    steps = ((max - min) / step).toInt() - 1
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onValueSelected(sliderValue)
-                onDismiss()
-            }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun DropdownSettingDialog(
-    title: String,
-    options: List<String>,
-    selectedIndex: Int,
-    onDismiss: () -> Unit,
-    onOptionSelected: (Int) -> Unit
-) {
-    var selected by remember { mutableIntStateOf(selectedIndex) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            LazyColumn {
-                items(options.indices.toList().size) { index ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = index }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selected == index,
-                            onClick = { selected = index }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(options[index])
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onOptionSelected(selected)
-                onDismiss()
-            }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
 fun GridSizeWarningDialog(
-    title: String,
-    message: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    ConfirmationDialog( // Maybe worse for maintaining / Another abstraction?
-        title = title,
-        message = message,
+    ConfirmationDialog(
+        title = "Grid Size Change",
+        message = "Changing the grid size may move some apps and widgets to inaccessible positions. Do you want to continue?",
         confirmText = "Continue",
         onConfirm = onConfirm,
         onDismiss = onDismiss

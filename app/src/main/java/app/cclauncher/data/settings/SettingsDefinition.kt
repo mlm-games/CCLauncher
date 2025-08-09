@@ -488,7 +488,7 @@ class SettingsManager {
     }
 
     /**
-     * Create a new AppSettings instance with an updated value for a property
+     * Create a new AppSettings instance with an updated value for a property (dynamic usage if needed)
      */
     fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
         // Create a mutable map of all current property values
