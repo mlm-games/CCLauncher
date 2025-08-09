@@ -183,22 +183,6 @@ fun getUserHandleFromString(context: Context, userHandleString: String): UserHan
     return android.os.Process.myUserHandle()
 }
 
-fun isClauncherDefault(context: Context): Boolean {
-    val launcherPackageName = getDefaultLauncherPackage(context)
-    return context.packageName == launcherPackageName
-}
-
-fun getDefaultLauncherPackage(context: Context): String {
-    val intent = Intent()
-    intent.action = Intent.ACTION_MAIN
-    intent.addCategory(Intent.CATEGORY_HOME)
-    val packageManager = context.packageManager
-    val result = packageManager.resolveActivity(intent, 0)
-    return if (result?.activityInfo != null) {
-        result.activityInfo.packageName
-    } else "android"
-}
-
 fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
     when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
@@ -324,20 +308,6 @@ fun openCalendar(context: Context) {
             e.printStackTrace()
         }
     }
-}
-
-fun isAccessServiceEnabled(context: Context): Boolean {
-    val enabled = try {
-        Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
-    if (enabled == 1) {
-        val enabledServicesString: String? = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-        return enabledServicesString?.contains(context.packageName + "/" + MyAccessibilityService::class.java.name) ?: false
-    }
-    return false
 }
 
 fun isTablet(context: Context): Boolean {
