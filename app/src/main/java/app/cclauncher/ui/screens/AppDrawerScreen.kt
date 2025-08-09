@@ -73,6 +73,7 @@ import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.components.AppListItem
 import app.cclauncher.ui.components.PrivateSpaceIndicator
 import app.cclauncher.ui.components.PrivateSpaceToggle
+import app.cclauncher.ui.theme.AnimationConfig
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
@@ -320,7 +321,7 @@ fun AppDrawerScreen(
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
                                 fadeOutSpec = null,
-                                placementSpec = tween(durationMillis = 300)
+                                placementSpec = AnimationConfig.listItemAnimationSpec
                             ),
                             trailing = if (viewModel.isPrivateSpaceSupported && viewModel.isAppInPrivateSpace(app)) {
                                 { PrivateSpaceIndicator(true) }

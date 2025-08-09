@@ -1,7 +1,6 @@
 package app.cclauncher.ui.screens
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.ui.components.AppListItem
+import app.cclauncher.ui.theme.AnimationConfig
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -62,7 +62,7 @@ fun HiddenAppsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .animateContentSize(
-                    animationSpec = tween(300)
+                    animationSpec = AnimationConfig.standardIntTween
                 )
         ) {
             if (isLoading) {
@@ -74,8 +74,7 @@ fun HiddenAppsScreen(
                 // Show empty state with animation
                 AnimatedVisibility(
                     visible = true,
-                    enter = fadeIn(animationSpec = tween(300)) +
-                            expandVertically(animationSpec = tween(300)),
+                    enter = AnimationConfig.enterTransition(),
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Column(
@@ -115,7 +114,7 @@ fun HiddenAppsScreen(
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
                                 fadeOutSpec = null,
-                                placementSpec = tween(durationMillis = 300)
+                                placementSpec = AnimationConfig.listItemAnimationSpec
                             )
                         )
                     }

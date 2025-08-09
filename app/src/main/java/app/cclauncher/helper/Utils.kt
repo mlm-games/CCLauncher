@@ -36,6 +36,7 @@ import app.cclauncher.data.AnimationConstants
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.ui.theme.AnimationConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -418,7 +419,7 @@ fun Context.getColorFromAttr(
 fun View.animateAlpha(alpha: Float = 1.0f) {
     this.animate().apply {
         interpolator = LinearInterpolator()
-        duration = 200
+        duration = AnimationConfig.SUB_QUICK.toLong()
         alpha(alpha)
         start()
     }

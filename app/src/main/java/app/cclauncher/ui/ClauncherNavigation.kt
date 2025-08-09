@@ -30,6 +30,7 @@ import app.cclauncher.MainActivity
 import app.cclauncher.data.WidgetConstants
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.showToast
+import app.cclauncher.ui.theme.AnimationConfig
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -159,98 +160,21 @@ fun CLauncherNavigation(
     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
-            // Define different animations based on navigation direction
             when (targetState) {
                 Navigation.HOME -> {
                     when (initialState) {
-                        Navigation.APP_DRAWER -> {
-                            // App drawer to home: slide down
-                            slideInVertically(
-                                initialOffsetY = { -it },
-                                animationSpec = tween(300)
-                            ).togetherWith(
-                                slideOutVertically(
-                                    targetOffsetY = { it },
-                                    animationSpec = tween(300)
-                                )
-                            )
-                        }
-                        else -> {
-                            // Settings/Hidden apps to home: slide right
-                            slideInHorizontally(
-                                initialOffsetX = { -it },
-                                animationSpec = tween(300)
-                            ).togetherWith(
-                                slideOutHorizontally(
-                                    targetOffsetX = { it },
-                                    animationSpec = tween(300)
-                                )
-                            )
-                        }
+                        Navigation.APP_DRAWER -> AnimationConfig.Navigation.slideDownTransition()
+                        else -> AnimationConfig.Navigation.slideRightTransition()
                     }
                 }
-                Navigation.APP_DRAWER -> {
-                    // Home to app drawer: slide up
-                    slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(300)
-                    ).togetherWith(
-                        slideOutVertically(
-                            targetOffsetY = { -it },
-                            animationSpec = tween(300)
-                        )
-                    )
-                }
-                Navigation.SETTINGS -> {
-                    // Home to settings: slide left
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(300)
-                    ).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { -it },
-                            animationSpec = tween(300)
-                        )
-                    )
-                }
-                Navigation.HIDDEN_APPS -> {
-                    // Settings to hidden apps: slide left
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(300)
-                    ).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { -it },
-                            animationSpec = tween(300)
-                        )
-                    )
-                }
-                // Widget screens animations
-                Navigation.WIDGET_PICKER -> {
-                    // Settings to widget screens: slide left with fade and scale
-                    (slideInHorizontally(
-                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
-                        animationSpec = tween(300)
-                    ) + fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                            animationSpec = tween(300)
-                        ) + fadeOut(animationSpec = tween(300)) +
-                                scaleOut(targetScale = 0.95f, animationSpec = tween(300))
-                    )
-                }
-                else -> {
-                    // Default animation with fade and scale
-                    (fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
-                        fadeOut(animationSpec = tween(300)) +
-                                scaleOut(targetScale = 0.95f, animationSpec = tween(300))
-                    )
-                }
+                Navigation.APP_DRAWER -> AnimationConfig.Navigation.slideUpTransition()
+                Navigation.SETTINGS -> AnimationConfig.Navigation.slideLeftTransition()
+                Navigation.HIDDEN_APPS -> AnimationConfig.Navigation.slideLeftTransition()
+                Navigation.WIDGET_PICKER -> AnimationConfig.Navigation.widgetPickerTransition()
+                else -> AnimationConfig.Navigation.scaleAndFadeTransition()
             }
         },
-        contentAlignment = Alignment.Center  // Important for proper scaling
+        contentAlignment = Alignment.Center
     ) { screen ->
         // Render the appropriate screen based on current navigation state
         Box(modifier = Modifier.fillMaxSize()) {

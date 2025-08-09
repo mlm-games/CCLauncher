@@ -1,7 +1,6 @@
 package app.cclauncher.ui.components
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cclauncher.ui.theme.AnimationConfig
 
 /**
  * Reusable list item component for the launcher
@@ -45,7 +45,7 @@ fun LauncherListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize(animationSpec = tween(durationMillis = 300))
+            .animateContentSize(animationSpec = AnimationConfig.standardIntTween)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick ?: {}

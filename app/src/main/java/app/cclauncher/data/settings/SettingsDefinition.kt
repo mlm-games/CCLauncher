@@ -166,6 +166,16 @@ data class AppSettings(
     )
     val textSizeScale: Float = 1.0f,
 
+//    @Setting(
+//        title = "Animation Speed",
+//        category = SettingCategory.APPEARANCE,
+//        type = SettingType.SLIDER,
+//        min = 0.5f,
+//        max = 2.0f,
+//        step = 0.1f
+//    )
+    val animationSpeed: Float = 1.0f,
+
     @Setting(
         title = "Font Weight",
         category = SettingCategory.APPEARANCE,
