@@ -1,11 +1,14 @@
 package app.cclauncher.helper
 
+import android.annotation.SuppressLint
 import android.app.AppOpsManager
+import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.google.androidbrowserhelper.trusted.PermissionStatus
 
 /**
  * Manager for handling permission-related operations
@@ -78,4 +81,20 @@ class PermissionManager(private val context: Context) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }
+
+    fun hasLauncherRole(): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+            roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+        } else {
+            isClauncherDefault(context)
+        }
+
+//    fun checkAllPermissions(): PermissionStatus {
+//        return PermissionStatus(
+//            launcher = hasLauncherRole(),
+//            accessibility = hasAccessibilityPermission(),
+//            usageStats = hasUsageStatsPermission()
+//        )
+//    }
 }
