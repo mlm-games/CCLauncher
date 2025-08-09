@@ -40,7 +40,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     val settingsRepository = SettingsRepository(appContext)
     private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
 
-    private val REQUEST_CODE_CONFIGURE_WIDGET = 101
+    private val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CODE_BIND_WIDGET
     private var pendingWidgetInfo: PendingWidgetInfo? = null
 
     private val _refreshTrigger = MutableStateFlow(0)
@@ -478,7 +478,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     }
 
                     // Request binding via activity
-                    emitEvent(UiEvent.StartActivityForResult(bindIntent, Constants.REQUEST_CODE_BIND_WIDGET))
+                    emitEvent(UiEvent.StartActivityForResult(bindIntent, WidgetConstants.REQUEST_CODE_BIND_WIDGET))
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error in startWidgetConfiguration", e)

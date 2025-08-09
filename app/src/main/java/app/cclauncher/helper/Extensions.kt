@@ -11,7 +11,7 @@ import android.os.Build
 import android.view.Display
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
-import app.cclauncher.data.Constants
+import app.cclauncher.data.AnimationConstants
 
 @RequiresApi(Build.VERSION_CODES.Q)
 fun Activity.showLauncherSelector(requestCode: Int) {
@@ -58,12 +58,12 @@ fun Context.isEinkDisplay(): Boolean {
             val refreshRate = (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(Display.DEFAULT_DISPLAY)
                 .refreshRate
-            refreshRate <= Constants.MIN_ANIM_REFRESH_RATE
+            refreshRate <= AnimationConstants.MIN_ANIM_REFRESH_RATE
         } else {
             // Legacy API (pre-Android 11)
             @Suppress("DEPRECATION")
             val display = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-            display.refreshRate <= Constants.MIN_ANIM_REFRESH_RATE
+            display.refreshRate <= AnimationConstants.MIN_ANIM_REFRESH_RATE
         }
     } catch (e: Exception) {
         e.printStackTrace()

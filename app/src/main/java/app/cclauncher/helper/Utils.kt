@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import app.cclauncher.R
+import app.cclauncher.data.AnimationConstants
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.repository.SettingsRepository
@@ -114,7 +115,7 @@ suspend fun getAppsList(
                         collator.getCollationKey(app.label.toString()),
                         app.applicationInfo.packageName,
                         app.componentName.className,
-                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
+                        (System.currentTimeMillis() - app.firstInstallTime) < AnimationConstants.ONE_HOUR_IN_MILLIS,
                         profile,
                         appIcon = appIcon,
                         lastLaunchTime = settings.recentAppHistory[appKey] ?: 0

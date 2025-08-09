@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import app.cclauncher.data.Navigation
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isEinkDisplay
@@ -38,6 +37,8 @@ import kotlinx.coroutines.launch
 import android.appwidget.AppWidgetHost
 import android.content.IntentFilter
 import androidx.lifecycle.ViewModel
+import app.cclauncher.data.Navigation
+import app.cclauncher.data.WidgetConstants
 import app.cclauncher.helper.PrivateSpaceReceiver
 
 class MainActivity : ComponentActivity() {
@@ -46,8 +47,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
     private lateinit var privateSpaceReceiver: PrivateSpaceReceiver
-    private val APPWIDGET_HOST_ID = 1024
-    private val REQUEST_CONFIGURE_WIDGET = 1001
+    private val APPWIDGET_HOST_ID = WidgetConstants.APPWIDGET_HOST_ID
+    private val REQUEST_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
 
     private val appWidgetManagerInstance: AppWidgetManager by lazy {
         AppWidgetManager.getInstance(applicationContext)
