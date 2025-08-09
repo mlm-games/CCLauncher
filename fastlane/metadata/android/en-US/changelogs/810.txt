@@ -1,0 +1,15 @@
+- Update build.gradle.kts to increment x.ver.x
+- Major settings refactor and maintainability improvements
+- Minor code reduction
+- Use base dialogs for resizing, works better
+- misc toast code reduction
+- Remove deprecated homeapp handling logic (cont.)
+- Remove deprecated homeapp handling
+- update dep
+- Unify showToast
+- move perms related fns to permission manager
+- Reduce duplication of createFromBitmap fn
+- Small constants refactoring
+- rm unnecessary check
+- Update dependabot-auto-merge.yml
+- fix: update plain background according to app's theme
