@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
-import app.cclauncher.ui.components.AppItem
+import app.cclauncher.ui.components.AppListItem
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -103,16 +103,19 @@ fun HiddenAppsScreen(
                         items = hiddenApps,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
-                        AppItem(
-                            app = app,
-                            onClick = {
-                                viewModel.launchApp(app)
-                            },
+                        AppListItem(
+                            appLabel = app.appLabel,
+                            appIcon = app.appIcon,
+                            showIcon = app.appIcon != null,
+                            onClick = { viewModel.launchApp(app) },
                             onLongClick = {
                                 // Unhide app and refresh list
                                 viewModel.toggleAppHidden(app)
                             },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300)
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = tween(durationMillis = 300)
                             )
                         )
                     }

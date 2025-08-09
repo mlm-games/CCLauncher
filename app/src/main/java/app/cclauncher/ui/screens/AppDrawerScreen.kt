@@ -5,12 +5,9 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,15 +15,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -42,7 +36,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -70,8 +63,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
@@ -79,6 +70,7 @@ import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
 import app.cclauncher.ui.BackHandler
+import app.cclauncher.ui.components.AppListItem
 import app.cclauncher.ui.components.PrivateSpaceIndicator
 import app.cclauncher.ui.components.PrivateSpaceToggle
 import app.cclauncher.ui.util.detectSwipeGestures
@@ -313,13 +305,26 @@ fun AppDrawerScreen(
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
                         AppListItem(
-                            app = app, showAppIcon = shouldShowIcons, showAppNames = settings.showAppNames,
-                            fontScale = searchResultsFontSize, fontWeight = fontWeight,
+                            appLabel = app.appLabel,
+                            appIcon = if (shouldShowIcons) app.appIcon else null,
+                            showIcon = shouldShowIcons,
+                            showLabel = settings.showAppNames,
                             iconCornerRadius = settings.iconCornerRadius.dp,
+                            fontScale = searchResultsFontSize,
+                            fontWeight = fontWeight,
                             onClick = { handleAppClick(app) },
-                            onLongClick = { selectedApp = app; showContextMenu = true },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300)),
-                            viewModel = viewModel
+                            onLongClick = {
+                                selectedApp = app
+                                showContextMenu = true
+                            },
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = tween(durationMillis = 300)
+                            ),
+                            trailing = if (viewModel.isPrivateSpaceSupported && viewModel.isAppInPrivateSpace(app)) {
+                                { PrivateSpaceIndicator(true) }
+                            } else null
                         )
                     }
                 }
@@ -403,68 +408,6 @@ fun AppDrawerScreen(
     }
 }
 
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun AppListItem(
-    app: AppModel,
-    showAppNames: Boolean,
-    showAppIcon: Boolean,
-    fontScale: Float,
-    fontWeight: FontWeight,
-    iconCornerRadius: Dp,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: MainViewModel
-) {
-    val isInPrivateSpace = viewModel.isPrivateSpaceSupported &&
-            viewModel.isAppInPrivateSpace(app)
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize(animationSpec = tween(durationMillis = 300))
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (showAppIcon && app.appIcon != null) {
-            Surface(
-                shape = RoundedCornerShape(iconCornerRadius),
-                modifier = Modifier.padding(end = 16.dp),
-                color = Color.Transparent
-            ) {
-                Image(
-                    bitmap = app.appIcon,
-                    contentDescription = app.appLabel,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            if (isInPrivateSpace) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Top)
-                        .offset(x = 4.dp, y = (-4).dp)
-                ) {
-                    PrivateSpaceIndicator(true)
-                }
-            }
-        }
-        Text(
-            text = if (showAppNames) app.appLabel else "",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
-                fontWeight = fontWeight
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
 
 
 @Composable
