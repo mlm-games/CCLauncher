@@ -162,6 +162,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.constraintlayout.compose.android)
     implementation(libs.kotlin.reflect)
+    implementation(libs.androidbrowserhelper)
 
     // Testing
 //    androidTestImplementation(libs.androidx.ui.test.junit4)
