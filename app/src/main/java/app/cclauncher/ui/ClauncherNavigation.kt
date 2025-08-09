@@ -27,7 +27,9 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import app.cclauncher.MainActivity
+import app.cclauncher.data.WidgetConstants
 import app.cclauncher.helper.WidgetHelper
+import app.cclauncher.helper.showToast
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -71,17 +73,13 @@ fun CLauncherNavigation(
                     (context as? MainActivity)?.widgetRequestLauncher?.launch(event.intent)
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to launch widget bind intent", e)
-                    Toast.makeText(
-                        context,
-                        "Failed to request widget permission: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    context.showToast("Failed to request widget permission: ${e.message}")
                 }
             }
             is UiEvent.ConfigureWidget -> {
                 val activity = context as? Activity
                 if (activity != null) {
-                    val REQUEST_CODE_CONFIGURE_WIDGET = 1001
+                    val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
                     widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
                 }
             }
@@ -113,23 +111,21 @@ fun CLauncherNavigation(
                         context.startActivity(event.intent)
                     } catch (e2: Exception) {
                         Log.e("Navigation", "Fallback failed too", e2)
-                        Toast.makeText(
-                            context,
+                        context.showToast(
                             "Failed to configure widget. Please check app permissions.",
                             Toast.LENGTH_LONG
-                        ).show()
+                        )
                     }
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
-                    Toast.makeText(
-                        context,
+                    context.showToast(
                         "Failed to start widget configuration: ${e.localizedMessage}",
                         Toast.LENGTH_LONG
-                    ).show()
+                    )
                 }
             }
             is UiEvent.ShowToast -> {
-                // Show toast message
+                // Show toast message (same as context.showToast but is inbuilt, shorter, doesn't make a diff (mainly to remind))
                 Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
             }
             is UiEvent.NavigateToAppSelection -> {

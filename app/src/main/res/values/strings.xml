@@ -153,6 +153,10 @@
     <string name="home_screen">Home screen</string>
     <string name="show_app_names">Show app names</string>
     <string name="set">Set</string>
+    <string name="widget_permission_failed">Failed to request widget permission: %1$s</string>
+    <string name="widget_configuration_failed">Failed to configure widget. Please check app permissions.</string>
+    <string name="tap_to_move_app">Tap where you want to move the app</string>
+    <string name="tap_to_move_widget">Tap where you want to move the widget</string>
     <string name="private_space">Private Space</string>
     <string name="private_space_locked">Private Space is locked</string>
     <string name="private_space_unlocked">Private Space is unlocked</string>

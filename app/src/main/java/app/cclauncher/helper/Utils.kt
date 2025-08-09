@@ -26,7 +26,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
-import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
@@ -43,17 +42,6 @@ import kotlinx.coroutines.withContext
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
-
-fun Context.showToast(
-    message: Any?,
-    duration: Int = Toast.LENGTH_SHORT
-) {
-    when (message) {
-        is String -> if (message.isNotBlank()) Toast.makeText(this, message, duration).show()
-        is Int -> Toast.makeText(this, getString(message), duration).show()
-        else -> return
-    }
-}
 
 suspend fun getAppsList(
     context: Context,
