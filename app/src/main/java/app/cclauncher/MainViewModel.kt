@@ -597,59 +597,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-
-    fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
-        viewModelScope.launch {
-            val currentLayout = _homeLayoutState.value
-
-            if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
-                _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
-                return@launch
-            }
-
-            val newItems = currentLayout.items.map {
-                if (it.id == widgetItem.id && it is HomeItem.Widget) {
-                    it.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
-                } else {
-                    it
-                }
-            }
-            val newLayout = currentLayout.copy(items = newItems)
-
-            // Update state immediately
-            _homeLayoutState.value = newLayout
-
-            // Update widget options
-            val screenWidthDp = getScreenDimensions(context = appContext).first
-            val screenHeightDp = getScreenDimensions(appContext).second
-            val (cellWidthDp, cellHeightDp) = getCellSizeDp(
-                screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
-            )
-
-            val minWidth = (newColSpan * cellWidthDp).toInt()
-            val maxWidth = minWidth
-            val minHeight = (newRowSpan * cellHeightDp).toInt()
-            val maxHeight = minHeight
-
-            val options = Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minWidth)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxWidth)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
-            }
-
-            try {
-                appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
-                // Persist the changes
-                settingsRepository.saveHomeLayout(newLayout)
-                // Force refresh
-                settingsRepository.triggerHomeLayoutRefresh()
-            } catch (e: Exception) {
-                Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
-            }
-        }
-    }
-
     fun removeWidget(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             try {
@@ -726,9 +673,71 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
+    fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
+        viewModelScope.launch {
+            val currentLayout = _homeLayoutState.value
+
+            if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
+                _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
+                return@launch
+            }
+
+            val newItems = currentLayout.items.map {
+                if (it.id == widgetItem.id && it is HomeItem.Widget) {
+                    it.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
+                } else {
+                    it
+                }
+            }
+            val newLayout = currentLayout.copy(items = newItems)
+
+            // IMPORTANT: Update state first
+            _homeLayoutState.value = newLayout
+
+            // Then persist to storage
+            settingsRepository.saveHomeLayout(newLayout)
+
+            // Force a refresh to ensure UI updates
+            settingsRepository.triggerHomeLayoutRefresh()
+
+            // Update widget options AFTER layout is saved
+            val screenWidthDp = getScreenDimensions(context = appContext).first
+            val screenHeightDp = getScreenDimensions(appContext).second
+            val (cellWidthDp, cellHeightDp) = getCellSizeDp(
+                screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
+            )
+
+            val minWidth = (newColSpan * cellWidthDp).toInt()
+            val maxWidth = minWidth
+            val minHeight = (newRowSpan * cellHeightDp).toInt()
+            val maxHeight = minHeight
+
+            val options = Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxWidth)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
+            }
+
+            try {
+                appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
+            } catch (e: Exception) {
+                Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
+            }
+        }
+    }
+
     fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
+
+            // Check validity
+            if (appItem.row + newRowSpan > currentLayout.rows ||
+                appItem.column + newColSpan > currentLayout.columns) {
+                _errorMessage.value = "Cannot resize app: out of bounds"
+                return@launch
+            }
+
             val updatedItems = currentLayout.items.map { item ->
                 if (item.id == appItem.id && item is HomeItem.App) {
                     item.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
@@ -737,9 +746,18 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 }
             }
             val newLayout = currentLayout.copy(items = updatedItems)
+
+            // Update state first
+            _homeLayoutState.value = newLayout
+
+            // Then persist
             settingsRepository.saveHomeLayout(newLayout)
+
+            // Force refresh
+            settingsRepository.triggerHomeLayoutRefresh()
         }
     }
+
 
     // Handle result from widget configuration Activity
     fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -43,6 +43,7 @@ import app.cclauncher.data.HomeItem
 import app.cclauncher.data.HomeLayout
 import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.expandNotificationDrawer
+import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.showToast
 import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
@@ -237,50 +238,86 @@ fun HomeScreen(
             }
         }
 
-        showAppContextMenu?.let {
-            HomeAppContextMenu(
-                appItem = it,
-                onDismiss = { showAppContextMenu = null },
-                onRemove = { app ->
-                    viewModel.removeAppFromHomeScreen(app)
-                    showAppContextMenu = null
-                },
-                onResize = { app ->
-                    resizeDialogItem = app
-                    showAppContextMenu = null
-                },
-                onMove = { app ->
-                    appBeingMoved = app
-                    showAppContextMenu = null
-                    context.showToast("Tap where you want to move the app", Toast.LENGTH_SHORT)
-                }
-            )
+        showAppContextMenu?.let { appItem ->
+            // Find the current item from state
+            val currentItem = homeLayoutState.items.find { it.id == appItem.id } as? HomeItem.App
+
+            currentItem?.let {
+                HomeAppContextMenu(
+                    appItem = it,  // Use the current item from state
+                    onDismiss = { showAppContextMenu = null },
+                    onRemove = { app ->
+                        viewModel.removeAppFromHomeScreen(app)
+                        showAppContextMenu = null
+                    },
+                    onResize = { app ->
+                        resizeDialogItem = app
+                        showAppContextMenu = null
+                    },
+                    onMove = { app ->
+                        appBeingMoved = app
+                        showAppContextMenu = null
+                        context.showToast("Tap where you want to move the app")
+                    }
+                )
+            }
         }
+
 
     }
 
-    WidgetContextMenu(
-        widgetItem = showWidgetContextMenu,
-        onDismiss = { showWidgetContextMenu = null },
-        onRemove = { widget ->
-            appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
-            viewModel.removeWidget(widget)
-            showWidgetContextMenu = null
-        },
-        onResize = { widget ->
-            resizeDialogItem = widget
-            showWidgetContextMenu = null
-        },
-        onConfigure = { widget ->
-            viewModel.requestWidgetReconfigure(widget)
-            showWidgetContextMenu = null
-        },
-        onMove = { widget ->
-            widgetBeingMoved = widget
-            showWidgetContextMenu = null
-            context.showToast( "Tap where you want to move the widget", Toast.LENGTH_SHORT)
+    showWidgetContextMenu?.let { widgetItem ->
+        val currentItem = homeLayoutState.items.find { it.id == widgetItem.id } as? HomeItem.Widget
+
+        currentItem?.let {
+            WidgetContextMenu(
+                widgetItem = it,
+                onDismiss = { showWidgetContextMenu = null },
+                onRemove = { widget ->
+                    appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
+                    viewModel.removeWidget(widget)
+                    showWidgetContextMenu = null
+                },
+                onResize = { widget ->
+                    resizeDialogItem = widget
+                    showWidgetContextMenu = null
+                },
+                onConfigure = { widget ->
+                    viewModel.requestWidgetReconfigure(widget)
+                    showWidgetContextMenu = null
+                },
+                onMove = { widget ->
+                    widgetBeingMoved = widget
+                    showWidgetContextMenu = null
+                    context.showToast( "Tap where you want to move the widget", Toast.LENGTH_SHORT)
+                }
+            )
         }
-    )
+    }
+// Not needed, sliders work as intended without this
+//    resizeDialogItem?.let { item ->
+//        // Get the fresh item from current state
+//        val currentItem = homeLayoutState.items.find { it.id == item.id }
+//
+//        currentItem?.let {
+//            ResizeDialog(
+//                item = it,  // Use the current item from state
+//                currentRows = homeLayoutState.rows,
+//                currentColumns = homeLayoutState.columns,
+//                onDismiss = { resizeDialogItem = null },
+//                onResize = { item, newRowSpan, newColSpan ->
+//                    when (item) {
+//                        is HomeItem.Widget -> {
+//                            viewModel.resizeWidget(item, newRowSpan, newColSpan)
+//                        }
+//                        is HomeItem.App -> {
+//                            viewModel.resizeApp(item, newRowSpan, newColSpan)
+//                        }
+//                    }
+//                }
+//            )
+//        }
+//    }
 
     ResizeDialog(
         item = resizeDialogItem,
@@ -290,11 +327,19 @@ fun HomeScreen(
         onResize = { item, newRowSpan, newColSpan ->
             when (item) {
                 is HomeItem.Widget -> {
+                    // Calculate actual pixel sizes based on grid
+                    val screenDimensions = getScreenDimensions(context)
+                    val cellWidth = screenDimensions.first / homeLayoutState.columns
+                    val cellHeight = screenDimensions.second / homeLayoutState.rows
+
+                    val widgetWidthDp = (cellWidth * newColSpan)
+                    val widgetHeightDp = (cellHeight * newRowSpan)
+
                     val options = Bundle().apply {
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, newColSpan)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, newColSpan)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, newRowSpan)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, newRowSpan)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetWidthDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetWidthDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetHeightDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetHeightDp)
                     }
                     viewModel.appWidgetManager.updateAppWidgetOptions(item.appWidgetId, options)
                     viewModel.resizeWidget(item, newRowSpan, newColSpan)
