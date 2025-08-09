@@ -282,29 +282,27 @@ fun CLauncherNavigation(
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
                                 when (currentSelectionType) {
-                                    AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
-                                    AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
-                                    AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
-                                    AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
-                                    AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
-                                    AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
-                                    AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
-                                    AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
-                                    AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
-                                    AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
-                                    AppSelectionType.HOME_APP_9 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_9)
-                                    AppSelectionType.HOME_APP_10 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_10)
-                                    AppSelectionType.HOME_APP_11 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_11)
-                                    AppSelectionType.HOME_APP_12 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_12)
-                                    AppSelectionType.HOME_APP_13 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_13)
-                                    AppSelectionType.HOME_APP_14 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_14)
-                                    AppSelectionType.HOME_APP_15 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_15)
-                                    AppSelectionType.HOME_APP_16 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_16)
-                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
-                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
-                                    else -> {}
+                                    is AppSelectionType -> {
+                                        val flag = when (currentSelectionType) {
+                                            AppSelectionType.SWIPE_UP_APP -> Constants.FLAG_SET_SWIPE_UP_APP
+                                            AppSelectionType.SWIPE_DOWN_APP -> Constants.FLAG_SET_SWIPE_DOWN_APP
+                                            AppSelectionType.SWIPE_LEFT_APP -> Constants.FLAG_SET_SWIPE_LEFT_APP
+                                            AppSelectionType.SWIPE_RIGHT_APP -> Constants.FLAG_SET_SWIPE_RIGHT_APP
+                                            else -> {
+//                                                // Extract home app number from enum name
+//                                                val homeAppNumber = currentSelectionType!!.name
+//                                                    .removePrefix("HOME_APP_")
+//                                                    .toIntOrNull() ?: 1
+//                                                Constants.FLAG_SET_HOME_APP_1 + (homeAppNumber - 1)
+                                            }
+                                        }
+                                        viewModel.selectedApp(app, flag as Int)
+                                        currentSelectionType = null
+                                        onScreenChange(Navigation.SETTINGS)
+                                    }
+                                    null -> viewModel.launchApp(app)
                                 }
-                                // After selection, reset and go back to settings
+                                //After selection, reset and go back to settings
                                 currentSelectionType = null
                                 onScreenChange(Navigation.SETTINGS)
                             } else {
@@ -317,22 +315,6 @@ fun CLauncherNavigation(
                         selectionTitle = when (currentSelectionType) {
                             AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
                             AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
-                            AppSelectionType.HOME_APP_1,
-                            AppSelectionType.HOME_APP_2,
-                            AppSelectionType.HOME_APP_3,
-                            AppSelectionType.HOME_APP_4,
-                            AppSelectionType.HOME_APP_5,
-                            AppSelectionType.HOME_APP_6,
-                            AppSelectionType.HOME_APP_7,
-                            AppSelectionType.HOME_APP_8,
-                            AppSelectionType.HOME_APP_9,
-                            AppSelectionType.HOME_APP_10,
-                            AppSelectionType.HOME_APP_11,
-                            AppSelectionType.HOME_APP_12,
-                            AppSelectionType.HOME_APP_13,
-                            AppSelectionType.HOME_APP_14,
-                            AppSelectionType.HOME_APP_15,
-                            AppSelectionType.HOME_APP_16 -> "Select Home App"
                             AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                             null -> ""
