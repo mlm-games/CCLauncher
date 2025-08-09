@@ -46,7 +46,6 @@ fun CLauncherNavigation(
     // Apply system UI settings
     SystemUIController(showStatusBar = settings.statusBar)
 
-    var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
     val handleEvent: (UiEvent) -> Unit = { event ->
@@ -136,7 +135,6 @@ fun CLauncherNavigation(
             is UiEvent.NavigateToAppSelection -> {
                 // Store selection type and show dialog
                 currentSelectionType = event.selectionType
-                showAppSelectionDialog = true
                 // Navigate to app drawer with selection mode
                 onScreenChange(Navigation.APP_DRAWER)
             }
@@ -235,23 +233,23 @@ fun CLauncherNavigation(
                 Navigation.WIDGET_PICKER -> {
                     // Settings to widget screens: slide left with fade and scale
                     (slideInHorizontally(
-                                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
-                                        animationSpec = tween(300)
-                                    ) + fadeIn(animationSpec = tween(300)) +
-                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
                         slideOutHorizontally(
-                                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                                                animationSpec = tween(300)
-                                            ) + fadeOut(animationSpec = tween(300)) +
-                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                            targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
+                            animationSpec = tween(300)
+                        ) + fadeOut(animationSpec = tween(300)) +
+                                scaleOut(targetScale = 0.95f, animationSpec = tween(300))
                     )
                 }
                 else -> {
                     // Default animation with fade and scale
                     (fadeIn(animationSpec = tween(300)) +
-                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
                         fadeOut(animationSpec = tween(300)) +
-                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                                scaleOut(targetScale = 0.95f, animationSpec = tween(300))
                     )
                 }
             }
@@ -282,27 +280,13 @@ fun CLauncherNavigation(
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
                                 when (currentSelectionType) {
-                                    is AppSelectionType -> {
-                                        val flag = when (currentSelectionType) {
-                                            AppSelectionType.SWIPE_UP_APP -> Constants.FLAG_SET_SWIPE_UP_APP
-                                            AppSelectionType.SWIPE_DOWN_APP -> Constants.FLAG_SET_SWIPE_DOWN_APP
-                                            AppSelectionType.SWIPE_LEFT_APP -> Constants.FLAG_SET_SWIPE_LEFT_APP
-                                            AppSelectionType.SWIPE_RIGHT_APP -> Constants.FLAG_SET_SWIPE_RIGHT_APP
-                                            else -> {
-//                                                // Extract home app number from enum name
-//                                                val homeAppNumber = currentSelectionType!!.name
-//                                                    .removePrefix("HOME_APP_")
-//                                                    .toIntOrNull() ?: 1
-//                                                Constants.FLAG_SET_HOME_APP_1 + (homeAppNumber - 1)
-                                            }
-                                        }
-                                        viewModel.selectedApp(app, flag as Int)
-                                        currentSelectionType = null
-                                        onScreenChange(Navigation.SETTINGS)
-                                    }
-                                    null -> viewModel.launchApp(app)
+                                    AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
+                                    AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
+                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
+                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                    else -> {}
                                 }
-                                //After selection, reset and go back to settings
+                                // After selection, reset and go back to settings
                                 currentSelectionType = null
                                 onScreenChange(Navigation.SETTINGS)
                             } else {
@@ -344,7 +328,7 @@ fun CLauncherNavigation(
                     WidgetPickerScreen(
                         onWidgetSelected = { providerInfo ->
                             viewModel.startWidgetConfiguration(providerInfo)
-                                           onScreenChange(Navigation.HOME)
+                            onScreenChange(Navigation.HOME)
                         },
                         onDismiss = { onScreenChange(Navigation.HOME) }
                     )

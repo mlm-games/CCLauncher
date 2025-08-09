@@ -19,7 +19,6 @@ import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.data.repository.SettingsRepository
 import app.cclauncher.data.settings.AppPreference
 import app.cclauncher.data.settings.AppSettings
-import app.cclauncher.data.settings.HomeAppPreference
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PrivateSpaceHelper
@@ -940,22 +939,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
             Constants.FLAG_SET_SWIPE_DOWN_APP -> {
                 setSwipeDownApp(appModel)
             }
-            in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_16 -> {
-                val position = flag - Constants.FLAG_SET_HOME_APP_1
-                setHomeApp(appModel, position)
-
-                addAppToHomeScreen(appModel)
-            }
-        }
-    }
-
-    private fun setHomeApp(app: AppModel, position: Int) {
-        viewModelScope.launch {
-            settingsRepository.setHomeApp(position, HomeAppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()))
         }
     }
 
