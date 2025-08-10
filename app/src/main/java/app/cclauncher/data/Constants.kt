@@ -66,10 +66,6 @@ object Constants {
         const val SEVEN = 1.45f
     }
 
-    object HomeAppCount {
-        const val NUM = 16
-    }
-
     object SearchType {
         const val CONTAINS = 0
         const val FUZZY = 1

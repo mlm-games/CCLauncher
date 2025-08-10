@@ -420,11 +420,6 @@ data class AppSettings(
     )
     val customFontPath: String = "",
 
-
-
-    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
-
-
     // Non-UI settings (not annotated)
     val firstOpen: Boolean = true,
     val firstOpenTime: Long = 0L,
@@ -541,14 +536,6 @@ class SettingsManager {
         }
     }
 }
-
-@Serializable
-data class HomeAppPreference(
-    val label: String = "",
-    val packageName: String = "",
-    val activityClassName: String? = null,
-    val userString: String = "",
-)
 
 @Serializable
 data class AppPreference(

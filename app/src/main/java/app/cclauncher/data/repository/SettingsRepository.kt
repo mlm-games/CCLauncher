@@ -69,7 +69,6 @@ class SettingsRepository(private val context: Context) {
         val SHOW_HOME_SCREEN_ICONS = booleanPreferencesKey("SHOW_HOME_SCREEN_ICONS")
         val SCALE_HOME_APPS = booleanPreferencesKey("SCALE_HOME_APPS")
         val RENAMED_APPS_JSON = stringPreferencesKey("RENAMED_APPS_JSON")
-        val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
         val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
         val SWIPE_UP_APP_JSON = stringPreferencesKey("SWIPE_UP_APP_JSON")
@@ -158,9 +157,6 @@ class SettingsRepository(private val context: Context) {
      * Flow of settings that emits whenever any setting changes
      */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
-        val homeApps = prefs[HOME_APPS_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultAppSettings.homeApps)
-        } ?: defaultAppSettings.homeApps
 
         val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultAppSettings.swipeLeftApp)
@@ -256,7 +252,6 @@ class SettingsRepository(private val context: Context) {
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
             selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
 
-            homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
             swipeUpApp = swipeUpApp,
@@ -337,10 +332,6 @@ class SettingsRepository(private val context: Context) {
                 }
             }
 
-            // Handle complex JSON types separately
-            if (currentSettings.homeApps != updatedSettings.homeApps) {
-                prefs[HOME_APPS_JSON] = json.encodeToString(updatedSettings.homeApps)
-            }
             if (currentSettings.swipeLeftApp != updatedSettings.swipeLeftApp) {
                 prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(updatedSettings.swipeLeftApp)
             }
@@ -397,16 +388,6 @@ class SettingsRepository(private val context: Context) {
     suspend fun triggerHomeLayoutRefresh() {
         val currentLayout = getHomeLayout().first()
         saveHomeLayout(currentLayout)
-    }
-
-    suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
-        updateSetting { currentSettings ->
-            val newHomeApps = currentSettings.homeApps.toMutableList()
-            if (position in newHomeApps.indices) {
-                newHomeApps[position] = app
-            }
-            currentSettings.copy(homeApps = newHomeApps)
-        }
     }
 
     suspend fun setSwipeLeftApp(app: AppPreference) {
