@@ -4,9 +4,8 @@
 - rm more legacy home apps code
 - Separate out settings components (refactor)
 - Group all permission related fns in PermissionManager
-- Group all permission related fns in PermissionManager
 - Standardize animation access and rm old files
-- Use same LauncherListItem for hidden apps and normal drawer
+- Reuse LauncherListItem for hidden apps and normal drawer
 
 
 ## vv9.9.1
