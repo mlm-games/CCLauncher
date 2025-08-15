@@ -38,7 +38,7 @@ jobs:
       build_date: ${{ steps.version.outputs.build_date }}
       release_notes: ${{ steps.release-notes.outputs.release-notes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -101,7 +101,7 @@ jobs:
       contents: write
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
       
