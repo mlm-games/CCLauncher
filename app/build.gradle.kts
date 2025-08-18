@@ -41,33 +41,44 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val enableApkSplits = (providers.gradleProperty("enableApkSplits").orNull ?: "true").toBoolean()
+    val targetAbi = providers.gradleProperty("targetAbi").orNull
+
     splits {
         abi {
-            isEnable = true
+            isEnable = enableApkSplits
             reset()
-            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            if (enableApkSplits) {
+                if (targetAbi != null) {
+                    include(targetAbi)
+                } else {
+                    include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+                }
+            }
             isUniversalApk = false
         }
     }
 
     applicationVariants.all {
+        val buildingApk = gradle.startParameter.taskNames.any { it.contains("assemble", ignoreCase = true) }
+        if (!buildingApk) return@all
+
         val variant = this
         outputs.all {
-            val output = this as BaseVariantOutputImpl
-            val abiName = output.filters.find { it.filterType == "ABI" }?.identifier
-
-            if (abiName != null) {
-                val baseVersionCode = variant.versionCode
-                val abiVersionCode = when (abiName) {
-                    "x86" -> baseVersionCode - 3
-                    "x86_64" -> baseVersionCode - 2
-                    "armeabi-v7a" -> baseVersionCode - 1
-                    "arm64-v8a" -> baseVersionCode
-                    else -> baseVersionCode
+            if (this is ApkVariantOutputImpl) {
+                val abiName = filters.find { it.filterType == "ABI" }?.identifier
+                if (abiName != null) {
+                    val base = variant.versionCode
+                    val abiVersionCode = when (abiName) {
+                        "x86" -> base - 3
+                        "x86_64" -> base - 2
+                        "armeabi-v7a" -> base - 1
+                        "arm64-v8a" -> base
+                        else -> base
+                    }
+                    versionCodeOverride = abiVersionCode
+                    outputFileName = "cclauncher-${variant.versionName}-${abiName}.apk"
                 }
-
-                (output as ApkVariantOutputImpl).versionCodeOverride = abiVersionCode
-                output.outputFileName = ("cclauncher-${variant.versionName}-${abiName}.apk")
             }
         }
     }
