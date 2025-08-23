@@ -22,6 +22,7 @@ import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PrivateSpaceHelper
+ import app.cclauncher.helper.SearchAliasUtils
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
@@ -45,14 +46,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger = _refreshTrigger.asStateFlow()
 
-
     private val privateSpaceHelper = PrivateSpaceHelper(application.applicationContext)
 
     val isPrivateSpaceSupported = privateSpaceHelper.isPrivateSpaceSupported()
 
     private val _privateSpaceState = MutableStateFlow<PrivateSpaceState>(PrivateSpaceState.Unsupported)
     val privateSpaceState: StateFlow<PrivateSpaceState> = _privateSpaceState.asStateFlow()
-
 
     data class PendingWidgetInfo(val appWidgetId: Int, val providerInfo: android.appwidget.AppWidgetProviderInfo)
 
@@ -96,8 +95,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    init {
+    // Alias search index: key = app.getKey(), value = set of aliases
+    private var searchAliasIndex: Map<String, Set<String>> = emptyMap()
 
+    init {
         viewModelScope.launch {
             combine(
                 settingsRepository.getHomeLayout(),
@@ -140,9 +141,20 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 .map { it.selectedIconPack }
                 .distinctUntilChanged()
                 .drop(1) // Skip initial value
-                .collect { newIconPack ->
+                .collect { _ ->
                     refreshHomeScreenAppIcons()
                 }
+        }
+
+        // Rebuild alias index whenever app list or relevant settings change
+        viewModelScope.launch {
+            combine(
+                appRepository.appListAll,
+                settingsRepository.settings
+                    .map { it.searchAliasesMode to it.searchIncludePackageNames }
+                    .distinctUntilChanged()
+            ) { _, _ -> }
+                .collect { rebuildSearchAliasIndex() }
         }
 
         updatePrivateSpaceState()
@@ -154,7 +166,29 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             filter,
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+    }
 
+    private suspend fun rebuildSearchAliasIndex() {
+        val settings = settingsRepository.settings.first()
+        val mode = settings.searchAliasesMode
+        val includePkg = settings.searchIncludePackageNames
+
+        if (mode == SearchAliasUtils.Mode.OFF && !includePkg) {
+            searchAliasIndex = emptyMap()
+            return
+        }
+
+        val idx = HashMap<String, Set<String>>(_appListAll.value.size)
+        for (app in _appListAll.value) {
+            val aliases = SearchAliasUtils.buildAppAliases(
+                label = app.appLabel,
+                packageName = app.appPackage,
+                mode = mode,
+                includePkg = includePkg
+            )
+            idx[app.getKey()] = aliases
+        }
+        searchAliasIndex = idx
     }
 
     /**
@@ -170,15 +204,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         val updatedItems = layout.items.map { item ->
             when (item) {
                 is HomeItem.App -> {
-                    // Load icon with current icon pack
                     val icon = iconCache.getIcon(
                         packageName = item.appModel.appPackage,
                         className = item.appModel.activityClassName,
                         user = item.appModel.user,
                         iconPackName = settings.selectedIconPack,
                     )
-
-                    // Update AppModel with loaded icon
                     val updatedAppModel = item.appModel.copy(appIcon = icon)
                     item.copy(appModel = updatedAppModel)
                 }
@@ -189,9 +220,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         return layout.copy(items = updatedItems)
     }
 
-    /**
-     * Refresh icons for apps on home screen
-     */
     private suspend fun refreshHomeScreenAppIcons() {
         val currentLayout = _homeLayoutState.value
         val settings = settingsRepository.settings.first()
@@ -200,7 +228,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         val updatedItems = currentLayout.items.map { item ->
             when (item) {
                 is HomeItem.App -> {
-                    // Get updated icon for this app
                     val updatedIcon = if (settings.showHomeScreenIcons) {
                         iconCache.getIcon(
                             packageName = item.appModel.appPackage,
@@ -211,42 +238,33 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     } else {
                         null
                     }
-
-                    // Create updated AppModel with new icon
                     val updatedAppModel = item.appModel.copy(appIcon = updatedIcon)
                     item.copy(appModel = updatedAppModel)
                 }
-                is HomeItem.Widget -> item // Widgets don't need icon updates
+                is HomeItem.Widget -> item
             }
         }
 
-        // Update the layout with new icons
         val updatedLayout = currentLayout.copy(items = updatedItems)
         _homeLayoutState.value = updatedLayout
-
-        // Also save to persistence
         settingsRepository.saveHomeLayout(updatedLayout)
     }
 
     suspend fun updateGridSize(newRows: Int, newColumns: Int) {
         val currentLayout = _homeLayoutState.value
 
-        // Check if any items would be out of bounds with new grid size
         val itemsOutOfBounds = currentLayout.items.filter { item ->
             item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
         }
 
         if (itemsOutOfBounds.isNotEmpty()) {
-            // Move out-of-bounds items to valid positions
             val updatedItems = currentLayout.items.map { item ->
                 if (item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns) {
-                    // Find a new valid position for this item
                     val newPosition = findNextAvailableGridPosition(
                         currentLayout.copy(rows = newRows, columns = newColumns),
                         item.columnSpan,
                         item.rowSpan
                     )
-
                     when (item) {
                         is HomeItem.App -> item.copy(
                             row = newPosition?.first ?: 0,
@@ -257,12 +275,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                             column = newPosition?.second ?: 0
                         )
                     }
-                } else {
-                    item
-                }
+                } else item
             }
 
-            // Save the updated layout
             val newLayout = currentLayout.copy(
                 items = updatedItems,
                 rows = newRows,
@@ -270,7 +285,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             )
             settingsRepository.saveHomeLayout(newLayout)
         } else {
-            // No items out of bounds, just update grid size
             val newLayout = currentLayout.copy(rows = newRows, columns = newColumns)
             settingsRepository.saveHomeLayout(newLayout)
         }
@@ -280,45 +294,28 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         viewModelScope.launch {
             Log.d("HomeScreen", "Attempting to add app: ${appModel.appLabel}")
             val currentLayout = _homeLayoutState.value
-            Log.d("HomeScreen", "Current layout has ${currentLayout.items.size} items")
-
             val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1)
-            Log.d("HomeScreen", "Next position: $nextPos")
 
             if (nextPos != null) {
                 val appModelWithUserString = appModel.copy(userString = appModel.user.toString())
-
                 val appItem = HomeItem.App(
                     appModel = appModelWithUserString,
                     row = nextPos.first,
                     column = nextPos.second
                 )
-
-                // Check if this app is already on the home screen
                 val existingItem = currentLayout.items.find {
                     it is HomeItem.App && it.appModel.getKey() == appModel.getKey()
                 }
-
-                // If it exists, don't add it again
                 if (existingItem == null) {
                     val newItems = currentLayout.items + appItem
-                    Log.d("HomeScreen", "Adding app at position (${nextPos.first}, ${nextPos.second})")
                     settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
-                    Log.d("HomeScreen", "New layout has ${newItems.size} items")
-                } else {
-                    Log.d("HomeScreen", "App already exists on home screen")
                 }
             } else {
-                Log.d("HomeScreen", "No space available on home screen")
                 _errorMessage.value = "No space available on home screen."
             }
         }
     }
 
-    /**
-     * Toggle whether an app is in Private Space
-     * Note: This is only available on Android 15+
-     */
     fun toggleAppInPrivateSpace(app: AppModel) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             viewModelScope.launch {
@@ -341,8 +338,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     }
 
                     val isInPrivateSpace = privateSpaceHelper.isPrivateSpaceProfile(app.user)
-
-                    // Direct the user to system settings for managing Private Space apps
                     val message = if (isInPrivateSpace) {
                         "To remove apps from Private Space, use Android Settings > Private Space settings"
                     } else {
@@ -351,7 +346,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
                     _errorMessage.value = message
 
-                    // Refresh app lists
                     loadApps()
                     updatePrivateSpaceState()
                 } catch (e: Exception) {
@@ -364,7 +358,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    // Function to remove an app from the home screen layout
     fun removeAppFromHomeScreen(appItem: HomeItem.App) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
@@ -375,50 +368,37 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private fun getCellSizeDp(screenWidthDp: Int, screenHeightDp: Int, rows: Int, columns: Int): Pair<Float, Float> {
         val cellWidthDp = screenWidthDp.toFloat() / columns
-        val cellHeightDp = screenHeightDp.toFloat() / rows // Use available height
+        val cellHeightDp = screenHeightDp.toFloat() / rows
         return Pair(cellWidthDp, cellHeightDp)
     }
 
     private fun findNextAvailableGridPosition(layout: HomeLayout, widthSpan: Int, heightSpan: Int): Pair<Int, Int>? {
         val occupied = Array(layout.rows) { BooleanArray(layout.columns) }
-
-        // Mark occupied cells
         layout.items.forEach { item ->
             for (r in item.row until (item.row + item.rowSpan).coerceAtMost(layout.rows)) {
                 for (c in item.column until (item.column + item.columnSpan).coerceAtMost(layout.columns)) {
-                    if (r >= 0 && c >= 0) { // Basic bounds check
-                        occupied[r][c] = true
-                    }
+                    if (r >= 0 && c >= 0) occupied[r][c] = true
                 }
             }
         }
-
-        // Find the first available top-left corner for the required span
         for (r in 0 .. layout.rows - heightSpan) {
             for (c in 0 .. layout.columns - widthSpan) {
                 if (isSpaceFreeInternal(occupied, r, c, widthSpan, heightSpan, layout.rows, layout.columns)) {
-                    return Pair(r, c) // Found a spot
+                    return Pair(r, c)
                 }
             }
         }
-
-        return null // No space found
+        return null
     }
 
     private fun isSpaceFreeInternal(occupiedGrid: Array<BooleanArray>, startRow: Int, startCol: Int, spanW: Int, spanH: Int, maxRows: Int, maxCols: Int): Boolean {
-        // if (startRow + spanH > maxRows || startCol + spanW > maxCols) return false
-
-        // Check all cells within the desired span
         for (r in startRow until startRow + spanH) {
             for (c in startCol until startCol + spanW) {
-                if (r >= maxRows || c >= maxCols || occupiedGrid[r][c]) {
-                    return false // occupied cell
-                }
+                if (r >= maxRows || c >= maxCols || occupiedGrid[r][c]) return false
             }
         }
         return true
     }
-
 
     private fun updateAppDrawerState() {
         _appDrawerState.value = _appDrawerState.value.copy(
@@ -444,39 +424,21 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     return@launch
                 }
 
-                Log.i("WidgetDebug", "Starting widget configuration for: ${componentName.flattenToString()}")
-
-                // Allocate widget ID
                 val appWidgetId = appWidgetHost.allocateAppWidgetId()
-
-                // Try to bind directly
                 val bindSuccess = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, componentName)
 
                 if (bindSuccess) {
-                    Log.d("WidgetDebug", "Widget binding successful for ID: $appWidgetId")
-
-                    // Check if configuration is needed
                     if (providerInfo.configure != null) {
-                        // Save pending info for result handling
                         pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
-
-                        // Request configuration via activity
                         emitEvent(UiEvent.ConfigureWidget(appWidgetId, providerInfo))
                     }
                     addWidgetToLayout(appWidgetId, providerInfo)
                 } else {
-                    Log.d("WidgetDebug", "Widget binding needs permission for ID: $appWidgetId")
-
-                    // Save pending info
                     pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
-
-                    // Create binding permission intent
                     val bindIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, componentName)
                     }
-
-                    // Request binding via activity
                     emitEvent(UiEvent.StartActivityForResult(bindIntent, WidgetConstants.REQUEST_CODE_BIND_WIDGET))
                 }
             } catch (e: Exception) {
@@ -489,31 +451,20 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
-                Log.d("WidgetDebug", "Adding widget to layout: ID=$appWidgetId, Provider=${providerInfo.provider.flattenToString()}")
-
-                // Get screen dimensions to calculate appropriate cell sizes
                 val screenDimensions = getScreenDimensions(context = appContext)
                 val screenWidthDp = screenDimensions.first
                 val screenHeightDp = screenDimensions.second
 
-                // Calculate widget size in cells
                 val currentLayout = _homeLayoutState.value
                 val cellWidthDp = screenWidthDp / currentLayout.columns
                 val cellHeightDp = screenHeightDp / currentLayout.rows
 
-                // Calculate how many cells the widget needs
                 val widgetWidthCells = 1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
                 val widgetHeightCells = 1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
 
-                Log.d("WidgetDebug", "Widget size: ${providerInfo.minWidth}x${providerInfo.minHeight}dp")
-                Log.d("WidgetDebug", "Cell size: ${cellWidthDp}x${cellHeightDp}dp")
-                Log.d("WidgetDebug", "Widget cells: ${widgetWidthCells}x${widgetHeightCells}")
-
-                // Find next available position
                 val nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells)
 
                 if (nextPos != null) {
-                    // Create widget item
                     val widgetItem = HomeItem.Widget(
                         id = UUID.randomUUID().toString(),
                         appWidgetId = appWidgetId,
@@ -524,13 +475,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         rowSpan = widgetHeightCells,
                         columnSpan = widgetWidthCells
                     )
-
-                    // Update layout with the new widget
                     val newItems = currentLayout.items + widgetItem
-                    Log.d("WidgetDebug", "Saving layout with new widget. Total items: ${newItems.size}")
                     settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
 
-                    // Update widget options with the size
                     val options = Bundle().apply {
                         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, providerInfo.minWidth)
                         putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, providerInfo.minWidth)
@@ -538,21 +485,16 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, providerInfo.minHeight)
                     }
                     appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
-
-                    Log.d("WidgetDebug", "Widget added successfully to layout")
-
-                    // Force refresh of home layout (if needed)
                     settingsRepository.triggerHomeLayoutRefresh()
                 } else {
-                    Log.e("WidgetDebug", "No space available for widget")
                     _errorMessage.value = "No space available for widget on home screen."
-                    appWidgetHost.deleteAppWidgetId(appWidgetId) // Clean up
+                    appWidgetHost.deleteAppWidgetId(appWidgetId)
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error adding widget to layout", e)
                 _errorMessage.value = "Failed to add widget: ${e.message}"
                 try {
-                    appWidgetHost.deleteAppWidgetId(appWidgetId) // Clean up on error
+                    appWidgetHost.deleteAppWidgetId(appWidgetId)
                 } catch (e2: Exception) {
                     Log.e("WidgetDebug", "Error cleaning up widget ID", e2)
                 }
@@ -560,26 +502,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-
-
-
-private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Widget, newRowSpan: Int, newColSpan: Int): Boolean {
+    private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Widget, newRowSpan: Int, newColSpan: Int): Boolean {
         val targetRow = widgetToResize.row
         val targetCol = widgetToResize.column
 
-        if (targetRow + newRowSpan > layout.rows || targetCol + newColSpan > layout.columns) {
-            return false
-        }
+        if (targetRow + newRowSpan > layout.rows || targetCol + newColSpan > layout.columns) return false
 
         for (item in layout.items) {
-            if (item.id == widgetToResize.id) continue // Skip self
-
+            if (item.id == widgetToResize.id) continue
             val horizontalOverlap = (item.column < targetCol + newColSpan) && (item.column + item.columnSpan > targetCol)
             val verticalOverlap = (item.row < targetRow + newRowSpan) && (item.row + item.rowSpan > targetRow)
-
-            if (horizontalOverlap && verticalOverlap) {
-                return false
-            }
+            if (horizontalOverlap && verticalOverlap) return false
         }
         return true
     }
@@ -592,7 +525,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
             } else {
                 settingsRepository.setAppCustomName(appKey, newName)
             }
-            // Reload apps to reflect changes
             loadApps()
         }
     }
@@ -600,28 +532,19 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     fun removeWidget(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             try {
-                // First, remove from layout
                 val currentLayout = _homeLayoutState.value
                 val newItems = currentLayout.items.filterNot { it.id == widgetItem.id }
                 val newLayout = currentLayout.copy(items = newItems)
-
-                // Update the layout state immediately
                 _homeLayoutState.value = newLayout
-
-                // Then delete the widget ID and persist
                 appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
                 settingsRepository.saveHomeLayout(newLayout)
-
-                // Force a refresh of the widget host
                 settingsRepository.triggerHomeLayoutRefresh()
-
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
                 _errorMessage.value = "Failed to remove widget."
             }
         }
     }
-
 
     fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
@@ -632,9 +555,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                         component = providerInfo.configure
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetItem.appWidgetId)
                     }
-                    // Store necessary info if result needs handling (e.g., update state on success/cancel)
-                    // pendingReconfigureWidgetId = widgetItem.appWidgetId
-                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET)) // Use same code or new one
+                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
                 } catch (e: Exception) {
                     Log.e("ViewModelWidget", "Error requesting reconfigure for ${widgetItem.appWidgetId}", e)
                     _errorMessage.value = "Failed to reconfigure widget."
@@ -645,7 +566,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    // Helper to get provider info at runtime
     private fun getAppWidgetInfo(packageName: String, className: String): android.appwidget.AppWidgetProviderInfo? {
         return appWidgetManager.installedProviders.find {
             it.provider.packageName == packageName && it.provider.className == className
@@ -655,18 +575,12 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-            if (newRow + appItem.rowSpan > currentLayout.rows ||
-                newColumn + appItem.columnSpan > currentLayout.columns
-            ) {
+            if (newRow + appItem.rowSpan > currentLayout.rows || newColumn + appItem.columnSpan > currentLayout.columns) {
                 _errorMessage.value = "Cannot move app: out of bounds"
                 return@launch
             }
             val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) {
-                    item.copy(row = newRow, column = newColumn)
-                } else {
-                    item
-                }
+                if (item.id == appItem.id && item is HomeItem.App) item.copy(row = newRow, column = newColumn) else item
             }
             val newLayout = currentLayout.copy(items = updatedItems)
             settingsRepository.saveHomeLayout(newLayout)
@@ -676,37 +590,23 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-
             if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
                 _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
                 return@launch
             }
-
             val newItems = currentLayout.items.map {
-                if (it.id == widgetItem.id && it is HomeItem.Widget) {
-                    it.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
-                } else {
-                    it
-                }
+                if (it.id == widgetItem.id && it is HomeItem.Widget) it.copy(rowSpan = newRowSpan, columnSpan = newColSpan) else it
             }
             val newLayout = currentLayout.copy(items = newItems)
-
-            // IMPORTANT: Update state first
             _homeLayoutState.value = newLayout
-
-            // Then persist to storage
             settingsRepository.saveHomeLayout(newLayout)
-
-            // Force a refresh to ensure UI updates
             settingsRepository.triggerHomeLayoutRefresh()
 
-            // Update widget options AFTER layout is saved
             val screenWidthDp = getScreenDimensions(context = appContext).first
             val screenHeightDp = getScreenDimensions(appContext).second
             val (cellWidthDp, cellHeightDp) = getCellSizeDp(
                 screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
             )
-
             val minWidth = (newColSpan * cellWidthDp).toInt()
             val maxWidth = minWidth
             val minHeight = (newRowSpan * cellHeightDp).toInt()
@@ -718,7 +618,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
             }
-
             try {
                 appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
             } catch (e: Exception) {
@@ -730,39 +629,25 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-
-            // Check validity
-            if (appItem.row + newRowSpan > currentLayout.rows ||
-                appItem.column + newColSpan > currentLayout.columns) {
+            if (appItem.row + newRowSpan > currentLayout.rows || appItem.column + newColSpan > currentLayout.columns) {
                 _errorMessage.value = "Cannot resize app: out of bounds"
                 return@launch
             }
-
             val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) {
-                    item.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
-                } else {
-                    item
-                }
+                if (item.id == appItem.id && item is HomeItem.App) item.copy(rowSpan = newRowSpan, columnSpan = newColSpan) else item
             }
             val newLayout = currentLayout.copy(items = updatedItems)
-
-            // Update state first
             _homeLayoutState.value = newLayout
-
-            // Then persist
             settingsRepository.saveHomeLayout(newLayout)
-
-            // Force refresh
             settingsRepository.triggerHomeLayoutRefresh()
         }
     }
 
-
-    // Handle result from widget configuration Activity
     fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_CONFIGURE_WIDGET) {
-            val widgetId = pendingWidgetInfo?.appWidgetId ?: data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+            val widgetId = pendingWidgetInfo?.appWidgetId
+                ?: data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+                ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
             if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                 if (resultCode == RESULT_OK) {
@@ -771,12 +656,10 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                             addWidgetToLayout(info.appWidgetId, info.providerInfo)
                         }
                     } ?: run {
-                        // Handle reconfigure success - force widget refresh
                         Log.d("ViewModelWidget", "Widget ID $widgetId reconfigured successfully.")
                         viewModelScope.launch {
-                            // Force immediate UI refresh (maybe too many refreshes?)
                             val currentLayout = _homeLayoutState.value
-                            _homeLayoutState.value = currentLayout.copy() // Trigger recomposition
+                            _homeLayoutState.value = currentLayout.copy()
                             settingsRepository.triggerHomeLayoutRefresh()
                         }
                     }
@@ -790,9 +673,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    /**
-     * Update the current state of Private Space
-     */
     fun updatePrivateSpaceState() {
         viewModelScope.launch {
             try {
@@ -802,57 +682,38 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    // Force refresh the private space setup status
                     val isSetUp = privateSpaceHelper.isPrivateSpaceSetUp()
-                    Log.d("PrivateSpace", "Is Private Space set up: $isSetUp")
-
                     if (!isSetUp) {
                         _privateSpaceState.value = PrivateSpaceState.NotSetUp
                         return@launch
                     }
-
                     val isLocked = privateSpaceHelper.isPrivateSpaceLocked()
-                    Log.d("PrivateSpace", "Is Private Space locked: $isLocked")
-
-                    _privateSpaceState.value = if (isLocked) {
-                        PrivateSpaceState.Locked
-                    } else {
-                        PrivateSpaceState.Unlocked
-                    }
+                    _privateSpaceState.value = if (isLocked) PrivateSpaceState.Locked else PrivateSpaceState.Unlocked
                 } else {
                     _privateSpaceState.value = PrivateSpaceState.Unsupported
                 }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error updating Private Space state", e)
-                // Default to NotSetUp on error
                 _privateSpaceState.value = PrivateSpaceState.NotSetUp
             }
         }
     }
 
-    /**
-     * Toggle Private Space lock state
-     */
     fun togglePrivateSpace() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             privateSpaceHelper.togglePrivateSpaceLock(
                 onSuccess = {
                     updatePrivateSpaceState()
-                    loadApps() // Refresh app list
+                    loadApps()
                     _refreshTrigger.value++
                 },
-                onFailure = { message ->
-                    _errorMessage.value = message
-                }
+                onFailure = { message -> _errorMessage.value = message }
             )
         } else {
             _errorMessage.value = "Private Space requires Android 15 or higher"
         }
     }
 
-    /**
-     * Check if an app is in Private Space
-     */
     fun isAppInPrivateSpace(app: AppModel): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             return privateSpaceHelper.isPrivateSpaceProfile(app.user)
@@ -860,25 +721,20 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         return false
     }
 
-
-    /**
-     * Handle first open of the app
-     */
     fun firstOpen(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.setFirstOpen(value)
         }
     }
 
-    /**
-     * Load all apps and visible apps
-     */
     fun loadApps() {
         viewModelScope.launch {
             try {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
                 updatePrivateSpaceState()
                 appRepository.loadApps()
+                // Rebuild alias index after loading apps (in case we missed the combine for some reason)
+                rebuildSearchAliasIndex()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
@@ -886,9 +742,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    /**
-     * Load hidden apps
-     */
     fun getHiddenApps() {
         viewModelScope.launch {
             try {
@@ -897,31 +750,21 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false)
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load hidden apps: ${e.message}"
-                _appDrawerState.value =
-                    _appDrawerState.value.copy(isLoading = false, error = e.message)
+                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
 
-    /**
-     * Toggle app hidden state
-     */
     fun toggleAppHidden(app: AppModel) {
         viewModelScope.launch {
             try {
                 appRepository.toggleAppHidden(app)
-                // No need to reload the app list as changes are already reflected
-//                loadApps()
-//                getHiddenApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to toggle app visibility: ${e.message}"
             }
         }
     }
 
-    /**
-     * Launch an app
-     */
     fun launchApp(app: AppModel) {
         viewModelScope.launch {
             try {
@@ -933,44 +776,24 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    /**
-     * Handle app selection for various functions
-     */
     fun selectedApp(appModel: AppModel, flag: Int) {
         when (flag) {
-            Constants.FLAG_LAUNCH_APP, Constants.FLAG_HIDDEN_APPS -> {
-                launchApp(appModel)
-            }
-
-            Constants.FLAG_SET_SWIPE_LEFT_APP -> {
-                setSwipeLeftApp(appModel)
-            }
-
-            Constants.FLAG_SET_SWIPE_RIGHT_APP -> {
-                setSwipeRightApp(appModel)
-            }
-
-            Constants.FLAG_SET_SWIPE_UP_APP -> {
-                setSwipeUpApp(appModel)
-            }
-
-            Constants.FLAG_SET_SWIPE_DOWN_APP -> {
-                setSwipeDownApp(appModel)
-            }
+            Constants.FLAG_LAUNCH_APP, Constants.FLAG_HIDDEN_APPS -> launchApp(appModel)
+            Constants.FLAG_SET_SWIPE_LEFT_APP -> setSwipeLeftApp(appModel)
+            Constants.FLAG_SET_SWIPE_RIGHT_APP -> setSwipeRightApp(appModel)
+            Constants.FLAG_SET_SWIPE_UP_APP -> setSwipeUpApp(appModel)
+            Constants.FLAG_SET_SWIPE_DOWN_APP -> setSwipeDownApp(appModel)
         }
     }
 
     private fun setSwipeLeftApp(app: AppModel) {
         viewModelScope.launch {
-            // Create AppPreference object
             val appPreference = AppPreference(
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
             )
-
-            // Save using the JSON serialization approach
             settingsRepository.setSwipeLeftApp(appPreference)
         }
     }
@@ -983,7 +806,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 activityClassName = app.activityClassName,
                 userString = app.user.toString()
             )
-
             settingsRepository.setSwipeRightApp(appPreference)
         }
     }
@@ -1052,26 +874,29 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-
     private fun setSwipeUpApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setSwipeUpApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            settingsRepository.setSwipeUpApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
     private fun setSwipeDownApp(app: AppModel) {
         viewModelScope.launch {
-            settingsRepository.setSwipeDownApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
+            settingsRepository.setSwipeDownApp(
+                AppPreference(
+                    label = app.appLabel,
+                    packageName = app.appPackage,
+                    activityClassName = app.activityClassName,
+                    userString = app.user.toString()
+                )
+            )
         }
     }
 
@@ -1079,7 +904,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
             if (settings.doubleTapToLock) {
-                // Use accessibility service to lock screen
                 val intent = Intent(appContext, MyAccessibilityService::class.java)
                 intent.action = "LOCK_SCREEN"
                 appContext.startService(intent)
@@ -1088,7 +912,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
     /**
-     * Search apps by query
+     * Search apps by query with alias support.
      */
     fun searchApps(query: String) {
         viewModelScope.launch {
@@ -1096,36 +920,35 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 searchQuery = query,
                 isLoading = true
             )
-
             try {
                 val settings = settingsRepository.settings.first()
                 val searchType = settings.searchType
+                val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
+
+                val mode = settings.searchAliasesMode
+                val queryVariants = SearchAliasUtils.buildQueryVariants(query, mode)
 
                 val filteredApps = if (query.isBlank()) {
-                    _appList.value
+                    listToFilter.value
                 } else {
-                    val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
+                    listToFilter.value.filter { app ->
+                        val label = app.appLabel
+                        val labelNorm = label.lowercase()
 
-                    when (searchType) {
-                        Constants.SearchType.FUZZY -> {
-                            // Fuzzy search implementation
-                            listToFilter.value.filter { app ->
-                                fuzzyMatch(app.appLabel, query)
-                            }
+                        // 1 direct label match as before
+                        val direct = when (searchType) {
+                            Constants.SearchType.FUZZY -> fuzzyMatch(label, query)
+                            Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> labelNorm.startsWith(v) }
+                            else -> queryVariants.any { v -> labelNorm.contains(v) }
                         }
+                        if (direct) return@filter true
 
-                        Constants.SearchType.STARTS_WITH -> {
-                            // Starts with implementation
-                            listToFilter.value.filter { app ->
-                                app.appLabel.startsWith(query, ignoreCase = true)
-                            }
-                        }
-
-                        else -> {
-                            // Default contains search
-                            listToFilter.value.filter { app ->
-                                app.appLabel.contains(query, ignoreCase = true)
-                            }
+                        // 2 alias index match
+                        val aliases = searchAliasIndex[app.getKey()] ?: emptySet()
+                        when (searchType) {
+                            Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> aliases.any { it.startsWith(v) } }
+                            Constants.SearchType.FUZZY -> queryVariants.any { v -> aliases.any { it.contains(v) } } // keep simple for perf
+                            else -> queryVariants.any { v -> aliases.any { it.contains(v) } }
                         }
                     }
                 }
@@ -1135,7 +958,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                     isLoading = false
                 )
 
-                // Auto-open single match if enabled
                 if (filteredApps.size == 1 && query.isNotEmpty() && settings.autoOpenFilteredApp) {
                     launchApp(filteredApps[0])
                 }
@@ -1206,36 +1028,24 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
         val textLower = text.lowercase()
         val patternLower = pattern.lowercase()
-
         var textIndex = 0
         var patternIndex = 0
-
         while (textIndex < textLower.length && patternIndex < patternLower.length) {
             if (textLower[textIndex] == patternLower[patternIndex]) {
                 patternIndex++
             }
             textIndex++
         }
-
         return patternIndex == patternLower.length
     }
 
-
-    /**
-     * Clear error message
-     */
     fun clearError() {
         _errorMessage.value = null
         _appDrawerState.value = _appDrawerState.value.copy(error = null)
     }
-    
-    /**
-     * Emit UI event
-     */
+
     fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _eventsFlow.emit(event)
-        }
+        viewModelScope.launch { _eventsFlow.emit(event) }
     }
 
     override fun onCleared() {
@@ -1253,7 +1063,4 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         Locked,
         Unlocked
     }
-
 }
-
-

@@ -21,9 +21,6 @@ import java.io.FileOutputStream
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.cclauncher.settings")
 
-/**
- * Repository for managing application settings
- */
 class SettingsRepository(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = false }
@@ -84,11 +81,11 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_SORT_ORDER = intPreferencesKey("SEARCH_SORT_ORDER")
         val RECENT_APP_HISTORY = stringPreferencesKey("RECENT_APP_HISTORY")
         val CUSTOM_FONT_PATH = stringPreferencesKey("CUSTOM_FONT_PATH")
+        val ANIMATION_SPEED = floatPreferencesKey("ANIMATION_SPEED")
+        val SEARCH_ALIASES_MODE = intPreferencesKey("SEARCH_ALIASES_MODE")
+        val SEARCH_INCLUDE_PACKAGE_NAMES = booleanPreferencesKey("SEARCH_INCLUDE_PACKAGE_NAMES")
     }
 
-    /**
-     * Single source of truth for all settings mappings
-     */
     private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
         // Boolean settings
         "showAppNames" to SettingDefinition.BooleanSetting("showAppNames", SHOW_APP_NAMES) { it.showAppNames },
@@ -115,6 +112,7 @@ class SettingsRepository(private val context: Context) {
         "rateClicked" to SettingDefinition.BooleanSetting("rateClicked", RATE_CLICKED) { it.rateClicked },
         "searchResultsUseHomeFont" to SettingDefinition.BooleanSetting("searchResultsUseHomeFont", SEARCH_RESULTS_USE_HOME_FONT) { it.searchResultsUseHomeFont },
         "lockSettings" to SettingDefinition.BooleanSetting("lockSettings", LOCK_SETTINGS) { it.lockSettings },
+        "searchIncludePackageNames" to SettingDefinition.BooleanSetting("searchIncludePackageNames", SEARCH_INCLUDE_PACKAGE_NAMES) { it.searchIncludePackageNames },
 
         // Int settings
         "searchType" to SettingDefinition.IntSetting("searchType", SEARCH_TYPE) { it.searchType },
@@ -132,10 +130,12 @@ class SettingsRepository(private val context: Context) {
         "homeScreenRows" to SettingDefinition.IntSetting("homeScreenRows", HOME_SCREEN_ROWS) { it.homeScreenRows },
         "homeScreenColumns" to SettingDefinition.IntSetting("homeScreenColumns", HOME_SCREEN_COLUMNS) { it.homeScreenColumns },
         "searchSortOrder" to SettingDefinition.IntSetting("searchSortOrder", SEARCH_SORT_ORDER) { it.searchSortOrder },
+        "searchAliasesMode" to SettingDefinition.IntSetting("searchAliasesMode", SEARCH_ALIASES_MODE) { it.searchAliasesMode },
 
         // Float settings
         "textSizeScale" to SettingDefinition.FloatSetting("textSizeScale", TEXT_SIZE_SCALE) { it.textSizeScale },
         "searchResultsFontSize" to SettingDefinition.FloatSetting("searchResultsFontSize", SEARCH_RESULTS_FONT_SIZE) { it.searchResultsFontSize },
+        "animationSpeed" to SettingDefinition.FloatSetting("animationSpeed", ANIMATION_SPEED) { it.animationSpeed },
 
         // String settings
         "userState" to SettingDefinition.StringSetting("userState", USER_STATE) { it.userState },
@@ -153,9 +153,6 @@ class SettingsRepository(private val context: Context) {
 
     private val defaultAppSettings = AppSettings.getDefault()
 
-    /**
-     * Flow of settings that emits whenever any setting changes
-     */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
 
         val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
@@ -175,25 +172,17 @@ class SettingsRepository(private val context: Context) {
         } ?: defaultAppSettings.swipeDownApp
 
         val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
-            try {
-                json.decodeFromString<Map<String, String>>(it)
-            } catch (e: Exception) {
-                Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}")
-                mapOf<String, String>()
-            }
+            try { json.decodeFromString<Map<String, String>>(it) }
+            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}"); mapOf<String, String>() }
         } ?: mapOf()
 
         val recentAppHistory = prefs[RECENT_APP_HISTORY]?.let {
-            try {
-                json.decodeFromString<Map<String, Long>>(it)
-            } catch (e: Exception) {
-                Log.e("SettingsRepo", "Failed to decode recent app history JSON: ${e.message}")
-                mapOf<String, Long>()
-            }
+            try { json.decodeFromString<Map<String, Long>>(it) }
+            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode recent app history JSON: ${e.message}"); mapOf<String, Long>() }
         } ?: mapOf()
 
         AppSettings(
-            // General settings
+            // General
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
             showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
@@ -201,8 +190,9 @@ class SettingsRepository(private val context: Context) {
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,
             searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.CONTAINS,
             searchSortOrder = prefs[SEARCH_SORT_ORDER] ?: Constants.SortOrder.ALPHABETICAL,
+            searchAliasesMode = prefs[SEARCH_ALIASES_MODE] ?: 0,
+            searchIncludePackageNames = prefs[SEARCH_INCLUDE_PACKAGE_NAMES] ?: false,
 
-            // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
             textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
             fontWeight = prefs[FONT_WEIGHT] ?: 2,
@@ -211,8 +201,8 @@ class SettingsRepository(private val context: Context) {
             iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 0,
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
             customFontPath = prefs[CUSTOM_FONT_PATH] ?: "",
+            animationSpeed = prefs[ANIMATION_SPEED] ?: 1.0f,
 
-            // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
             screenOrientation = prefs[SCREEN_ORIENTATION] ?: 0,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
@@ -222,7 +212,6 @@ class SettingsRepository(private val context: Context) {
             homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
             homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
 
-            // Gestures settings
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
             swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
@@ -232,7 +221,6 @@ class SettingsRepository(private val context: Context) {
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
             settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
 
-            // Other properties
             firstOpen = prefs[FIRST_OPEN] ?: true,
             firstOpenTime = prefs[FIRST_OPEN_TIME] ?: 0L,
             firstSettingsOpen = prefs[FIRST_SETTINGS_OPEN] ?: true,
@@ -261,29 +249,16 @@ class SettingsRepository(private val context: Context) {
         )
     }
 
-    /**
-     * Update method using property name
-     */
     suspend fun updateSetting(propertyName: String, value: Any) {
         val definition = settingDefinitions[propertyName]
         if (definition != null) {
             context.settingsDataStore.edit { prefs ->
                 when (definition) {
-                    is SettingDefinition.BooleanSetting -> {
-                        prefs[definition.key] = value as Boolean
-                    }
-                    is SettingDefinition.IntSetting -> {
-                        prefs[definition.key] = value as Int
-                    }
-                    is SettingDefinition.FloatSetting -> {
-                        prefs[definition.key] = value as Float
-                    }
-                    is SettingDefinition.StringSetting -> {
-                        prefs[definition.key] = value as String
-                    }
-                    is SettingDefinition.LongSetting -> {
-                        prefs[definition.key] = value as Long
-                    }
+                    is SettingDefinition.BooleanSetting -> prefs[definition.key] = value as Boolean
+                    is SettingDefinition.IntSetting -> prefs[definition.key] = value as Int
+                    is SettingDefinition.FloatSetting -> prefs[definition.key] = value as Float
+                    is SettingDefinition.StringSetting -> prefs[definition.key] = value as String
+                    is SettingDefinition.LongSetting -> prefs[definition.key] = value as Long
                     is SettingDefinition.StringSetSetting -> {
                         @Suppress("UNCHECKED_CAST")
                         prefs[definition.key] = value as Set<String>
@@ -295,39 +270,22 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    /**
-     * Batch update without reflection
-     */
     suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
 
         context.settingsDataStore.edit { prefs ->
-            // Process all defined settings
             settingDefinitions.values.forEach { definition ->
                 val currentValue = definition.getValue(currentSettings)
                 val newValue = definition.getValue(updatedSettings)
-
                 if (currentValue != newValue) {
                     when (definition) {
-                        is SettingDefinition.BooleanSetting -> {
-                            prefs[definition.key] = newValue as Boolean
-                        }
-                        is SettingDefinition.IntSetting -> {
-                            prefs[definition.key] = newValue as Int
-                        }
-                        is SettingDefinition.FloatSetting -> {
-                            prefs[definition.key] = newValue as Float
-                        }
-                        is SettingDefinition.StringSetting -> {
-                            prefs[definition.key] = newValue as String
-                        }
-                        is SettingDefinition.LongSetting -> {
-                            prefs[definition.key] = newValue as Long
-                        }
-                        is SettingDefinition.StringSetSetting -> {
-                            prefs[definition.key] = newValue as Set<String>
-                        }
+                        is SettingDefinition.BooleanSetting -> prefs[definition.key] = newValue as Boolean
+                        is SettingDefinition.IntSetting -> prefs[definition.key] = newValue as Int
+                        is SettingDefinition.FloatSetting -> prefs[definition.key] = newValue as Float
+                        is SettingDefinition.StringSetting -> prefs[definition.key] = newValue as String
+                        is SettingDefinition.LongSetting -> prefs[definition.key] = newValue as Long
+                        is SettingDefinition.StringSetSetting -> prefs[definition.key] = newValue as Set<String>
                     }
                 }
             }
@@ -353,20 +311,14 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    // Direct access methods for commonly used settings
     suspend fun setFirstOpen(value: Boolean) = updateSetting("firstOpen", value)
     suspend fun setAppTheme(value: Int) = updateSetting("appTheme", value)
 
-    // Keep all existing helper methods unchanged
     fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
         .map { prefs ->
             prefs[HOME_LAYOUT]?.let { jsonString ->
-                try {
-                    Json.decodeFromString<HomeLayout>(jsonString)
-                } catch (e: Exception) {
-                    Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e)
-                    HomeLayout()
-                }
+                try { Json.decodeFromString<HomeLayout>(jsonString) }
+                catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e); HomeLayout() }
             } ?: HomeLayout()
         }
         .catch { exception ->
@@ -377,9 +329,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun saveHomeLayout(layout: HomeLayout) {
         try {
             val jsonString = Json.encodeToString(layout)
-            context.settingsDataStore.edit { prefs ->
-                prefs[HOME_LAYOUT] = jsonString
-            }
+            context.settingsDataStore.edit { prefs -> prefs[HOME_LAYOUT] = jsonString }
         } catch (e: Exception) {
             Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)
         }
@@ -391,27 +341,19 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun setSwipeLeftApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app) }
     }
 
     suspend fun setSwipeRightApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app) }
     }
 
     suspend fun setSwipeUpApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app) }
     }
 
     suspend fun setSwipeDownApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app) }
     }
 
     suspend fun getSwipeLeftApp(): AppPreference = settings.first().swipeLeftApp
@@ -425,9 +367,7 @@ class SettingsRepository(private val context: Context) {
         try {
             val fontFile = File(context.filesDir, Constants.CUSTOM_FONT_FILENAME)
             context.contentResolver.openInputStream(uri)?.use { input ->
-                FileOutputStream(fontFile).use { output ->
-                    input.copyTo(output)
-                }
+                FileOutputStream(fontFile).use { output -> input.copyTo(output) }
             }
             updateSetting("customFontPath", fontFile.absolutePath)
         } catch (e: Exception) {
@@ -438,11 +378,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun clearCustomFont() {
         val currentPath = settings.first().customFontPath
         if (currentPath.isNotEmpty()) {
-            try {
-                File(currentPath).delete()
-            } catch (e: Exception) {
-                Log.e("SettingsRepo", "Error deleting old font file", e)
-            }
+            try { File(currentPath).delete() }
+            catch (e: Exception) { Log.e("SettingsRepo", "Error deleting old font file", e) }
         }
         updateSetting("customFontPath", "")
     }
@@ -450,11 +387,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun toggleAppHidden(packageKey: String) {
         updateSetting {
             val updatedHiddenApps = it.hiddenApps.toMutableSet()
-            if (updatedHiddenApps.contains(packageKey)) {
-                updatedHiddenApps.remove(packageKey)
-            } else {
-                updatedHiddenApps.add(packageKey)
-            }
+            if (updatedHiddenApps.contains(packageKey)) updatedHiddenApps.remove(packageKey) else updatedHiddenApps.add(packageKey)
             it.copy(hiddenApps = updatedHiddenApps)
         }
     }
@@ -462,47 +395,31 @@ class SettingsRepository(private val context: Context) {
     suspend fun setAppCustomName(appKey: String, customName: String) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
-
-        if (customName.isBlank()) {
-            updatedRenamedApps.remove(appKey)
-        } else {
-            updatedRenamedApps[appKey] = customName
-        }
-
-        context.settingsDataStore.edit { prefs ->
-            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
-        }
+        if (customName.isBlank()) updatedRenamedApps.remove(appKey) else updatedRenamedApps[appKey] = customName
+        context.settingsDataStore.edit { prefs -> prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps) }
     }
 
     suspend fun removeAppCustomName(appKey: String) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
         updatedRenamedApps.remove(appKey)
-
-        context.settingsDataStore.edit { prefs ->
-            prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps) }
     }
 
     suspend fun updateAppLaunchTime(appKey: String) {
         val currentSettings = settings.first()
         val updatedHistory = currentSettings.recentAppHistory.toMutableMap()
         updatedHistory[appKey] = System.currentTimeMillis()
-
         if (updatedHistory.size > 100) {
             val oldest = updatedHistory.entries.sortedBy { it.value }.take(20)
             oldest.forEach { updatedHistory.remove(it.key) }
         }
-
-        context.settingsDataStore.edit { prefs ->
-            prefs[RECENT_APP_HISTORY] = json.encodeToString(updatedHistory)
-        }
+        context.settingsDataStore.edit { prefs -> prefs[RECENT_APP_HISTORY] = json.encodeToString(updatedHistory) }
     }
 
     private inline fun <reified T> Json.decodeFromStringCatching(jsonString: String, default: T): T {
-        return try {
-            this.decodeFromString<T>(jsonString)
-        } catch (e: Exception) {
+        return try { this.decodeFromString<T>(jsonString) }
+        catch (e: Exception) {
             Log.e("SettingsRepo", "Failed to decode JSON for ${T::class.simpleName}: ${e.message}. Using default.")
             default
         }

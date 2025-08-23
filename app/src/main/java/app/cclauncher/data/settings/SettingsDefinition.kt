@@ -12,9 +12,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
-/**
- * Annotation for app settings
- */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Setting(
@@ -29,9 +26,6 @@ annotation class Setting(
     val options: Array<String> = []
 )
 
-/**
- * Definition for a setting that maps between AppSettings property and DataStore key
- */
 sealed class SettingDefinition<T> {
     abstract val key: Preferences.Key<T>
     abstract val getValue: (AppSettings) -> T
@@ -74,9 +68,6 @@ sealed class SettingDefinition<T> {
     ) : SettingDefinition<Set<String>>()
 }
 
-/**
- * Categories for organizing settings
- */
 enum class SettingCategory {
     GENERAL,
     APPEARANCE,
@@ -85,23 +76,16 @@ enum class SettingCategory {
     SYSTEM
 }
 
-/**
- * Types of settings
- */
 enum class SettingType {
     TOGGLE,
     SLIDER,
     DROPDOWN,
     BUTTON,
-//    COLOR_PICKER,
     FONT_PICKER,
     APP_PICKER,
     ICON_PACK_PICKER
 }
 
-/**
- * Central data class for all application settings
- */
 data class AppSettings(
 
     @Setting(
@@ -146,6 +130,23 @@ data class AppSettings(
         options = ["Contains", "Fuzzy Match", "Starts With"]
     )
     val searchType: Int = Constants.SearchType.CONTAINS,
+
+    @Setting(
+        title = "Search Aliases",
+        description = "Match app names across transliterations and keyboard layouts (e.g., ProtonVPN ↔ ПротонВПН; Африка ↔ Afrika). May slightly increase CPU use on older devices when updating the index.",
+        category = SettingCategory.GENERAL,
+        type = SettingType.DROPDOWN,
+        options = ["Off", "Transliteration", "Keyboard layout swap", "Both"]
+    )
+    val searchAliasesMode: Int = 0,
+
+//    @Setting(
+//        title = "Include Package Names in Search",
+//        description = "Also match app package IDs (e.g., org.fdroid.app → fdroid).",
+//        category = SettingCategory.GENERAL,
+//        type = SettingType.TOGGLE
+//    )
+    val searchIncludePackageNames: Boolean = false,
 
     // Appearance settings
     @Setting(
@@ -277,12 +278,6 @@ data class AppSettings(
     )
     val selectedIconPack: String = "default",
 
-//    @Setting( // Already present in SettingsScreen
-//        title = "Lock Settings",
-//        category = SettingCategory.SYSTEM,
-//        type = SettingType.TOGGLE,
-//        description = "Prevent changes to settings without unlocking"
-//    )
     val lockSettings: Boolean = false,
 
     val settingsLockPin: String = "",
@@ -291,7 +286,6 @@ data class AppSettings(
         title = "Show App Icons in Landscape",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
-//        dependsOn = "showHomeScreenIcons"
     )
     val showIconsInLandscape: Boolean = false,
 
@@ -299,7 +293,6 @@ data class AppSettings(
         title = "Show App Icons in Portrait",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE,
-//        dependsOn = "showHomeScreenIcons"
     )
     val showIconsInPortrait: Boolean = false,
 
@@ -326,14 +319,12 @@ data class AppSettings(
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
 
-
     @Setting(
         title = "Swipe Up App",
         category = SettingCategory.GESTURES,
         type = SettingType.APP_PICKER
     )
     val swipeUpApp: AppPreference = AppPreference(),
-
 
     @Setting(
         title = "Double Tap to Lock Screen",
@@ -342,7 +333,6 @@ data class AppSettings(
     )
     val doubleTapToLock: Boolean = false,
 
-    // Search result appearance settings
     @Setting(
         title = "Search Results Use Home Font Size",
         category = SettingCategory.APPEARANCE,
@@ -377,7 +367,6 @@ data class AppSettings(
     )
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
-
     @Setting(
         title = "Swipe Right Action",
         category = SettingCategory.GESTURES,
@@ -386,7 +375,6 @@ data class AppSettings(
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
 
-
     @Setting(
         title = "Right Swipe App",
         category = SettingCategory.GESTURES,
@@ -394,7 +382,6 @@ data class AppSettings(
         dependsOn = "swipeRightEnabled"
     )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
-
 
     @Setting(
         title = "Set Plain Wallpaper",
@@ -437,93 +424,52 @@ data class AppSettings(
     val aboutClicked: Boolean = false,
     val rateClicked: Boolean = false,
     val shareShownTime: Long = 0L,
-
 ) {
-    @Suppress("unused") // Used for disabling font weight
+    @Suppress("unused")
     val isSystemFont: Boolean
         get() = customFontPath.isEmpty()
     companion object {
-        // Helper method to get default settings
         fun getDefault(): AppSettings = AppSettings()
     }
 }
 
-/**
- * Manager class that handles settings reflection and organization
- */
 class SettingsManager {
-    /**
-     * Get all settings properties with their annotations
-     */
     fun getAllSettings(): List<Pair<KProperty1<AppSettings, *>, Setting>> {
         return AppSettings::class.memberProperties
             .mapNotNull { property ->
                 val annotation = property.findAnnotation<Setting>()
-                if (annotation != null) {
-                    property to annotation
-                } else {
-                    null
-                }
+                if (annotation != null) property to annotation else null
             }
     }
 
-    /**
-     * Get settings grouped by category
-     */
     fun getSettingsByCategory(): Map<SettingCategory, List<Pair<KProperty1<AppSettings, *>, Setting>>> {
         return getAllSettings().groupBy { it.second.category }
     }
 
-    /**
-     * Get a setting value from an AppSettings instance
-     */
     @Suppress("unused")
     fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
         return property.get(settings)
     }
 
-    /**
-     * Create a new AppSettings instance with an updated value for a property (dynamic usage if needed)
-     */
     fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
-        // Create a mutable map of all current property values
         val propertyMap = mutableMapOf<String, Any?>()
-
-        // Fill the map with all current property values
         AppSettings::class.memberProperties.forEach { prop ->
             propertyMap[prop.name] = prop.get(settings)
         }
-
-        // Update the specific property
         propertyMap[propertyName] = value
-
-        // Create a new instance with the updated property
         val constructor = AppSettings::class.constructors.first()
         val parameters = constructor.parameters
-
-        // Map parameter names to values, using the updated property value where applicable
-        val parameterValues = parameters.associateWith { param ->
-            propertyMap[param.name]
-        }
-
-        // Create a new instance with the updated values
+        val parameterValues = parameters.associateWith { param -> propertyMap[param.name] }
         return constructor.callBy(parameterValues)
     }
 
-    /**
-     * Check if a setting is enabled based on its dependencies
-     */
     fun isSettingEnabled(
         settings: AppSettings,
         property: KProperty1<AppSettings, *>,
         annotation: Setting
     ): Boolean {
         val dependsOn = annotation.dependsOn
-
-        if (dependsOn.isEmpty()) {
-            return true
-        }
-
+        if (dependsOn.isEmpty()) return true
         val dependencyProperty = AppSettings::class.memberProperties.find { it.name == dependsOn }
         return if (dependencyProperty != null) {
             val dependencyValue = dependencyProperty.get(settings)
@@ -531,9 +477,7 @@ class SettingsManager {
                 is Boolean -> dependencyValue
                 else -> true
             }
-        } else {
-            true
-        }
+        } else true
     }
 }
 
