@@ -1,0 +1,18 @@
+- Add tap to open setting to fix #104
+- Bump actions/setup-java from 4 to 5 in /.github/workflows
+- Add transliteration setting separated (niche)
+- Bump com.android.application from 8.12.0 to 8.12.1
+- Bump gradle/actions from 3 to 4 in /.github/workflows
+- Fix all abis being built even if target abi is specified
+- Update 820.txt
+- Update CHANGELOG.md
+- Update android.yml
+- Bump actions/checkout from 4 to 5 in /.github/workflows
+- Bump gradle/gradle-build-action from 2 to 3 in /.github/workflows
+- Update dependabot.yml (fix spell)
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.2.0 to 2.2.10
+- Bump kotlin from 2.2.0 to 2.2.10
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.2.0 to 2.2.10
+- Bump plugin.serialization from 2.2.0 to 2.2.10
+- Bump androidx.core:core-ktx from 1.16.0 to 1.17.0
+- Bump com.android.application from 8.11.1 to 8.12.0
