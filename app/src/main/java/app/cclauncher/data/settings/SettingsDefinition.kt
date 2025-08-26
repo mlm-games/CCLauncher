@@ -133,7 +133,7 @@ data class AppSettings(
 
     @Setting(
         title = "Search Aliases",
-        description = "Match app names across transliterations and keyboard layouts (e.g., ProtonVPN ↔ ПротонВПН; Африка ↔ Afrika). May slightly increase CPU use on older devices when updating the index.",
+        description = "Match app names across transliterations and keyboard layouts (e.g., ProtonVPN ↔ ПротонВПН; Африка ↔ Afrika). May slightly increase CPU use on older devices.",
         category = SettingCategory.GENERAL,
         type = SettingType.DROPDOWN,
         options = ["Off", "Transliteration", "Keyboard layout swap", "Both"]
@@ -224,6 +224,14 @@ data class AppSettings(
         type = SettingType.TOGGLE
     )
     val statusBar: Boolean = false,
+
+    @Setting(
+        title = "Tap to Open in App Drawer",
+        description = "When disabled, tapping an app drawer app does nothing. Long‑press still opens the menu.",
+        category = SettingCategory.GENERAL,
+        type = SettingType.TOGGLE
+    )
+    val appDrawerTapToOpen: Boolean = true,
 
     @Setting(
         title = "Scale Home Apps",

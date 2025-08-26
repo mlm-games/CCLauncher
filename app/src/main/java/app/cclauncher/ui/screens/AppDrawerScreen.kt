@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -313,7 +312,11 @@ fun AppDrawerScreen(
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             fontScale = searchResultsFontSize,
                             fontWeight = fontWeight,
-                            onClick = { handleAppClick(app) },
+                            onClick = {
+                                if (settings.appDrawerTapToOpen) {
+                                    handleAppClick(app)
+                                }
+                            },
                             onLongClick = {
                                 selectedApp = app
                                 showContextMenu = true

@@ -84,6 +84,7 @@ class SettingsRepository(private val context: Context) {
         val ANIMATION_SPEED = floatPreferencesKey("ANIMATION_SPEED")
         val SEARCH_ALIASES_MODE = intPreferencesKey("SEARCH_ALIASES_MODE")
         val SEARCH_INCLUDE_PACKAGE_NAMES = booleanPreferencesKey("SEARCH_INCLUDE_PACKAGE_NAMES")
+        val APP_DRAWER_TAP_TO_OPEN = booleanPreferencesKey("APP_DRAWER_TAP_TO_OPEN")
     }
 
     private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
@@ -113,6 +114,7 @@ class SettingsRepository(private val context: Context) {
         "searchResultsUseHomeFont" to SettingDefinition.BooleanSetting("searchResultsUseHomeFont", SEARCH_RESULTS_USE_HOME_FONT) { it.searchResultsUseHomeFont },
         "lockSettings" to SettingDefinition.BooleanSetting("lockSettings", LOCK_SETTINGS) { it.lockSettings },
         "searchIncludePackageNames" to SettingDefinition.BooleanSetting("searchIncludePackageNames", SEARCH_INCLUDE_PACKAGE_NAMES) { it.searchIncludePackageNames },
+        "appDrawerTapToOpen" to SettingDefinition.BooleanSetting("appDrawerTapToOpen", APP_DRAWER_TAP_TO_OPEN) { it.appDrawerTapToOpen },
 
         // Int settings
         "searchType" to SettingDefinition.IntSetting("searchType", SEARCH_TYPE) { it.searchType },
@@ -204,6 +206,7 @@ class SettingsRepository(private val context: Context) {
             animationSpeed = prefs[ANIMATION_SPEED] ?: 1.0f,
 
             statusBar = prefs[STATUS_BAR] ?: false,
+            appDrawerTapToOpen = prefs[APP_DRAWER_TAP_TO_OPEN] ?: true,
             screenOrientation = prefs[SCREEN_ORIENTATION] ?: 0,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
