@@ -15,12 +15,22 @@ on:
         required: true
         default: 'false'
         type: boolean
+      play_track:
+        description: 'Google Play track (internal, alpha, beta, production)'
+        required: true
+        default: 'alpha'
+        type: choice
+        options: [internal, alpha, beta, production]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 env:
+  APP_NAME: 'CCLauncher'      
+  APP_SLUG: 'cclauncher'     
+  APPLICATION_ID: 'com.app.cclauncher'
+
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'corretto'
   BUILD_GRADLE_PATH: 'app/build.gradle.kts'
@@ -48,7 +58,6 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'gradle'
       
       - id: version
         name: Update Version Numbers
@@ -114,49 +123,73 @@ jobs:
           
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
           
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE }}" > release.keystore.asc
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSPHRASE }}" --batch release.keystore.asc > release.keystore
 
-      - name: Build APKs
+      - name: Build AAB (Play)
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/release.keystore
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew :app:bundleRelease -PenableApkSplits=false
+      
+      - name: Prepare AAB artifact
         run: |
-          ./gradlew clean assembleRelease \
-            -Pandroid.injected.signing.store.file=$PWD/release.keystore \
-            -Pandroid.injected.signing.store.password=${{ secrets.STORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-
+          mkdir -p artifacts
+          cp app/build/outputs/bundle/release/app-release.aab \
+             "artifacts/${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}.aab"
+      
+      - name: Upload AAB to Google Play
+        if: github.event_name == 'workflow_dispatch' && inputs.upload_releases == true
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.APPLICATION_ID }}
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.play_track }}
+          status: completed
+          whatsNewDirectory: fastlane/metadata/android
+      
+      - name: Clean before APK build
+        run: ./gradlew clean
+      
+      - name: Build APK splits
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/release.keystore
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease -PenableApkSplits=true -PincludeUniversalApk=true
+          
       - name: Prepare APKs
         run: |
           mkdir -p artifacts
-          
-          # Rename APKs with version
           for apk in app/build/outputs/apk/release/*.apk; do
             if [ -f "$apk" ]; then
-              arch=$(echo "$apk" | grep -oE '(arm64-v8a|armeabi-v7a|x86_64|x86)')
+              arch=$(echo "$apk" | grep -oE '(arm64-v8a|armeabi-v7a|x86_64|x86|universal)')
               if [ -n "$arch" ]; then
-                cp "$apk" "artifacts/cclauncher-${{ needs.prepare-version.outputs.version_name }}-${arch}.apk"
+                cp "$apk" "artifacts/${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-${arch}.apk"
               fi
             fi
           done
-
+  
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         if: inputs.upload_releases == false || github.event_name != 'workflow_dispatch'
         with:
           name: release-${{ needs.prepare-version.outputs.version_name }}
-          path: artifacts/*.apk
+          path: artifacts/*
 
       - name: Create GitHub Release
         if: github.event_name == 'workflow_dispatch' && inputs.upload_releases == true
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/*.apk
-          name: CCLauncher ${{ needs.prepare-version.outputs.version_name }}
+          files: artifacts/*
+          name: ${{ env.APP_NAME }} ${{ needs.prepare-version.outputs.version_name }}
           tag_name: ${{ needs.prepare-version.outputs.version_name }}
           prerelease: ${{ inputs.mark_prerelease }}
           body: |
@@ -166,7 +199,9 @@ jobs:
             ### Downloads
             | Architecture | APK |
             |-------------|-----|
-            | ARM64 (Most phones) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk` |
-            | ARM32 (Older phones) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk` |
-            | x86_64 (Emulators) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk` |
-            | x86 (Old emulators) | `cclauncher-${{ needs.prepare-version.outputs.version_name }}-x86.apk` |
+            | Universal (All ABIs) | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-universal.apk` |
+            | ARM64 (Most phones) | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-arm64-v8a.apk` |
+            | ARM32 (Older phones) | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-armeabi-v7a.apk` |
+            | x86_64 (Emulators) | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-x86_64.apk` |
+            | x86 (Old emulators) | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}-x86.apk` |
+            | App Bundle | `${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}.aab` |
