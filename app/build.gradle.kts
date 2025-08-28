@@ -42,9 +42,6 @@ android {
     }
 
     val enableApkSplits = (providers.gradleProperty("enableApkSplits").orNull ?: "true").toBoolean()
-    val targetAbi = providers.gradleProperty("targetAbi").orNull
-
-    val enableApkSplits = (providers.gradleProperty("enableApkSplits").orNull ?: "true").toBoolean()
     val includeUniversalApk = (providers.gradleProperty("includeUniversalApk").orNull ?: "true").toBoolean()
     val targetAbi = providers.gradleProperty("targetAbi").orNull
 
