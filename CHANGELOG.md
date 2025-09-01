@@ -1,3 +1,12 @@
+## vv9.9.4
+
+- Update build.gradle.kts
+- Update build.gradle.kts
+- Update android.yml for universal apk
+- Bump androidx.lifecycle:lifecycle-viewmodel-compose from 2.9.2 to 2.9.3
+- Bump androidx.lifecycle:lifecycle-viewmodel-ktx from 2.9.2 to 2.9.3
+
+
 ## vv9.9.3
 
 - Add tap to open setting to fix #104
