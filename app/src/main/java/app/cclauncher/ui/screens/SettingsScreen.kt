@@ -6,44 +6,30 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.Settings
-import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -56,7 +42,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -76,7 +61,13 @@ import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
-import app.cclauncher.ui.components.ConfirmationDialog
+import app.cclauncher.ui.components.FontPickerDialog
+import app.cclauncher.ui.components.GridSizeWarningDialog
+import app.cclauncher.ui.components.IconPackSelectionDialog
+import app.cclauncher.ui.components.SettingsAction
+import app.cclauncher.ui.components.SettingsItem
+import app.cclauncher.ui.components.SettingsSection
+import app.cclauncher.ui.components.SettingsToggle
 import app.cclauncher.ui.dialogs.DropdownSettingDialog
 import app.cclauncher.ui.dialogs.SettingsLockDialog
 import app.cclauncher.ui.dialogs.SliderSettingDialog
@@ -726,305 +717,6 @@ fun SettingsScreen(
 // Helper functions
 fun String.capitalize(locale: Locale): String {
     return replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
-}
-
-@Composable
-fun SettingsSection(
-    title: String,
-    content: @Composable () -> Unit
-) {
-    Column(
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
-        ) {
-            Column {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsItem(
-    title: String,
-    subtitle: String? = null,
-    description: String? = null,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-    transparency: Float = 1.0f
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 8.dp)
-            .alpha(if (enabled) transparency else 0.5f)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
-            if (description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsToggle(
-    title: String,
-    description: String? = null,
-    isChecked: Boolean,
-    enabled: Boolean = true,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    var toggleState by remember { mutableStateOf(isChecked) }
-
-    LaunchedEffect(isChecked) {
-        toggleState = isChecked
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled) {
-                if (enabled) {
-                    toggleState = !toggleState
-                    onCheckedChange(toggleState)
-                }
-            }
-            .padding(16.dp)
-            .alpha(if (enabled) 1f else 0.5f),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            if (description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
-        Switch(
-            checked = toggleState,
-            onCheckedChange = { if (enabled) {
-                toggleState = it
-                onCheckedChange(it)
-            }},
-            enabled = enabled
-        )
-    }
-}
-
-@Composable
-fun SettingsAction(
-    title: String,
-    description: String? = null,
-    enabled: Boolean = true,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .alpha(if (enabled) 1f else 0.5f),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f)
-            )
-
-            if (description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 0.7f else 0.5f)
-                )
-            }
-        }
-
-        Button(
-            onClick = onClick,
-            enabled = enabled,
-            modifier = Modifier.padding(start = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        ) {
-            Text("Set")
-        }
-    }
-}
-
-@Composable
-fun GridSizeWarningDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    ConfirmationDialog(
-        title = "Grid Size Change",
-        message = "Changing the grid size may move some apps and widgets to inaccessible positions. Do you want to continue?",
-        confirmText = "Continue",
-        onConfirm = onConfirm,
-        onDismiss = onDismiss
-    )
-}
-
-@Composable
-fun IconPackSelectionDialog(
-    iconPacks: List<IconPackManager.IconPackInfo>,
-    selectedPack: String,
-    onDismiss: () -> Unit,
-    onPackSelected: (String) -> Unit
-) {
-    var selected by remember { mutableStateOf(selectedPack) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Select Icon Pack") },
-        text = {
-            LazyColumn {
-                items(iconPacks.size) { index ->
-                    val pack = iconPacks[index]
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = pack.packageName }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selected == pack.packageName,
-                            onClick = { selected = pack.packageName }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(pack.name)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onPackSelected(selected) }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun FontPickerDialog(
-    title: String,
-    onDismiss: () -> Unit,
-    onSelectClicked: () -> Unit,
-    onResetClicked: () -> Unit,
-    viewModel: SettingsViewModel
-) {
-    val fontInfo by viewModel.customFontInfo.collectAsState()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column {
-                Text(
-                    "Current font: ${fontInfo?.first ?: "System default"}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                if (fontInfo != null) {
-                    Text(
-                        "Size: ${Formatter.formatFileSize(LocalContext.current, fontInfo!!.second)}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "ABCDEFGabcdefg123",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(onClick = onSelectClicked) {
-                        Text("Select Font")
-                    }
-
-                    if (fontInfo != null) {
-                        Button(
-                            onClick = onResetClicked,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
-                        ) {
-                            Text("Reset to Default")
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
 }
 
 fun isAccessServiceEnabled(context: Context): Boolean {
