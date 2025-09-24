@@ -1,0 +1,23 @@
+- Add text color picker (for lighter backgrounds)
+- Bump androidx.lifecycle:lifecycle-viewmodel-ktx from 2.9.3 to 2.9.4
+- Bump androidx.lifecycle:lifecycle-viewmodel-compose from 2.9.3 to 2.9.4
+- Bump com.google.code.gson:gson from 2.13.1 to 2.13.2
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.2.10 to 2.2.20
+- Bump kotlin from 2.2.10 to 2.2.20
+- Bump androidx.activity:activity-compose from 1.10.1 to 1.11.0
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.2.10 to 2.2.20
+- Bump navigationFragmentKtx from 2.9.3 to 2.9.4
+- Bump plugin.serialization from 2.2.10 to 2.2.20
+- Bump androidx.work:work-runtime-ktx from 2.10.3 to 2.10.4
+- Update android.yml for GH release notes
+- add missed id
+- Update android.yml
+- fix android.yml
+- Pin workflow commit to prevent repro mismatches
+- Bump com.google.android.material:material from 1.12.0 to 1.13.0
+- rm duplicate code
+- Update build.gradle.kts
+- Update build.gradle.kts
+- Update android.yml for universal apk
+- Bump androidx.lifecycle:lifecycle-viewmodel-compose from 2.9.2 to 2.9.3
+- Bump androidx.lifecycle:lifecycle-viewmodel-ktx from 2.9.2 to 2.9.3
