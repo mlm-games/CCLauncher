@@ -288,6 +288,7 @@ class SettingsRepository(private val context: Context) {
                 val currentValue = definition.getValue(currentSettings)
                 val newValue = definition.getValue(updatedSettings)
                 if (currentValue != newValue) {
+                    @Suppress("UNCHECKED_CAST")
                     when (definition) {
                         is SettingDefinition.BooleanSetting -> prefs[definition.key] = newValue as Boolean
                         is SettingDefinition.IntSetting -> prefs[definition.key] = newValue as Int
