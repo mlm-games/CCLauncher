@@ -61,6 +61,7 @@ import app.cclauncher.helper.setPlainWallpaperByTheme
 import app.cclauncher.ui.AppSelectionType
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.UiEvent
+import app.cclauncher.ui.components.ColorPickerDialog
 import app.cclauncher.ui.components.FontPickerDialog
 import app.cclauncher.ui.components.GridSizeWarningDialog
 import app.cclauncher.ui.components.IconPackSelectionDialog
@@ -286,6 +287,22 @@ fun SettingsScreen(
                         onResetClicked = {
                             viewModel.clearCustomFont()
                             showingDialog = null
+                        }
+                    )
+                }
+            }
+        }
+        "color_picker" -> {
+            currentProperty?.let { prop ->
+                currentAnnotation?.let { annotation ->
+                    ColorPickerDialog(
+                        title = annotation.title,
+                        currentColor = prop.get(uiState) as Int,
+                        onDismiss = { showingDialog = null },
+                        onColorSelected = { color ->
+                            coroutineScope.launch {
+                                viewModel.updateSetting(prop.name, color)
+                            }
                         }
                     )
                 }
@@ -574,7 +591,22 @@ fun SettingsScreen(
                                         }
                                     )
                                 }
-//                                else -> { /* Why is color picker even needed? */ }
+                                SettingType.COLOR_PICKER -> {
+                                    val colorValue = property.get(uiState) as Int
+                                    val displayText = if (colorValue == 0) "Theme Default" else "Custom Color"
+
+                                    SettingsItem(
+                                        title = annotation.title,
+                                        subtitle = displayText,
+                                        description = annotation.description.takeIf { it.isNotEmpty() },
+                                        enabled = isEnabled,
+                                        onClick = {
+                                            currentProperty = property
+                                            currentAnnotation = annotation
+                                            showingDialog = "color_picker"
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

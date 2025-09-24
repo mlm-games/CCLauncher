@@ -4,7 +4,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.cclauncher.ui.theme.AnimationConfig
 
 /**
@@ -36,6 +39,7 @@ fun LauncherListItem(
     iconCornerRadius: Dp = 0.dp,
     fontScale: Float = 1.0f,
     fontWeight: FontWeight = FontWeight.Normal,
+    textColor: Color? = null,
     horizontalPadding: Dp = 20.dp,
     verticalPadding: Dp = 12.dp,
     onClick: () -> Unit = {},
@@ -73,13 +77,13 @@ fun LauncherListItem(
         if (showLabel) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = (MaterialTheme.typography.bodyLarge.fontSize.value * fontScale).sp,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
                     fontWeight = fontWeight
                 ),
+                color = textColor ?: MaterialTheme.colorScheme.onSurface, // Use custom color
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -95,6 +99,7 @@ fun LauncherListItem(
 @Composable
 fun AppListItem(
     appLabel: String,
+    modifier: Modifier = Modifier,
     appIcon: ImageBitmap? = null,
     showIcon: Boolean = true,
     showLabel: Boolean = true,
@@ -102,9 +107,9 @@ fun AppListItem(
     iconCornerRadius: Dp = 0.dp,
     fontScale: Float = 1.0f,
     fontWeight: FontWeight = FontWeight.Normal,
+    textColor: Color? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
     trailing: @Composable (() -> Unit)? = null
 ) {
     LauncherListItem(
@@ -116,6 +121,7 @@ fun AppListItem(
         iconCornerRadius = iconCornerRadius,
         fontScale = fontScale,
         fontWeight = fontWeight,
+        textColor = textColor,
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = modifier,

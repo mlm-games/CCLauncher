@@ -304,6 +304,12 @@ fun AppDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
+                        val customTextColor = if (settings.useCustomTextColor && settings.textColor != 0) {
+                            Color(settings.textColor)
+                        } else {
+                            null
+                        }
+
                         AppListItem(
                             appLabel = app.appLabel,
                             appIcon = if (shouldShowIcons) app.appIcon else null,
@@ -312,6 +318,7 @@ fun AppDrawerScreen(
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             fontScale = searchResultsFontSize,
                             fontWeight = fontWeight,
+                            textColor = customTextColor,
                             onClick = {
                                 if (settings.appDrawerTapToOpen) {
                                     handleAppClick(app)

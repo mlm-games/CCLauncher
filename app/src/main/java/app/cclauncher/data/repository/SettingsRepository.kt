@@ -85,7 +85,9 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_ALIASES_MODE = intPreferencesKey("SEARCH_ALIASES_MODE")
         val SEARCH_INCLUDE_PACKAGE_NAMES = booleanPreferencesKey("SEARCH_INCLUDE_PACKAGE_NAMES")
         val APP_DRAWER_TAP_TO_OPEN = booleanPreferencesKey("APP_DRAWER_TAP_TO_OPEN")
-    }
+        val TEXT_COLOR = intPreferencesKey("TEXT_COLOR")
+        val USE_CUSTOM_TEXT_COLOR = booleanPreferencesKey("USE_CUSTOM_TEXT_COLOR")
+}
 
     private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
         // Boolean settings
@@ -115,8 +117,10 @@ class SettingsRepository(private val context: Context) {
         "lockSettings" to SettingDefinition.BooleanSetting("lockSettings", LOCK_SETTINGS) { it.lockSettings },
         "searchIncludePackageNames" to SettingDefinition.BooleanSetting("searchIncludePackageNames", SEARCH_INCLUDE_PACKAGE_NAMES) { it.searchIncludePackageNames },
         "appDrawerTapToOpen" to SettingDefinition.BooleanSetting("appDrawerTapToOpen", APP_DRAWER_TAP_TO_OPEN) { it.appDrawerTapToOpen },
+        "useCustomTextColor" to SettingDefinition.BooleanSetting("useCustomTextColor", USE_CUSTOM_TEXT_COLOR) { it.useCustomTextColor },
 
         // Int settings
+        "textColor" to SettingDefinition.IntSetting("textColor", TEXT_COLOR) { it.textColor },
         "searchType" to SettingDefinition.IntSetting("searchType", SEARCH_TYPE) { it.searchType },
         "appTheme" to SettingDefinition.IntSetting("appTheme", APP_THEME) { it.appTheme },
         "fontWeight" to SettingDefinition.IntSetting("fontWeight", FONT_WEIGHT) { it.fontWeight },
@@ -175,12 +179,12 @@ class SettingsRepository(private val context: Context) {
 
         val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
             try { json.decodeFromString<Map<String, String>>(it) }
-            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}"); mapOf<String, String>() }
+            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}"); mapOf() }
         } ?: mapOf()
 
         val recentAppHistory = prefs[RECENT_APP_HISTORY]?.let {
             try { json.decodeFromString<Map<String, Long>>(it) }
-            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode recent app history JSON: ${e.message}"); mapOf<String, Long>() }
+            catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode recent app history JSON: ${e.message}"); mapOf() }
         } ?: mapOf()
 
         AppSettings(
@@ -242,6 +246,8 @@ class SettingsRepository(private val context: Context) {
             searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
             selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
+            textColor = prefs[TEXT_COLOR] ?: 0,
+            useCustomTextColor = prefs[USE_CUSTOM_TEXT_COLOR] ?: false,
 
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,

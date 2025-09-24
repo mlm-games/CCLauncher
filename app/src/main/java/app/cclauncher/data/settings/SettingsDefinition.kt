@@ -83,7 +83,8 @@ enum class SettingType {
     BUTTON,
     FONT_PICKER,
     APP_PICKER,
-    ICON_PACK_PICKER
+    ICON_PACK_PICKER,
+    COLOR_PICKER,
 }
 
 data class AppSettings(
@@ -209,6 +210,22 @@ data class AppSettings(
         step = 1f
     )
     val iconCornerRadius: Int = 0,
+
+    @Setting(
+        title = "Text Color",
+        description = "Customize text color for better visibility",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.COLOR_PICKER
+    )
+    val textColor: Int = 0, // 0 -> default theme color
+
+    @Setting(
+        title = "Use Custom Text Color",
+        description = "Override theme text color with custom color",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.TOGGLE
+    )
+    val useCustomTextColor: Boolean = false,
 
     @Setting(
         title = "Item Spacing",

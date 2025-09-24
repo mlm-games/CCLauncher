@@ -2,16 +2,27 @@ package app.cclauncher.ui.components
 
 import android.text.format.Formatter
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.cclauncher.helper.iconpack.IconPackManager
 import app.cclauncher.ui.viewmodels.SettingsViewModel
@@ -327,4 +338,163 @@ fun FontPickerDialog(
             }
         }
     )
+}
+
+@Composable
+fun ColorPickerDialog(
+    title: String,
+    currentColor: Int,
+    onDismiss: () -> Unit,
+    onColorSelected: (Int) -> Unit
+) {
+    // Color opts.
+    val colorOptions = remember {
+        listOf(
+            Color.White to "White",
+            Color.Black to "Black",
+            Color(0xFFF5F5F5) to "Light Gray",
+            Color(0xFF9E9E9E) to "Gray",
+            Color(0xFF424242) to "Dark Gray",
+            Color(0xFFFF5252) to "Red",
+            Color(0xFFE91E63) to "Pink",
+            Color(0xFF9C27B0) to "Purple",
+            Color(0xFF673AB7) to "Deep Purple",
+            Color(0xFF3F51B5) to "Indigo",
+            Color(0xFF2196F3) to "Blue",
+            Color(0xFF03A9F4) to "Light Blue",
+            Color(0xFF00BCD4) to "Cyan",
+            Color(0xFF009688) to "Teal",
+            Color(0xFF4CAF50) to "Green",
+            Color(0xFF8BC34A) to "Light Green",
+            Color(0xFFCDDC39) to "Lime",
+            Color(0xFFFFEB3B) to "Yellow",
+            Color(0xFFFFC107) to "Amber",
+            Color(0xFFFF9800) to "Orange",
+            Color(0xFFFF5722) to "Deep Orange",
+            Color(0xFF795548) to "Brown",
+        )
+    }
+
+    var selectedColor by remember {
+        mutableIntStateOf(
+            if (currentColor == 0) Color.White.toArgb()
+            else currentColor
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Preview of selected color
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(selectedColor)
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Sample Text",
+                            color = Color(selectedColor),
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier
+                                .background(
+                                    Color.Gray.copy(alpha = 0.3f),
+                                    RoundedCornerShape(4.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+
+                // Color grid
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.height(300.dp)
+                ) {
+                    items(colorOptions) { (color, name) ->
+                        ColorOption(
+                            color = color,
+                            isSelected = selectedColor == color.toArgb(),
+                            onClick = { selectedColor = color.toArgb() }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onColorSelected(selectedColor)
+                    onDismiss()
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ColorOption(
+    color: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .clip(CircleShape)
+            .background(color)
+            .border(
+                width = if (isSelected) 3.dp else 1.dp,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    Color.Gray.copy(alpha = 0.3f)
+                },
+                shape = CircleShape
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (isSelected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Selected",
+                tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
+// Extension function to calculate luminance
+fun Color.luminance(): Float {
+    val red = red * 0.299f
+    val green = green * 0.587f
+    val blue = blue * 0.114f
+    return red + green + blue
 }

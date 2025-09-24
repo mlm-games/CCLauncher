@@ -54,7 +54,11 @@ fun HomeAppItem(
     val coroutineScope = rememberCoroutineScope()
     val iconCache = remember { IconCache(context) }
     var loadedIcon by remember(app.getKey()) { mutableStateOf(app.appIcon) }
-
+    val textColor = if (settings.useCustomTextColor && settings.textColor != 0) {
+        Color(settings.textColor)
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val showHomeIcons = if (settings.showHomeScreenIcons) {
@@ -142,7 +146,7 @@ fun HomeAppItem(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
                     fontWeight = fontWeight
                 ),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 textAlign = if (settings.showHomeScreenIcons) TextAlign.Center else TextAlign.Start,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
