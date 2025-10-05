@@ -202,6 +202,7 @@ fun AppDrawerScreen(
         modifier = Modifier
             .fillMaxSize()
             .detectSwipeGestures(
+                sensitivity = settings.gestureSensitivity,
                 onSwipeDown = { // General swipe down (anywhere) to trigger onSwipeDown action (e.g., go home)
                     onSwipeDown()
                 },

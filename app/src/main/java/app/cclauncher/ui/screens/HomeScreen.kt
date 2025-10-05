@@ -90,6 +90,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .detectSwipeGestures(
+                sensitivity = settings.gestureSensitivity,
                 onSwipeUp = { when (settings.swipeUpAction) {
                     Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                     Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()

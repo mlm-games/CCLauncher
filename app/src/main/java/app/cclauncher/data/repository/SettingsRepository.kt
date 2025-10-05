@@ -34,6 +34,7 @@ class SettingsRepository(private val context: Context) {
         val SEARCH_TYPE = intPreferencesKey("SEARCH_TYPE")
         val APP_THEME = intPreferencesKey("APP_THEME")
         val TEXT_SIZE_SCALE = floatPreferencesKey("TEXT_SIZE_SCALE")
+        val GESTURE_SENSITIVITY = floatPreferencesKey("GESTURE_SENSITIVITY")
         val FONT_WEIGHT = intPreferencesKey("FONT_WEIGHT")
         val USE_SYSTEM_FONT = booleanPreferencesKey("USE_SYSTEM_FONT")
         val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
@@ -139,6 +140,7 @@ class SettingsRepository(private val context: Context) {
         "searchAliasesMode" to SettingDefinition.IntSetting("searchAliasesMode", SEARCH_ALIASES_MODE) { it.searchAliasesMode },
 
         // Float settings
+        "gestureSensitivity" to SettingDefinition.FloatSetting("gestureSensitivity", GESTURE_SENSITIVITY) { it.gestureSensitivity },
         "textSizeScale" to SettingDefinition.FloatSetting("textSizeScale", TEXT_SIZE_SCALE) { it.textSizeScale },
         "searchResultsFontSize" to SettingDefinition.FloatSetting("searchResultsFontSize", SEARCH_RESULTS_FONT_SIZE) { it.searchResultsFontSize },
         "animationSpeed" to SettingDefinition.FloatSetting("animationSpeed", ANIMATION_SPEED) { it.animationSpeed },
@@ -201,6 +203,7 @@ class SettingsRepository(private val context: Context) {
 
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
             textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
+            gestureSensitivity = prefs[GESTURE_SENSITIVITY] ?: 1.0f,
             fontWeight = prefs[FONT_WEIGHT] ?: 2,
             useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,

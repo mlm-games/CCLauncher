@@ -228,6 +228,18 @@ data class AppSettings(
     val useCustomTextColor: Boolean = false,
 
     @Setting(
+        title = "Gesture Sensitivity",
+        description = "Adjust how easily swipe gestures are triggered",
+        category = SettingCategory.GESTURES,
+        type = SettingType.SLIDER,
+        min = 0.1f,
+        max = 2.0f,
+        step = 0.1f
+    )
+    val gestureSensitivity: Float = 1.0f,
+
+
+    @Setting(
         title = "Item Spacing",
         category = SettingCategory.APPEARANCE,
         type = SettingType.DROPDOWN,
