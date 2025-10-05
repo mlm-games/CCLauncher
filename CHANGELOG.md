@@ -1,3 +1,13 @@
+## vv9.9.7
+
+- Add gesture senstivity slider (fix #125)
+- Suppress a warn
+- Bump androidx.compose.material3:material3-android from 1.3.2 to 1.4.0
+- Update 860.txt
+- Bump androidx.work:work-runtime-ktx from 2.10.4 to 2.10.5
+- Bump navigationFragmentKtx from 2.9.4 to 2.9.5
+
+
 ## vv9.9.6
 
 - Update android.yml to continue even if aab upload fails
