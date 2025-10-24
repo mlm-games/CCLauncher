@@ -1,3 +1,15 @@
+## vv9.10.1
+
+- [chore] Update build.gradle.kts
+- Bump plugin.serialization from 2.2.20 to 2.2.21
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.2.20 to 2.2.21
+- Bump kotlin from 2.2.20 to 2.2.21
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.2.20 to 2.2.21
+- Bump androidx.work:work-runtime-ktx from 2.10.5 to 2.11.0
+- Revert versionCode and versionName in build.gradle.kts
+- Delete fastlane/metadata/android/en-US/changelogs/890.txt
+
+
 ## vv9.9.9
 
 - Change default Google Play track to 'production'
