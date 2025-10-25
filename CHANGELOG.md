@@ -1,3 +1,10 @@
+## vv9.10.3
+
+- disable gplay upload
+- prefer shorter names when searching; refresh app list for certain changes automatically; add home app label alignment (fix #134, #135, #133)
+- add mono icon
+
+
 ## vv9.10.2
 
 - [chore] Update build.gradle.kts
