@@ -116,3 +116,27 @@ fun SettingsLockDialog(
         }
     }
 }
+
+@Composable
+fun AccessibilityDisclosureDialog(
+    onDismiss: () -> Unit,
+    onAccept: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Enable Accessibility Service") },
+        text = {
+            Column {
+                Text("CCLauncher uses Android’s Accessibility Service only to perform the 'Lock screen' action when you explicitly trigger it (e.g., double‑tap on the home screen).")
+                Spacer(Modifier.height(8.dp))
+                Text("The app does not read what you type or view. It does not collect or send any data off your device. You can disable this anytime in Android Settings > Accessibility.")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onAccept) { Text("I agree and continue") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}

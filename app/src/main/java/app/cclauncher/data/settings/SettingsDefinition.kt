@@ -470,6 +470,7 @@ data class AppSettings(
     val aboutClicked: Boolean = false,
     val rateClicked: Boolean = false,
     val shareShownTime: Long = 0L,
+    val accessibilityConsent: Boolean = false,
 ) {
     @Suppress("unused")
     val isSystemFont: Boolean

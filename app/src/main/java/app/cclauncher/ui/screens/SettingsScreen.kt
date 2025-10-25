@@ -69,6 +69,7 @@ import app.cclauncher.ui.components.SettingsAction
 import app.cclauncher.ui.components.SettingsItem
 import app.cclauncher.ui.components.SettingsSection
 import app.cclauncher.ui.components.SettingsToggle
+import app.cclauncher.ui.dialogs.AccessibilityDisclosureDialog
 import app.cclauncher.ui.dialogs.DropdownSettingDialog
 import app.cclauncher.ui.dialogs.SettingsLockDialog
 import app.cclauncher.ui.dialogs.SliderSettingDialog
@@ -110,6 +111,7 @@ fun SettingsScreen(
         }
     )
 
+    var showAccessibilityDisclosure by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -427,10 +429,10 @@ fun SettingsScreen(
                                                             }
                                                         }
                                                         "doubleTapToLock" -> {
-                                                            if (it && !isAccessServiceEnabled(context)) {
-                                                                Toast.makeText(context, "Enable accessibility permission for this functionality.", Toast.LENGTH_SHORT).show()
-                                                                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                                                                context.startActivity(intent)
+                                                            if (it) {
+                                                                showAccessibilityDisclosure = true
+                                                            } else {
+                                                                coroutineScope.launch { viewModel.updateSetting("doubleTapToLock", false) }
                                                             }
                                                         }
                                                         "forceLandscapeMode" -> {
@@ -743,6 +745,30 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    if (showAccessibilityDisclosure) {
+        AccessibilityDisclosureDialog(
+            onDismiss = {
+                showAccessibilityDisclosure = false
+                coroutineScope.launch { viewModel.updateSetting("doubleTapToLock", false) }
+            },
+            onAccept = {
+                showAccessibilityDisclosure = false
+                coroutineScope.launch {
+                    viewModel.updateSetting("doubleTapToLock", true)
+                    coroutineScope.launch { viewModel.updateSetting("accessibilityConsent", false) }
+                }
+                try {
+                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    Toast.makeText(context,
+                        "Enable CCLauncher under Accessibility > Downloaded services.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (_: Exception) {}
+            }
+        )
     }
 }
 

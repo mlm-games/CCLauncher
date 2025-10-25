@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.catch
-import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -88,7 +87,9 @@ class SettingsRepository(private val context: Context) {
         val APP_DRAWER_TAP_TO_OPEN = booleanPreferencesKey("APP_DRAWER_TAP_TO_OPEN")
         val TEXT_COLOR = intPreferencesKey("TEXT_COLOR")
         val USE_CUSTOM_TEXT_COLOR = booleanPreferencesKey("USE_CUSTOM_TEXT_COLOR")
-}
+
+        val ACCESSIBILITY_CONSENT = booleanPreferencesKey("ACCESSIBILITY_CONSENT")
+    }
 
     private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
         // Boolean settings
@@ -119,6 +120,7 @@ class SettingsRepository(private val context: Context) {
         "searchIncludePackageNames" to SettingDefinition.BooleanSetting("searchIncludePackageNames", SEARCH_INCLUDE_PACKAGE_NAMES) { it.searchIncludePackageNames },
         "appDrawerTapToOpen" to SettingDefinition.BooleanSetting("appDrawerTapToOpen", APP_DRAWER_TAP_TO_OPEN) { it.appDrawerTapToOpen },
         "useCustomTextColor" to SettingDefinition.BooleanSetting("useCustomTextColor", USE_CUSTOM_TEXT_COLOR) { it.useCustomTextColor },
+        "accessibilityConsent" to SettingDefinition.BooleanSetting("accessibilityConsent", ACCESSIBILITY_CONSENT) { it.accessibilityConsent },
 
         // Int settings
         "textColor" to SettingDefinition.IntSetting("textColor", TEXT_COLOR) { it.textColor },
@@ -251,6 +253,7 @@ class SettingsRepository(private val context: Context) {
             selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
             textColor = prefs[TEXT_COLOR] ?: 0,
             useCustomTextColor = prefs[USE_CUSTOM_TEXT_COLOR] ?: false,
+            accessibilityConsent = prefs[ACCESSIBILITY_CONSENT]?: false,
 
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
