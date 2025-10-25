@@ -1,6 +1,7 @@
 package app.cclauncher.ui.composables
 
 import android.content.res.Configuration
+import android.view.Gravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -106,10 +107,15 @@ fun HomeAppItem(
         Pair(48.dp, MaterialTheme.typography.bodyMedium.fontSize)
     }
 
-    // Item Layout (Icon next to Text)
+    val textAlign = when (settings.appLabelAlignment) {
+        1 -> TextAlign.Center
+        2 -> TextAlign.Right
+        else -> TextAlign.Left
+    }
+
     Column(
         modifier = modifier
-            .fillMaxSize() // Fill the cell provided by the grid/layout
+            .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { onClick() },
@@ -120,7 +126,6 @@ fun HomeAppItem(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = if (settings.showHomeScreenIcons) Alignment.CenterHorizontally else Alignment.Start
     ) {
-
         if (showIcons && loadedIcon != null) {
             Surface(
                 shape = RoundedCornerShape(iconCornerRadius),
@@ -137,7 +142,6 @@ fun HomeAppItem(
             Spacer(modifier = Modifier.height(if (showName) 4.dp else 0.dp)) // Space between icon and text
         }
 
-
         if (showName) {
             Text(
                 text = app.appLabel,
@@ -147,9 +151,10 @@ fun HomeAppItem(
                     fontWeight = fontWeight
                 ),
                 color = textColor,
-                textAlign = if (settings.showHomeScreenIcons) TextAlign.Center else TextAlign.Start,
+                textAlign = textAlign,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

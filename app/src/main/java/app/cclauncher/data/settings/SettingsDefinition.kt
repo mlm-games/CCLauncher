@@ -444,6 +444,15 @@ data class AppSettings(
     )
     val customFontPath: String = "",
 
+    @Setting(
+        title = "Home App Label Alignment",
+        description = "Align app names on the home screen",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.DROPDOWN,
+        options = ["Left", "Center", "Right"]
+    )
+    val appLabelAlignment: Int = 0,
+
     // Non-UI settings (not annotated)
     val firstOpen: Boolean = true,
     val firstOpenTime: Long = 0L,
@@ -454,7 +463,7 @@ data class AppSettings(
     val keyboardMessage: Boolean = false,
     val renamedApps: Map<String, String> = mapOf(),
     val recentAppHistory: Map<String, Long> = emptyMap(),
-    val appLabelAlignment: Int = Gravity.START,
+
     val hiddenApps: Set<String> = emptySet(),
     val hiddenAppsUpdated: Boolean = false,
     val showHintCounter: Int = 1,

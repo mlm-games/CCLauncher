@@ -239,7 +239,7 @@ class SettingsRepository(private val context: Context) {
             lockMode = prefs[LOCK_MODE] ?: false,
             keyboardMessage = prefs[KEYBOARD_MESSAGE] ?: false,
             plainWallpaper = prefs[PLAIN_WALLPAPER] ?: false,
-            appLabelAlignment = prefs[APP_LABEL_ALIGNMENT] ?: Gravity.START,
+            appLabelAlignment = prefs[APP_LABEL_ALIGNMENT] ?: 0,
             hiddenApps = prefs[HIDDEN_APPS] ?: emptySet(),
             hiddenAppsUpdated = prefs[HIDDEN_APPS_UPDATED] ?: false,
             showHintCounter = prefs[SHOW_HINT_COUNTER] ?: 1,

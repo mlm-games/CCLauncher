@@ -118,6 +118,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             appRepository.appListAll.collect { apps ->
                 _appListAll.value = apps
                 updateAppDrawerState()
+                reapplySearchFilter()
             }
         }
 
@@ -126,6 +127,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             appRepository.appList.collect { apps ->
                 _appList.value = apps
                 updateAppDrawerState()
+                reapplySearchFilter()
             }
         }
 
@@ -154,7 +156,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     .map { it.searchAliasesMode to it.searchIncludePackageNames }
                     .distinctUntilChanged()
             ) { _, _ -> }
-                .collect { rebuildSearchAliasIndex() }
+                .collect {
+                    rebuildSearchAliasIndex()
+                    reapplySearchFilter()
+                }
+        }
+
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { Triple(it.searchType, it.searchSortOrder, it.showHiddenAppsOnSearch) }
+                .distinctUntilChanged()
+                .collect { reapplySearchFilter() }
         }
 
         updatePrivateSpaceState()
@@ -916,59 +928,101 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
      */
     fun searchApps(query: String) {
         viewModelScope.launch {
-            _appDrawerState.value = _appDrawerState.value.copy(
-                searchQuery = query,
-                isLoading = true
-            )
+            _appDrawerState.value = _appDrawerState.value.copy(searchQuery = query, isLoading = true)
             try {
-                val settings = settingsRepository.settings.first()
-                val searchType = settings.searchType
-                val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
-
-                val mode = settings.searchAliasesMode
-                val queryVariants = SearchAliasUtils.buildQueryVariants(query, mode)
-
-                val filteredApps = if (query.isBlank()) {
-                    listToFilter.value
-                } else {
-                    listToFilter.value.filter { app ->
-                        val label = app.appLabel
-                        val labelNorm = label.lowercase()
-
-                        // 1 direct label match as before
-                        val direct = when (searchType) {
-                            Constants.SearchType.FUZZY -> fuzzyMatch(label, query)
-                            Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> labelNorm.startsWith(v) }
-                            else -> queryVariants.any { v -> labelNorm.contains(v) }
-                        }
-                        if (direct) return@filter true
-
-                        // 2 alias index match
-                        val aliases = searchAliasIndex[app.getKey()] ?: emptySet()
-                        when (searchType) {
-                            Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> aliases.any { it.startsWith(v) } }
-                            Constants.SearchType.FUZZY -> queryVariants.any { v -> aliases.any { it.contains(v) } } // keep simple for perf
-                            else -> queryVariants.any { v -> aliases.any { it.contains(v) } }
-                        }
-                    }
-                }
-
+                val filtered = filterAndRank(query)
                 _appDrawerState.value = _appDrawerState.value.copy(
-                    filteredApps = filteredApps,
-                    isLoading = false
+                    filteredApps = filtered,
+                    isLoading = false,
+                    error = null
                 )
 
-                if (filteredApps.size == 1 && query.isNotEmpty() && settings.autoOpenFilteredApp) {
-                    launchApp(filteredApps[0])
+                val settings = settingsRepository.settings.first()
+                if (filtered.size == 1 && query.isNotEmpty() && settings.autoOpenFilteredApp) {
+                    launchApp(filtered[0])
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Search failed: ${e.message}"
-                _appDrawerState.value = _appDrawerState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
+                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
+    }
+
+    // lower is better
+    private fun computeMatchScore(label: String, query: String, queryVariants: Set<String>): Int {
+        val l = label.lowercase().trim()
+        val q = query.lowercase().trim()
+        fun wordBoundaryContains(s: String, token: String): Boolean {
+            val idx = s.indexOf(token)
+            if (idx < 0) return false
+            val beforeOk = (idx == 0) || !s[idx - 1].isLetterOrDigit()
+            val afterIdx = idx + token.length
+            val afterOk = (afterIdx >= s.length) || !s[afterIdx].isLetterOrDigit()
+            return beforeOk && afterOk
+        }
+
+        return when {
+            l == q -> 0
+            l.startsWith(q) -> 1
+            wordBoundaryContains(l, q) -> 2
+            queryVariants.any { it == l } -> 3
+            queryVariants.any { l.startsWith(it) } -> 4
+            queryVariants.any { wordBoundaryContains(l, it) } -> 5
+            queryVariants.any { it in l } -> 6
+            else -> 7
+        }
+    }
+
+    private suspend fun filterAndRank(query: String): List<AppModel> {
+        val settings = settingsRepository.settings.first()
+        val listToFilter = if (settings.showHiddenAppsOnSearch) _appListAll.value else _appList.value
+
+        if (query.isBlank()) return listToFilter
+
+        val mode = settings.searchAliasesMode
+        val includePkg = settings.searchIncludePackageNames
+        val searchType = settings.searchType
+        val queryVariants = SearchAliasUtils.buildQueryVariants(query, mode)
+        val qLower = query.lowercase()
+
+        val filtered = listToFilter.filter { app ->
+            val label = app.appLabel
+            val labelNorm = label.lowercase()
+
+            val direct = when (searchType) {
+                Constants.SearchType.FUZZY -> fuzzyMatch(label, query)
+                Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> labelNorm.startsWith(v) }
+                else -> queryVariants.any { v -> labelNorm.contains(v) }
+            }
+            if (direct) return@filter true
+
+            val aliases = searchAliasIndex[app.getKey()] ?: emptySet()
+            when (searchType) {
+                Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> aliases.any { it.startsWith(v) } }
+                Constants.SearchType.FUZZY -> queryVariants.any { v -> aliases.any { it.contains(v) } }
+                else -> queryVariants.any { v -> aliases.any { it.contains(v) } }
+            }
+        }
+
+        // exact / starts-with / word-boundary / contains, then shorter label, then alphabetical
+        val ranked = filtered.sortedWith(
+            compareBy<AppModel> {
+                computeMatchScore(it.appLabel, qLower, queryVariants)
+            }.thenBy { it.appLabel.length }
+                .thenBy { it.appLabel.lowercase() }
+        )
+
+        return ranked
+    }
+
+    private suspend fun reapplySearchFilter() {
+        val current = _appDrawerState.value
+        val newFiltered = filterAndRank(current.searchQuery)
+        _appDrawerState.value = current.copy(
+            filteredApps = newFiltered,
+            isLoading = false,
+            error = null
+        )
     }
 
     fun moveWidget(widgetItem: HomeItem.Widget, newRow: Int, newColumn: Int) {
