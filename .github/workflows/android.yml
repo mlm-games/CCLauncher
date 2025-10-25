@@ -15,12 +15,12 @@ on:
         required: true
         default: 'false'
         type: boolean
-      play_track:
-        description: 'Google Play track (internal, alpha, beta, production)'
-        required: true
-        default: 'production'
-        type: choice
-        options: [internal, alpha, beta, production]
+      # play_track:
+      #   description: 'Google Play track (internal, alpha, beta, production)'
+      #   required: true
+      #   default: 'production'
+      #   type: choice
+      #   options: [internal, alpha, beta, production]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -145,17 +145,17 @@ jobs:
           cp app/build/outputs/bundle/release/app-release.aab \
              "artifacts/${{ env.APP_SLUG }}-${{ needs.prepare-version.outputs.version_name }}.aab"
       
-      - name: Upload AAB to Google Play
-        if: github.event_name == 'workflow_dispatch' && inputs.upload_releases == true
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: ${{ env.APPLICATION_ID }}
-          releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: ${{ inputs.play_track }}
-          status: completed
-          whatsNewDirectory: fastlane/metadata/android
-        continue-on-error: true
+      # - name: Upload AAB to Google Play
+      #   if: github.event_name == 'workflow_dispatch' && inputs.upload_releases == true
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      #     packageName: ${{ env.APPLICATION_ID }}
+      #     releaseFiles: app/build/outputs/bundle/release/app-release.aab
+      #     track: ${{ inputs.play_track }}
+      #     status: completed
+      #     whatsNewDirectory: fastlane/metadata/android
+      #   continue-on-error: true
       
       - name: Clean before APK build
         run: ./gradlew clean
