@@ -1,3 +1,9 @@
+## vv9.10.4
+
+- retry with few changes
+- Add accessibility dialog as suggested (may need to re-enable if using the setting beforehand)
+
+
 ## vv9.10.3
 
 - disable gplay upload

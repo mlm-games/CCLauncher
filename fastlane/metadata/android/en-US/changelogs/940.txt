@@ -1,0 +1,2 @@
+- retry with few changes
+- Add accessibility dialog as suggested (may need to re-enable if using the setting beforehand)
