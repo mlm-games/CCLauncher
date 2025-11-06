@@ -1,3 +1,11 @@
+## vv9.10.7
+
+- Bump actions/upload-artifact from 4 to 5 in /.github/workflows
+- Improve the cclauncher mono icon
+- retry with few changes
+- Add accessibility dialog as suggested (may need to re-enable if using the setting beforehand)
+
+
 ## vv9.10.5
 
 - Bump actions/upload-artifact from 4 to 5 in /.github/workflows
