@@ -948,31 +948,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    // lower is better
-    private fun computeMatchScore(label: String, query: String, queryVariants: Set<String>): Int {
-        val l = label.lowercase().trim()
-        val q = query.lowercase().trim()
-        fun wordBoundaryContains(s: String, token: String): Boolean {
-            val idx = s.indexOf(token)
-            if (idx < 0) return false
-            val beforeOk = (idx == 0) || !s[idx - 1].isLetterOrDigit()
-            val afterIdx = idx + token.length
-            val afterOk = (afterIdx >= s.length) || !s[afterIdx].isLetterOrDigit()
-            return beforeOk && afterOk
-        }
-
-        return when {
-            l == q -> 0
-            l.startsWith(q) -> 1
-            wordBoundaryContains(l, q) -> 2
-            queryVariants.any { it == l } -> 3
-            queryVariants.any { l.startsWith(it) } -> 4
-            queryVariants.any { wordBoundaryContains(l, it) } -> 5
-            queryVariants.any { it in l } -> 6
-            else -> 7
-        }
-    }
-
     private suspend fun filterAndRank(query: String): List<AppModel> {
         val settings = settingsRepository.settings.first()
         val listToFilter = if (settings.showHiddenAppsOnSearch) _appListAll.value else _appList.value
@@ -980,10 +955,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         if (query.isBlank()) return listToFilter
 
         val mode = settings.searchAliasesMode
-        val includePkg = settings.searchIncludePackageNames
         val searchType = settings.searchType
         val queryVariants = SearchAliasUtils.buildQueryVariants(query, mode)
-        val qLower = query.lowercase()
 
         val filtered = listToFilter.filter { app ->
             val label = app.appLabel
@@ -1004,15 +977,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             }
         }
 
-        // exact / starts-with / word-boundary / contains, then shorter label, then alphabetical
-        val ranked = filtered.sortedWith(
-            compareBy<AppModel> {
-                computeMatchScore(it.appLabel, qLower, queryVariants)
-            }.thenBy { it.appLabel.length }
-                .thenBy { it.appLabel.lowercase() }
-        )
-
-        return ranked
+        return filtered
     }
 
     private suspend fun reapplySearchFilter() {
@@ -1024,7 +989,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             error = null
         )
     }
-
     fun moveWidget(widgetItem: HomeItem.Widget, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             Log.d("WidgetDebug", "Moving widget ${widgetItem.id} from (${widgetItem.row}, ${widgetItem.column}) to ($newRow, $newColumn)")
