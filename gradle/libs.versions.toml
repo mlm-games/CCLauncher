@@ -20,7 +20,7 @@ kotlin = "2.2.21"
 material3Android = "1.4.0"
 constraintlayoutComposeAndroid = "1.1.1"
 androidbrowserhelper = "2.6.2"
-datastorePreferencesCore = "1.1.7"
+datastorePreferencesCore = "1.2.0"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
