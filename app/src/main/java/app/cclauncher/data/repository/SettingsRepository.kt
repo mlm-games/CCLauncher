@@ -26,6 +26,7 @@ class SettingsRepository(private val context: Context) {
 
     companion object {
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
+        val SHOW_APP_NAMES_IN_SEARCH_AFTER = intPreferencesKey("SHOW_APP_NAMES_IN_SEARCH_AFTER")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
@@ -92,8 +93,8 @@ class SettingsRepository(private val context: Context) {
     }
 
     private val settingDefinitions: Map<String, SettingDefinition<*>> = mapOf(
-        // Boolean settings
         "showAppNames" to SettingDefinition.BooleanSetting("showAppNames", SHOW_APP_NAMES) { it.showAppNames },
+        "showAppNamesInSearchAfter" to SettingDefinition.IntSetting("showAppNamesInSearchAfter", SHOW_APP_NAMES_IN_SEARCH_AFTER) { it.showAppNamesInSearchAfter },
         "showAppIcons" to SettingDefinition.BooleanSetting("showAppIcons", SHOW_APP_ICONS) { it.showAppIcons },
         "autoShowKeyboard" to SettingDefinition.BooleanSetting("autoShowKeyboard", AUTO_SHOW_KEYBOARD) { it.autoShowKeyboard },
         "showHiddenAppsOnSearch" to SettingDefinition.BooleanSetting("showHiddenAppsOnSearch", SHOW_HIDDEN_APPS_IN_SEARCH) { it.showHiddenAppsOnSearch },
@@ -122,7 +123,6 @@ class SettingsRepository(private val context: Context) {
         "useCustomTextColor" to SettingDefinition.BooleanSetting("useCustomTextColor", USE_CUSTOM_TEXT_COLOR) { it.useCustomTextColor },
         "accessibilityConsent" to SettingDefinition.BooleanSetting("accessibilityConsent", ACCESSIBILITY_CONSENT) { it.accessibilityConsent },
 
-        // Int settings
         "textColor" to SettingDefinition.IntSetting("textColor", TEXT_COLOR) { it.textColor },
         "searchType" to SettingDefinition.IntSetting("searchType", SEARCH_TYPE) { it.searchType },
         "appTheme" to SettingDefinition.IntSetting("appTheme", APP_THEME) { it.appTheme },
@@ -141,19 +141,16 @@ class SettingsRepository(private val context: Context) {
         "searchSortOrder" to SettingDefinition.IntSetting("searchSortOrder", SEARCH_SORT_ORDER) { it.searchSortOrder },
         "searchAliasesMode" to SettingDefinition.IntSetting("searchAliasesMode", SEARCH_ALIASES_MODE) { it.searchAliasesMode },
 
-        // Float settings
         "gestureSensitivity" to SettingDefinition.FloatSetting("gestureSensitivity", GESTURE_SENSITIVITY) { it.gestureSensitivity },
         "textSizeScale" to SettingDefinition.FloatSetting("textSizeScale", TEXT_SIZE_SCALE) { it.textSizeScale },
         "searchResultsFontSize" to SettingDefinition.FloatSetting("searchResultsFontSize", SEARCH_RESULTS_FONT_SIZE) { it.searchResultsFontSize },
         "animationSpeed" to SettingDefinition.FloatSetting("animationSpeed", ANIMATION_SPEED) { it.animationSpeed },
 
-        // String settings
         "userState" to SettingDefinition.StringSetting("userState", USER_STATE) { it.userState },
         "selectedIconPack" to SettingDefinition.StringSetting("selectedIconPack", SELECTED_ICON_PACK) { it.selectedIconPack },
         "customFontPath" to SettingDefinition.StringSetting("customFontPath", CUSTOM_FONT_PATH) { it.customFontPath },
         "settingsLockPin" to SettingDefinition.StringSetting("settingsLockPin", SETTINGS_LOCK_PIN) { it.settingsLockPin },
 
-        // Long settings
         "firstOpenTime" to SettingDefinition.LongSetting("firstOpenTime", FIRST_OPEN_TIME) { it.firstOpenTime },
         "shareShownTime" to SettingDefinition.LongSetting("shareShownTime", SHARE_SHOWN_TIME) { it.shareShownTime },
 
@@ -194,6 +191,7 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             // General
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
+            showAppNamesInSearchAfter = prefs[SHOW_APP_NAMES_IN_SEARCH_AFTER] ?: 0,
             showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,

@@ -258,6 +258,12 @@ fun AppDrawerScreen(
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
+        val showLabelsInList = if (settings.showAppNamesInSearchAfter > 0) {
+            searchQuery.length >= settings.showAppNamesInSearchAfter
+        } else {
+            settings.showAppNames
+        }
+
         Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
 
         LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
@@ -315,7 +321,7 @@ fun AppDrawerScreen(
                             appLabel = app.appLabel,
                             appIcon = if (shouldShowIcons) app.appIcon else null,
                             showIcon = shouldShowIcons,
-                            showLabel = settings.showAppNames,
+                            showLabel = showLabelsInList,
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             fontScale = searchResultsFontSize,
                             fontWeight = fontWeight,

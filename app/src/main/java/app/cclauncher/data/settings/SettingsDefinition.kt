@@ -96,6 +96,17 @@ data class AppSettings(
     )
     val showAppNames: Boolean = false,
 
+    @Setting(
+        title = "Show Names in Search After",
+        description = "Show app names in search results after typing this many characters. Set to 0 to use the 'Show App Names' setting instead.",
+        category = SettingCategory.GENERAL,
+        type = SettingType.SLIDER,
+        min = 0f,
+        max = 7f,
+        step = 1f
+    )
+    val showAppNamesInSearchAfter: Int = 0,
+
 //    @Setting(
 //        title = "Show App Icons",
 //        category = SettingCategory.GENERAL,
