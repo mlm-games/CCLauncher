@@ -1,6 +1,7 @@
 CCLauncher is a minimalist Android launcher designed to help reduce screen time and distractions due to all the apps present (like social media apps for example). Unlike traditional launchers, apps are hidden by default.
 
 Key Features:
+
 - Apps invisible by default (type to search)
 - Digital wellbeing tools (screen time tracking)
 - Double-tap to lock screen
@@ -10,6 +11,7 @@ Key Features:
 - No ads, no tracking, no internet permission - 100% private
 
 Usage Tips:
+
 1. Swipe up to search apps
 2. Long press empty space for settings
 3. Enable double-tap lock in Accessibility settings
