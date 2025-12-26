@@ -4,7 +4,11 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 
 object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.App") {
@@ -15,7 +19,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
         element<Int>("columnSpan")
         element<String>("appLabel")
         element<String>("appPackage")
-        element<String?>("activityClassName")
+        element<String>("activityClassName")
         element<String>("userString")
         element<Boolean>("isHidden")
     }
@@ -29,7 +33,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
             encodeIntElement(descriptor, 4, value.columnSpan)
             encodeStringElement(descriptor, 5, value.appModel.appLabel)
             encodeStringElement(descriptor, 6, value.appModel.appPackage)
-            encodeStringElement(descriptor, 7, value.appModel.activityClassName.toString())
+            encodeStringElement(descriptor, 7, value.appModel.activityClassName.orEmpty())
             encodeStringElement(descriptor, 8, value.appModel.userString)
             encodeBooleanElement(descriptor, 9, value.appModel.isHidden)
         }
@@ -43,7 +47,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
         var columnSpan = 1
         var appLabel = ""
         var appPackage = ""
-        var activityClassName: String? = null
+        var activityClassNameRaw = ""
         var userString = ""
         var isHidden = false
 
@@ -57,7 +61,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
                     4 -> columnSpan = decodeIntElement(descriptor, index)
                     5 -> appLabel = decodeStringElement(descriptor, index)
                     6 -> appPackage = decodeStringElement(descriptor, index)
-                    7 -> activityClassName = decodeStringElement(descriptor, index)
+                    7 -> activityClassNameRaw = decodeStringElement(descriptor, index)
                     8 -> userString = decodeStringElement(descriptor, index)
                     9 -> isHidden = decodeBooleanElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
@@ -66,7 +70,11 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
             }
         }
 
-        // Create AppModel with serializable data
+        // TODO: Remove later, backward safety: treat "", "null" as null
+        val activityClassName = activityClassNameRaw
+            .trim()
+            .takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+
         val appModel = AppModel(
             appLabel = appLabel,
             appPackage = appPackage,
