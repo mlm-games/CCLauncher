@@ -22,13 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AdsClick
-import androidx.compose.material.icons.filled.DriveFileRenameOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,16 +48,19 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
+import app.cclauncher.R
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
@@ -363,18 +359,18 @@ fun AppDrawerScreen(
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
-//                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related for images.
-                    ContextMenuItem("App Info", Icons.Default.Info) {
+                    ContextMenuItem("Open App", painterResource(R.drawable.materialsymbols_ic_ads_click_outlined)) { handleAppClick(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", painterResource(R.drawable.materialsymbols_ic_hide_image_outlined)) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("Rename App", painterResource(R.drawable.materialsymbols_ic_drive_file_rename_outline_outlined)) { renameDialogVisible = true }
+//                    ContextMenuItem("Change Icon", painterResource(R.drawable.).ChangeCircle) { } // Causes too many performance related problems, and even saving for images with my settings def isn't easy.
+                    ContextMenuItem("App Info", painterResource(R.drawable.materialsymbols_ic_info_outlined)) {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                             data = Uri.fromParts("package", app.appPackage, null)
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         })
                         showContextMenu = false; selectedApp = null
                     }
-                    ContextMenuItem("Add to Home Screen", Icons.Default.Add) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("Add to Home Screen", painterResource(R.drawable.materialsymbols_ic_add_outlined)) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
                     if (viewModel.isPrivateSpaceSupported &&
                         viewModel.privateSpaceState.collectAsState().value == MainViewModel.PrivateSpaceState.Unlocked) {
 
@@ -382,7 +378,7 @@ fun AppDrawerScreen(
 
                         ContextMenuItem(
                             text = if (isInPrivateSpace) "Remove from Private Space" else "Add to Private Space",
-                            icon = Icons.Default.Lock
+                            icon = painterResource(R.drawable.materialsymbols_ic_lock_outlined)
                         ) {
                              viewModel.toggleAppInPrivateSpace(app)
                             showContextMenu = false
@@ -429,7 +425,7 @@ fun AppDrawerScreen(
 
 
 @Composable
-private fun ContextMenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
+private fun ContextMenuItem(text: String, icon: Painter, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -132,7 +132,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)
-    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.icons.material.symbols.outlined.android)
 
 
     //Material dependencies

@@ -11,8 +11,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,10 +20,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.cclauncher.helper.iconpack.IconPackManager
 import app.cclauncher.ui.viewmodels.SettingsViewModel
+import app.cclauncher.R
 
 /**
  * A settings section with a title and card container
@@ -482,7 +482,7 @@ private fun ColorOption(
     ) {
         if (isSelected) {
             Icon(
-                imageVector = Icons.Default.Check,
+                painter = painterResource(R.drawable.materialsymbols_ic_check_outlined),
                 contentDescription = "Selected",
                 tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
                 modifier = Modifier.size(24.dp)

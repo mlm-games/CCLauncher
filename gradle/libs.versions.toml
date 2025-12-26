@@ -5,13 +5,13 @@ coreKtx = "1.17.0"
 datastorePreferences = "1.2.0"
 androidGradlePlugin = "8.13.2"
 gson = "2.13.2"
+iconsMaterialSymbolsOutlinedAndroid = "2.2.1"
 kotlinReflect = "2.3.0"
 kotlinStdlib = "2.3.0"
 kotlinxSerializationJson = "1.9.0"
 lifecycleViewmodelCompose = "2.10.0"
 lifecycleViewmodelKtx = "2.10.0"
 material = "1.13.0"
-materialIconsExtended = "1.7.8"
 navigationFragmentKtx = "2.9.6"
 recyclerview = "1.4.0"
 workRuntimeKtx = "2.11.0"
@@ -26,10 +26,10 @@ apkDist = "0.5.2"
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+icons-material-symbols-outlined-android = { module = "com.composables:icons-material-symbols-outlined-android", version.ref = "iconsMaterialSymbolsOutlinedAndroid" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
