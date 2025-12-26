@@ -8,7 +8,6 @@ gson = "2.13.2"
 kotlinReflect = "2.3.0"
 kotlinStdlib = "2.3.0"
 kotlinxSerializationJson = "1.9.0"
-lifecycleExtensions = "2.2.0"
 lifecycleViewmodelCompose = "2.10.0"
 lifecycleViewmodelKtx = "2.10.0"
 material = "1.13.0"
@@ -21,6 +20,8 @@ material3Android = "1.4.0"
 constraintlayoutComposeAndroid = "1.1.1"
 androidbrowserhelper = "2.6.2"
 datastorePreferencesCore = "1.2.0"
+composeBom = "2025.12.01"
+apkDist = "0.5.2"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -32,10 +33,10 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationFragmentKtx" }
 navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
@@ -49,6 +50,9 @@ androidbrowserhelper = { group = "com.google.androidbrowserhelper", name = "andr
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastorePreferencesCore" }
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application  = { id = "com.android.application",  version.ref = "androidGradlePlugin" }
+kotlin-android  = { id = "org.jetbrains.kotlin.android",  version.ref = "kotlin" }
+kotlin-compose  = { id = "org.jetbrains.kotlin.plugin.compose",  version.ref = "kotlin" }
+kotlin-serialization  = { id = "org.jetbrains.kotlin.plugin.serialization",  version.ref = "kotlin" }
+kotlin-parcelize  = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlin" }
+apk-dist = { id = "io.github.mlm-games.apk-dist", version.ref = "apkDist" }

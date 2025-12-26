@@ -1,36 +1,29 @@
 @file:Suppress("UnstableApiUsage")
 
-import com.android.build.gradle.internal.api.ApkVariantOutputImpl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
-
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
-    id("org.jetbrains.kotlin.plugin.parcelize")
-    kotlin("plugin.serialization") version "2.3.0"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.apk.dist)
 
 }
 
 kotlin {
+    jvmToolchain(21)
+
     compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("17")
-        optIn.set(listOf(
+        optIn.addAll(
             "androidx.compose.material3.ExperimentalMaterial3Api",
             "androidx.compose.foundation.ExperimentalFoundationApi",
             "androidx.compose.foundation.layout.ExperimentalLayoutApi"
-        ))
+        )
     }
 }
 
 android {
     compileSdk = 36
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 
     defaultConfig {
         applicationId = "app.cclauncher"
@@ -61,35 +54,6 @@ android {
                 }
             }
             isUniversalApk = includeUniversalApk && enableApkSplits
-        }
-    }
-
-    applicationVariants.all {
-        val buildingApk = gradle.startParameter.taskNames.any { it.contains("assemble", ignoreCase = true) }
-        if (!buildingApk) return@all
-
-        val variant = this
-        outputs.all {
-            if (this is ApkVariantOutputImpl) {
-                val abiName = filters.find { it.filterType == "ABI" }?.identifier
-                val base = variant.versionCode
-
-                if (abiName != null) {
-                    // Split APKs get stable per-ABI version codes and names
-                    val abiVersionCode = when (abiName) {
-                        "x86" -> base - 3
-                        "x86_64" -> base - 2
-                        "armeabi-v7a" -> base - 1
-                        "arm64-v8a" -> base
-                        else -> base
-                    }
-                    versionCodeOverride = abiVersionCode
-                    outputFileName = "cclauncher-${variant.versionName}-${abiName}.apk"
-                } else {
-                    versionCodeOverride = base + 1
-                    outputFileName = "cclauncher-${variant.versionName}-universal.apk"
-                }
-            }
         }
     }
 
@@ -129,10 +93,6 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "2.0.0"
-    }
-
     namespace = "app.cclauncher"
 
 
@@ -140,6 +100,12 @@ android {
         includeInApk = false
     }
 }
+
+
+apkDist {
+    artifactNamePrefix.set("cclauncher")
+}
+
 
 // Configure all tasks that are instances of AbstractArchiveTask
 tasks.withType<AbstractArchiveTask>().configureEach {
@@ -155,7 +121,6 @@ dependencies {
     implementation(libs.recyclerview)
 
     // Android lifecycle
-    implementation(libs.lifecycle.extensions)
     implementation(libs.lifecycle.viewmodel.ktx)
 
     // Navigation
@@ -175,12 +140,15 @@ dependencies {
     implementation(libs.material3.android)
 
     // Compose dependencies
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.activity.compose)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.navigation.compose)
     implementation(libs.constraintlayout.compose.android)
+
     implementation(libs.kotlin.reflect)
     implementation(libs.androidbrowserhelper)
     implementation(libs.androidx.datastore.preferences.core)
