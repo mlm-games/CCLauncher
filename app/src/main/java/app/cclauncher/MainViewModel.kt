@@ -216,10 +216,11 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         val updatedItems = layout.items.map { item ->
             when (item) {
                 is HomeItem.App -> {
+                    val resolvedUser = getUserHandleFromString(appContext, item.appModel.userString)
                     val icon = iconCache.getIcon(
                         packageName = item.appModel.appPackage,
                         className = item.appModel.activityClassName,
-                        user = item.appModel.user,
+                        user = resolvedUser,
                         iconPackName = settings.selectedIconPack,
                     )
                     val updatedAppModel = item.appModel.copy(appIcon = icon)
@@ -309,7 +310,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1)
 
             if (nextPos != null) {
-                val appModelWithUserString = appModel.copy(userString = appModel.user.toString())
+                val appModelWithUserString = appModel.copy(userString = appModel.userString)
                 val appItem = HomeItem.App(
                     appModel = appModelWithUserString,
                     row = nextPos.first,
@@ -599,6 +600,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
+    @Suppress("UnnecessaryVariable")
     fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value

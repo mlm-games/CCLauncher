@@ -45,6 +45,7 @@ import app.cclauncher.data.settings.AppSettings
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.showToast
+import app.cclauncher.helper.withResolvedUser
 import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
 import app.cclauncher.ui.composables.WidgetSizeData
@@ -186,7 +187,7 @@ fun HomeScreen(
             homeLayout = homeLayoutState,
             settings = settings,
             appWidgetHost = appWidgetHost,
-            onAppClick = { item -> viewModel.launchApp(item.appModel) },
+            onAppClick = { item -> viewModel.launchApp(item.appModel.withResolvedUser(context)) },
             onAppLongPress = { item -> showAppContextMenu = item },
             onWidgetLongPress = { item -> showWidgetContextMenu = item },
             widgetBeingMoved = widgetBeingMoved,
