@@ -287,7 +287,7 @@ fun AppDrawerScreen(
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
                 Box(Modifier.fillMaxSize(), Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No apps found matching \"$searchQuery\"")
+                        Text("No apps found matching \"$searchQuery\"", color = MaterialTheme.colorScheme.onBackground)
                         Button(
                             onClick = {
                                 if (searchQuery.startsWith("!")) {
