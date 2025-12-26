@@ -331,8 +331,11 @@ class SettingsRepository(private val context: Context) {
     fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
         .map { prefs ->
             prefs[HOME_LAYOUT]?.let { jsonString ->
-                try { Json.decodeFromString<HomeLayout>(jsonString) }
-                catch (e: Exception) { Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e); HomeLayout() }
+                try { json.decodeFromString<HomeLayout>(jsonString) }
+                catch (e: Exception) {
+                    Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e)
+                    HomeLayout()
+                }
             } ?: HomeLayout()
         }
         .catch { exception ->
@@ -342,7 +345,7 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun saveHomeLayout(layout: HomeLayout) {
         try {
-            val jsonString = Json.encodeToString(layout)
+            val jsonString = json.encodeToString(layout)
             context.settingsDataStore.edit { prefs -> prefs[HOME_LAYOUT] = jsonString }
         } catch (e: Exception) {
             Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)

@@ -3,83 +3,73 @@ package app.cclauncher.helper
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import app.cclauncher.helper.iconpack.IconPackManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import app.cclauncher.helper.iconpack.IconPackManager
 
-/**
- * Enhanced cache for app icons with icon pack support
- */
-class IconCache(private val context: Context) {
+class IconCache(context: Context) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    private val iconCache = LruCache<String, Bitmap>(200)
+
+    // cacheKey = "pack|package|class|userHash"
+    private val iconCache = LruCache<String, Bitmap>(250)
+
     private val iconPackManager = IconPackManager(context)
 
-    /**
-     * Get available icon packs
-     */
     suspend fun getAvailableIconPacks() = iconPackManager.getAvailableIconPacks()
 
-    /**
-     * Get an app icon with icon pack support
-     */
     suspend fun getIcon(
         packageName: String,
         className: String?,
         user: UserHandle,
         iconPackName: String = "default"
-    ): ImageBitmap? {
-        val componentName = "$packageName/${className ?: ""}"
-        val cacheKey = "$iconPackName|$packageName|$className|${user.hashCode()}"
+    ): ImageBitmap? = withContext(Dispatchers.IO) {
 
-        // Check cache first
+        // Resolve class name if null.
+        val resolvedClassName = runCatching {
+            val list = launcherApps.getActivityList(packageName, user)
+            val info = list.firstOrNull { className == null || it.componentName.className == className }
+                ?: list.firstOrNull()
+            info?.componentName?.className
+        }.getOrNull() ?: className
+
+        val cacheKey = "$iconPackName|$packageName|$resolvedClassName|${user.hashCode()}"
         synchronized(iconCache) {
-            iconCache[cacheKey]?.let { return it.asImageBitmap() }
+            iconCache[cacheKey]?.let { return@withContext it.asImageBitmap() }
         }
 
-        // Load icon if not in cache
-        return withContext(Dispatchers.IO) {
-            try {
-                // Get original icon first
-                val appInfo = launcherApps.getActivityList(packageName, user)
-                    .find { it.componentName.className == className }
+        val activityInfo = runCatching {
+            launcherApps.getActivityList(packageName, user)
+                .firstOrNull { resolvedClassName != null && it.componentName.className == resolvedClassName }
+                ?: launcherApps.getActivityList(packageName, user).firstOrNull()
+        }.getOrNull()
 
-                val originalIcon = appInfo?.getIcon(0)
+        val originalDrawable = runCatching { activityInfo?.getIcon(0) }.getOrNull()
+        val componentName = if (resolvedClassName.isNullOrBlank()) {
+            "$packageName/"
+        } else {
+            "$packageName/$resolvedClassName"
+        }
 
-                // Get icon from icon pack (with fallback to original)
-                val finalIcon = if (iconPackName != "default") {
-                    iconPackManager.getIconFromPack(iconPackName, componentName, originalIcon)
-                } else {
-                    originalIcon?.let { BitmapUtils.drawableToBitmap(it)?.asImageBitmap() }
-                }
-
-                // Cache the final bitmap
-                finalIcon?.let { imageBitmap ->
-                    val bitmap = BitmapUtils.drawableToBitmap(originalIcon)
-                    bitmap?.let {
-                        synchronized(iconCache) {
-                            iconCache.put(cacheKey, it)
-                        }
-                    }
-                }
-
-                finalIcon
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
+        val finalBitmap: Bitmap? = when {
+            iconPackName != "default" -> {
+                iconPackManager.getBitmapFromPack(iconPackName, componentName)
+                    ?: originalDrawable?.let { BitmapUtils.drawableToBitmap(it) }
             }
+            else -> originalDrawable?.let { BitmapUtils.drawableToBitmap(it) }
         }
+
+        finalBitmap?.let { bmp ->
+            synchronized(iconCache) { iconCache.put(cacheKey, bmp) }
+            return@withContext bmp.asImageBitmap()
+        }
+
+        null
     }
 
-    /**
-     * Clear the icon cache
-     */
     fun clearCache() {
         synchronized(iconCache) {
             iconCache.evictAll()
