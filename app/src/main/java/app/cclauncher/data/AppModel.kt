@@ -1,8 +1,8 @@
 package app.cclauncher.data
 
 import android.os.UserHandle
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.text.CollationKey
@@ -27,8 +27,13 @@ data class AppModel(
 ) : Comparable<AppModel> {
     override fun compareTo(other: AppModel): Int = when {
         key != null && other.key != null -> key.compareTo(other.key)
-        else -> appLabel.compareTo(other.appLabel, true)
+        else -> appLabel.compareTo(other.appLabel, ignoreCase = true)
     }
 
-    fun getKey(): String = "$appPackage/${userString}"
+    fun getKey(): String = AppKey.of(appPackage, userString)
+}
+
+object AppKey {
+    fun of(packageName: String, userString: String): String =
+        "${packageName.trim()}/${userString.trim()}"
 }

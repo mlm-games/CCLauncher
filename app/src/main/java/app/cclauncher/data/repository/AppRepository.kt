@@ -101,7 +101,7 @@ class AppRepository(
     suspend fun toggleAppHidden(app: AppModel) {
         withContext(Dispatchers.IO) {
             try {
-                val appKey = "${app.appPackage}/${app.user.hashCode()}"
+                val appKey = app.getKey()
 
                 settingsRepository.toggleAppHidden(appKey)
 

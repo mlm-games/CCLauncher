@@ -33,6 +33,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import app.cclauncher.R
 import app.cclauncher.data.AnimationConstants
+import app.cclauncher.data.AppKey
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.repository.SettingsRepository
@@ -49,123 +50,90 @@ suspend fun getAppsList(
     settingsRepository: SettingsRepository,
     includeRegularApps: Boolean = true,
     includeHiddenApps: Boolean = false,
-): MutableList<AppModel> {
-    return withContext(Dispatchers.IO) {
-        val appList: MutableList<AppModel> = mutableListOf()
+): MutableList<AppModel> = withContext(Dispatchers.IO) {
 
-        try {
-            val settings = settingsRepository.settings.first()
-            val hiddenApps = settings.hiddenApps
-            val includeIcons = settings.showAppIcons
-            val renamedApps = settings.renamedApps
-            val selectedIconPack = settings.selectedIconPack
+    val appList: MutableList<AppModel> = mutableListOf()
 
-            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-            val collator = Collator.getInstance()
+    try {
+        val settings = settingsRepository.settings.first()
+        val hiddenApps = settings.hiddenApps
+        val includeIcons = settings.showAppIcons
+        val renamedApps = settings.renamedApps
+        val selectedIconPack = settings.selectedIconPack
 
-            val iconCache = IconCache(context)
+        val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        val collator = Collator.getInstance()
 
-            for (profile in userManager.userProfiles) {
-                for (app in launcherApps.getActivityList(null, profile)) {
-                    // Skip CCLauncher itself
-                    if (app.applicationInfo.packageName == context.packageName) continue
+        val iconCache = IconCache(context)
 
-                    val tempAppModel = AppModel(
-                        "temp",
-                        null,
-                        app.applicationInfo.packageName,
-                        app.componentName.className,
-                        false,
-                        profile,
-                        null,
-                        false,
-                        profile.toString(),
+        for (profile in userManager.userProfiles) {
+            for (activity in launcherApps.getActivityList(null, profile)) {
+                val pkg = activity.applicationInfo.packageName
+
+                // Skip the launcher itself
+                if (pkg == context.packageName) continue
+
+                val userString = profile.toString()
+                val appKey = AppKey.of(pkg, userString)
+
+                val defaultLabel = activity.label.toString() +
+                        if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
+
+                val shownLabel = renamedApps[appKey] ?: defaultLabel
+
+                val appIcon = if (includeIcons) {
+                    iconCache.getIcon(
+                        packageName = pkg,
+                        className = activity.componentName.className,
+                        user = profile,
+                        iconPackName = selectedIconPack
                     )
-                    val appKey = tempAppModel.getKey()
+                } else null
 
-                    val defaultLabel = app.label.toString() +
-                            if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
+                val model = AppModel(
+                    appLabel = shownLabel,
+                    key = collator.getCollationKey(activity.label.toString()),
+                    appPackage = pkg,
+                    activityClassName = activity.componentName.className,
+                    isNew = (System.currentTimeMillis() - activity.firstInstallTime) < AnimationConstants.ONE_HOUR_IN_MILLIS,
+                    user = profile,
+                    appIcon = appIcon,
+                    isHidden = hiddenApps.contains(appKey),
+                    userString = userString,
+                    lastLaunchTime = settings.recentAppHistory[appKey] ?: 0L
+                )
 
-                    val appLabelShown = renamedApps[appKey] ?: defaultLabel
-
-                    // Pass the selected icon pack to getIcon
-                    val appIcon = if (includeIcons) {
-                        iconCache.getIcon(
-                            app.applicationInfo.packageName,
-                            app.componentName.className,
-                            app.user,
-                            selectedIconPack
-                        )
-                    } else {
-                        null
-                    }
-
-                    val appModel = AppModel(
-                        appLabelShown,
-                        collator.getCollationKey(app.label.toString()),
-                        app.applicationInfo.packageName,
-                        app.componentName.className,
-                        (System.currentTimeMillis() - app.firstInstallTime) < AnimationConstants.ONE_HOUR_IN_MILLIS,
-                        profile,
-                        appIcon = appIcon,
-                        lastLaunchTime = settings.recentAppHistory[appKey] ?: 0
-                    )
-
-                    val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
-
-                    val isHidden = hiddenApps.contains(dupAppKey)
-
-                    if (isHidden) {
-                        if (includeHiddenApps) {
-                            appList.add(appModel.copy(isHidden = true))
-                        }
-                    } else {
-                        if (includeRegularApps) {
-                            appList.add(appModel)
-                        }
-                    }
+                val isHidden = hiddenApps.contains(appKey)
+                when {
+                    isHidden && includeHiddenApps -> appList.add(model.copy(isHidden = true))
+                    !isHidden && includeRegularApps -> appList.add(model)
                 }
             }
-
-            when (settings.searchSortOrder) {
-                Constants.SortOrder.ALPHABETICAL -> {
-                    appList.sortBy { it.appLabel.lowercase() }
-                }
-                Constants.SortOrder.REVERSE_ALPHABETICAL -> {
-                    appList.sortByDescending { it.appLabel.lowercase() }
-                }
-                Constants.SortOrder.RECENT_FIRST -> {
-                    appList.sortWith(compareByDescending<AppModel> { it.lastLaunchTime }
-                        .thenBy { it.appLabel.lowercase() })
-                }
-                else -> {
-                    appList.sortBy { it.appLabel.lowercase() }
-                }
-            }
-
-        } catch (e: Exception) {
-            println("Error loading apps: ${e.message}")
-            e.printStackTrace()
         }
-        appList
+
+        when (settings.searchSortOrder) {
+            Constants.SortOrder.ALPHABETICAL ->
+                appList.sortBy { it.appLabel.lowercase() }
+
+            Constants.SortOrder.REVERSE_ALPHABETICAL ->
+                appList.sortByDescending { it.appLabel.lowercase() }
+
+            Constants.SortOrder.RECENT_FIRST ->
+                appList.sortWith(
+                    compareByDescending<AppModel> { it.lastLaunchTime }
+                        .thenBy { it.appLabel.lowercase() }
+                )
+
+            else ->
+                appList.sortBy { it.appLabel.lowercase() }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
+
+    appList
 }
-
-
-
-// This is to ensure backward compatibility with older app versions
-// which did not support multiple user profiles
-//private fun upgradeHiddenApps(prefs: Prefs) {
-//    val hiddenAppsSet = prefs.hiddenApps
-//    val newHiddenAppsSet = mutableSetOf<String>()
-//    for (hiddenPackage in hiddenAppsSet) {
-//        if (hiddenPackage.contains("|")) newHiddenAppsSet.add(hiddenPackage)
-//        else newHiddenAppsSet.add(hiddenPackage + android.os.Process.myUserHandle().toString())
-//    }
-//    prefs.hiddenApps = newHiddenAppsSet
-//    prefs.hiddenAppsUpdated = true
-//}
 
 fun isPackageInstalled(context: Context, packageName: String, userString: String): Boolean {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -418,3 +386,9 @@ fun Context.starApp() {
     intent.addFlags(flags)
     startActivity(intent)
 }
+
+fun AppModel.resolveUser(context: Context): UserHandle =
+    getUserHandleFromString(context, userString)
+
+fun AppModel.withResolvedUser(context: Context): AppModel =
+    copy(user = resolveUser(context))
