@@ -36,7 +36,7 @@ import app.cclauncher.data.AnimationConstants
 import app.cclauncher.data.AppKey
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
-import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.ui.theme.AnimationConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -47,7 +47,7 @@ import kotlin.math.sqrt
 
 suspend fun getAppsList(
     context: Context,
-    settingsRepository: SettingsRepository,
+    settingsRepository: AppSettingsRepository,
     includeRegularApps: Boolean = true,
     includeHiddenApps: Boolean = false,
 ): MutableList<AppModel> = withContext(Dispatchers.IO) {

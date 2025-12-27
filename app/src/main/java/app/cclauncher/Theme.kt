@@ -26,8 +26,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.AppSettings
+import org.koin.compose.koinInject
 import java.io.File
 
 
@@ -209,7 +210,7 @@ fun CLauncherTheme(
 ) {
 
     val context = LocalContext.current
-    val settingsRepository = remember { SettingsRepository(context) }
+    val settingsRepository : AppSettingsRepository = koinInject()
 
     val settings = settingsRepository.settings.collectAsState(initial = AppSettings()).value
 

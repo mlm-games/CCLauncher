@@ -49,7 +49,7 @@ import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.data.HomeItem
 import app.cclauncher.data.HomeLayout
-import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.settings.AppSettings
 import app.cclauncher.helper.expandNotificationDrawer
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.showToast

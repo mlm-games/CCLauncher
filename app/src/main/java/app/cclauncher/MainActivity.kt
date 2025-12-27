@@ -1,9 +1,10 @@
 package app.cclauncher
 
 import android.annotation.SuppressLint
-import android.app.Application
+import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
@@ -17,16 +18,21 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import app.cclauncher.data.repository.SettingsRepository
+import app.cclauncher.data.Navigation
+import app.cclauncher.data.WidgetConstants
+import app.cclauncher.helper.PrivateSpaceReceiver
 import app.cclauncher.helper.WidgetHelper
-import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.isDarkThemeOn
+import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.setPlainWallpaper
+import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
@@ -34,18 +40,14 @@ import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import android.appwidget.AppWidgetHost
-import android.content.IntentFilter
-import androidx.lifecycle.ViewModel
-import app.cclauncher.data.Navigation
-import app.cclauncher.data.WidgetConstants
-import app.cclauncher.helper.PrivateSpaceReceiver
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-    private lateinit var viewModel: MainViewModel
-    private lateinit var settingsViewModel: SettingsViewModel
-    private lateinit var settingsRepository: SettingsRepository
-    private lateinit var appWidgetHost: AppWidgetHost
+    private val viewModel: MainViewModel by viewModel()
+    private val settingsViewModel: SettingsViewModel by viewModel()
+    private val settingsRepository: AppSettingsRepository by inject()
+    private val appWidgetHost: AppWidgetHost by inject()
     private lateinit var privateSpaceReceiver: PrivateSpaceReceiver
     private val APPWIDGET_HOST_ID = WidgetConstants.APPWIDGET_HOST_ID
     private val REQUEST_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
@@ -100,10 +102,6 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
         )
 
-        // Initialize settings repository
-        settingsRepository = SettingsRepository(applicationContext)
-
-        appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
         Log.d("MainActivity", "AppWidgetHost created with ID: $APPWIDGET_HOST_ID")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -114,10 +112,6 @@ class MainActivity : ComponentActivity() {
             }
             registerReceiver(privateSpaceReceiver, intentFilter)
         }
-
-        viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
-        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
-
 
         // Initialize theme based on settings
         lifecycleScope.launch {
@@ -287,17 +281,4 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-}
-
-class MainViewModelFactory(
-    private val application: Application,
-    private val appWidgetHost: AppWidgetHost
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(application, appWidgetHost) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

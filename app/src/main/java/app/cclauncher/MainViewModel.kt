@@ -16,9 +16,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.repository.AppRepository
-import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.settings.AppPreference
-import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.AppPreference
+import app.cclauncher.settings.AppSettings
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PrivateSpaceHelper
@@ -29,16 +29,18 @@ import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.math.ceil
 
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
-class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
+class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application), KoinComponent {
     private val appContext = application.applicationContext
-    val settingsRepository = SettingsRepository(appContext)
-    private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
+    val settingsRepository: AppSettingsRepository by inject()
+    private val appRepository: AppRepository by inject()
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CODE_BIND_WIDGET
     private var pendingWidgetInfo: PendingWidgetInfo? = null

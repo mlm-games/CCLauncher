@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.Build
 import app.cclauncher.data.AppModel
+import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.getAppsList
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +19,7 @@ import kotlinx.coroutines.withContext
  */
 class AppRepository(
     private val context: Context,
-    private val settingsRepository: SettingsRepository,
+    private val settingsRepository: AppSettingsRepository,
     coroutineScope: CoroutineScope
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps

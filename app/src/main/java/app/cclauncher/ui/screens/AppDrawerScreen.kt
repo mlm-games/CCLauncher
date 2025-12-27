@@ -77,12 +77,13 @@ import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawerScreen(
     viewModel: MainViewModel,
-    settingsViewModel: SettingsViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel(),
     onAppClick: (AppModel) -> Unit,
     selectionMode: Boolean = false,
     selectionTitle: String = "",

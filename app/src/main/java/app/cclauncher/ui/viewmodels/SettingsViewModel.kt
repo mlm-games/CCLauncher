@@ -5,16 +5,17 @@ import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import app.cclauncher.data.repository.SettingsRepository
-import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.AppSettings
 import app.cclauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    internal val settingsRepository = SettingsRepository(application.applicationContext)
-
+class SettingsViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+    internal val settingsRepository: AppSettingsRepository by inject()
     // UI state for settings
     private val _settingsState = MutableStateFlow(AppSettings())
     val settingsState: StateFlow<AppSettings> = _settingsState.asStateFlow()
@@ -132,17 +133,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _isSettingPin.value = isSettingPin
     }
 
-    fun validatePin(pin: String): Boolean {
-        var isValid = false
-        viewModelScope.launch {
-            isValid = settingsRepository.validateSettingsPin(pin)
-            if (isValid) {
-//                _isLocked.value = false
-                _isTemporarilyUnlocked.value = true
-                _showLockDialog.value = false
-            }
+    suspend fun validatePin(pin: String): Boolean {
+        val ok = settingsRepository.validateSettingsPin(pin)
+        if (ok) {
+            _isTemporarilyUnlocked.value = true
+            _showLockDialog.value = false
         }
-        return isValid
+        return ok
     }
 
     fun setPin(pin: String) {

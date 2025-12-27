@@ -1,7 +1,6 @@
 package app.cclauncher.ui.composables
 
 import android.content.res.Configuration
-import android.view.Gravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.cclauncher.data.AppModel
-import app.cclauncher.data.settings.AppSettings
+import app.cclauncher.settings.AppSettings
 import app.cclauncher.helper.IconCache
 import kotlinx.coroutines.launch
 

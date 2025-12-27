@@ -7,11 +7,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.apk.dist)
-
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     compilerOptions {
         optIn.addAll(
@@ -129,6 +129,21 @@ dependencies {
     // Work Manager
     implementation(libs.work.runtime.ktx)
 
+    implementation(libs.kmp.settings.core)
+    ksp(libs.kmp.settings.ksp)
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.annotations)
+    ksp(libs.koin.ksp.compiler)
+
+
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+
+
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)
@@ -149,7 +164,6 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.constraintlayout.compose.android)
 
-    implementation(libs.kotlin.reflect)
     implementation(libs.androidbrowserhelper)
     implementation(libs.androidx.datastore.preferences.core)
 
