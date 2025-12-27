@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -30,7 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -87,45 +95,89 @@ fun HomeScreen(
         showCancelMovementButton = widgetBeingMoved != null || appBeingMoved != null
     }
 
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus for d-pad navigation
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    val onSwipeUp = { when (settings.swipeUpAction) {
+        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+        Constants.SwipeAction.APP -> viewModel.launchSwipeUpApp()
+        Constants.SwipeAction.NULL -> {}
+        else -> onNavigateToAppDrawer()
+    } }
+
+    val onSwipeDown = {
+        when (settings.swipeDownAction) {
+            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+            Constants.SwipeAction.APP -> viewModel.launchSwipeDownApp()
+            Constants.SwipeAction.NULL -> {}
+            else -> expandNotificationDrawer(context)
+        }
+    }
+
+    val onSwipeLeft = {
+        when (settings.swipeLeftAction) {
+            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+            Constants.SwipeAction.APP -> viewModel.launchSwipeLeftApp()
+            Constants.SwipeAction.NULL -> { /* Do nothing */ }
+            else -> { /* Do nothing by default */ }
+        }
+    }
+
+    val onSwipeRight = {
+        when (settings.swipeRightAction) {
+            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+            Constants.SwipeAction.APP -> viewModel.launchSwipeRightApp()
+            Constants.SwipeAction.NULL -> {}
+            else -> {}
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.DirectionUp -> {
+                            onSwipeDown()
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            onSwipeUp()
+                            true
+                        }
+                        Key.DirectionLeft -> {
+                            onSwipeLeft()
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            onSwipeRight()
+                            true
+                        }
+                        Key.DirectionCenter, Key.Enter -> {
+                            onNavigateToSettings()
+                            true
+                        }
+                        else -> false
+                    }
+                } else false
+            }
             .detectSwipeGestures(
                 sensitivity = settings.gestureSensitivity,
-                onSwipeUp = { when (settings.swipeUpAction) {
-                    Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                    Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-                    Constants.SwipeAction.APP -> viewModel.launchSwipeUpApp()
-                    Constants.SwipeAction.NULL -> {}
-                        else -> onNavigateToAppDrawer()
-                } },
-                onSwipeDown = {
-                    when (settings.swipeDownAction) {
-                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeAction.APP -> viewModel.launchSwipeDownApp()
-                        Constants.SwipeAction.NULL -> {}
-                        else -> expandNotificationDrawer(context)
-                    }
-                },
-                onSwipeLeft = {
-                    when (settings.swipeLeftAction) {
-                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeAction.APP -> viewModel.launchSwipeLeftApp()
-                        Constants.SwipeAction.NULL -> { /* Do nothing */ }
-                        else -> { /* Do nothing by default */ }
-                    }
-                },
-                onSwipeRight = {
-                    when (settings.swipeRightAction) {
-                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeAction.APP -> viewModel.launchSwipeRightApp()
-                        Constants.SwipeAction.NULL -> {}
-                        else -> {}
-                    }
-                }
+                onSwipeUp,
+                onSwipeDown,
+                onSwipeLeft,
+                onSwipeRight
             )
             .pointerInput(Unit) {
                 detectTapGestures(
