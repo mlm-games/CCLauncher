@@ -1,112 +1,173 @@
 package app.cclauncher.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import app.cclauncher.MainViewModel
-import app.cclauncher.data.Constants
-import app.cclauncher.data.Navigation
-import app.cclauncher.ui.screens.*
-import app.cclauncher.ui.util.SystemUIController
-import app.cclauncher.ui.viewmodels.SettingsViewModel
-import kotlinx.coroutines.flow.collectLatest
-import app.cclauncher.ui.screens.WidgetPickerScreen
-import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import app.cclauncher.MainActivity
+import app.cclauncher.MainViewModel
+import app.cclauncher.data.Constants
 import app.cclauncher.data.WidgetConstants
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.showToast
+import app.cclauncher.ui.components.snackbar.LauncherSnackbarHost
+import app.cclauncher.ui.components.snackbar.SnackbarManager
+import app.cclauncher.ui.screens.AppDrawerScreen
+import app.cclauncher.ui.screens.HiddenAppsScreen
+import app.cclauncher.ui.screens.HomeScreen
+import app.cclauncher.ui.screens.SettingsScreen
+import app.cclauncher.ui.screens.WidgetPickerScreen
 import app.cclauncher.ui.theme.AnimationConfig
+import app.cclauncher.ui.util.SystemUIController
+import app.cclauncher.ui.viewmodels.SettingsViewModel
+import kotlinx.coroutines.flow.collectLatest
+import org.koin.compose.koinInject
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-@OptIn(ExperimentalAnimationApi::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CLauncherNavigation(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
-    currentScreen: String,
-    onScreenChange: (String) -> Unit,
-    appWidgetHost: AppWidgetHost,
+    appWidgetHost: android.appwidget.AppWidgetHost,
     widgetHelper: WidgetHelper
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
 
-
-    // Apply system UI settings
+    // System UI based on settings
     SystemUIController(showStatusBar = settings.statusBar)
 
+    // Optional snackbar integration
+    val snackbarManager: SnackbarManager = koinInject()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Nav3 back stack
+    val backStack = rememberNavBackStack(LauncherDestination.Home)
+
+    // App selection mode is UI-state, not navigation-state (preserving your current behavior)
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
+
+    fun popToHome() {
+        while (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+        settingsViewModel.resetUnlockState()
+        currentSelectionType = null
+    }
+
+    fun navigateTo(dest: LauncherDestination) {
+        // preserve “screen switch” semantics:
+        // clear to home, then optionally add destination
+        popToHome()
+        if (dest != LauncherDestination.Home) {
+            backStack.add(dest)
+        }
+    }
+
+    fun pushOnTop(dest: LauncherDestination) {
+        // for “settings subpages” like HiddenApps that have an explicit back arrow
+        if (backStack.lastOrNull() != dest) backStack.add(dest)
+    }
 
     val handleEvent: (UiEvent) -> Unit = { event ->
         when (event) {
-            is UiEvent.NavigateToAppDrawer -> {
-                onScreenChange(Navigation.APP_DRAWER)
+            UiEvent.NavigateToAppDrawer -> navigateTo(LauncherDestination.AppDrawer)
+            UiEvent.NavigateToSettings -> navigateTo(LauncherDestination.Settings)
+
+            UiEvent.NavigateToHiddenApps -> {
+                if (backStack.lastOrNull() != LauncherDestination.Settings) {
+                    navigateTo(LauncherDestination.Settings)
+                }
+                pushOnTop(LauncherDestination.HiddenApps)
             }
-            is UiEvent.NavigateToSettings -> {
-                onScreenChange(Navigation.SETTINGS)
+
+            UiEvent.NavigateToWidgetPicker -> {
+                // preserve existing behavior: widget picker is a “mode”, dismiss returns HOME
+                navigateTo(LauncherDestination.WidgetPicker)
             }
-            is UiEvent.NavigateToHiddenApps -> {
-                onScreenChange(Navigation.HIDDEN_APPS)
+
+            UiEvent.NavigateBack -> popToHome()
+
+            is UiEvent.NavigateToAppSelection -> {
+                currentSelectionType = event.selectionType
+                navigateTo(LauncherDestination.AppDrawer)
             }
-            is UiEvent.NavigateBack -> {
-                onScreenChange(Navigation.HOME)
-                settingsViewModel.resetUnlockState()
+
+            is UiEvent.ShowToast -> {
+                //  prefer snackbar only for in-app feedback
+                snackbarManager.show(event.message)
             }
-            is UiEvent.NavigateToWidgetPicker -> {
-                onScreenChange(Navigation.WIDGET_PICKER)
-            }
+
             is UiEvent.LaunchWidgetBindIntent -> {
                 try {
                     (context as? MainActivity)?.widgetRequestLauncher?.launch(event.intent)
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to launch widget bind intent", e)
-                    context.showToast("Failed to request widget permission: ${e.message}")
-                }
-            }
-            is UiEvent.ConfigureWidget -> {
-                val activity = context as? Activity
-                if (activity != null) {
-                    val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
-                    widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
+                    snackbarManager.show("Failed to request widget permission: ${e.message}")
                 }
             }
 
+            is UiEvent.ConfigureWidget -> {
+                val activity = context as? Activity
+                if (activity != null) {
+                    val requestCode = WidgetConstants.REQUEST_CONFIGURE_WIDGET
+                    widgetHelper.startWidgetConfiguration(activity, event.widgetId, requestCode)
+                }
+            }
 
             is UiEvent.StartActivityForResult -> {
                 try {
                     val activity = context as? Activity
                     if (activity != null) {
+                        @Suppress("DEPRECATION")
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            // For Android 14+ with background activity restrictions
                             val options = ActivityOptions.makeBasic().apply {
-                                pendingIntentBackgroundActivityStartMode = ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                                pendingIntentBackgroundActivityStartMode =
+                                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
                             }
                             activity.startActivityForResult(event.intent, event.requestCode, options.toBundle())
                         } else {
-                            // Standard approach for older versions
                             activity.startActivityForResult(event.intent, event.requestCode)
                         }
                     }
                 } catch (e: SecurityException) {
-                    // Handle cases where the activity isn't exported
                     Log.e("Navigation", "Security exception starting activity", e)
                     try {
-                        // Try again with different flags
-                        event.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                        event.intent.addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                        )
                         context.startActivity(event.intent)
                     } catch (e2: Exception) {
                         Log.e("Navigation", "Fallback failed too", e2)
@@ -117,151 +178,150 @@ fun CLauncherNavigation(
                     }
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
-                    context.showToast(
-                        "Failed to start widget configuration: ${e.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    )
+                    snackbarManager.show("Failed to start widget configuration: ${e.localizedMessage}")
                 }
             }
-            is UiEvent.ShowToast -> {
-                // Show toast message (same as context.showToast but is inbuilt, shorter, doesn't make a diff (mainly to remind))
-                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
-            is UiEvent.NavigateToAppSelection -> {
-                // Store selection type and show dialog
-                currentSelectionType = event.selectionType
-                // Navigate to app drawer with selection mode
-                onScreenChange(Navigation.APP_DRAWER)
-            }
-            else -> {
-                // Handle other events, presently nothing.
-            }
+
+            else -> Unit
         }
     }
 
-    // Collect events from MainViewModel
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.events.collectLatest { event ->
-            handleEvent(event)
-        }
+    LaunchedEffect(viewModel) {
+        viewModel.events.collectLatest(handleEvent)
+    }
+    LaunchedEffect(settingsViewModel) {
+        settingsViewModel.events.collectLatest(handleEvent)
     }
 
-    // from SettingsViewModel
-    LaunchedEffect(key1 = settingsViewModel) {
-        settingsViewModel.events.collectLatest { event ->
-            handleEvent(event)
-        }
-    }
+    val settingsTransitions =
+        NavDisplay.transitionSpec { AnimationConfig.Navigation.slideLeftTransition() } +
+                NavDisplay.popTransitionSpec { AnimationConfig.Navigation.slideRightTransition() } +
+                NavDisplay.predictivePopTransitionSpec { _ -> AnimationConfig.Navigation.slideRightTransition() }
 
+    val appDrawerTransitions =
+        NavDisplay.transitionSpec { AnimationConfig.Navigation.slideUpTransition() } +
+                NavDisplay.popTransitionSpec { AnimationConfig.Navigation.slideDownTransition() } +
+                NavDisplay.predictivePopTransitionSpec { _ -> AnimationConfig.Navigation.slideDownTransition() }
 
-    // Main animation container with content alignment for proper scaling
-    AnimatedContent(
-        targetState = currentScreen,
-        transitionSpec = {
-            when (targetState) {
-                Navigation.HOME -> {
-                    when (initialState) {
-                        Navigation.APP_DRAWER -> AnimationConfig.Navigation.slideDownTransition()
-                        else -> AnimationConfig.Navigation.slideRightTransition()
-                    }
-                }
-                Navigation.APP_DRAWER -> AnimationConfig.Navigation.slideUpTransition()
-                Navigation.SETTINGS -> AnimationConfig.Navigation.slideLeftTransition()
-                Navigation.HIDDEN_APPS -> AnimationConfig.Navigation.slideLeftTransition()
-                Navigation.WIDGET_PICKER -> AnimationConfig.Navigation.widgetPickerTransition()
-                else -> AnimationConfig.Navigation.scaleAndFadeTransition()
+    val hiddenAppsTransitions =
+        NavDisplay.transitionSpec { AnimationConfig.Navigation.slideLeftTransition() } +
+                NavDisplay.popTransitionSpec { AnimationConfig.Navigation.slideRightTransition() } +
+                NavDisplay.predictivePopTransitionSpec { _ -> AnimationConfig.Navigation.slideRightTransition() }
+
+    val widgetPickerTransitions =
+        NavDisplay.transitionSpec { AnimationConfig.Navigation.widgetPickerTransition() } +
+                NavDisplay.popTransitionSpec { AnimationConfig.Navigation.widgetPickerTransition() } +
+                NavDisplay.predictivePopTransitionSpec { _ -> AnimationConfig.Navigation.widgetPickerTransition() }
+
+    val provider: (NavKey) -> NavEntry<NavKey> = remember {
+        entryProvider {
+            entry<LauncherDestination.Home> {
+                HomeScreen(
+                    viewModel = viewModel,
+                    settingsViewModel = settingsViewModel,
+                    appWidgetHost = appWidgetHost,
+                    onNavigateToAppDrawer = { navigateTo(LauncherDestination.AppDrawer) },
+                    onNavigateToSettings = { navigateTo(LauncherDestination.Settings) }
+                )
             }
-        },
-        contentAlignment = Alignment.Center
-    ) { screen ->
-        // Render the appropriate screen based on current navigation state
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (screen) {
-                Navigation.HOME -> {
-                    HomeScreen(
-                        viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,
-                        appWidgetHost = appWidgetHost,
-                        onNavigateToAppDrawer = {
-                            onScreenChange(Navigation.APP_DRAWER)
-                        },
-                        onNavigateToSettings = {
-                            onScreenChange(Navigation.SETTINGS)
-                        }
-                    )
-                }
-                Navigation.APP_DRAWER -> {
-                    AppDrawerScreen(
-                        viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,
-                        onAppClick = { app ->
-                            // Check if we're in app selection mode
-                            if (currentSelectionType != null) {
-                                when (currentSelectionType) {
-                                    AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
-                                    AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
-                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
-                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
-                                    else -> {}
-                                }
-                                // After selection, reset and go back to settings
-                                currentSelectionType = null
-                                onScreenChange(Navigation.SETTINGS)
-                            } else {
-                                // Normal app launch
-                                viewModel.launchApp(app)
+
+            entry<LauncherDestination.AppDrawer>(metadata = appDrawerTransitions) {
+                AppDrawerScreen(
+                    viewModel = viewModel,
+                    settingsViewModel = settingsViewModel,
+                    selectionMode = currentSelectionType != null,
+                    selectionTitle = when (currentSelectionType) {
+                        AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
+                        AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
+                        AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
+                        AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+                        null -> ""
+                    },
+                    onSwipeDown = { popToHome() },
+                    onAppClick = { app ->
+                        if (currentSelectionType != null) {
+                            when (currentSelectionType) {
+                                AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
+                                AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
+                                AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
+                                AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                else -> {}
                             }
-                        },
-                        onSwipeDown = { onScreenChange(Navigation.HOME) },
-                        selectionMode = currentSelectionType != null,
-                        selectionTitle = when (currentSelectionType) {
-                            AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
-                            AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
-                            AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
-                            AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
-                            null -> ""
+                            currentSelectionType = null
+                            navigateTo(LauncherDestination.Settings)
+                        } else {
+                            viewModel.launchApp(app)
                         }
-                    )
-                }
-                Navigation.SETTINGS -> {
-                    SettingsScreen(
-                        viewModel = settingsViewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.HOME)
-                        },
-                        onNavigateToHiddenApps = {
-                            onScreenChange(Navigation.HIDDEN_APPS)
-                        }
-                    )
-                }
-                Navigation.HIDDEN_APPS -> {
-                    HiddenAppsScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.SETTINGS)
-                        }
-                    )
-                }
-                Navigation.WIDGET_PICKER -> {
-                    WidgetPickerScreen(
-                        onWidgetSelected = { providerInfo ->
-                            viewModel.startWidgetConfiguration(providerInfo)
-                            onScreenChange(Navigation.HOME)
-                        },
-                        onDismiss = { onScreenChange(Navigation.HOME) }
-                    )
-                }
+                    }
+                )
             }
+
+            entry<LauncherDestination.Settings>(metadata = settingsTransitions) {
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    mainViewModel = viewModel,
+                    onNavigateBack = { popToHome() },
+                    onNavigateToHiddenApps = {
+                        if (backStack.lastOrNull() != LauncherDestination.Settings) {
+                            navigateTo(LauncherDestination.Settings)
+                        }
+                        pushOnTop(LauncherDestination.HiddenApps)
+                    }
+                )
+            }
+
+            entry<LauncherDestination.HiddenApps>(metadata = hiddenAppsTransitions) {
+                HiddenAppsScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = {
+                        if (backStack.lastOrNull() == LauncherDestination.HiddenApps) {
+                            backStack.removeAt(backStack.lastIndex)
+                        } else {
+                            navigateTo(LauncherDestination.Settings)
+                        }
+                    }
+                )
+            }
+
+            entry<LauncherDestination.WidgetPicker>(metadata = widgetPickerTransitions) {
+                WidgetPickerScreen(
+                    onWidgetSelected = { providerInfo ->
+                        viewModel.startWidgetConfiguration(providerInfo)
+                        popToHome()
+                    },
+                    onDismiss = { popToHome() }
+                )
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            LauncherSnackbarHost(
+                hostState = snackbarHostState,
+                manager = snackbarManager
+            )
+        }
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            NavDisplay(
+                backStack = backStack,
+                onBack = {
+                    popToHome()
+                },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+                entryProvider = provider
+            )
         }
     }
 }
 
-
 @Composable
 fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
-    // Safely update the current `onBack` lambda when a new one is provided
     val currentOnBack by rememberUpdatedState(onBack)
-    // Remember in Composition a back callback that calls the `onBack` lambda
     val backCallback = remember {
         object : OnBackPressedCallback(enabled) {
             override fun handleOnBackPressed() {
@@ -269,7 +329,6 @@ fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
             }
         }
     }
-    // On every successful composition, update the callback with the `enabled` value
     SideEffect {
         backCallback.isEnabled = enabled
     }
@@ -278,11 +337,25 @@ fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
     }.onBackPressedDispatcher
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, backDispatcher) {
-        // Add callback to the backDispatcher
         backDispatcher.addCallback(lifecycleOwner, backCallback)
-        // When the effect leaves the Composition, remove the callback
-        onDispose {
-            backCallback.remove()
-        }
+        onDispose { backCallback.remove() }
     }
+}
+
+@Serializable
+sealed interface LauncherDestination : NavKey {
+    @Serializable
+    data object Home : LauncherDestination
+
+    @Serializable
+    data object AppDrawer : LauncherDestination
+
+    @Serializable
+    data object Settings : LauncherDestination
+
+    @Serializable
+    data object HiddenApps : LauncherDestination
+
+    @Serializable
+    data object WidgetPicker : LauncherDestination
 }

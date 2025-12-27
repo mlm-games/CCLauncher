@@ -3,6 +3,7 @@ package app.cclauncher.ui.util
 import android.app.Activity
 import android.os.Build
 import android.view.View
+import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.compose.runtime.Composable
@@ -71,7 +72,7 @@ fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
     }
 }
 
-private fun showStatusBar(window: android.view.Window, view: View) {
+private fun showStatusBar(window: Window, view: View) {
     try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.show(WindowInsets.Type.statusBars())
@@ -85,7 +86,7 @@ private fun showStatusBar(window: android.view.Window, view: View) {
     }
 }
 
-private fun hideStatusBar(window: android.view.Window, view: View) {
+private fun hideStatusBar(window: Window, view: View) {
     try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.let {

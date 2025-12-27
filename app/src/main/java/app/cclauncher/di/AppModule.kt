@@ -5,6 +5,7 @@ import app.cclauncher.MainViewModel
 import app.cclauncher.data.WidgetConstants
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.ui.components.snackbar.SnackbarManager
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +29,8 @@ val appModule = module {
             coroutineScope = get<CoroutineScope>()
         )
     }
+
+    single { SnackbarManager() }
 
     viewModel { MainViewModel(get(), get()) }
 

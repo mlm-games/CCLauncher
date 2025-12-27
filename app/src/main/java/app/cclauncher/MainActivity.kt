@@ -164,15 +164,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CLauncherTheme {
-                var currentScreen by remember { mutableStateOf(Navigation.HOME) }
-
                 CLauncherNavigation(
                     viewModel = viewModel,
                     settingsViewModel = settingsViewModel,
-                    currentScreen = currentScreen,
-                    onScreenChange = { screen ->
-                        currentScreen = screen
-                    },
                     appWidgetHost = appWidgetHost,
                     widgetHelper = widgetHelper
                 )
@@ -181,14 +175,6 @@ class MainActivity : ComponentActivity() {
 
         initObservers()
         viewModel.loadApps()
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                lifecycleScope.launch {
-                    viewModel.emitEvent(UiEvent.NavigateBack)
-                }
-            }
-        })
     }
 
     override fun onStart() {
