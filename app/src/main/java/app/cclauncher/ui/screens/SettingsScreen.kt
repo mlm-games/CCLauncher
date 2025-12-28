@@ -46,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.Constants
 import app.cclauncher.settings.AppPreference
@@ -77,6 +76,7 @@ import app.cclauncher.settings.AppSettingsSchema
 import app.cclauncher.settings.ColorPicker
 import app.cclauncher.settings.FontPicker
 import app.cclauncher.settings.IconPackPicker
+import app.cclauncher.ui.components.snackbar.SnackbarManager
 import io.github.mlmgames.settings.core.types.Button
 import io.github.mlmgames.settings.core.SettingField
 import io.github.mlmgames.settings.core.types.Dropdown
@@ -84,6 +84,7 @@ import io.github.mlmgames.settings.core.types.Slider
 import io.github.mlmgames.settings.core.types.Toggle
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.util.Locale
 import kotlin.reflect.KClass
 
@@ -98,6 +99,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val uiState by viewModel.settingsState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+
+    val snackbarManager: SnackbarManager = koinInject()
 
     val schema = remember { AppSettingsSchema }
 
@@ -253,6 +256,7 @@ fun SettingsScreen(
                     "plainWallpaper" -> {
                         setPlainWallpaperByTheme(context, appTheme = uiState.appTheme)
                         showingDialog = null
+                        snackbarManager.show("Plain wallpaper applied")
                     }
                     else -> showingDialog = null
                 }
@@ -310,7 +314,8 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
+        },
+//        containerColor = Color.Transparent
     ) { paddingValues ->
         if (viewModel.isLoading.value) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

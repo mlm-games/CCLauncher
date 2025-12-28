@@ -55,7 +55,8 @@ fun HiddenAppsScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        }
+        },
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
             modifier = Modifier

@@ -3,6 +3,7 @@ package app.cclauncher.ui.screens
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -57,7 +58,8 @@ fun WidgetPickerScreen(
                     }
                 }
             )
-        }
+        },
+//        containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -107,7 +109,7 @@ private fun WidgetInfoItem(
     onClick: () -> Unit
 ) {
     val pm = context.packageManager
-    var previewImage by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    var previewImage by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(widgetInfo) {
         previewImage = loadWidgetPreview(context, widgetInfo)
@@ -131,7 +133,7 @@ private fun WidgetInfoItem(
                     .padding(end = 16.dp)
             )
         } else {
-            // Fallback: Show App Icon - requires IconCache modification or direct load
+            // TODO: Fallback: Show App Icon - requires IconCache modification or direct load
             // Placeholder:
             Spacer(modifier = Modifier.size(64.dp).padding(end = 16.dp))
         }
@@ -174,7 +176,7 @@ private suspend fun loadInstalledWidgets(context: Context, widgetManager: AppWid
 private suspend fun loadWidgetPreview(
     context: Context,
     widgetInfo: AppWidgetProviderInfo
-): android.graphics.Bitmap? {
+): Bitmap? {
     return withContext(Dispatchers.IO) {
         widgetInfo.loadPreviewImage(context, 0)?.let { drawable ->
             drawableToBitmap(drawable, defaultSize = 100)

@@ -41,7 +41,7 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.Dark.NoActionBar"
+        android:theme="@style/Theme.CCLauncher"
         android:enableOnBackInvokedCallback="true"
         tools:ignore="UnusedAttribute">
 
@@ -53,6 +53,7 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/Theme.CCLauncher"
             android:resumeWhilePausing="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
