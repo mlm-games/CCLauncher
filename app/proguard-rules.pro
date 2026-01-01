@@ -28,9 +28,7 @@
   public static final android.os.Parcelable$Creator *;
 }
 
--keep class app.cclauncher.settings.AppSettings { *; }
--keepclassmembers class app.cclauncher.settings.AppSettings { *; }
-
+-keep class app.cclauncher.settings.*
 
 -keepattributes *Annotation*,EnclosingMethod,Signature,KotlinMetadata
 
