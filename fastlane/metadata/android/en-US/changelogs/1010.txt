@@ -1,0 +1,23 @@
+- Bump com.google.devtools.ksp from 2.3.0 to 2.3.4
+- Reduce icon size, fix wallpaper not appearing
+- bump major ver
+- remove old unused deps
+- Navigation 3 + Snackbars
+- Migrate to my settings module, and use koin for deps
+- Add Dpad support
+- Fix broken icon files, and improve gradle.kts (use my dist plugin)
+- Improve icon pack handling
+- resolve user strings to prevent misc. profile apps from not working on home screen
+- Do not use null class names
+- Use same appKey format everywhere
+- Use gradle 9
+- Use a proper theme color for "No apps found for ..." text
+- Delete old unused xml files, and disable jetifier
+- Bump androidx.activity:activity-compose from 1.12.1 to 1.12.2
+- Update full_description.txt to add line breaks (#155)
+- Update short_description.txt
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.2.21 to 2.3.0
+- Bump plugin.serialization from 2.2.21 to 2.3.0
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.2.21 to 2.3.0
+- Bump kotlin from 2.2.21 to 2.3.0
+- Bump actions/upload-artifact from 5 to 6 in /.github/workflows
