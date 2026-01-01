@@ -1,3 +1,10 @@
+## vv10.0.3
+
+- Add consumer-rules to settings-core, and remove proguard rules
+- Add consumer-rules to settings-core, and remove proguard rules
+- Fix setting names not being visible
+
+
 ## vv10.0.2
 
 - Bump com.google.devtools.ksp from 2.3.0 to 2.3.4
