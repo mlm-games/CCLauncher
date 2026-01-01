@@ -27,18 +27,3 @@
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
-
--keep class app.cclauncher.settings.*
-
--keepattributes *Annotation*,EnclosingMethod,Signature,KotlinMetadata
-
--keep class kotlin.Metadata { *; }
-
--keepattributes RuntimeVisibleAnnotations
-
--keepattributes *Annotation*
-
--keepclassmembers class app.cclauncher.settings.AppSettings {
-    <fields>;
-    <methods>;
-}
