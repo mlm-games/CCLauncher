@@ -77,14 +77,20 @@ import app.cclauncher.settings.ColorPicker
 import app.cclauncher.settings.FontPicker
 import app.cclauncher.settings.IconPackPicker
 import app.cclauncher.ui.components.snackbar.SnackbarManager
+import app.cclauncher.ui.dialogs.ImportExportResultDialog
+import app.cclauncher.ui.dialogs.ImportValidationDialog
+import app.cclauncher.ui.viewmodels.ImportExportState
 import io.github.mlmgames.settings.core.types.Button
 import io.github.mlmgames.settings.core.SettingField
+import io.github.mlmgames.settings.core.backup.ValidationResult
 import io.github.mlmgames.settings.core.types.Dropdown
 import io.github.mlmgames.settings.core.types.Slider
 import io.github.mlmgames.settings.core.types.Toggle
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlin.reflect.KClass
 
@@ -117,6 +123,32 @@ fun SettingsScreen(
             uri?.let { viewModel.setCustomFont(it) }
         }
     )
+
+    val importExportState by viewModel.importExportState.collectAsState()
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var validationResult by remember { mutableStateOf<ValidationResult?>(null) }
+    var showValidationDialog by remember { mutableStateOf(false) }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        uri?.let { viewModel.exportSettings(it) }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            val result = viewModel.validateBackup(selectedUri)
+            if (result != null) {
+                validationResult = result
+                pendingImportUri = selectedUri
+                showValidationDialog = true
+            } else {
+                snackbarManager.show("Could not read the selected file")
+            }
+        }
+    }
 
     var showAccessibilityDisclosure by remember { mutableStateOf(false) }
 
@@ -650,7 +682,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Widgets section (unchanged)
             item(key = "widgets") {
                 SettingsSection(title = "Widgets") {
                     SettingsAction(
@@ -665,7 +696,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Private Space section (unchanged)
             item(key = "private_space_$refreshTrigger") {
                 SettingsSection(title = "Private Space") {
                     if (mainViewModel.isPrivateSpaceSupported) {
@@ -703,7 +733,6 @@ fun SettingsScreen(
                 }
             }
 
-            // System section (unchanged)
             item(key = "system") {
                 SettingsSection(title = "System") {
                     SettingsItem(
@@ -756,6 +785,29 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            item(key = "backup") {
+                SettingsSection(title = "Backup") {
+                    SettingsAction(
+                        title = "Export Settings",
+                        description = "Save your settings to a file",
+                        onClick = {
+                            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                                .format(Date())
+                            exportLauncher.launch("cclauncher_settings_$timestamp.json")
+                        }
+                    )
+
+                    SettingsAction(
+                        title = "Import Settings",
+                        description = "Restore settings from a backup file",
+                        onClick = {
+                            importLauncher.launch(arrayOf("application/json", "*/*"))
+                        }
+                    )
+                }
+            }
+
         }
     }
 
@@ -783,6 +835,30 @@ fun SettingsScreen(
                         Toast.LENGTH_LONG
                     ).show()
                 } catch (_: Exception) {}
+            }
+        )
+    }
+
+    if (importExportState != ImportExportState.Idle) {
+        ImportExportResultDialog(
+            state = importExportState,
+            onDismiss = { viewModel.resetImportExportState() }
+        )
+    }
+
+    if (showValidationDialog && validationResult != null) {
+        ImportValidationDialog(
+            validationResult = validationResult!!,
+            onConfirm = {
+                showValidationDialog = false
+                pendingImportUri?.let { viewModel.importSettings(it) }
+                pendingImportUri = null
+                validationResult = null
+            },
+            onDismiss = {
+                showValidationDialog = false
+                pendingImportUri = null
+                validationResult = null
             }
         )
     }

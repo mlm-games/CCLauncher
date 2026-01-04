@@ -63,7 +63,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
@@ -367,7 +366,7 @@ fun AppDrawerScreen(
                     ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
-//                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related for images.
+//                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related issues for images.
                     ContextMenuItem("App Info", Icons.Default.Info) {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                             data = Uri.fromParts("package", app.appPackage, null)

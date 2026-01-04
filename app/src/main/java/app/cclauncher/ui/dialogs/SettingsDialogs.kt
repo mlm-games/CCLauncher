@@ -8,6 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.cclauncher.ui.viewmodels.ImportExportState
+import io.github.mlmgames.settings.core.backup.ValidationResult
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 /**
@@ -102,6 +106,185 @@ fun DropdownSettingDialog(
                 onDismiss()
             }) {
                 Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun ImportExportResultDialog(
+    state: ImportExportState,
+    onDismiss: () -> Unit
+) {
+    when (state) {
+        is ImportExportState.Loading -> {
+            AlertDialog(
+                onDismissRequest = { /* Don't dismiss while loading */ },
+                title = { Text("Please wait...") },
+                text = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                },
+                confirmButton = { }
+            )
+        }
+
+        is ImportExportState.ExportSuccess -> {
+            AlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text("Export Successful") },
+                text = { Text("Your settings have been exported successfully.") },
+                confirmButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        is ImportExportState.ImportSuccess -> {
+            AlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text("Import Successful") },
+                text = {
+                    Column {
+                        Text("Settings imported successfully!")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Applied: ${state.appliedCount} settings",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        if (state.skippedCount > 0) {
+                            Text(
+                                "Skipped: ${state.skippedCount} settings (unknown or incompatible)",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        if (state.errors.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Errors:",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            state.errors.take(5).forEach { (key, error) ->
+                                Text(
+                                    "• $key: $error",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                            if (state.errors.size > 5) {
+                                Text(
+                                    "... and ${state.errors.size - 5} more",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        is ImportExportState.Error -> {
+            AlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text("Error") },
+                text = { Text(state.message) },
+                confirmButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        ImportExportState.Idle -> { /* No dialog */ }
+    }
+}
+
+@Composable
+fun ImportValidationDialog(
+    validationResult: ValidationResult,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
+    val exportDate = remember(validationResult.exportedAt) {
+        if (validationResult.exportedAt > 0) {
+            dateFormat.format(Date(validationResult.exportedAt))
+        } else {
+            "Unknown"
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Import Settings") },
+        text = {
+            Column {
+                Text(
+                    "Backup Details:",
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "• Settings: ${validationResult.settingsCount}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    "• Schema version: ${validationResult.schemaVersion}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    "• Exported: $exportDate",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                if (validationResult.issues.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Warnings:",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    validationResult.issues.forEach { issue ->
+                        Text(
+                            "• $issue",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Do you want to proceed? This will overwrite your current settings.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Import")
             }
         },
         dismissButton = {

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.settings.AppSettings
 import app.cclauncher.ui.UiEvent
+import io.github.mlmgames.settings.core.backup.ImportResult
+import io.github.mlmgames.settings.core.backup.ValidationResult
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -16,14 +18,12 @@ import java.io.File
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
     internal val settingsRepository: AppSettingsRepository by inject()
-    // UI state for settings
+
     private val _settingsState = MutableStateFlow(AppSettings())
     val settingsState: StateFlow<AppSettings> = _settingsState.asStateFlow()
 
-    // Loading state
     val isLoading = mutableStateOf(true)
 
-    // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
@@ -41,6 +41,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         locked && !tempUnlocked
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    // Import/Export states
+    private val _importExportState = MutableStateFlow<ImportExportState>(ImportExportState.Idle)
+    val importExportState: StateFlow<ImportExportState> = _importExportState.asStateFlow()
+
     val customFontInfo: StateFlow<Pair<String, Long>?> = settingsRepository.settings
         .map { settings ->
             val path = settings.customFontPath
@@ -50,13 +54,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     if (file.exists()) {
                         Pair(file.name, file.length())
                     } else {
-                        null // File path is saved but file doesn't exist
+                        null
                     }
                 } catch (_: Exception) {
-                    null // Error accessing file
+                    null
                 }
             } else {
-                null // No custom font path
+                null
             }
         }
         .stateIn(
@@ -65,10 +69,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             initialValue = null
         )
 
-
-
     init {
-        // Load settings from repository
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
                 _settingsState.value = settings
@@ -76,7 +77,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 _isLocked.value = settings.lockSettings
             }
         }
-
     }
 
     fun setCustomFont(uri: Uri) {
@@ -91,9 +91,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    /**
-     * Update a setting by property name
-     */
     suspend fun updateSetting(propertyName: String, value: Any) {
         settingsRepository.updateSetting(propertyName, value)
     }
@@ -102,9 +99,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         updateSetting(propertyName, newValue)
     }
 
-    /**
-     * Check if grid size change will affect existing items
-     */
     suspend fun willGridChangeAffectItems(propertyName: String, newValue: Int): Boolean {
         val currentSettings = settingsState.value
         val currentLayout = settingsRepository.getHomeLayout().first()
@@ -112,16 +106,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         val newRows = if (propertyName == "homeScreenRows") newValue else currentSettings.homeScreenRows
         val newColumns = if (propertyName == "homeScreenColumns") newValue else currentSettings.homeScreenColumns
 
-        // Check if any items would be out of bounds
         return currentLayout.items.any { item ->
             item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
         }
     }
 
-
-    /**
-     * Emit UI event
-     */
     fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
             _eventsFlow.emit(event)
@@ -152,7 +141,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.setSettingsLock(locked)
             if (!locked) {
-                // When unlocking, reset the PIN to empty
                 settingsRepository.setSettingsLockPin("")
             }
         }
@@ -161,4 +149,64 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun resetUnlockState() {
         _isTemporarilyUnlocked.value = false
     }
+
+    fun exportSettings(uri: Uri) {
+        viewModelScope.launch {
+            _importExportState.value = ImportExportState.Loading
+
+            val result = settingsRepository.exportSettingsToUri(uri)
+
+            _importExportState.value = result.fold(
+                onSuccess = { ImportExportState.ExportSuccess },
+                onFailure = { ImportExportState.Error(it.message ?: "Failed to export settings") }
+            )
+        }
+    }
+
+    fun importSettings(uri: Uri) {
+        viewModelScope.launch {
+            _importExportState.value = ImportExportState.Loading
+
+            when (val result = settingsRepository.importSettingsFromUri(uri)) {
+                is ImportResult.Success -> {
+                    _importExportState.value = ImportExportState.ImportSuccess(
+                        appliedCount = result.appliedCount,
+                        skippedCount = result.skippedCount,
+                        errors = result.errors
+                    )
+                }
+                is ImportResult.Error -> {
+                    _importExportState.value = ImportExportState.Error(result.message)
+                }
+            }
+        }
+    }
+
+    fun validateBackup(uri: Uri): ValidationResult? {
+        return try {
+            val context = getApplication<Application>()
+            val jsonString = context.contentResolver.openInputStream(uri)?.use { input ->
+                input.bufferedReader().readText()
+            } ?: return null
+            settingsRepository.validateSettingsBackup(jsonString)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun resetImportExportState() {
+        _importExportState.value = ImportExportState.Idle
+    }
+}
+
+sealed class ImportExportState {
+    object Idle : ImportExportState()
+    object Loading : ImportExportState()
+    object ExportSuccess : ImportExportState()
+    data class ImportSuccess(
+        val appliedCount: Int,
+        val skippedCount: Int,
+        val errors: List<Pair<String, String>>
+    ) : ImportExportState()
+    data class Error(val message: String) : ImportExportState()
 }
