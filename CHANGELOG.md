@@ -1,3 +1,10 @@
+## vv10.1.1
+
+- Add Import/Export (#160)
+- Revert "Delete clauncher_icon.svg"
+- Delete clauncher_icon.svg
+
+
 ## vv10.0.3
 
 - Add consumer-rules to settings-core, and remove proguard rules
