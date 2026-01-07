@@ -18,6 +18,8 @@ object Constants {
     const val URL_CCLAUNCHER_GITHUB = "https://github.com/mlm-games/CCLauncher"
     const val URL_DUCK_SEARCH = "https://duckduckgo.com?q="
 
+    const val MAX_PAGES = 5
+
     object Key {
         const val FLAG = "flag"
         const val RENAME = "rename"
@@ -45,6 +47,8 @@ object Constants {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
         const val APP = 3
+        const val NEXT_PAGE = 4
+        const val PREVIOUS_PAGE = 5
     }
 
     object GridSize {

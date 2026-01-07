@@ -76,6 +76,7 @@ import app.cclauncher.settings.AppSettingsSchema
 import app.cclauncher.settings.ColorPicker
 import app.cclauncher.settings.FontPicker
 import app.cclauncher.settings.IconPackPicker
+import app.cclauncher.ui.components.PageReduceWarningDialog
 import app.cclauncher.ui.components.snackbar.SnackbarManager
 import app.cclauncher.ui.dialogs.ImportExportResultDialog
 import app.cclauncher.ui.dialogs.ImportValidationDialog
@@ -116,6 +117,10 @@ fun SettingsScreen(
 
     var showGridWarningDialog by remember { mutableStateOf(false) }
     var pendingGridChange by remember { mutableStateOf<Pair<String, Int>?>(null) }
+
+    var showPageWarningDialog by remember { mutableStateOf(false) }
+    var pendingPageChange by remember { mutableStateOf<Int?>(null) }
+
 
     val pickFontLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -205,6 +210,22 @@ fun SettingsScreen(
         )
     }
 
+    if (showPageWarningDialog && pendingPageChange != null) {
+        PageReduceWarningDialog(
+            onConfirm = {
+                coroutineScope.launch {
+                    mainViewModel.updatePageCount(pendingPageChange!!)
+                    showPageWarningDialog = false
+                    pendingPageChange = null
+                }
+            },
+            onDismiss = {
+                showPageWarningDialog = false
+                pendingPageChange = null
+            }
+        )
+    }
+
     when (showingDialog) {
         "slider" -> {
             val field = currentField
@@ -230,27 +251,36 @@ fun SettingsScreen(
                             val propertyName = field.name
                             val intValue = newValue.toInt()
 
-                            if ((propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") &&
-                                viewModel.willGridChangeAffectItems(propertyName, intValue)
-                            ) {
-                                pendingGridChange = propertyName to intValue
-                                showGridWarningDialog = true
-                                showingDialog = null
-                                return@launch
-                            }
+                            when {
+                                // Grid size change
+                                (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") -> {
+                                    if (viewModel.willGridChangeAffectItems(propertyName, intValue)) {
+                                        pendingGridChange = propertyName to intValue
+                                        showGridWarningDialog = true
+                                        showingDialog = null
+                                        return@launch
+                                    }
+                                    viewModel.updateGridSize(propertyName, intValue)
+                                }
 
-                            when (field.get(uiState)) {
-                                is Int -> {
-                                    if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
-                                        viewModel.updateGridSize(propertyName, intValue)
-                                    } else {
-                                        viewModel.updateSetting(propertyName, intValue)
+                                propertyName == "homeScreenPages" -> {
+                                    if (mainViewModel.willPageChangeAffectItems(intValue)) {
+                                        pendingPageChange = intValue
+                                        showPageWarningDialog = true
+                                        showingDialog = null
+                                        return@launch
+                                    }
+                                    mainViewModel.updatePageCount(intValue)
+                                }
+
+                                else -> {
+                                    when (field.get(uiState)) {
+                                        is Int -> viewModel.updateSetting(propertyName, intValue)
+                                        is Float -> viewModel.updateSetting(propertyName, newValue)
+                                        is Double -> viewModel.updateSetting(propertyName, newValue.toDouble())
+                                        is Long -> viewModel.updateSetting(propertyName, newValue.toLong())
                                     }
                                 }
-                                is Float -> viewModel.updateSetting(propertyName, newValue)
-                                is Double -> viewModel.updateSetting(propertyName, newValue.toDouble())
-                                is Long -> viewModel.updateSetting(propertyName, newValue.toLong())
-                                else -> { /* ignore */ }
                             }
 
                             showingDialog = null

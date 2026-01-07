@@ -197,6 +197,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun resetImportExportState() {
         _importExportState.value = ImportExportState.Idle
     }
+
+    suspend fun willPageChangeAffectItems(newPageCount: Int): Boolean {
+        val currentLayout = settingsRepository.getHomeLayout().first()
+        if (newPageCount >= currentLayout.pageCount) return false
+        return currentLayout.items.any { it.page >= newPageCount }
+    }
 }
 
 sealed class ImportExportState {

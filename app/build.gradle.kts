@@ -30,7 +30,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1030
-        versionName = "v10.1.1"
+        versionName = "v10.2.0"
 
         androidResources {
             localeFilters += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.work.runtime.ktx)
 
     implementation(libs.kmp.settings.core)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.kmp.settings.ksp)
 
     implementation(platform(libs.koin.bom))

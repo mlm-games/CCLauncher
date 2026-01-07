@@ -225,6 +225,20 @@ fun GridSizeWarningDialog(
 }
 
 @Composable
+fun PageReduceWarningDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    ConfirmationDialog(
+        title = "Remove Pages",
+        message = "Some pages being removed contain apps or widgets. They will be moved to remaining pages if space is available, otherwise they will be removed. Do you want to continue?",
+        confirmText = "Continue",
+        onConfirm = onConfirm,
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
 fun IconPackSelectionDialog(
     iconPacks: List<IconPackManager.IconPackInfo>,
     selectedPack: String,

@@ -8,6 +8,7 @@ import kotlinx.serialization.Transient
 @Immutable
 sealed class HomeItem {
     abstract val id: String
+    abstract val page: Int
     abstract val row: Int
     abstract val column: Int
     abstract val rowSpan: Int
@@ -17,6 +18,7 @@ sealed class HomeItem {
     data class App(
         val appModel: AppModel,
         override val id: String = appModel.getKey(),
+        override val page: Int = 0,
         override val row: Int,
         override val column: Int,
         override val rowSpan: Int = 1,
@@ -31,6 +33,7 @@ sealed class HomeItem {
         val packageName: String,
         val providerClassName: String,
         override val id: String = "widget_$appWidgetId",
+        override val page: Int = 0,
         override val row: Int,
         override val column: Int,
         override val rowSpan: Int,
@@ -41,7 +44,13 @@ sealed class HomeItem {
 @Serializable
 data class HomeLayout(
     val items: List<HomeItem> = emptyList(),
-    val rows: Int = 8, // Will be overridden
-    val columns: Int = 4
-)
+    val rows: Int = 8,
+    val columns: Int = 4,
+    val pageCount: Int = 1
+) {
+    fun itemsForPage(page: Int): List<HomeItem> = items.filter { it.page == page }
 
+    fun isPageEmpty(page: Int): Boolean = items.none { it.page == page }
+
+    fun lastNonEmptyPage(): Int = items.maxOfOrNull { it.page } ?: 0
+}

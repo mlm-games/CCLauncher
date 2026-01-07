@@ -13,6 +13,7 @@ import kotlinx.serialization.encoding.encodeStructure
 object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.App") {
         element<String>("id")
+        element<Int>("page")
         element<Int>("row")
         element<Int>("column")
         element<Int>("rowSpan")
@@ -27,20 +28,22 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     override fun serialize(encoder: Encoder, value: HomeItem.App) {
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, value.id)
-            encodeIntElement(descriptor, 1, value.row)
-            encodeIntElement(descriptor, 2, value.column)
-            encodeIntElement(descriptor, 3, value.rowSpan)
-            encodeIntElement(descriptor, 4, value.columnSpan)
-            encodeStringElement(descriptor, 5, value.appModel.appLabel)
-            encodeStringElement(descriptor, 6, value.appModel.appPackage)
-            encodeStringElement(descriptor, 7, value.appModel.activityClassName.orEmpty())
-            encodeStringElement(descriptor, 8, value.appModel.userString)
-            encodeBooleanElement(descriptor, 9, value.appModel.isHidden)
+            encodeIntElement(descriptor, 1, value.page)
+            encodeIntElement(descriptor, 2, value.row)
+            encodeIntElement(descriptor, 3, value.column)
+            encodeIntElement(descriptor, 4, value.rowSpan)
+            encodeIntElement(descriptor, 5, value.columnSpan)
+            encodeStringElement(descriptor, 6, value.appModel.appLabel)
+            encodeStringElement(descriptor, 7, value.appModel.appPackage)
+            encodeStringElement(descriptor, 8, value.appModel.activityClassName.orEmpty())
+            encodeStringElement(descriptor, 9, value.appModel.userString)
+            encodeBooleanElement(descriptor, 10, value.appModel.isHidden)
         }
     }
 
     override fun deserialize(decoder: Decoder): HomeItem.App {
         var id = ""
+        var page = 0
         var row = 0
         var column = 0
         var rowSpan = 1
@@ -55,22 +58,24 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
             while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> id = decodeStringElement(descriptor, index)
-                    1 -> row = decodeIntElement(descriptor, index)
-                    2 -> column = decodeIntElement(descriptor, index)
-                    3 -> rowSpan = decodeIntElement(descriptor, index)
-                    4 -> columnSpan = decodeIntElement(descriptor, index)
-                    5 -> appLabel = decodeStringElement(descriptor, index)
-                    6 -> appPackage = decodeStringElement(descriptor, index)
-                    7 -> activityClassNameRaw = decodeStringElement(descriptor, index)
-                    8 -> userString = decodeStringElement(descriptor, index)
-                    9 -> isHidden = decodeBooleanElement(descriptor, index)
+                    1 -> page = decodeIntElement(descriptor, index)
+                    2 -> row = decodeIntElement(descriptor, index)
+                    3 -> column = decodeIntElement(descriptor, index)
+                    4 -> rowSpan = decodeIntElement(descriptor, index)
+                    5 -> columnSpan = decodeIntElement(descriptor, index)
+                    6 -> appLabel = decodeStringElement(descriptor, index)
+                    7 -> appPackage = decodeStringElement(descriptor, index)
+                    8 -> activityClassNameRaw = decodeStringElement(descriptor, index)
+                    9 -> userString = decodeStringElement(descriptor, index)
+                    10 -> isHidden = decodeBooleanElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
-                    else -> error("Unexpected index: $index")
+                    else -> {
+                        // Should handle migration where 'page' might not exist
+                    }
                 }
             }
         }
 
-        // TODO: Remove later, backward safety: treat "", "null" as null
         val activityClassName = activityClassNameRaw
             .trim()
             .takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
@@ -86,6 +91,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
         return HomeItem.App(
             id = id,
             appModel = appModel,
+            page = page,
             row = row,
             column = column,
             rowSpan = rowSpan,
@@ -97,6 +103,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
 object HomeItemWidgetSerializer : KSerializer<HomeItem.Widget> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.Widget") {
         element<String>("id")
+        element<Int>("page")
         element<Int>("appWidgetId")
         element<String>("packageName")
         element<String>("providerClassName")
@@ -109,18 +116,20 @@ object HomeItemWidgetSerializer : KSerializer<HomeItem.Widget> {
     override fun serialize(encoder: Encoder, value: HomeItem.Widget) {
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, value.id)
-            encodeIntElement(descriptor, 1, value.appWidgetId)
-            encodeStringElement(descriptor, 2, value.packageName)
-            encodeStringElement(descriptor, 3, value.providerClassName)
-            encodeIntElement(descriptor, 4, value.row)
-            encodeIntElement(descriptor, 5, value.column)
-            encodeIntElement(descriptor, 6, value.rowSpan)
-            encodeIntElement(descriptor, 7, value.columnSpan)
+            encodeIntElement(descriptor, 1, value.page)
+            encodeIntElement(descriptor, 2, value.appWidgetId)
+            encodeStringElement(descriptor, 3, value.packageName)
+            encodeStringElement(descriptor, 4, value.providerClassName)
+            encodeIntElement(descriptor, 5, value.row)
+            encodeIntElement(descriptor, 6, value.column)
+            encodeIntElement(descriptor, 7, value.rowSpan)
+            encodeIntElement(descriptor, 8, value.columnSpan)
         }
     }
 
     override fun deserialize(decoder: Decoder): HomeItem.Widget {
         var id = ""
+        var page = 0
         var appWidgetId = -1
         var packageName = ""
         var providerClassName = ""
@@ -133,21 +142,23 @@ object HomeItemWidgetSerializer : KSerializer<HomeItem.Widget> {
             while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> id = decodeStringElement(descriptor, index)
-                    1 -> appWidgetId = decodeIntElement(descriptor, index)
-                    2 -> packageName = decodeStringElement(descriptor, index)
-                    3 -> providerClassName = decodeStringElement(descriptor, index)
-                    4 -> row = decodeIntElement(descriptor, index)
-                    5 -> column = decodeIntElement(descriptor, index)
-                    6 -> rowSpan = decodeIntElement(descriptor, index)
-                    7 -> columnSpan = decodeIntElement(descriptor, index)
+                    1 -> page = decodeIntElement(descriptor, index)
+                    2 -> appWidgetId = decodeIntElement(descriptor, index)
+                    3 -> packageName = decodeStringElement(descriptor, index)
+                    4 -> providerClassName = decodeStringElement(descriptor, index)
+                    5 -> row = decodeIntElement(descriptor, index)
+                    6 -> column = decodeIntElement(descriptor, index)
+                    7 -> rowSpan = decodeIntElement(descriptor, index)
+                    8 -> columnSpan = decodeIntElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
-                    else -> error("Unexpected index: $index")
+                    else -> { /* Same as above */ }
                 }
             }
         }
 
         return HomeItem.Widget(
             id = id,
+            page = page,
             appWidgetId = appWidgetId,
             packageName = packageName,
             providerClassName = providerClassName,

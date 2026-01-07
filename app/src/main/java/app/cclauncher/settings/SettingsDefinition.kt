@@ -285,6 +285,18 @@ data class AppSettings(
     val homeScreenColumns: Int = 4,
 
     @Setting(
+        title = "Home Screen Pages",
+        description = "Number of home screen pages",
+        category = Layout::class,
+        type = Slider::class,
+        min = 1f,
+        max = 5f,
+        step = 1f,
+        key = "HOME_SCREEN_PAGES",
+    )
+    val homeScreenPages: Int = 1,
+
+    @Setting(
         title = "Show App Icons on Home Screen",
         description = "Display app icons on the home screen",
         category = Appearance::class,
@@ -343,7 +355,7 @@ data class AppSettings(
         title = "Swipe Down Action",
         category = Gestures::class,
         type = Dropdown::class,
-        options = ["None", "Search", "Notifications", "App"],
+        options = ["None", "Search", "Notifications", "App", "Next Page", "Previous Page"],
         key = "SWIPE_DOWN_ACTION",
     )
     val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
@@ -361,7 +373,7 @@ data class AppSettings(
         title = "Swipe Up Action",
         category = Gestures::class,
         type = Dropdown::class,
-        options = ["None", "Search", "Notifications", "App"],
+        options = ["None", "Search", "Notifications", "App", "Next Page", "Previous Page"],
         key = "SWIPE_UP_ACTION",
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
@@ -379,10 +391,10 @@ data class AppSettings(
         title = "Swipe Left Action",
         category = Gestures::class,
         type = Dropdown::class,
-        options = ["None", "Search", "Notifications", "App"],
+        options = ["None", "Search", "Notifications", "App", "Next Page", "Previous Page"],
         key = "SWIPE_LEFT_ACTION",
     )
-    val swipeLeftAction: Int = Constants.SwipeAction.NULL,
+    val swipeLeftAction: Int = Constants.SwipeAction.NULL, // Remain until needed?
 
     @Setting(
         title = "Left Swipe App",
@@ -397,7 +409,7 @@ data class AppSettings(
         title = "Swipe Right Action",
         category = Gestures::class,
         type = Dropdown::class,
-        options = ["None", "Search", "Notifications", "App"],
+        options = ["None", "Search", "Notifications", "App", "Next Page", "Previous Page"],
         key = "SWIPE_RIGHT_ACTION",
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,

@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
+import app.cclauncher.data.Constants.MAX_PAGES
 import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.settings.AppPreference
@@ -86,6 +87,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val _launcherResetFailed = MutableStateFlow(false)
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
+    private val _currentPage = MutableStateFlow(0)
+    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
+
     val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
 
     private val appRefreshReceiver = object : BroadcastReceiver() {
@@ -101,6 +105,25 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private var searchAliasIndex: Map<String, Set<String>> = emptyMap()
 
     init {
+
+        viewModelScope.launch {
+            combine(
+                settingsRepository.getHomeLayout(),
+                settingsRepository.settings
+            ) { layout, settings ->
+                if (settings.homeScreenPages != layout.pageCount) {
+                    settingsRepository.updateSetting("homeScreenPages", layout.pageCount)
+                }
+                val updatedLayout = layout.copy(
+                    rows = settings.homeScreenRows,
+                    columns = settings.homeScreenColumns
+                )
+                loadIconsForHomeLayout(updatedLayout, settings)
+            }.collect { updatedLayout ->
+                _homeLayoutState.value = updatedLayout
+            }
+        }
+
         viewModelScope.launch {
             combine(
                 settingsRepository.getHomeLayout(),
@@ -305,16 +328,19 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    fun addAppToHomeScreen(appModel: AppModel) {
+    fun addAppToHomeScreen(appModel: AppModel, targetPage: Int? = null) {
         viewModelScope.launch {
             Log.d("HomeScreen", "Attempting to add app: ${appModel.appLabel}")
             val currentLayout = _homeLayoutState.value
-            val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1)
+            val page = targetPage ?: _currentPage.value
+
+            val nextPos = findNextAvailableGridPosition(currentLayout, 1, 1, page)
 
             if (nextPos != null) {
                 val appModelWithUserString = appModel.copy(userString = appModel.userString)
                 val appItem = HomeItem.App(
                     appModel = appModelWithUserString,
+                    page = page,
                     row = nextPos.first,
                     column = nextPos.second
                 )
@@ -326,10 +352,20 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
                 }
             } else {
-                _errorMessage.value = "No space available on home screen."
+                if (page < currentLayout.pageCount - 1) {
+                    addAppToHomeScreen(appModel, page + 1)
+                } else if (currentLayout.pageCount < MAX_PAGES) {
+                    // Adds a new page
+                    val newLayout = currentLayout.copy(pageCount = currentLayout.pageCount + 1)
+                    settingsRepository.saveHomeLayout(newLayout)
+                    addAppToHomeScreen(appModel, currentLayout.pageCount)
+                } else {
+                    _errorMessage.value = "No space available on any home screen page."
+                }
             }
         }
     }
+
 
     fun toggleAppInPrivateSpace(app: AppModel) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -387,17 +423,24 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         return Pair(cellWidthDp, cellHeightDp)
     }
 
-    private fun findNextAvailableGridPosition(layout: HomeLayout, widthSpan: Int, heightSpan: Int): Pair<Int, Int>? {
+    private fun findNextAvailableGridPosition(
+        layout: HomeLayout,
+        widthSpan: Int,
+        heightSpan: Int,
+        page: Int = 0,
+    ): Pair<Int, Int>? {
         val occupied = Array(layout.rows) { BooleanArray(layout.columns) }
-        layout.items.forEach { item ->
+
+        layout.itemsForPage(page).forEach { item ->
             for (r in item.row until (item.row + item.rowSpan).coerceAtMost(layout.rows)) {
                 for (c in item.column until (item.column + item.columnSpan).coerceAtMost(layout.columns)) {
                     if (r >= 0 && c >= 0) occupied[r][c] = true
                 }
             }
         }
-        for (r in 0 .. layout.rows - heightSpan) {
-            for (c in 0 .. layout.columns - widthSpan) {
+
+        for (r in 0..layout.rows - heightSpan) {
+            for (c in 0..layout.columns - widthSpan) {
                 if (isSpaceFreeInternal(occupied, r, c, widthSpan, heightSpan, layout.rows, layout.columns)) {
                     return Pair(r, c)
                 }
@@ -477,7 +520,27 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val widgetWidthCells = 1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
                 val widgetHeightCells = 1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
 
-                val nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells)
+                var targetPage = _currentPage.value
+                var nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells, targetPage)
+
+                if (nextPos == null) {
+                    for (page in 0 until currentLayout.pageCount) {
+                        if (page != targetPage) {
+                            nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells, page)
+                            if (nextPos != null) {
+                                targetPage = page
+                                break
+                            }
+                        }
+                    }
+                }
+
+                if (nextPos == null && currentLayout.pageCount < MAX_PAGES) {
+                    targetPage = currentLayout.pageCount
+                    val expandedLayout = currentLayout.copy(pageCount = currentLayout.pageCount + 1)
+                    settingsRepository.saveHomeLayout(expandedLayout)
+                    nextPos = Pair(0, 0)
+                }
 
                 if (nextPos != null) {
                     val widgetItem = HomeItem.Widget(
@@ -485,13 +548,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         appWidgetId = appWidgetId,
                         packageName = providerInfo.provider.packageName,
                         providerClassName = providerInfo.provider.className,
+                        page = targetPage,
                         row = nextPos.first,
                         column = nextPos.second,
                         rowSpan = widgetHeightCells,
                         columnSpan = widgetWidthCells
                     )
-                    val newItems = currentLayout.items + widgetItem
-                    settingsRepository.saveHomeLayout(currentLayout.copy(items = newItems))
+                    val newItems = _homeLayoutState.value.items + widgetItem
+                    settingsRepository.saveHomeLayout(_homeLayoutState.value.copy(items = newItems))
 
                     val options = Bundle().apply {
                         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, providerInfo.minWidth)
@@ -501,8 +565,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     }
                     appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
                     settingsRepository.triggerHomeLayoutRefresh()
+
+                    _currentPage.value = targetPage
                 } else {
-                    _errorMessage.value = "No space available for widget on home screen."
+                    _errorMessage.value = "No space available for widget on any home screen page."
                     appWidgetHost.deleteAppWidgetId(appWidgetId)
                 }
             } catch (e: Exception) {
@@ -530,6 +596,61 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             if (horizontalOverlap && verticalOverlap) return false
         }
         return true
+    }
+
+    fun moveItemToPage(item: HomeItem, targetPage: Int) {
+        viewModelScope.launch {
+            val currentLayout = _homeLayoutState.value
+
+            val newPageCount = if (targetPage >= currentLayout.pageCount) {
+                (targetPage + 1).coerceAtMost(MAX_PAGES)
+            } else {
+                currentLayout.pageCount
+            }
+
+            if (targetPage >= newPageCount) {
+                _errorMessage.value = "Cannot move to page $targetPage: maximum pages reached"
+                return@launch
+            }
+
+            val nextPos = findNextAvailableGridPosition(
+                currentLayout.copy(pageCount = newPageCount),
+                item.columnSpan,
+                item.rowSpan,
+                targetPage
+            )
+
+            if (nextPos == null) {
+                _errorMessage.value = "No space available on page ${targetPage + 1}"
+                return@launch
+            }
+
+            val updatedItems = currentLayout.items.map { existingItem ->
+                if (existingItem.id == item.id) {
+                    when (existingItem) {
+                        is HomeItem.App -> existingItem.copy(
+                            page = targetPage,
+                            row = nextPos.first,
+                            column = nextPos.second
+                        )
+                        is HomeItem.Widget -> existingItem.copy(
+                            page = targetPage,
+                            row = nextPos.first,
+                            column = nextPos.second
+                        )
+                    }
+                } else {
+                    existingItem
+                }
+            }
+
+            val newLayout = currentLayout.copy(
+                items = updatedItems,
+                pageCount = newPageCount
+            )
+            settingsRepository.saveHomeLayout(newLayout)
+            _currentPage.value = targetPage
+        }
     }
 
     fun renameApp(app: AppModel, newName: String) {
@@ -913,6 +1034,99 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     userString = app.user.toString()
                 )
             )
+        }
+    }
+
+    fun setCurrentPage(page: Int) {
+        val layout = _homeLayoutState.value
+        if (page in 0 until layout.pageCount) {
+            _currentPage.value = page
+        }
+    }
+
+    fun willPageChangeAffectItems(newPageCount: Int): Boolean {
+        val currentLayout = _homeLayoutState.value
+        if (newPageCount >= currentLayout.pageCount) return false
+
+        return currentLayout.items.any { it.page >= newPageCount }
+    }
+
+    fun updatePageCount(newPageCount: Int) {
+        viewModelScope.launch {
+            val currentLayout = _homeLayoutState.value
+            val clampedCount = newPageCount.coerceIn(1, MAX_PAGES)
+
+            if (clampedCount < currentLayout.pageCount) {
+                val itemsToRelocate = currentLayout.items.filter { it.page >= clampedCount }
+
+                if (itemsToRelocate.isNotEmpty()) {
+                    var workingLayout = currentLayout.copy(pageCount = clampedCount)
+                    val relocatedItems = mutableListOf<HomeItem>()
+                    val removedWidgetIds = mutableListOf<Int>()
+
+                    val validItems = currentLayout.items.filter { it.page < clampedCount }.toMutableList()
+
+                    for (item in itemsToRelocate) {
+                        var placed = false
+
+                        for (targetPage in (clampedCount - 1) downTo 0) {
+                            val tempLayout = workingLayout.copy(items = validItems + relocatedItems)
+                            val newPos = findNextAvailableGridPosition(
+                                tempLayout,
+                                item.columnSpan,
+                                item.rowSpan,
+                                targetPage
+                            )
+
+                            if (newPos != null) {
+                                val relocatedItem = when (item) {
+                                    is HomeItem.App -> item.copy(
+                                        page = targetPage,
+                                        row = newPos.first,
+                                        column = newPos.second
+                                    )
+                                    is HomeItem.Widget -> item.copy(
+                                        page = targetPage,
+                                        row = newPos.first,
+                                        column = newPos.second
+                                    )
+                                }
+                                relocatedItems.add(relocatedItem)
+                                placed = true
+                                break
+                            }
+                        }
+
+                        if (!placed) {
+                            if (item is HomeItem.Widget) {
+                                removedWidgetIds.add(item.appWidgetId)
+                            }
+                            _errorMessage.value = "Some items could not be relocated and were removed"
+                        }
+                    }
+
+                    removedWidgetIds.forEach { widgetId ->
+                        try {
+                            appWidgetHost.deleteAppWidgetId(widgetId)
+                        } catch (e: Exception) {
+                            Log.e("MainViewModel", "Error deleting widget ID $widgetId", e)
+                        }
+                    }
+
+                    val newLayout = workingLayout.copy(items = validItems + relocatedItems)
+                    settingsRepository.saveHomeLayout(newLayout)
+                } else {
+                    settingsRepository.saveHomeLayout(currentLayout.copy(pageCount = clampedCount))
+                }
+            } else {
+                settingsRepository.saveHomeLayout(currentLayout.copy(pageCount = clampedCount))
+            }
+
+            if (_currentPage.value >= clampedCount) {
+                _currentPage.value = clampedCount - 1
+            }
+
+            settingsRepository.updateSetting("homeScreenPages", clampedCount)
         }
     }
 
