@@ -156,10 +156,7 @@ jobs:
           status: completed
           whatsNewDirectory: fastlane/metadata/android
         continue-on-error: true
-      
-      - name: Clean before APK build
-        run: ./gradlew clean
-      
+
       - name: Build APK splits
         env:
           KEYSTORE_PATH: ${{ github.workspace }}/release.keystore

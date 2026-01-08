@@ -7,7 +7,3 @@ plugins {
     alias(libs.plugins.apk.dist) apply false
     alias(libs.plugins.ksp) apply false
 }
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.layout.buildDirectory)
-}
