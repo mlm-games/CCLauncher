@@ -1,0 +1,2 @@
+- Add an option to hide the page indicators
+- Bump kmpSettingsCore from 0.3.3 to 0.4.2

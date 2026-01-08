@@ -1,3 +1,9 @@
+## vv10.2.2
+
+- Add an option to hide the page indicators
+- Bump kmpSettingsCore from 0.3.3 to 0.4.2
+
+
 ## vv10.2.1
 
 - Add home pages support (#161)
