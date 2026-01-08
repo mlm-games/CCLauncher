@@ -297,6 +297,15 @@ data class AppSettings(
     val homeScreenPages: Int = 1,
 
     @Setting(
+        title = "Show Page Indicator",
+        description = "Show page dots at the bottom of the home screen",
+        category = Layout::class,
+        type = Toggle::class,
+        key = "SHOW_PAGE_INDICATOR",
+    )
+    val showPageIndicator: Boolean = true,
+
+    @Setting(
         title = "Show App Icons on Home Screen",
         description = "Display app icons on the home screen",
         category = Appearance::class,

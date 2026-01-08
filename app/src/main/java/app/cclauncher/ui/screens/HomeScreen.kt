@@ -242,7 +242,7 @@ fun HomeScreen(
         }
 
         // Page indicators
-        if (homeLayoutState.pageCount > 1) {
+        if (homeLayoutState.pageCount > 1 && settings.showPageIndicator) {
             PageIndicator(
                 pageCount = homeLayoutState.pageCount,
                 currentPage = pagerState.currentPage,
