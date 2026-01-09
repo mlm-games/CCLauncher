@@ -325,16 +325,20 @@ fun AppDrawerScreen(
                 Box(Modifier.fillMaxSize(), Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("No apps found matching \"$searchQuery\"", color = MaterialTheme.colorScheme.onBackground)
-                        Button(
-                            onClick = {
-                                if (searchQuery.startsWith("!")) {
-                                    context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
-                                } else {
-                                    context.openSearch(searchQuery.trim())
-                                }
-                            },
-                            modifier = Modifier.padding(top = 16.dp)
-                        ) { Text("Search Web") }
+                        if (settings.showWebSearchOption) {
+                            Button(
+                                onClick = {
+                                    if (searchQuery.startsWith("!")) {
+                                        context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
+                                    } else {
+                                        context.openSearch(searchQuery.trim())
+                                    }
+                                },
+                                modifier = Modifier.padding(top = 16.dp)
+                            ) {
+                                Text("Search Web")
+                            }
+                        }
                     }
                 }
             }

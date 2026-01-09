@@ -270,6 +270,15 @@ data class AppSettings(
     val scaleHomeApps: Boolean = true,
 
     @Setting(
+        title = "Show Web Search Option",
+        description = "Show 'Search Web' button when no apps match",
+        category = General::class,
+        type = Toggle::class,
+        key = "SHOW_WEB_SEARCH_OPTION",
+    )
+    val showWebSearchOption: Boolean = true,
+
+    @Setting(
         title = "Home Screen Rows",
         description = "Number of rows in the home screen grid",
         category = Layout::class,
