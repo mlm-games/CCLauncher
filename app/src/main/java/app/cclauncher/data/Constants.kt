@@ -74,6 +74,7 @@ object Constants {
         const val CONTAINS = 0
         const val FUZZY = 1
         const val STARTS_WITH = 2
+        const val EXACT = 3
     }
 }
 

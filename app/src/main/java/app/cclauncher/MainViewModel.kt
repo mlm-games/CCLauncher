@@ -1206,6 +1206,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             val direct = when (searchType) {
                 Constants.SearchType.FUZZY -> fuzzyMatch(label, query)
                 Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> labelNorm.startsWith(v) }
+                Constants.SearchType.EXACT -> queryVariants.any { v -> labelNorm == v }
                 else -> queryVariants.any { v -> labelNorm.contains(v) }
             }
             if (direct) return@filter true
@@ -1214,6 +1215,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             when (searchType) {
                 Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> aliases.any { it.startsWith(v) } }
                 Constants.SearchType.FUZZY -> queryVariants.any { v -> aliases.any { it.contains(v) } }
+                Constants.SearchType.EXACT -> queryVariants.any { v -> aliases.any { it == v } }
                 else -> queryVariants.any { v -> aliases.any { it.contains(v) } }
             }
         }

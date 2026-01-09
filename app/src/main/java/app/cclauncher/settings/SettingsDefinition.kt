@@ -69,7 +69,7 @@ data class AppSettings(
         title = "Search Type",
         category = General::class,
         type = Dropdown::class,
-        options = ["Contains", "Fuzzy Match", "Starts With"],
+        options = ["Contains", "Fuzzy Match", "Starts With", "Exact Match"],
         key = "SEARCH_TYPE",
     )
     val searchType: Int = Constants.SearchType.CONTAINS,
