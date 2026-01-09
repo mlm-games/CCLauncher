@@ -1,3 +1,12 @@
+## vv10.3.1
+
+- Fix app drawer not opening the keyboard on app exit on nav 3
+- Add an option to return to home after closing an app
+- Add "exact match" search type
+- Check if it can resized based on the existing page's items only
+- remove unneeded tasks in yml and kts
+
+
 ## vv10.2.2
 
 - Add an option to hide the page indicators
