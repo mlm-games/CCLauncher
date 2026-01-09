@@ -28,6 +28,7 @@ import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
+import app.cclauncher.ui.components.snackbar.SnackbarManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -79,10 +80,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
-    // Error state
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
     // Reset launcher state
     private val _launcherResetFailed = MutableStateFlow(false)
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
@@ -91,6 +88,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
 
     val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
+
+    val snackbarManager : SnackbarManager by inject()
 
     private val appRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
@@ -360,7 +359,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     settingsRepository.saveHomeLayout(newLayout)
                     addAppToHomeScreen(appModel, currentLayout.pageCount)
                 } else {
-                    _errorMessage.value = "No space available on any home screen page."
+                    snackbarManager.show("No space available on any home screen page.")
                 }
             }
         }
@@ -374,17 +373,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     val privateSpaceHelper = PrivateSpaceHelper(appContext)
 
                     if (!privateSpaceHelper.isPrivateSpaceSupported()) {
-                        _errorMessage.value = "Private Space requires Android 15 or higher"
+                        snackbarManager.show("Private Space requires Android 15 or higher")
                         return@launch
                     }
 
                     if (!privateSpaceHelper.isPrivateSpaceSetUp()) {
-                        _errorMessage.value = "Private Space is not set up on this device. Set it up in Android Settings."
+                        snackbarManager.show("Private Space is not set up on this device. Set it up in Android Settings.")
                         return@launch
                     }
 
                     if (privateSpaceHelper.isPrivateSpaceLocked()) {
-                        _errorMessage.value = "Private Space is locked. Please unlock it first."
+                        snackbarManager.show("Private Space is locked. Please unlock it first.")
                         return@launch
                     }
 
@@ -395,17 +394,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         "To add apps to Private Space, use Android Settings > Private Space settings"
                     }
 
-                    _errorMessage.value = message
+                    snackbarManager.show(message)
 
                     loadApps()
                     updatePrivateSpaceState()
                 } catch (e: Exception) {
                     Log.e("MainViewModel", "Error with Private Space operation", e)
-                    _errorMessage.value = "Private Space operation failed: ${e.message}"
+                    snackbarManager.show("Private Space operation failed: ${e.message}")
                 }
             }
         } else {
-            _errorMessage.value = "Private Space requires Android 15 or higher"
+            snackbarManager.show("Private Space requires Android 15 or higher")
         }
     }
 
@@ -471,14 +470,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 @Suppress("SENSELESS_COMPARISON")
                 if (providerInfo == null) {
                     Log.e("WidgetDebug", "CRITICAL: providerInfo is NULL in startWidgetConfiguration")
-                    _errorMessage.value = "Internal error: Widget provider information missing."
+                    snackbarManager.show("Internal error: Widget provider information missing.")
                     return@launch
                 }
 
                 val componentName = providerInfo.provider
                 if (componentName == null) {
                     Log.e("WidgetDebug", "CRITICAL: providerInfo.provider is NULL")
-                    _errorMessage.value = "Internal error: Widget component name missing."
+                    snackbarManager.show("Internal error: Widget component name missing.")
                     return@launch
                 }
 
@@ -501,7 +500,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error in startWidgetConfiguration", e)
-                _errorMessage.value = "Failed to start widget configuration: ${e.message}"
+                snackbarManager.show("Failed to start widget configuration: ${e.message}")
             }
         }
     }
@@ -568,12 +567,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
                     _currentPage.value = targetPage
                 } else {
-                    _errorMessage.value = "No space available for widget on any home screen page."
+                    snackbarManager.show("No space available for widget on any home screen page.")
                     appWidgetHost.deleteAppWidgetId(appWidgetId)
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error adding widget to layout", e)
-                _errorMessage.value = "Failed to add widget: ${e.message}"
+                snackbarManager.show("Failed to add widget: ${e.message}")
                 try {
                     appWidgetHost.deleteAppWidgetId(appWidgetId)
                 } catch (e2: Exception) {
@@ -609,19 +608,20 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             }
 
             if (targetPage >= newPageCount) {
-                _errorMessage.value = "Cannot move to page $targetPage: maximum pages reached"
+                snackbarManager.show("Cannot move: maximum pages reached")
                 return@launch
             }
 
+            val workingLayout = currentLayout.copy(pageCount = newPageCount)
             val nextPos = findNextAvailableGridPosition(
-                currentLayout.copy(pageCount = newPageCount),
+                workingLayout,
                 item.columnSpan,
                 item.rowSpan,
                 targetPage
             )
 
             if (nextPos == null) {
-                _errorMessage.value = "No space available on page ${targetPage + 1}"
+                snackbarManager.show("No space available on page ${targetPage + 1}")
                 return@launch
             }
 
@@ -639,15 +639,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                             column = nextPos.second
                         )
                     }
-                } else {
-                    existingItem
-                }
+                } else existingItem
             }
 
-            val newLayout = currentLayout.copy(
-                items = updatedItems,
-                pageCount = newPageCount
-            )
+            val newLayout = workingLayout.copy(items = updatedItems)
             settingsRepository.saveHomeLayout(newLayout)
             _currentPage.value = targetPage
         }
@@ -677,7 +672,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 settingsRepository.triggerHomeLayoutRefresh()
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
-                _errorMessage.value = "Failed to remove widget."
+                snackbarManager.show("Failed to remove widget.")
             }
         }
     }
@@ -694,10 +689,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
                 } catch (e: Exception) {
                     Log.e("ViewModelWidget", "Error requesting reconfigure for ${widgetItem.appWidgetId}", e)
-                    _errorMessage.value = "Failed to reconfigure widget."
+                    snackbarManager.show("Failed to reconfigure widget.")
                 }
             } else {
-                _errorMessage.value = "This widget cannot be reconfigured."
+                snackbarManager.show("This widget cannot be reconfigured.")
             }
         }
     }
@@ -711,54 +706,71 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-            if (newRow + appItem.rowSpan > currentLayout.rows || newColumn + appItem.columnSpan > currentLayout.columns) {
-                _errorMessage.value = "Cannot move app: out of bounds"
-                return@launch
-            }
+
+            if (!validateAndReport(
+                    currentLayout,
+                    appItem.id,
+                    appItem.page,
+                    newRow,
+                    newColumn,
+                    appItem.rowSpan,
+                    appItem.columnSpan,
+                    "move app"
+                )) return@launch
+
             val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) item.copy(row = newRow, column = newColumn) else item
+                if (item.id == appItem.id && item is HomeItem.App) {
+                    item.copy(row = newRow, column = newColumn)
+                } else item
             }
-            val newLayout = currentLayout.copy(items = updatedItems)
-            settingsRepository.saveHomeLayout(newLayout)
+
+            settingsRepository.saveHomeLayout(currentLayout.copy(items = updatedItems))
         }
     }
 
-    @Suppress("UnnecessaryVariable")
     fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-            if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
-                _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
-                return@launch
-            }
+
+            if (!validateAndReport(
+                    currentLayout,
+                    widgetItem.id,
+                    widgetItem.page,
+                    widgetItem.row,
+                    widgetItem.column,
+                    newRowSpan,
+                    newColSpan,
+                    "resize widget"
+                )) return@launch
+
             val newItems = currentLayout.items.map {
-                if (it.id == widgetItem.id && it is HomeItem.Widget) it.copy(rowSpan = newRowSpan, columnSpan = newColSpan) else it
+                if (it.id == widgetItem.id && it is HomeItem.Widget) {
+                    it.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
+                } else it
             }
+
             val newLayout = currentLayout.copy(items = newItems)
             _homeLayoutState.value = newLayout
             settingsRepository.saveHomeLayout(newLayout)
             settingsRepository.triggerHomeLayoutRefresh()
 
+            // Update options
             val screenWidthDp = getScreenDimensions(context = appContext).first
             val screenHeightDp = getScreenDimensions(appContext).second
-            val (cellWidthDp, cellHeightDp) = getCellSizeDp(
-                screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
-            )
-            val minWidth = (newColSpan * cellWidthDp).toInt()
-            val maxWidth = minWidth
-            val minHeight = (newRowSpan * cellHeightDp).toInt()
-            val maxHeight = minHeight
+            val cellWidthDp = screenWidthDp.toFloat() / currentLayout.columns
+            val cellHeightDp = screenHeightDp.toFloat() / currentLayout.rows
 
             val options = Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minWidth)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxWidth)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, (newColSpan * cellWidthDp).toInt())
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, (newColSpan * cellWidthDp).toInt())
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, (newRowSpan * cellHeightDp).toInt())
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, (newRowSpan * cellHeightDp).toInt())
             }
+
             try {
                 appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
             } catch (e: Exception) {
-                Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
+                Log.e("MainViewModel", "Failed to update widget options", e)
             }
         }
     }
@@ -766,13 +778,24 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
-            if (appItem.row + newRowSpan > currentLayout.rows || appItem.column + newColSpan > currentLayout.columns) {
-                _errorMessage.value = "Cannot resize app: out of bounds"
-                return@launch
-            }
+
+            if (!validateAndReport(
+                    currentLayout,
+                    appItem.id,
+                    appItem.page,
+                    appItem.row,
+                    appItem.column,
+                    newRowSpan,
+                    newColSpan,
+                    "resize app"
+                )) return@launch
+
             val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) item.copy(rowSpan = newRowSpan, columnSpan = newColSpan) else item
+                if (item.id == appItem.id && item is HomeItem.App) {
+                    item.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
+                } else item
             }
+
             val newLayout = currentLayout.copy(items = updatedItems)
             _homeLayoutState.value = newLayout
             settingsRepository.saveHomeLayout(newLayout)
@@ -803,7 +826,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 } else {
                     Log.w("ViewModelWidget", "Widget configuration cancelled/failed for ID $widgetId")
                     appWidgetHost.deleteAppWidgetId(widgetId)
-                    _errorMessage.value = "Widget configuration cancelled."
+                    snackbarManager.show("Widget configuration cancelled.")
                 }
             }
             pendingWidgetInfo = null
@@ -844,10 +867,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     loadApps()
                     _refreshTrigger.value++
                 },
-                onFailure = { message -> _errorMessage.value = message }
+                onFailure = { message -> snackbarManager.show(message) }
             )
         } else {
-            _errorMessage.value = "Private Space requires Android 15 or higher"
+            snackbarManager.show("Private Space requires Android 15 or higher")
         }
     }
 
@@ -873,7 +896,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 // Rebuild alias index after loading apps (in case we missed the combine for some reason)
                 rebuildSearchAliasIndex()
             } catch (e: Exception) {
-                _errorMessage.value = "Failed to load apps: ${e.message}"
+                snackbarManager.show("Failed to load apps: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -886,7 +909,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 appRepository.loadHiddenApps()
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                _errorMessage.value = "Failed to load hidden apps: ${e.message}"
+                snackbarManager.show("Failed to load hidden apps: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -897,7 +920,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             try {
                 appRepository.toggleAppHidden(app)
             } catch (e: Exception) {
-                _errorMessage.value = "Failed to toggle app visibility: ${e.message}"
+                snackbarManager.show("Failed to toggle app visibility: ${e.message}")
             }
         }
     }
@@ -908,7 +931,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 appRepository.launchApp(app)
                 settingsRepository.updateAppLaunchTime(app.getKey())
             } catch (e: Exception) {
-                _errorMessage.value = "Failed to launch app: ${e.message}"
+                snackbarManager.show("Failed to launch app: ${e.message}")
             }
         }
     }
@@ -1101,7 +1124,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                             if (item is HomeItem.Widget) {
                                 removedWidgetIds.add(item.appWidgetId)
                             }
-                            _errorMessage.value = "Some items could not be relocated and were removed"
+                            snackbarManager.show("Some items could not be relocated and were removed")
                         }
                     }
 
@@ -1160,7 +1183,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     launchApp(filtered[0])
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Search failed: ${e.message}"
+                snackbarManager.show("Search failed: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -1207,59 +1230,31 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             error = null
         )
     }
+
     fun moveWidget(widgetItem: HomeItem.Widget, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
-            Log.d("WidgetDebug", "Moving widget ${widgetItem.id} from (${widgetItem.row}, ${widgetItem.column}) to ($newRow, $newColumn)")
-
             val currentLayout = _homeLayoutState.value
 
-            // Check if the new position would cause the widget to go out of bounds
-            if (newRow + widgetItem.rowSpan > currentLayout.rows ||
-                newColumn + widgetItem.columnSpan > currentLayout.columns) {
-                Log.d("WidgetDebug", "New position would cause widget to go out of bounds")
-                _errorMessage.value = "Cannot move widget: would go out of bounds"
-                return@launch
-            }
+            if (!validateAndReport(
+                    currentLayout,
+                    widgetItem.id,
+                    widgetItem.page,
+                    newRow,
+                    newColumn,
+                    widgetItem.rowSpan,
+                    widgetItem.columnSpan,
+                    "move widget"
+                )) return@launch
 
-            // Check if the new position would overlap with other items
-            val wouldOverlap = currentLayout.items.any { item ->
-                if (item.id == widgetItem.id) return@any false // Skip the widget being moved
-
-                val itemEndRow = item.row + item.rowSpan
-                val itemEndCol = item.column + item.columnSpan
-                val newEndRow = newRow + widgetItem.rowSpan
-                val newEndCol = newColumn + widgetItem.columnSpan
-
-                // Check for overlap
-                !(newRow >= itemEndRow || // Widget is below item
-                        newEndRow <= item.row || // Widget is above item
-                        newColumn >= itemEndCol || // Widget is to the right of item
-                        newEndCol <= item.column) // Widget is to the left of item
-            }
-
-            if (wouldOverlap) {
-                Log.d("WidgetDebug", "New position would overlap with existing items")
-                _errorMessage.value = "Cannot move widget: would overlap with other items"
-                return@launch
-            }
-
-            // Update the widget's position
             val updatedItems = currentLayout.items.map { item ->
                 if (item.id == widgetItem.id && item is HomeItem.Widget) {
                     item.copy(row = newRow, column = newColumn)
-                } else {
-                    item
-                }
+                } else item
             }
 
-            // Save the updated layout
-            val newLayout = currentLayout.copy(items = updatedItems)
-            settingsRepository.saveHomeLayout(newLayout)
-
-            Log.d("WidgetDebug", "Widget moved successfully")
+            settingsRepository.saveHomeLayout(currentLayout.copy(items = updatedItems))
         }
     }
-
 
     private fun fuzzyMatch(text: String, pattern: String): Boolean {
         val textLower = text.lowercase()
@@ -1273,11 +1268,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             textIndex++
         }
         return patternIndex == patternLower.length
-    }
-
-    fun clearError() {
-        _errorMessage.value = null
-        _appDrawerState.value = _appDrawerState.value.copy(error = null)
     }
 
     fun emitEvent(event: UiEvent) {
@@ -1298,5 +1288,75 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         NotSetUp,
         Locked,
         Unlocked
+    }
+
+    private sealed class PlacementResult {
+        object Valid : PlacementResult()
+        data class Invalid(val reason: String) : PlacementResult()
+    }
+
+    private fun validatePlacement(
+        layout: HomeLayout,
+        itemId: String,
+        page: Int,
+        row: Int,
+        column: Int,
+        rowSpan: Int,
+        columnSpan: Int
+    ): PlacementResult {
+        // Bounds check
+        if (row < 0 || column < 0) {
+            return PlacementResult.Invalid("Invalid position")
+        }
+
+        if (row + rowSpan > layout.rows) {
+            return PlacementResult.Invalid("Would go out of bounds vertically")
+        }
+
+        if (column + columnSpan > layout.columns) {
+            return PlacementResult.Invalid("Would go out of bounds horizontally")
+        }
+
+        // Overlap check - only check items on the same page
+        val hasOverlap = layout.itemsForPage(page).any { item ->
+            if (item.id == itemId) return@any false
+
+            val itemEndRow = item.row + item.rowSpan
+            val itemEndCol = item.column + item.columnSpan
+            val newEndRow = row + rowSpan
+            val newEndCol = column + columnSpan
+
+            // Check if rectangles overlap
+            !(row >= itemEndRow || newEndRow <= item.row ||
+                    column >= itemEndCol || newEndCol <= item.column)
+        }
+
+        return if (hasOverlap) {
+            PlacementResult.Invalid("Would overlap with other items")
+        } else {
+            PlacementResult.Valid
+        }
+    }
+
+    /**
+     * Validates and shows error if invalid, returns true if valid
+     */
+    private fun validateAndReport(
+        layout: HomeLayout,
+        itemId: String,
+        page: Int,
+        row: Int,
+        column: Int,
+        rowSpan: Int,
+        columnSpan: Int,
+        actionName: String
+    ): Boolean {
+        return when (val result = validatePlacement(layout, itemId, page, row, column, rowSpan, columnSpan)) {
+            is PlacementResult.Valid -> true
+            is PlacementResult.Invalid -> {
+                snackbarManager.show("Cannot $actionName: ${result.reason}")
+                false
+            }
+        }
     }
 }

@@ -26,19 +26,10 @@ fun HiddenAppsScreen(
 ) {
     val hiddenApps by viewModel.hiddenApps.collectAsState()
     val isLoading by remember { mutableStateOf(false) }
-    val errorMessage by viewModel.errorMessage.collectAsState()
 
     // Load hidden apps when screen is shown
     LaunchedEffect(Unit) {
         viewModel.getHiddenApps()
-    }
-
-    // Handle errors
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            // Show error toast or message
-            viewModel.clearError()
-        }
     }
 
     Scaffold(
