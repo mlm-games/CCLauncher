@@ -75,6 +75,15 @@ data class AppSettings(
     val searchType: Int = Constants.SearchType.CONTAINS,
 
     @Setting(
+        title = "Return to Home After App",
+        description = "Return to home screen instead of search after closing an app",
+        category = General::class,
+        type = Toggle::class,
+        key = "RETURN_TO_HOME_AFTER_APP",
+    )
+    val returnToHomeAfterApp: Boolean = false,
+
+    @Setting(
         title = "Search Sort Order",
         category = General::class,
         type = Dropdown::class,

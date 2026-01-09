@@ -137,16 +137,26 @@ fun AppDrawerScreen(
         viewModel.searchApps("")
         focusManager.clearFocus()
         keyboardController?.hide()
+
+        if (settings.returnToHomeAfterApp) {
+            onSwipeDown()
+        }
+
         onAppClick(app)
     }
 
     LaunchedEffect(Unit) { viewModel.loadApps() }
     LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
-    LaunchedEffect(settings.autoShowKeyboard, focusRequester) {
-        if (settings.autoShowKeyboard) {
+    LaunchedEffect(settings.autoShowKeyboard, focusRequester, searchQuery) {
+        if (settings.autoShowKeyboard && searchQuery.isEmpty()) {
             yield()
-            focusRequester.requestFocus()
+            try {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            } catch (_: Exception) {
+                // Focus requester might not be attached yet
+            }
         }
     }
 
