@@ -65,17 +65,13 @@ fun CLauncherNavigation(
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
 
-    // System UI based on settings
     SystemUIController(showStatusBar = settings.statusBar)
 
-    // Optional snackbar integration
     val snackbarManager: SnackbarManager = koinInject()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Nav3 back stack
-    val backStack = rememberNavBackStack(LauncherDestination.Home)
+    val backStack = rememberNavBackStack(LauncherDestination.Home) // can't set initial screen here since settings is async
 
-    // App selection mode is UI-state, not navigation-state (preserving your current behavior)
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
     fun popToHome() {
@@ -87,7 +83,6 @@ fun CLauncherNavigation(
     }
 
     fun navigateTo(dest: LauncherDestination) {
-        // preserve “screen switch” semantics:
         // clear to home, then optionally add destination
         popToHome()
         if (dest != LauncherDestination.Home) {
@@ -96,7 +91,6 @@ fun CLauncherNavigation(
     }
 
     fun pushOnTop(dest: LauncherDestination) {
-        // for “settings subpages” like HiddenApps that have an explicit back arrow
         if (backStack.lastOrNull() != dest) backStack.add(dest)
     }
 
@@ -113,7 +107,6 @@ fun CLauncherNavigation(
             }
 
             UiEvent.NavigateToWidgetPicker -> {
-                // preserve existing behavior: widget picker is a “mode”, dismiss returns HOME
                 navigateTo(LauncherDestination.WidgetPicker)
             }
 

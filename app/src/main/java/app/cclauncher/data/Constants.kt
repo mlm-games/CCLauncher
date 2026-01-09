@@ -95,14 +95,6 @@ object AnimationConstants {
     const val MIN_ANIM_REFRESH_RATE = 10f
 }
 
-object Navigation {
-    const val HOME = "home"
-    const val APP_DRAWER = "app_drawer"
-    const val SETTINGS = "settings"
-    const val HIDDEN_APPS = "hidden_apps"
-    const val WIDGET_PICKER = "widget_picker"
-}
-
 object RequestCodes {
     const val ENABLE_ADMIN = 666
     const val LAUNCHER_SELECTOR = 678
