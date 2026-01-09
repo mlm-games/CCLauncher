@@ -74,20 +74,15 @@ fun CLauncherNavigation(
 
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
-    fun popToHome() {
-        while (backStack.size > 1) {
-            backStack.removeAt(backStack.lastIndex)
-        }
+    fun popToHome(clearSelection: Boolean = true) {
+        while (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
         settingsViewModel.resetUnlockState()
-        currentSelectionType = null
+        if (clearSelection) currentSelectionType = null
     }
 
-    fun navigateTo(dest: LauncherDestination) {
-        // clear to home, then optionally add destination
-        popToHome()
-        if (dest != LauncherDestination.Home) {
-            backStack.add(dest)
-        }
+    fun navigateTo(dest: LauncherDestination, clearSelection: Boolean = true) {
+        popToHome(clearSelection)
+        if (dest != LauncherDestination.Home) backStack.add(dest)
     }
 
     fun pushOnTop(dest: LauncherDestination) {
@@ -114,7 +109,7 @@ fun CLauncherNavigation(
 
             is UiEvent.NavigateToAppSelection -> {
                 currentSelectionType = event.selectionType
-                navigateTo(LauncherDestination.AppDrawer)
+                navigateTo(LauncherDestination.AppDrawer, false)
             }
 
             is UiEvent.ShowToast -> {
@@ -207,7 +202,7 @@ fun CLauncherNavigation(
                 NavDisplay.popTransitionSpec { AnimationConfig.Navigation.widgetPickerTransition() } +
                 NavDisplay.predictivePopTransitionSpec { _ -> AnimationConfig.Navigation.widgetPickerTransition() }
 
-    val provider: (NavKey) -> NavEntry<NavKey> = remember {
+    val provider: (NavKey) -> NavEntry<NavKey> =
         entryProvider {
             entry<LauncherDestination.Home> {
                 HomeScreen(
@@ -285,7 +280,6 @@ fun CLauncherNavigation(
                     },
                     onDismiss = { popToHome() }
                 )
-            }
         }
     }
 

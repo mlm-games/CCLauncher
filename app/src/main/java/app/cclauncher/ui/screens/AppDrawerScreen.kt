@@ -151,17 +151,21 @@ fun AppDrawerScreen(
         viewModel.searchApps("")
     }
 
-    val handleAppClick: (AppModel) -> Unit = { app -> // Opens app after cleaning search
-        searchQuery = ""
-        viewModel.searchApps("")
-        focusManager.clearFocus()
-        keyboardController?.hide()
+    val handleAppClick: (AppModel) -> Unit = { app ->
+        if (selectionMode) {
+            onAppClick(app)
+        } else {
+            searchQuery = ""
+            viewModel.searchApps("")
+            focusManager.clearFocus()
+            keyboardController?.hide()
 
-        if (settings.returnToHomeAfterApp) {
-            onSwipeDown()
+            if (settings.returnToHomeAfterApp) {
+                onSwipeDown()
+            }
+
+            onAppClick(app)
         }
-
-        onAppClick(app)
     }
 
     LaunchedEffect(Unit) { viewModel.loadApps() }
@@ -297,7 +301,11 @@ fun AppDrawerScreen(
 
         LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
             delay(300)
-            if (searchQuery.isNotEmpty() && appsToShow.size == 1 && settings.autoOpenFilteredApp) {
+            if (!selectionMode &&
+                searchQuery.isNotEmpty() &&
+                appsToShow.size == 1 &&
+                settings.autoOpenFilteredApp
+            ) {
                 handleAppClick(appsToShow[0])
             }
         }
@@ -356,7 +364,7 @@ fun AppDrawerScreen(
                             fontWeight = fontWeight,
                             textColor = customTextColor,
                             onClick = {
-                                if (settings.appDrawerTapToOpen) {
+                                if (selectionMode || settings.appDrawerTapToOpen) {
                                     handleAppClick(app)
                                 }
                             },

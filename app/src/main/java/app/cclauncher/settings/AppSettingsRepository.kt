@@ -71,10 +71,13 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
         saveHomeLayout(currentLayout)
     }
 
-    suspend fun setSwipeLeftApp(app: AppPreference) = repo.set("swipeLeftApp", app)
-    suspend fun setSwipeRightApp(app: AppPreference) = repo.set("swipeRightApp", app)
-    suspend fun setSwipeUpApp(app: AppPreference) = repo.set("swipeUpApp", app)
-    suspend fun setSwipeDownApp(app: AppPreference) = repo.set("swipeDownApp", app)
+    suspend fun setSwipeLeftApp(app: AppPreference) { repo.update { it.copy(swipeLeftApp = app) } }
+
+    suspend fun setSwipeRightApp(app: AppPreference) { repo.update { it.copy(swipeRightApp = app) } }
+
+    suspend fun setSwipeUpApp(app: AppPreference) { repo.update { it.copy(swipeUpApp = app) } }
+
+    suspend fun setSwipeDownApp(app: AppPreference) { repo.update { it.copy(swipeDownApp = app) } }
 
     suspend fun getSwipeLeftApp(): AppPreference = settings.first().swipeLeftApp
     suspend fun getSwipeRightApp(): AppPreference = settings.first().swipeRightApp
