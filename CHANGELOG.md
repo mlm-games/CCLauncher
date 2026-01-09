@@ -1,3 +1,8 @@
+## vv10.3.3
+
+- Fix swipe app selection (#163)
+
+
 ## vv10.3.2
 
 - Fix app drawer not opening the keyboard on app exit on nav 3
