@@ -1,0 +1,1 @@
+- Add toggle to hide "Search Web" (req)

@@ -1,3 +1,8 @@
+## vv10.3.4
+
+- Add toggle to hide "Search Web" (req)
+
+
 ## vv10.3.3
 
 - Fix swipe app selection (#163)
