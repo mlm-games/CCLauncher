@@ -383,8 +383,10 @@ fun AppDrawerScreen(
                                 }
                             },
                             onLongClick = {
-                                selectedApp = app
-                                showContextMenu = true
+                                if (settings.appDrawerLongPressEnabled && !selectionMode) {
+                                    selectedApp = app
+                                    showContextMenu = true
+                                }
                             },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,

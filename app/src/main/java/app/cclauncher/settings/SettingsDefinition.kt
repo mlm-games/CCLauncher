@@ -245,6 +245,14 @@ data class AppSettings(
     val plainWallpaper: Boolean = false,
 
     @Setting(
+        title = "Long Press in App Drawer",
+        description = "Long press on apps shows options menu",
+        category = Gestures::class,
+        type = Toggle::class,
+        key = "APP_DRAWER_LONG_PRESS_ENABLED",
+    )
+    val appDrawerLongPressEnabled: Boolean = true,
+    @Setting(
         title = "Show Status Bar",
         category = Layout::class,
         type = Toggle::class,
