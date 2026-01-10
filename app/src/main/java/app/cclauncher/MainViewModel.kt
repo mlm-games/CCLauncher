@@ -1177,11 +1177,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     isLoading = false,
                     error = null
                 )
-
-                val settings = settingsRepository.settings.first()
-                if (filtered.size == 1 && query.isNotEmpty() && settings.autoOpenFilteredApp) {
-                    launchApp(filtered[0])
-                }
             } catch (e: Exception) {
                 snackbarManager.show("Search failed: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)

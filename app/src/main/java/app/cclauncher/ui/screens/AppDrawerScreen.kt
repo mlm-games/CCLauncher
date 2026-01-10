@@ -102,7 +102,7 @@ fun AppDrawerScreen(
     val focusManager = LocalFocusManager.current
 
     var isSearchFocused by remember { mutableStateOf(false) }
-
+    var hasAutoSelected by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -152,9 +152,12 @@ fun AppDrawerScreen(
     }
 
     val handleAppClick: (AppModel) -> Unit = { app ->
+        Log.d("AppDrawer", "handleAppClick called! selectionMode=$selectionMode")
         if (selectionMode) {
+            Log.d("AppDrawer", "Calling onAppClick for SELECTION")
             onAppClick(app)
         } else {
+            Log.d("AppDrawer", "Calling onAppClick to OPEN app")
             searchQuery = ""
             viewModel.searchApps("")
             focusManager.clearFocus()
@@ -299,12 +302,16 @@ fun AppDrawerScreen(
 
         Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
 
-        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
-            delay(300)
-            if (!selectionMode &&
+        LaunchedEffect(searchQuery) {
+            hasAutoSelected = false
+        }
+
+        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, selectionMode) {
+            if (
                 searchQuery.isNotEmpty() &&
                 appsToShow.size == 1 &&
-                settings.autoOpenFilteredApp
+                settings.autoOpenFilteredApp &&
+                !hasAutoSelected
             ) {
                 handleAppClick(appsToShow[0])
             }
