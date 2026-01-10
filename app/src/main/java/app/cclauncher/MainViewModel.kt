@@ -125,34 +125,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
         viewModelScope.launch {
             combine(
-                settingsRepository.getHomeLayout(),
-                settingsRepository.settings
-            ) { layout, settings ->
-                val updatedLayout = layout.copy(
-                    rows = settings.homeScreenRows,
-                    columns = settings.homeScreenColumns
-                )
-                loadIconsForHomeLayout(updatedLayout, settings)
-            }.collect { updatedLayout ->
-                _homeLayoutState.value = updatedLayout
-            }
-        }
-
-        viewModelScope.launch {
-            appRepository.appListAll.collect { apps ->
-                _appListAll.value = apps
+                appRepository.appListAll,
+                appRepository.appList
+            ) { allApps, visibleApps ->
+                _appListAll.value = allApps
+                _appList.value = visibleApps
                 updateAppDrawerState()
                 reapplySearchFilter()
-            }
-        }
-
-        // Observe app list changes
-        viewModelScope.launch {
-            appRepository.appList.collect { apps ->
-                _appList.value = apps
-                updateAppDrawerState()
-                reapplySearchFilter()
-            }
+            }.collect {}
         }
 
         // Observe hidden apps changes
