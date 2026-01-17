@@ -151,22 +151,34 @@ fun getUserHandleFromString(context: Context, userHandleString: String): UserHan
     return android.os.Process.myUserHandle()
 }
 
-fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
-    when (appTheme) {
-        AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
-        AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaper(context, android.R.color.white)
-        else -> {
-            if (context.isDarkThemeOn())
-                setPlainWallpaper(context, android.R.color.black)
-            else setPlainWallpaper(context, android.R.color.white)
-        }
-    }
-}
-
 fun setPlainWallpaper(context: Context, color: Int) {
     try {
         val bitmap = createBitmap(1000, 2000)
         bitmap.eraseColor(context.getColor(color))
+        val manager = WallpaperManager.getInstance(context)
+        manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
+        manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
+    when (appTheme) {
+        AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
+        AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaperLightGrey(context)
+        else -> {
+            if (context.isDarkThemeOn())
+                setPlainWallpaper(context, android.R.color.black)
+            else setPlainWallpaperLightGrey(context)
+        }
+    }
+}
+
+fun setPlainWallpaperLightGrey(context: Context) {
+    try {
+        val bitmap = createBitmap(1000, 2000)
+        bitmap.eraseColor(0xFFEEEEEE.toInt()) // for light mode
         val manager = WallpaperManager.getInstance(context)
         manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
         manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)

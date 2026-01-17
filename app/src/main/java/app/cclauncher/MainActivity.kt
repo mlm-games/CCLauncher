@@ -26,6 +26,7 @@ import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.setPlainWallpaper
+import app.cclauncher.helper.setPlainWallpaperLightGrey
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
@@ -210,7 +211,7 @@ class MainActivity : ComponentActivity() {
     private fun setPlainWallpaper() {
         if (this.isDarkThemeOn())
             setPlainWallpaper(this, android.R.color.black)
-        else setPlainWallpaper(this, android.R.color.white)
+        else setPlainWallpaperLightGrey(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -219,9 +220,14 @@ class MainActivity : ComponentActivity() {
             val settings = settingsRepository.settings.first()
             AppCompatDelegate.setDefaultNightMode(settings.appTheme)
 
-            if (settings.plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            try {
+                updateStatusBarVisibility(this@MainActivity, settings.statusBar)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            if (settings.autoUpdateWallpaper) {
                 setPlainWallpaper()
-                recreate()
             }
         }
     }

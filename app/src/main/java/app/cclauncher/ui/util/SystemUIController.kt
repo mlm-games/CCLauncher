@@ -1,6 +1,7 @@
 package app.cclauncher.ui.util
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Build
 import android.view.View
 import android.view.Window
@@ -40,19 +41,27 @@ fun SystemUIController(
  * Non-composable function to safely update status bar visibility
  */
 fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
-    if (activity == null || !activity.window.isActive) return
+    if (activity == null || activity.isFinishing || activity.isDestroyed) return
 
     try {
         val window = activity.window
         val decorView = window.decorView
 
+        val isLightTheme = (activity.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO
+
         if (showStatusBar) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 window.insetsController?.show(WindowInsets.Type.statusBars())
+                window.insetsController?.setSystemBarsAppearance(
+                    if (isLightTheme) WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS else 0,
+                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                )
             } else {
                 @Suppress("DEPRECATION")
                 decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        (if (isLightTheme) View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR else 0)
             }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -67,7 +76,6 @@ fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
             }
         }
     } catch (e: Exception) {
-        // Safely handle any exceptions
         e.printStackTrace()
     }
 }
@@ -76,6 +84,13 @@ private fun showStatusBar(window: Window, view: View) {
     try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.show(WindowInsets.Type.statusBars())
+
+            val isLightTheme = (view.context.resources.configuration.uiMode and
+                    Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO
+            window.insetsController?.setSystemBarsAppearance(
+                if (isLightTheme) WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS else 0,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            )
         } else {
             @Suppress("DEPRECATION")
             view.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or

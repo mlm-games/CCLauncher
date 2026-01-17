@@ -252,6 +252,16 @@ data class AppSettings(
         key = "APP_DRAWER_LONG_PRESS_ENABLED",
     )
     val appDrawerLongPressEnabled: Boolean = true,
+
+    @Setting(
+        title = "Auto Update Wallpaper",
+        description = "Automatically update plain wallpaper when system theme changes",
+        category = Appearance::class,
+        type = Toggle::class,
+        key = "AUTO_UPDATE_WALLPAPER",
+    )
+    val autoUpdateWallpaper: Boolean = false,
+
     @Setting(
         title = "Show Status Bar",
         category = Layout::class,

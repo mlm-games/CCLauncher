@@ -876,7 +876,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 // Rebuild alias index after loading apps (in case we missed the combine for some reason)
                 rebuildSearchAliasIndex()
             } catch (e: Exception) {
-                snackbarManager.show("Failed to load apps: ${e.message}")
+                Log.w("CCLauncher","Failed to load apps: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
         }
