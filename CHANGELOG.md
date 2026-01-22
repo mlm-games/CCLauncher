@@ -1,3 +1,9 @@
+## vv10.5.1
+
+- Add shortcut handling support (#172)
+- Bump org.jetbrains.kotlinx:kotlinx-serialization-json
+
+
 ## vv10.4.2
 
 - System theme change affects the status bar, and add a setting to auto update wallpaper (fix #169)
