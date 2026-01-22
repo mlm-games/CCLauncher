@@ -267,7 +267,32 @@ class MainActivity : ComponentActivity() {
         )
 
         viewModel.updatePrivateSpaceState()
+
+        lifecycleScope.launch {
+            val settings = settingsRepository.settings.first()
+            try {
+                updateStatusBarVisibility(this@MainActivity, settings.statusBar)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            // when window regains focus
+            lifecycleScope.launch {
+                val settings = settingsRepository.settings.first()
+                try {
+                    updateStatusBarVisibility(this@MainActivity, settings.statusBar)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
 
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
