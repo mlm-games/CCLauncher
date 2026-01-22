@@ -1,0 +1,1 @@
+- Force status bar to hide (for compat with older android systems, #173)

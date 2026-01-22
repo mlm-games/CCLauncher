@@ -1,3 +1,8 @@
+## vv10.5.2
+
+- Force status bar to hide (for compat with older android systems, #173)
+
+
 ## vv10.5.1
 
 - Add shortcut handling support (#172)
