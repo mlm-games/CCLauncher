@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdsClick
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
@@ -405,46 +406,73 @@ fun AppDrawerScreen(
 
     if (showContextMenu && selectedApp != null) {
         val app = selectedApp!!
+        val isSystemShortcut = app.isSystemShortcut
         val hiddenApps by viewModel.hiddenApps.collectAsState()
         val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
 
         var renameDialogVisible by remember { mutableStateOf(false) }
         var newAppName by remember { mutableStateOf(app.appLabel) }
 
+        val dismissMenu = { showContextMenu = false; selectedApp = null }
+
         AlertDialog(
-            onDismissRequest = { showContextMenu = false; selectedApp = null },
+            onDismissRequest = dismissMenu,
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
-//                    ContextMenuItem("Change Icon", Icons.Default.ChangeCircle) { } // Causes too many performance related problems, and even saving related issues for images.
-                    ContextMenuItem("App Info", Icons.Default.Info) {
-                        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", app.appPackage, null)
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        })
-                        showContextMenu = false; selectedApp = null
-                    }
-                    ContextMenuItem("Add to Home Screen", Icons.Default.Add) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
-                    if (viewModel.isPrivateSpaceSupported &&
-                        viewModel.privateSpaceState.collectAsState().value == MainViewModel.PrivateSpaceState.Unlocked) {
+                    if (isSystemShortcut) {
+                        ContextMenuItem("Open", Icons.Default.AdsClick) {
+                            handleAppClick(app)
+                            dismissMenu()
+                        }
+                        ContextMenuItem("Add to Home Screen", Icons.Default.Add) {
+                            viewModel.addAppToHomeScreen(app)
+                            dismissMenu()
+                        }
+                        ContextMenuItem("Delete", Icons.Default.Delete) {
+                            viewModel.deleteSystemShortcut(app)
+                            dismissMenu()
+                        }
+                    } else {
+                        ContextMenuItem("Open", Icons.Default.AdsClick) {
+                            handleAppClick(app)
+                            dismissMenu()
+                        }
+                        ContextMenuItem(if (isHidden) "Unhide" else "Hide", Icons.Default.Settings) {
+                            viewModel.toggleAppHidden(app)
+                            dismissMenu()
+                        }
+                        ContextMenuItem("Rename", Icons.Default.DriveFileRenameOutline) {
+                            renameDialogVisible = true
+                        }
+                        ContextMenuItem("App Info", Icons.Default.Info) {
+                            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", app.appPackage, null)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            })
+                            dismissMenu()
+                        }
+                        ContextMenuItem("Add to Home Screen", Icons.Default.Add) {
+                            viewModel.addAppToHomeScreen(app)
+                            dismissMenu()
+                        }
+                        if (viewModel.isPrivateSpaceSupported &&
+                            viewModel.privateSpaceState.collectAsState().value == MainViewModel.PrivateSpaceState.Unlocked) {
 
-                        val isInPrivateSpace = viewModel.isAppInPrivateSpace(app)
+                            val isInPrivateSpace = viewModel.isAppInPrivateSpace(app)
 
-                        ContextMenuItem(
-                            text = if (isInPrivateSpace) "Remove from Private Space" else "Add to Private Space",
-                            icon = Icons.Default.Lock
-                        ) {
-                             viewModel.toggleAppInPrivateSpace(app)
-                            showContextMenu = false
-                            selectedApp = null
+                            ContextMenuItem(
+                                text = if (isInPrivateSpace) "Remove from Private Space" else "Add to Private Space",
+                                icon = Icons.Default.Lock
+                            ) {
+                                viewModel.toggleAppInPrivateSpace(app)
+                                dismissMenu()
+                            }
                         }
                     }
                 }
             },
-            confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
+            confirmButton = { TextButton(dismissMenu) { Text("Close") } }
         )
 
         if (renameDialogVisible) {
@@ -463,8 +491,7 @@ fun AppDrawerScreen(
                     TextButton(onClick = {
                         viewModel.renameApp(app, newAppName)
                         renameDialogVisible = false
-                        showContextMenu = false
-                        selectedApp = null
+                        dismissMenu()
                     }) {
                         Text("Save")
                     }

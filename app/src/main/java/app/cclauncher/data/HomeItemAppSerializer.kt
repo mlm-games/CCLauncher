@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
 
-object HomeItemAppSerializer : KSerializer<HomeItem.App> {
+ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.App") {
         element<String>("id")
         element<Int>("page")
@@ -23,6 +23,9 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
         element<String>("activityClassName")
         element<String>("userString")
         element<Boolean>("isHidden")
+        element<Boolean>("isSystemShortcut")
+        element<String>("systemShortcutId")
+        element<String>("systemShortcutPackage")
     }
 
     override fun serialize(encoder: Encoder, value: HomeItem.App) {
@@ -38,6 +41,9 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
             encodeStringElement(descriptor, 8, value.appModel.activityClassName.orEmpty())
             encodeStringElement(descriptor, 9, value.appModel.userString)
             encodeBooleanElement(descriptor, 10, value.appModel.isHidden)
+            encodeBooleanElement(descriptor, 11, value.appModel.isSystemShortcut)
+            encodeStringElement(descriptor, 12, value.appModel.systemShortcutId.orEmpty())
+            encodeStringElement(descriptor, 13, value.appModel.systemShortcutPackage.orEmpty())
         }
     }
 
@@ -53,6 +59,9 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
         var activityClassNameRaw = ""
         var userString = ""
         var isHidden = false
+        var isSystemShortcut = false
+        var systemShortcutId = ""
+        var systemShortcutPackage = ""
 
         decoder.decodeStructure(descriptor) {
             while (true) {
@@ -68,9 +77,12 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
                     8 -> activityClassNameRaw = decodeStringElement(descriptor, index)
                     9 -> userString = decodeStringElement(descriptor, index)
                     10 -> isHidden = decodeBooleanElement(descriptor, index)
+                    11 -> isSystemShortcut = decodeBooleanElement(descriptor, index)
+                    12 -> systemShortcutId = decodeStringElement(descriptor, index)
+                    13 -> systemShortcutPackage = decodeStringElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> {
-                        // Should handle migration where 'page' might not exist
+                        decodeStringElement(descriptor, index)
                     }
                 }
             }
@@ -85,7 +97,10 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
             appPackage = appPackage,
             activityClassName = activityClassName,
             isHidden = isHidden,
-            userString = userString
+            userString = userString,
+            isSystemShortcut = isSystemShortcut,
+            systemShortcutId = systemShortcutId.takeIf { it.isNotEmpty() },
+            systemShortcutPackage = systemShortcutPackage.takeIf { it.isNotEmpty() }
         )
 
         return HomeItem.App(

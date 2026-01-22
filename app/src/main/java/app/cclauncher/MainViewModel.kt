@@ -8,8 +8,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -91,9 +95,38 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     val snackbarManager : SnackbarManager by inject()
 
+    private val launcherAppsCallback = object : LauncherApps.Callback() {
+        override fun onPackageRemoved(packageName: String, user: UserHandle) {
+            loadApps()
+        }
+
+        override fun onPackageAdded(packageName: String, user: UserHandle) {
+            loadApps()
+        }
+
+        override fun onPackageChanged(packageName: String, user: UserHandle) {
+            loadApps()
+        }
+
+        override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
+            loadApps()
+        }
+
+        override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
+            loadApps()
+        }
+
+        override fun onShortcutsChanged(packageName: String, shortcuts: List<android.content.pm.ShortcutInfo>, user: UserHandle) {
+            Log.d("MainViewModel", "System shortcuts changed for $packageName, reloading apps")
+            loadApps()
+        }
+    }
+
     private val appRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
+            Log.d("MainViewModel", "Received broadcast: ${intent?.action}")
             if (intent?.action == "app.cclauncher.ACTION_REFRESH_APPS") {
+                Log.d("MainViewModel", "Refreshing apps after shortcut addition")
                 loadApps()
                 updatePrivateSpaceState()
             }
@@ -182,6 +215,17 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             filter,
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            try {
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                val handler = Handler(Looper.getMainLooper())
+                launcherApps.registerCallback(launcherAppsCallback, handler)
+                Log.e("MainViewModel", "LauncherApps callback registered successfully")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Failed to register LauncherApps callback", e)
+            }
+        }
     }
 
     private suspend fun rebuildSearchAliasIndex() {
@@ -401,6 +445,32 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         val cellHeightDp = screenHeightDp.toFloat() / rows
         return Pair(cellWidthDp, cellHeightDp)
     }
+
+    suspend fun launchAppInternal(app: AppModel) {
+        if (app.isSystemShortcut) {
+            try {
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+                if (app.systemShortcutId != null && app.systemShortcutPackage != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                        launcherApps.startShortcut(
+                            app.systemShortcutPackage,
+                            app.systemShortcutId,
+                            null,
+                            null,
+                            app.user
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error launching system shortcut", e)
+                snackbarManager.show("Failed to open shortcut: ${e.message}")
+            }
+        } else {
+            appRepository.launchApp(app)
+        }
+        settingsRepository.updateAppLaunchTime(app.getKey())
+    }
+
 
     private fun findNextAvailableGridPosition(
         layout: HomeLayout,
@@ -908,10 +978,27 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun launchApp(app: AppModel) {
         viewModelScope.launch {
             try {
-                appRepository.launchApp(app)
-                settingsRepository.updateAppLaunchTime(app.getKey())
+                launchAppInternal(app)
             } catch (e: Exception) {
                 snackbarManager.show("Failed to launch app: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteSystemShortcut(app: AppModel) {
+        if (!app.isSystemShortcut) return
+
+        viewModelScope.launch {
+            try {
+                appRepository.deletePinnedShortcut(
+                    packageName = app.systemShortcutPackage!!,
+                    shortcutId = app.systemShortcutId!!,
+                    user = app.user
+                )
+                loadApps()
+                snackbarManager.show("Shortcut deleted")
+            } catch (e: Exception) {
+                snackbarManager.show("Failed to delete shortcut: ${e.message}")
             }
         }
     }
@@ -1257,6 +1344,16 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             appContext.unregisterReceiver(appRefreshReceiver)
         } catch (e: Exception) {
             Log.e("MainViewModel", "Error unregistering receiver", e)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            try {
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                launcherApps.unregisterCallback(launcherAppsCallback)
+                Log.d("MainViewModel", "LauncherApps callback unregistered")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error unregistering LauncherApps callback", e)
+            }
         }
     }
 

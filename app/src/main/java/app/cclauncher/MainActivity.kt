@@ -3,9 +3,11 @@ package app.cclauncher
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.content.pm.LauncherApps
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -179,6 +181,8 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("MainActivity", "Error starting widget host listening", e)
         }
+
+        loadAppsAndRefresh()
     }
 
     override fun onStop() {
@@ -240,6 +244,16 @@ class MainActivity : ComponentActivity() {
         ) {
             lifecycleScope.launch {
                 viewModel.emitEvent(UiEvent.NavigateBack)
+            }
+        }
+    }
+
+    private fun loadAppsAndRefresh() {
+        lifecycleScope.launch {
+            try {
+                viewModel.loadApps()
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error loading apps", e)
             }
         }
     }

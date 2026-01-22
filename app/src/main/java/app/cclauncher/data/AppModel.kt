@@ -23,14 +23,22 @@ data class AppModel(
     val isHidden: Boolean = false,
     val userString: String = user.toString(),
     @Transient
-    val lastLaunchTime: Long = 0
+    val lastLaunchTime: Long = 0,
+
+    val isSystemShortcut: Boolean = false,
+    val systemShortcutId: String? = null,
+    val systemShortcutPackage: String? = null
 ) : Comparable<AppModel> {
     override fun compareTo(other: AppModel): Int = when {
         key != null && other.key != null -> key.compareTo(other.key)
         else -> appLabel.compareTo(other.appLabel, ignoreCase = true)
     }
 
-    fun getKey(): String = AppKey.of(appPackage, userString)
+    fun getKey(): String = if (isSystemShortcut) {
+        "shortcut_sys:${systemShortcutPackage}_$systemShortcutId"
+    } else {
+        AppKey.of(appPackage, userString)
+    }
 }
 
 object AppKey {

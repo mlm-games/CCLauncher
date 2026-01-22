@@ -4,7 +4,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.Build
+import android.util.Log
+import androidx.compose.ui.graphics.asImageBitmap
 import app.cclauncher.data.AppModel
+import app.cclauncher.helper.BitmapUtils
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.getAppsList
@@ -56,30 +59,75 @@ class AppRepository(
         withContext(Dispatchers.IO) {
             try {
                 val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
+                val systemShortcuts = loadSystemShortcuts()
 
-                _appListAll.value = getAppsList(context, settingsRepository, true, true)
+                val allApps = (apps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
+                Log.d("AppRepository", "Total apps loaded: ${allApps.size} (including ${systemShortcuts.size} system shortcuts)")
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     val privateSpaceHelper = PrivateSpaceHelper(context)
-
-                    // Only filter private space apps if private space is locked
                     if (privateSpaceHelper.isPrivateSpaceLocked()) {
                         val privateSpaceUser = privateSpaceHelper.getPrivateSpaceUser()
                         if (privateSpaceUser != null) {
-                            _appList.value = apps.filter { app ->
-                                app.user != privateSpaceUser
-                            }
+                            _appList.value = allApps.filter { it.user != privateSpaceUser }
                             return@withContext
                         }
                     }
                 }
 
-                // If we reach here, either private space isn't relevant or we couldn't filter
-                _appList.value = apps
+                _appList.value = allApps
             } catch (e: Exception) {
-                throw e
+                Log.e("AppRepository", "Error loading apps", e)
+                e.printStackTrace()
             }
         }
+    }
+
+    private fun loadSystemShortcuts(): List<AppModel> {
+        val list = mutableListOf<AppModel>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            try {
+                val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+
+                if (!launcherApps.hasShortcutHostPermission()) {
+                    Log.d("AppRepository", "No shortcut host permission (not default launcher?)")
+                    return emptyList()
+                }
+
+                val query = LauncherApps.ShortcutQuery()
+                query.setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+
+                val userManager = context.getSystemService(Context.USER_SERVICE) as android.os.UserManager
+                for (user in userManager.userProfiles) {
+                    try {
+                        val shortcuts = launcherApps.getShortcuts(query, user) ?: emptyList()
+
+                        for (shortcut in shortcuts) {
+                            val iconDrawable = launcherApps.getShortcutIconDrawable(shortcut, context.resources.displayMetrics.densityDpi)
+                            val iconBitmap = BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
+
+                            list.add(
+                                AppModel(
+                                    appLabel = shortcut.shortLabel?.toString() ?: shortcut.id,
+                                    appPackage = shortcut.`package`,
+                                    activityClassName = null,
+                                    user = user,
+                                    appIcon = iconBitmap,
+                                    isSystemShortcut = true,
+                                    systemShortcutId = shortcut.id,
+                                    systemShortcutPackage = shortcut.`package`,
+                                )
+                            )
+                        }
+                    } catch (_: SecurityException) {
+                        // if not the default launcher
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AppRepository", "Error loading system shortcuts", e)
+            }
+        }
+        return list
     }
 
     /**
@@ -134,6 +182,30 @@ class AppRepository(
             } catch (e: Exception) {
                 throw AppLaunchException("Failed to launch ${appModel.appLabel}", e)
             }
+        }
+    }
+
+    fun deletePinnedShortcut(packageName: String, shortcutId: String, user: android.os.UserHandle) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
+
+        if (!launcherApps.hasShortcutHostPermission()) {
+            Log.w("AppRepository", "No shortcut host permission")
+            return
+        }
+
+        try {
+            val query = LauncherApps.ShortcutQuery()
+                .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                .setPackage(packageName)
+
+            val pinned = launcherApps.getShortcuts(query, user).orEmpty()
+            val remainingIds = pinned.mapNotNull { it.id }.filter { it != shortcutId }.toMutableList()
+
+            launcherApps.pinShortcuts(packageName, remainingIds, user)
+            Log.d("AppRepository", "Deleted pinned shortcut: $shortcutId from $packageName")
+        } catch (e: Exception) {
+            Log.e("AppRepository", "Error deleting pinned shortcut", e)
+            throw e
         }
     }
 
