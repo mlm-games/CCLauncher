@@ -1,3 +1,10 @@
+## vv10.5.3
+
+- Fix "search in hidden" apps handling (after shortcuts addn) (#177)
+- Bump com.google.devtools.ksp from 2.3.4 to 2.3.5
+- Bump gradle-wrapper from 9.2.1 to 9.3.0
+
+
 ## vv10.5.2
 
 - Force status bar to hide (for compat with older android systems, #173)
