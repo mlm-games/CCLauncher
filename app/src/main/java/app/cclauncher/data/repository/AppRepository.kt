@@ -58,24 +58,34 @@ class AppRepository(
     suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
+                val allMobileApps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
+
+                val visibleMobileApps = allMobileApps.filter { !it.isHidden }
                 val systemShortcuts = loadSystemShortcuts()
 
-                val allApps = (apps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
-                Log.d("AppRepository", "Total apps loaded: ${allApps.size} (including ${systemShortcuts.size} system shortcuts)")
+                val visibleList = (visibleMobileApps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
+
+                val fullList = (allMobileApps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
+
+                Log.d("AppRepository", "Loaded ${visibleList.size} visible, ${fullList.size} total apps/shortcuts")
+
+                var finalVisibleList = visibleList
+                var finalFullList = fullList
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     val privateSpaceHelper = PrivateSpaceHelper(context)
                     if (privateSpaceHelper.isPrivateSpaceLocked()) {
                         val privateSpaceUser = privateSpaceHelper.getPrivateSpaceUser()
                         if (privateSpaceUser != null) {
-                            _appList.value = allApps.filter { it.user != privateSpaceUser }
-                            return@withContext
+                            finalVisibleList = visibleList.filter { it.user != privateSpaceUser }
+                            finalFullList = fullList.filter { it.user != privateSpaceUser }
                         }
                     }
                 }
 
-                _appList.value = allApps
+                _appList.value = finalVisibleList
+                _appListAll.value = finalFullList
+
             } catch (e: Exception) {
                 Log.e("AppRepository", "Error loading apps", e)
                 e.printStackTrace()
