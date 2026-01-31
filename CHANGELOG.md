@@ -1,3 +1,13 @@
+## vv10.5.4
+
+- Fix sort order from prev. releases (#184)
+- Bump androidx.work:work-runtime-ktx from 2.11.0 to 2.11.1
+- Bump androidx.compose.foundation:foundation from 1.10.1 to 1.10.2
+- Bump gradle-wrapper from 9.3.0 to 9.3.1
+- Bump androidx.activity:activity-compose from 1.12.2 to 1.12.3
+- Bump androidx.compose:compose-bom from 2026.01.00 to 2026.01.01
+
+
 ## vv10.5.3
 
 - Fix "search in hidden" apps handling (after shortcuts addn) (#177)
