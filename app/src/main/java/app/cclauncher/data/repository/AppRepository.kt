@@ -11,6 +11,7 @@ import app.cclauncher.helper.BitmapUtils
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.getAppsList
+import app.cclauncher.data.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -58,16 +59,23 @@ class AppRepository(
     suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val allMobileApps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
+                val settings = settingsRepository.settings.first()
+                val sortOrder = settings.searchSortOrder
 
+                val allMobileApps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
+                
                 val visibleMobileApps = allMobileApps.filter { !it.isHidden }
+                val hiddenMobileApps = allMobileApps.filter { it.isHidden }
+                
                 val systemShortcuts = loadSystemShortcuts()
 
-                val visibleList = (visibleMobileApps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
+                val combinedVisible = visibleMobileApps + systemShortcuts
+                val combinedAll = allMobileApps + systemShortcuts
 
-                val fullList = (allMobileApps + systemShortcuts).sortedBy { it.appLabel.lowercase() }
+                val visibleList = sortApps(combinedVisible, sortOrder)
+                val fullList = sortApps(combinedAll, sortOrder)
 
-                Log.d("AppRepository", "Loaded ${visibleList.size} visible, ${fullList.size} total apps/shortcuts")
+                Log.d("AppRepository", "Loaded ${visibleList.size} visible, ${hiddenMobileApps.size} hidden")
 
                 var finalVisibleList = visibleList
                 var finalFullList = fullList
@@ -85,11 +93,28 @@ class AppRepository(
 
                 _appList.value = finalVisibleList
                 _appListAll.value = finalFullList
-
+                _hiddenApps.value = hiddenMobileApps
+                
             } catch (e: Exception) {
                 Log.e("AppRepository", "Error loading apps", e)
                 e.printStackTrace()
             }
+        }
+    }
+
+    private fun sortApps(list: List<AppModel>, sortOrder: Int): List<AppModel> {
+        return when (sortOrder) {
+            Constants.SortOrder.REVERSE_ALPHABETICAL -> 
+                list.sortedByDescending { it.appLabel.lowercase() }
+            
+            Constants.SortOrder.RECENT_FIRST -> 
+                list.sortedWith(
+                    compareByDescending<AppModel> { it.lastLaunchTime }
+                        .thenBy { it.appLabel.lowercase() }
+                )
+            
+            else -> // ALPHABETICAL
+                list.sortedBy { it.appLabel.lowercase() }
         }
     }
 

@@ -203,7 +203,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             settingsRepository.settings
                 .map { Triple(it.searchType, it.searchSortOrder, it.showHiddenAppsOnSearch) }
                 .distinctUntilChanged()
-                .collect { reapplySearchFilter() }
+                .collect { 
+                    appRepository.loadApps()
+                    reapplySearchFilter() 
+                }
         }
 
         updatePrivateSpaceState()
