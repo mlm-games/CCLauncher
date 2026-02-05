@@ -92,7 +92,7 @@ fun HiddenAppsScreen(
                 ) {
                     items(
                         items = hiddenApps,
-                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
+                        key = { app -> app.getKey() }
                     ) { app ->
                         AppListItem(
                             appLabel = app.appLabel,

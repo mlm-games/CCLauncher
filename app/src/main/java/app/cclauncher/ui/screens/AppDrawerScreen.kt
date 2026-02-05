@@ -361,7 +361,7 @@ fun AppDrawerScreen(
                 ) {
                     items(
                         items = appsToShow,
-                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
+                        key = { app -> app.getKey() }
                     ) { app ->
                         val customTextColor = if (settings.useCustomTextColor && settings.textColor != 0) {
                             Color(settings.textColor)
