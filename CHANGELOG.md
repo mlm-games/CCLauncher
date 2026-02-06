@@ -1,3 +1,13 @@
+## vv10.5.6
+
+- Try fixing colorOS backbutton closing the app on older android versions
+- Try fixing firefox/fulguris for more than 2 shortcuts
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.3.0 to 2.3.10
+- Bump kotlin from 2.3.0 to 2.3.10
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.3.0 to 2.3.10
+- Fix duplicate lazycolumn key crash for multiple shortcuts of a single app (#185)
+
+
 ## vv10.5.5
 
 - Fix sort order from prev. releases (#184)
