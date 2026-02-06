@@ -35,7 +35,7 @@ data class AppModel(
     }
 
     fun getKey(): String = if (isSystemShortcut) {
-        "shortcut_sys:${systemShortcutPackage}_$systemShortcutId"
+        "shortcut_sys:${systemShortcutPackage}_${systemShortcutId}_${user.hashCode()}"
     } else {
         AppKey.of(appPackage, userString)
     }
