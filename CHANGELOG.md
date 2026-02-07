@@ -1,3 +1,9 @@
+## vv10.5.8
+
+- Fix a crash introduced in prev. releases for multiple entries from same app, due to code reduction
+- Test fix colorOS backbutton closing the app on older android versions
+
+
 ## vv10.5.7
 
 - Revert "Try fixing colorOS backbutton closing the app on older android versions"

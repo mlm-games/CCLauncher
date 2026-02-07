@@ -1,0 +1,2 @@
+- Fix a crash introduced in prev. releases for multiple entries from same app, due to code reduction
+- Test fix colorOS backbutton closing the app on older android versions
