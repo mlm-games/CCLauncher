@@ -72,6 +72,8 @@ fun CLauncherNavigation(
 
     val backStack = rememberNavBackStack(LauncherDestination.Home) // can't set initial screen here since settings is async
 
+    val isOnHome = backStack.size == 1 && backStack.lastOrNull() == LauncherDestination.Home
+
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
     fun popToHome(clearSelection: Boolean = true) {
@@ -88,6 +90,11 @@ fun CLauncherNavigation(
     fun pushOnTop(dest: LauncherDestination) {
         if (backStack.lastOrNull() != dest) backStack.add(dest)
     }
+
+    BackHandler(enabled = isOnHome) {
+        popToHome()
+    }
+
 
     val handleEvent: (UiEvent) -> Unit = { event ->
         when (event) {
