@@ -105,11 +105,7 @@ fun CLauncherNavigation(
                 navigateTo(LauncherDestination.WidgetPicker)
             }
 
-            UiEvent.NavigateBack -> {
-                if (backStack.lastOrNull() != LauncherDestination.Home) {
-                    popToHome()
-                }
-            }
+            UiEvent.NavigateBack -> popToHome()
 
             is UiEvent.NavigateToAppSelection -> {
                 currentSelectionType = event.selectionType

@@ -243,10 +243,7 @@ class MainActivity : ComponentActivity() {
             intent.hasCategory(Intent.CATEGORY_HOME)
         ) {
             lifecycleScope.launch {
-                val settings = settingsRepository.settings.first()
-                if (settings.returnToHomeAfterApp) {
-                    viewModel.emitEvent(UiEvent.NavigateBack)
-                }
+                viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
     }
@@ -277,16 +274,6 @@ class MainActivity : ComponentActivity() {
                 updateStatusBarVisibility(this@MainActivity, settings.statusBar)
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-        }
-    }
-
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        lifecycleScope.launch {
-            val settings = settingsRepository.settings.first()
-            if (settings.returnToHomeAfterApp) {
-                viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
     }
