@@ -1,0 +1,1 @@
+- Revert "Try fixing colorOS backbutton closing the app on older android versions"

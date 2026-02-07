@@ -1,3 +1,8 @@
+## vv10.5.7
+
+- Revert "Try fixing colorOS backbutton closing the app on older android versions"
+
+
 ## vv10.5.6
 
 - Try fixing colorOS backbutton closing the app on older android versions
