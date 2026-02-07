@@ -507,6 +507,12 @@ data class AppPreference(
     val activityClassName: String? = null,
     val userString: String = ""
 )
+
+data class AppKeyMigration(
+    val newKey: String,
+    val moveKeys: Set<String> = emptySet(),
+    val copyKeys: Set<String> = emptySet()
+)
 @CategoryDefinition(order = 0) object General
 @CategoryDefinition(order = 1) object Appearance
 @CategoryDefinition(order = 2) object Layout

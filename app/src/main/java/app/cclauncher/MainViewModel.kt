@@ -24,10 +24,11 @@ import app.cclauncher.data.repository.AppRepository
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.settings.AppPreference
 import app.cclauncher.settings.AppSettings
+import app.cclauncher.settings.AppKeyMigration
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
 import app.cclauncher.helper.PrivateSpaceHelper
- import app.cclauncher.helper.SearchAliasUtils
+import app.cclauncher.helper.SearchAliasUtils
 import app.cclauncher.helper.getScreenDimensions
 import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
@@ -472,6 +473,36 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             appRepository.launchApp(app)
         }
         settingsRepository.updateAppLaunchTime(app.getKey())
+
+        val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
+        val legacyCopyKeys = AppKey.legacyCopyKeysForApp(app)
+        if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
+            val settings = settingsRepository.settings.first()
+            val appKey = app.getKey()
+            val hasNewRename = settings.renamedApps.containsKey(appKey)
+            val hasNewHidden = settings.hiddenApps.contains(appKey)
+            val newHistory = settings.recentAppHistory[appKey]
+
+            val legacyRename = legacyCopyKeys.firstNotNullOfOrNull { settings.renamedApps[it] }
+            val legacyHidden = legacyCopyKeys.any { settings.hiddenApps.contains(it) }
+            val legacyHistory = legacyCopyKeys.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
+
+            val shouldCopy = (!hasNewRename && legacyRename != null) ||
+                (!hasNewHidden && legacyHidden) ||
+                (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
+
+            val copyKeys = if (shouldCopy) legacyCopyKeys else emptySet()
+
+            settingsRepository.migrateAppKeys(
+                listOf(
+                    AppKeyMigration(
+                        newKey = appKey,
+                        moveKeys = legacyMoveKeys,
+                        copyKeys = copyKeys
+                    )
+                )
+            )
+        }
     }
 
 
@@ -703,12 +734,33 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     fun renameApp(app: AppModel, newName: String) {
         viewModelScope.launch {
+            val trimmedName = newName.trim()
             val appKey = app.getKey()
-            if (newName.isBlank() || newName == app.appLabel) {
-                settingsRepository.removeAppCustomName(appKey)
+            val defaultLabel = appRepository.getDefaultAppLabel(app)
+            val shouldClear = trimmedName.isBlank() || (defaultLabel != null && trimmedName == defaultLabel)
+
+            val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
+            val legacyCopyKeys = AppKey.legacyCopyKeysForApp(app)
+            val legacyAllKeys = legacyMoveKeys + legacyCopyKeys
+
+            if (shouldClear) {
+                settingsRepository.removeAppCustomNames(setOf(appKey) + legacyAllKeys)
             } else {
-                settingsRepository.setAppCustomName(appKey, newName)
+                settingsRepository.setAppCustomName(appKey, trimmedName)
             }
+            val migrations = buildList {
+                if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
+                    add(
+                        AppKeyMigration(
+                            newKey = appKey,
+                            moveKeys = legacyMoveKeys,
+                            copyKeys = legacyCopyKeys
+                        )
+                    )
+                }
+            }
+            settingsRepository.migrateAppKeys(migrations)
+
             loadApps()
         }
     }
@@ -946,12 +998,65 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
                 updatePrivateSpaceState()
                 appRepository.loadApps()
+                migrateLegacyKeysForCurrentApps()
                 // Rebuild alias index after loading apps (in case we missed the combine for some reason)
                 rebuildSearchAliasIndex()
             } catch (e: Exception) {
                 Log.w("CCLauncher","Failed to load apps: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
+        }
+    }
+
+    private suspend fun migrateLegacyKeysForCurrentApps() {
+        val settings = settingsRepository.settings.first()
+        val renamedKeys = settings.renamedApps.keys
+        val hiddenKeys = settings.hiddenApps
+        val historyKeys = settings.recentAppHistory.keys
+        val existingKeys = buildSet {
+            addAll(renamedKeys)
+            addAll(hiddenKeys)
+            addAll(historyKeys)
+        }
+
+        val migrations = mutableListOf<AppKeyMigration>()
+        for (app in appRepository.appListAll.value) {
+            val appKey = app.getKey()
+            val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
+                .filter { existingKeys.contains(it) }
+                .toSet()
+            val legacyCopyCandidates = AppKey.legacyCopyKeysForApp(app)
+                .filter { existingKeys.contains(it) }
+                .toSet()
+
+            val hasNewRename = settings.renamedApps.containsKey(appKey)
+            val hasNewHidden = settings.hiddenApps.contains(appKey)
+            val newHistory = settings.recentAppHistory[appKey]
+
+            val legacyRename = legacyCopyCandidates.firstNotNullOfOrNull { settings.renamedApps[it] }
+            val legacyHidden = legacyCopyCandidates.any { settings.hiddenApps.contains(it) }
+            val legacyHistory = legacyCopyCandidates.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
+
+            val shouldCopy = (!hasNewRename && legacyRename != null) ||
+                (!hasNewHidden && legacyHidden) ||
+                (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
+
+            val legacyCopyKeys = if (shouldCopy) legacyCopyCandidates else emptySet()
+
+            if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
+                migrations.add(
+                    AppKeyMigration(
+                        newKey = appKey,
+                        moveKeys = legacyMoveKeys,
+                        copyKeys = legacyCopyKeys
+                    )
+                )
+            }
+        }
+
+        if (migrations.isNotEmpty()) {
+            settingsRepository.migrateAppKeys(migrations)
+            appRepository.loadApps()
         }
     }
 

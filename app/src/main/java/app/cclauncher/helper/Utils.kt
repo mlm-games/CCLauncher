@@ -75,12 +75,21 @@ suspend fun getAppsList(
                 if (pkg == context.packageName) continue
 
                 val userString = profile.toString()
-                val appKey = AppKey.of(pkg, userString)
+                val appKey = AppKey.appKey(pkg, activity.componentName.className, userString)
+                val legacyKeys = listOf(
+                    AppKey.legacyActivityUserHashKey(pkg, activity.componentName.className, profile.hashCode()),
+                    AppKey.legacyPackageUserKey(pkg, userString)
+                ).distinct()
+                val keyCandidates = listOf(appKey) + legacyKeys
 
                 val defaultLabel = activity.label.toString() +
                         if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
 
-                val shownLabel = renamedApps[appKey] ?: defaultLabel
+                val shownLabel = keyCandidates.firstNotNullOfOrNull { renamedApps[it] }
+                    ?: defaultLabel
+                val isHidden = keyCandidates.any { hiddenApps.contains(it) }
+                val lastLaunchTime = keyCandidates.mapNotNull { settings.recentAppHistory[it] }
+                    .maxOrNull() ?: 0L
 
                 val appIcon = if (includeIcons) {
                     iconCache.getIcon(
@@ -99,12 +108,11 @@ suspend fun getAppsList(
                     isNew = (System.currentTimeMillis() - activity.firstInstallTime) < AnimationConstants.ONE_HOUR_IN_MILLIS,
                     user = profile,
                     appIcon = appIcon,
-                    isHidden = hiddenApps.contains(appKey),
+                    isHidden = isHidden,
                     userString = userString,
-                    lastLaunchTime = settings.recentAppHistory[appKey] ?: 0L
+                    lastLaunchTime = lastLaunchTime
                 )
 
-                val isHidden = hiddenApps.contains(appKey)
                 when {
                     isHidden && includeHiddenApps -> appList.add(model.copy(isHidden = true))
                     !isHidden && includeRegularApps -> appList.add(model)

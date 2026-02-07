@@ -108,9 +108,22 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
     }
 
     suspend fun toggleAppHidden(packageKey: String) {
+        toggleAppHidden(packageKey, emptySet())
+    }
+
+    suspend fun toggleAppHidden(appKey: String, legacyKeys: Set<String>) {
         repo.update { s ->
             val set = s.hiddenApps.toMutableSet()
-            if (set.contains(packageKey)) set.remove(packageKey) else set.add(packageKey)
+            val candidates = (setOf(appKey) + legacyKeys)
+                .filter { it.isNotBlank() }
+                .distinct()
+
+            val shouldUnhide = candidates.any { set.contains(it) }
+            if (shouldUnhide) {
+                candidates.forEach { set.remove(it) }
+            } else {
+                set.add(appKey)
+            }
             s.copy(hiddenApps = set)
         }
     }
@@ -128,6 +141,67 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
             val map = s.renamedApps.toMutableMap()
             map.remove(appKey)
             s.copy(renamedApps = map)
+        }
+    }
+
+    suspend fun removeAppCustomNames(appKeys: Set<String>) {
+        if (appKeys.isEmpty()) return
+        repo.update { s ->
+            val map = s.renamedApps.toMutableMap()
+            appKeys.forEach { map.remove(it) }
+            s.copy(renamedApps = map)
+        }
+    }
+
+    suspend fun migrateAppKeys(migrations: List<AppKeyMigration>) {
+        if (migrations.isEmpty()) return
+        repo.update { s ->
+            val renamed = s.renamedApps.toMutableMap()
+            val hidden = s.hiddenApps.toMutableSet()
+            val history = s.recentAppHistory.toMutableMap()
+
+            val renamedOriginal = s.renamedApps
+            val hiddenOriginal = s.hiddenApps
+            val historyOriginal = s.recentAppHistory
+
+            for (migration in migrations) {
+                val newKey = migration.newKey
+                val sourceKeys = (migration.moveKeys + migration.copyKeys)
+                    .filter { it.isNotBlank() && it != newKey }
+                    .distinct()
+
+                if (sourceKeys.isEmpty()) continue
+
+                val renameCandidate = sourceKeys.firstNotNullOfOrNull { renamedOriginal[it] }
+                if (!renamed.containsKey(newKey) && renameCandidate != null) {
+                    renamed[newKey] = renameCandidate
+                }
+
+                if (!hidden.contains(newKey) && sourceKeys.any { hiddenOriginal.contains(it) }) {
+                    hidden.add(newKey)
+                }
+
+                val maxLaunchTime = sourceKeys.mapNotNull { historyOriginal[it] }.maxOrNull()
+                if (maxLaunchTime != null) {
+                    val existing = history[newKey]
+                    if (existing == null || maxLaunchTime > existing) {
+                        history[newKey] = maxLaunchTime
+                    }
+                }
+
+                for (oldKey in migration.moveKeys) {
+                    if (oldKey == newKey) continue
+                    renamed.remove(oldKey)
+                    hidden.remove(oldKey)
+                    history.remove(oldKey)
+                }
+            }
+
+            s.copy(
+                renamedApps = renamed,
+                hiddenApps = hidden,
+                recentAppHistory = history
+            )
         }
     }
 

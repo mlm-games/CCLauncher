@@ -7,6 +7,8 @@ import android.os.Build
 import android.util.Log
 import androidx.compose.ui.graphics.asImageBitmap
 import app.cclauncher.data.AppModel
+import app.cclauncher.data.AppKey
+import app.cclauncher.settings.AppKeyMigration
 import app.cclauncher.helper.BitmapUtils
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.helper.PrivateSpaceHelper
@@ -165,6 +167,20 @@ class AppRepository(
         return list
     }
 
+    fun getDefaultAppLabel(app: AppModel): String? {
+        if (app.isSystemShortcut) return null
+        return try {
+            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+            val activities = launcherApps.getActivityList(app.appPackage, app.user)
+            val target = activities.firstOrNull {
+                it.componentName.className == app.activityClassName
+            } ?: activities.firstOrNull()
+            target?.label?.toString()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     /**
      * Load hidden apps
      */
@@ -186,8 +202,38 @@ class AppRepository(
         withContext(Dispatchers.IO) {
             try {
                 val appKey = app.getKey()
+                val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
+                val legacyCopyKeys = AppKey.legacyCopyKeysForApp(app)
+                val legacyKeys = legacyMoveKeys + legacyCopyKeys
 
-                settingsRepository.toggleAppHidden(appKey)
+                settingsRepository.toggleAppHidden(appKey, legacyKeys)
+
+                if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
+                    val settings = settingsRepository.settings.first()
+                    val hasNewRename = settings.renamedApps.containsKey(appKey)
+                    val hasNewHidden = settings.hiddenApps.contains(appKey)
+                    val newHistory = settings.recentAppHistory[appKey]
+
+                    val legacyRename = legacyCopyKeys.firstNotNullOfOrNull { settings.renamedApps[it] }
+                    val legacyHidden = legacyCopyKeys.any { settings.hiddenApps.contains(it) }
+                    val legacyHistory = legacyCopyKeys.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
+
+                    val shouldCopy = (!hasNewRename && legacyRename != null) ||
+                        (!hasNewHidden && legacyHidden) ||
+                        (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
+
+                    val copyKeys = if (shouldCopy) legacyCopyKeys else emptySet()
+
+                    settingsRepository.migrateAppKeys(
+                        listOf(
+                            AppKeyMigration(
+                                newKey = appKey,
+                                moveKeys = legacyMoveKeys,
+                                copyKeys = copyKeys
+                            )
+                        )
+                    )
+                }
 
                 loadApps()
                 loadHiddenApps()

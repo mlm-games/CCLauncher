@@ -35,13 +35,44 @@ data class AppModel(
     }
 
     fun getKey(): String = if (isSystemShortcut) {
-        "shortcut_sys:${systemShortcutPackage}_${systemShortcutId}_${user.hashCode()}"
+        AppKey.shortcutKey(systemShortcutPackage, systemShortcutId, userString)
     } else {
-        "${appPackage}/${activityClassName ?: ""}/${user.hashCode()}"
+        AppKey.appKey(appPackage, activityClassName, userString)
     }
 }
 
 object AppKey {
-    fun of(packageName: String, userString: String): String =
+    fun appKey(packageName: String, activityClassName: String?, userString: String): String =
+        "${packageName.trim()}/${activityClassName.orEmpty()}/${userString.trim()}"
+
+    fun shortcutKey(packageName: String?, shortcutId: String?, userString: String): String =
+        "shortcut:${packageName.orEmpty().trim()}/${shortcutId.orEmpty().trim()}/${userString.trim()}"
+
+    fun legacyPackageUserKey(packageName: String, userString: String): String =
         "${packageName.trim()}/${userString.trim()}"
+
+    fun legacyActivityUserHashKey(packageName: String, activityClassName: String?, userHash: Int): String =
+        "${packageName.trim()}/${activityClassName.orEmpty()}/${userHash}"
+
+    fun legacyShortcutKey(packageName: String?, shortcutId: String?, userHash: Int): String =
+        "shortcut_sys:${packageName.orEmpty().trim()}_${shortcutId.orEmpty().trim()}_${userHash}"
+
+    fun legacyMoveKeysForApp(app: AppModel): Set<String> =
+        if (app.isSystemShortcut) {
+            setOf(legacyShortcutKey(app.systemShortcutPackage, app.systemShortcutId, app.user.hashCode()))
+        } else {
+            setOf(legacyActivityUserHashKey(app.appPackage, app.activityClassName, app.user.hashCode()))
+        }
+
+    fun legacyCopyKeysForApp(app: AppModel): Set<String> =
+        if (app.isSystemShortcut) {
+            emptySet()
+        } else {
+            setOf(legacyPackageUserKey(app.appPackage, app.userString))
+        }
+
+    fun legacyKeyCandidatesForApp(app: AppModel): Set<String> =
+        (legacyMoveKeysForApp(app) + legacyCopyKeysForApp(app))
+            .filter { it.isNotBlank() }
+            .toSet()
 }
