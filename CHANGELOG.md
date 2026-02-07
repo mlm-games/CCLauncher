@@ -1,3 +1,8 @@
+## vv10.6.1
+
+- Unify appkeys everywhere (fix #191)
+
+
 ## vv10.5.8
 
 - Fix a crash introduced in prev. releases for multiple entries from same app, due to code reduction
