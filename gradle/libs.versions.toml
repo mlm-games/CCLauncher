@@ -25,7 +25,7 @@ kmpSettingsCore = "0.5.0"
 ksp = "2.3.5"
 
 koinBom = "4.1.1"
-navigation3Runtime = "1.0.0"
+navigation3Runtime = "1.0.1"
 koin-annotations = "2.3.1"
 foundation = "1.10.2"
 
