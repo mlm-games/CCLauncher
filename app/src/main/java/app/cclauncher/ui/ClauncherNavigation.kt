@@ -72,19 +72,29 @@ fun CLauncherNavigation(
 
     val backStack = rememberNavBackStack(LauncherDestination.Home) // can't set initial screen here since settings is async
 
-    val isOnHome = backStack.size == 1 && backStack.lastOrNull() == LauncherDestination.Home
+    // defaultScreen: 0 = Home, 1 = App Drawer
+    val defaultScreenIndex = settings.defaultScreen
+    val homeDestination = if (defaultScreenIndex == 1) LauncherDestination.AppDrawer else LauncherDestination.Home
+    val isOnHome = backStack.size == 1 && backStack.lastOrNull() == homeDestination
 
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
+    var didSyncHome by remember { mutableStateOf(false) }
 
     fun popToHome(clearSelection: Boolean = true) {
         while (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+        if (backStack.lastOrNull() != homeDestination) {
+            if (backStack.isNotEmpty()) {
+                backStack.removeAt(backStack.lastIndex)
+            }
+            backStack.add(homeDestination)
+        }
         settingsViewModel.resetUnlockState()
         if (clearSelection) currentSelectionType = null
     }
 
     fun navigateTo(dest: LauncherDestination, clearSelection: Boolean = true) {
         popToHome(clearSelection)
-        if (dest != LauncherDestination.Home) backStack.add(dest)
+        if (dest != homeDestination) backStack.add(dest)
     }
 
     fun pushOnTop(dest: LauncherDestination) {
@@ -112,7 +122,9 @@ fun CLauncherNavigation(
                 navigateTo(LauncherDestination.WidgetPicker)
             }
 
-            UiEvent.NavigateBack -> popToHome()
+            UiEvent.NavigateBack -> {
+                popToHome()
+            }
 
             is UiEvent.NavigateToAppSelection -> {
                 currentSelectionType = event.selectionType
@@ -233,7 +245,7 @@ fun CLauncherNavigation(
                         AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                         null -> ""
                     },
-                    onSwipeDown = { popToHome() },
+                    onSwipeDown = { navigateTo(LauncherDestination.Home) },
                     onAppClick = { app ->
                         if (currentSelectionType != null) {
                             when (currentSelectionType) {
@@ -312,6 +324,16 @@ fun CLauncherNavigation(
                 entryProvider = provider
             )
         }
+    }
+
+    LaunchedEffect(homeDestination) {
+        val hasActiveFlow = backStack.size > 1
+        if (!didSyncHome) {
+            popToHome()
+        } else if (!hasActiveFlow && backStack.lastOrNull() != homeDestination) {
+            popToHome()
+        }
+        didSyncHome = true
     }
 }
 

@@ -84,6 +84,16 @@ data class AppSettings(
     val returnToHomeAfterApp: Boolean = false,
 
     @Setting(
+        title = "Default Screen",
+        description = "Choose which screen to show when opening the launcher",
+        category = General::class,
+        type = Dropdown::class,
+        options = ["Home", "App Drawer"],
+        key = "DEFAULT_SCREEN",
+    )
+    val defaultScreen: Int = 0,
+
+    @Setting(
         title = "Search Sort Order",
         category = General::class,
         type = Dropdown::class,

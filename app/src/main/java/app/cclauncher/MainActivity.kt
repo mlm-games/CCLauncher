@@ -243,7 +243,14 @@ class MainActivity : ComponentActivity() {
             intent.hasCategory(Intent.CATEGORY_HOME)
         ) {
             lifecycleScope.launch {
-                viewModel.emitEvent(UiEvent.NavigateBack)
+                val settings = settingsRepository.settings.first()
+                viewModel.emitEvent(
+                    if (settings.defaultScreen == 1) {
+                        UiEvent.NavigateToAppDrawer
+                    } else {
+                        UiEvent.NavigateBack
+                    }
+                )
             }
         }
     }

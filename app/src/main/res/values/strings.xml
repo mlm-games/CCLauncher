@@ -164,4 +164,5 @@
     <string name="private_space_toggle">Toggle Private Space</string>
     <string name="private_space_unsupported">Private Space requires Android 15 or higher</string>
     <string name="private_space_description">Private Space allows you to hide apps and data from your main profile. Apps in Private Space are only accessible when it\'s unlocked.</string>
+    <string name="settings">Settings</string>
 </resources>

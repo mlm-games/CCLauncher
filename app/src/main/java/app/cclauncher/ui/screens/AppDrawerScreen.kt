@@ -310,7 +310,7 @@ fun AppDrawerScreen(
             hasAutoSelected = false
         }
 
-        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, selectionMode) {
+        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery) {
             if (
                 searchQuery.isNotEmpty() &&
                 appsToShow.size == 1 &&
@@ -558,3 +558,5 @@ fun AppDrawerSearch(
         )
     )
 }
+
+
