@@ -1,3 +1,13 @@
+## vv10.6.2
+
+- Add an option to set app drawer as the home screen (#198)
+- bump jvm version to 21
+- Bump navigation3Runtime from 1.0.0 to 1.0.1
+- Bump androidx.activity:activity-compose from 1.12.3 to 1.12.4
+- Bump androidx.compose.foundation:foundation from 1.10.2 to 1.10.3
+- Bump androidx.compose:compose-bom from 2026.01.01 to 2026.02.00
+
+
 ## vv10.6.1
 
 - Unify appkeys everywhere (fix #191)
