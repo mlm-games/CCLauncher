@@ -22,7 +22,7 @@ datastorePreferencesCore = "1.2.0"
 composeBom = "2026.02.00"
 apkDist = "0.5.2"
 kmpSettingsCore = "0.5.0"
-ksp = "2.3.5"
+ksp = "2.3.6"
 
 koinBom = "4.1.1"
 navigation3Runtime = "1.0.1"
