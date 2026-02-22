@@ -49,7 +49,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     val settingsRepository: AppSettingsRepository by inject()
     private val appRepository: AppRepository by inject()
 
-    private val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CODE_BIND_WIDGET
+    private val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
     private var pendingWidgetInfo: PendingWidgetInfo? = null
 
     private val _refreshTrigger = MutableStateFlow(0)
@@ -453,7 +453,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     suspend fun launchAppInternal(app: AppModel) {
         if (app.isSystemShortcut) {
             try {
-                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as android.content.pm.LauncherApps
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
                 if (app.systemShortcutId != null && app.systemShortcutPackage != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                         launcherApps.startShortcut(
@@ -571,16 +571,18 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 if (bindSuccess) {
                     if (providerInfo.configure != null) {
                         pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
-                        emitEvent(UiEvent.ConfigureWidget(appWidgetId, providerInfo))
+                        emitEvent(UiEvent.ConfigureWidget(appWidgetId))
+                    } else {
+                        // No configuration needed — add immediately
+                        addWidgetToLayout(appWidgetId, providerInfo)
                     }
-                    addWidgetToLayout(appWidgetId, providerInfo)
                 } else {
                     pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
                     val bindIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, componentName)
                     }
-                    emitEvent(UiEvent.StartActivityForResult(bindIntent, WidgetConstants.REQUEST_CODE_BIND_WIDGET))
+                    emitEvent(UiEvent.LaunchWidgetBindIntent(bindIntent))
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error in startWidgetConfiguration", e)
@@ -786,16 +788,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         viewModelScope.launch {
             val providerInfo = getAppWidgetInfo(widgetItem.packageName, widgetItem.providerClassName)
             if (providerInfo?.configure != null) {
-                try {
-                    val configIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-                        component = providerInfo.configure
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetItem.appWidgetId)
-                    }
-                    emitEvent(UiEvent.StartActivityForResult(configIntent, REQUEST_CODE_CONFIGURE_WIDGET))
-                } catch (e: Exception) {
-                    Log.e("ViewModelWidget", "Error requesting reconfigure for ${widgetItem.appWidgetId}", e)
-                    snackbarManager.show("Failed to reconfigure widget.")
-                }
+                emitEvent(UiEvent.ConfigureWidget(widgetItem.appWidgetId))
             } else {
                 snackbarManager.show("This widget cannot be reconfigured.")
             }
@@ -1258,7 +1251,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val itemsToRelocate = currentLayout.items.filter { it.page >= clampedCount }
 
                 if (itemsToRelocate.isNotEmpty()) {
-                    var workingLayout = currentLayout.copy(pageCount = clampedCount)
+                    val workingLayout = currentLayout.copy(pageCount = clampedCount)
                     val relocatedItems = mutableListOf<HomeItem>()
                     val removedWidgetIds = mutableListOf<Int>()
 

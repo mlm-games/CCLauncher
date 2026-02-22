@@ -61,22 +61,34 @@ class MainActivity : ComponentActivity() {
     val widgetRequestLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
+        Log.d("MainActivity", "Widget bind result: ${result.resultCode}")
         if (result.resultCode == RESULT_OK) {
             val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
+            Log.d("MainActivity", "Widget ID from bind result: $appWidgetId")
             if (appWidgetId != -1) {
                 if (widgetHelper.needsConfiguration(appWidgetId)) {
-                    Log.d("MainActivity", "Widget needs configuration after binding")
-                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-                    if (configIntent != null) {
-                        configureWidgetLauncher.launch(configIntent)
+                    Log.d("MainActivity", "Widget needs configuration — launching via AppWidgetHost")
+                    val success = widgetHelper.startWidgetConfiguration(
+                        this,
+                        appWidgetId,
+                        REQUEST_CONFIGURE_WIDGET
+                    )
+                    if (!success) {
+                        Log.e("MainActivity", "Failed to start widget configuration for ID $appWidgetId")
+                        viewModel.handleActivityResult(REQUEST_CONFIGURE_WIDGET, RESULT_OK, Intent().apply {
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        })
                     }
+                } else {
+                    viewModel.handleActivityResult(REQUEST_CONFIGURE_WIDGET, RESULT_OK, Intent().apply {
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    })
                 }
             }
         }
     }
 
+    /* To use when the AppWidgetHost API is migrated */
     private val configureWidgetLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -88,6 +100,21 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    /**
+     * Handle results from AppWidgetHost.startAppWidgetConfigureActivityForResult().
+     *
+     * The AppWidgetHost API uses the legacy startActivityForResult() internally,
+     * so results arrive here — NOT through ActivityResultContracts launchers.
+     */
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CONFIGURE_WIDGET) {
+            Log.d("MainActivity", "Widget configure result: resultCode=$resultCode")
+            viewModel.handleActivityResult(requestCode, resultCode, data)
+        }
+    }
 
 
     @SuppressLint("SourceLockedOrientationActivity")

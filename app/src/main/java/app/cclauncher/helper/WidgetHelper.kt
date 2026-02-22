@@ -4,9 +4,7 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
 
@@ -18,50 +16,73 @@ class WidgetHelper(private val context: Context, private val appWidgetManager: A
         private const val TAG = "WidgetHelper"
     }
 
-
     /**
-     * Check if a widget requires configuration
+     * Check if a widget has a configuration activity declared.
      */
-    fun needsConfiguration(widgetId: Int): Boolean {
+    fun hasConfigurationActivity(widgetId: Int): Boolean {
         return try {
             val providerInfo = appWidgetManager.getAppWidgetInfo(widgetId)
-            val needsConfig = providerInfo?.configure != null
-            Log.d(TAG, "Widget ID: $widgetId needs configuration: $needsConfig")
-            needsConfig
+            providerInfo?.configure != null
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking if widget needs configuration: ${e.message}")
+            Log.e(TAG, "Error checking widget configuration: ${e.message}")
             false
         }
     }
 
     /**
-     * Create configuration intent for a widget
+     * Check if a widget requires initial configuration.
      */
-    fun createConfigurationIntent(widgetId: Int): Intent? {
-        return try {
-            val providerInfo = appWidgetManager.getAppWidgetInfo(widgetId) ?: return null
-            if (providerInfo.configure == null) return null
+    fun needsConfiguration(widgetId: Int): Boolean {
+        return hasConfigurationActivity(widgetId)
+    }
 
-            Log.d(TAG, "Creating configuration intent for widget ID: $widgetId")
-            Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE).apply {
-                component = providerInfo.configure
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                        Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                // Add this flag to allow background activity starts for Android 14+
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    addFlags(Intent.FLAG_ACTIVITY_MATCH_EXTERNAL)
-                }
-            }
+    /**
+     * Check if a widget supports reconfiguration (Android 9+).
+     * Widgets must declare WIDGET_FEATURE_RECONFIGURABLE for this.
+     */
+    fun isReconfigurable(widgetId: Int): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return false
+        return try {
+            val providerInfo = appWidgetManager.getAppWidgetInfo(widgetId) ?: return false
+            providerInfo.configure != null &&
+                    (providerInfo.widgetFeatures and
+                            android.appwidget.AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE) != 0
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating configuration intent: ${e.message}")
+            Log.e(TAG, "Error checking reconfigurable: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Build the ActivityOptions bundle needed for Android 14+ to allow
+     * background activity starts from the widget host.
+     */
+    private fun buildConfigureOptions(): android.os.Bundle? {
+        return if (Build.VERSION.SDK_INT >= 34) {
+            try {
+                ActivityOptions.makeBasic()
+                    .setPendingIntentBackgroundActivityStartMode(
+                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                    )
+                    .toBundle()
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to create ActivityOptions for API 34+", e)
+                null
+            }
+        } else {
             null
         }
     }
 
     /**
-     * Starts the configuration activity for an existing widget
+     * Starts the configuration activity for a widget using the CORRECT system-mediated approach.
+     *
+     * DO NOT use direct Intent + startActivityForResult — that will fail with
+     * SecurityException for any widget whose configure activity is not exported.
+     *
+     * @param activity The hosting Activity (needed for startActivityForResult)
+     * @param widgetId The app widget ID to configure
+     * @param requestCode The request code for onActivityResult
      * @return true if the configuration activity was started successfully
      */
     fun startWidgetConfiguration(
@@ -70,36 +91,36 @@ class WidgetHelper(private val context: Context, private val appWidgetManager: A
         requestCode: Int
     ): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val widgetInfo = appWidgetManager.getAppWidgetInfo(widgetId)
-                if (widgetInfo?.widgetFeatures?.and(AppWidgetProviderInfo.WIDGET_FEATURE_RECONFIGURABLE) != 0) {
-                    appWidgetHost.startAppWidgetConfigureActivityForResult(
-                        activity,
-                        widgetId,
-                        0, // Unused in current implementations
-                        requestCode,
-                        if (Build.VERSION.SDK_INT >= 34) {
-                            ActivityOptions.makeBasic()
-                                .setPendingIntentBackgroundActivityStartMode(
-                                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-                                )
-                                .toBundle()
-                        } else {
-                            null
-                        }
-                    )
-                    true
-                } else {
-                    false
-                }
-            } else {
-                false
+            val providerInfo = appWidgetManager.getAppWidgetInfo(widgetId)
+            if (providerInfo?.configure == null) {
+                Log.w(TAG, "Widget $widgetId has no configure activity")
+                return false
             }
+
+            Log.d(TAG, "Starting widget configure via AppWidgetHost for widget $widgetId " +
+                    "(configure=${providerInfo.configure.flattenToShortString()})")
+
+            appWidgetHost.startAppWidgetConfigureActivityForResult(
+                activity,
+                widgetId,
+                0,              // intentFlags (unused in current AOSP implementation)
+                requestCode,
+                buildConfigureOptions()  // ActivityOptions bundle for API 34+
+            )
+
+            Log.d(TAG, "Successfully launched configure activity for widget $widgetId")
+            true
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.e(TAG, "Configure activity not found for widget $widgetId", e)
+            false
+        } catch (e: SecurityException) {
+            // This should NOT happen with AppWidgetHost, but handle gracefully
+            Log.e(TAG, "SecurityException starting widget configuration — this is unexpected " +
+                    "when using AppWidgetHost", e)
+            false
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to start widget configuration", e)
+            Log.e(TAG, "Failed to start widget configuration for widget $widgetId", e)
             false
         }
     }
-
-
 }

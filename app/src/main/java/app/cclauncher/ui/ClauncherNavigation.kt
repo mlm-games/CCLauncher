@@ -170,23 +170,10 @@ fun CLauncherNavigation(
                     }
                 } catch (e: SecurityException) {
                     Log.e("Navigation", "Security exception starting activity", e)
-                    try {
-                        event.intent.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                        )
-                        context.startActivity(event.intent)
-                    } catch (e2: Exception) {
-                        Log.e("Navigation", "Fallback failed too", e2)
-                        context.showToast(
-                            "Failed to configure widget. Please check app permissions.",
-                            Toast.LENGTH_LONG
-                        )
-                    }
+                    snackbarManager.show("Failed to start activity. Please check app permissions.")
                 } catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
-                    snackbarManager.show("Failed to start widget configuration: ${e.localizedMessage}")
+                    snackbarManager.show("Failed to start activity: ${e.localizedMessage}")
                 }
             }
 
