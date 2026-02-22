@@ -1,3 +1,9 @@
+## vv10.6.3
+
+- Use the older widget intent handling (fix #200)
+- Bump com.google.devtools.ksp from 2.3.5 to 2.3.6
+
+
 ## vv10.6.2
 
 - Add an option to set app drawer as the home screen (#198)
