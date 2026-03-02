@@ -287,17 +287,21 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
                     ) {
                         val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-                        val query = LauncherApps.ShortcutQuery()
-                            .setPackage(item.appModel.systemShortcutPackage)
-                            .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
-                        val shortcut = launcherApps.getShortcuts(query, resolvedUser)
-                            .orEmpty()
-                            .firstOrNull { it.id == item.appModel.systemShortcutId }
+                        if (!launcherApps.hasShortcutHostPermission()) {
+                            null
+                        } else {
+                            val query = LauncherApps.ShortcutQuery()
+                                .setPackage(item.appModel.systemShortcutPackage)
+                                .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                            val shortcut = launcherApps.getShortcuts(query, resolvedUser)
+                                .orEmpty()
+                                .firstOrNull { it.id == item.appModel.systemShortcutId }
 
-                        val iconDrawable = shortcut?.let {
-                            launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                            val iconDrawable = shortcut?.let {
+                                launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                            }
+                            BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
                         }
-                        BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
                     } else {
                         iconCache.getIcon(
                             packageName = item.appModel.appPackage,
@@ -331,17 +335,21 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
                         ) {
                             val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-                            val query = LauncherApps.ShortcutQuery()
-                                .setPackage(item.appModel.systemShortcutPackage)
-                                .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
-                            val shortcut = launcherApps.getShortcuts(query, item.appModel.user)
-                                .orEmpty()
-                                .firstOrNull { it.id == item.appModel.systemShortcutId }
+                            if (!launcherApps.hasShortcutHostPermission()) {
+                                null
+                            } else {
+                                val query = LauncherApps.ShortcutQuery()
+                                    .setPackage(item.appModel.systemShortcutPackage)
+                                    .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                                val shortcut = launcherApps.getShortcuts(query, item.appModel.user)
+                                    .orEmpty()
+                                    .firstOrNull { it.id == item.appModel.systemShortcutId }
 
-                            val iconDrawable = shortcut?.let {
-                                launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                                val iconDrawable = shortcut?.let {
+                                    launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                                }
+                                BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
                             }
-                            BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
                         } else {
                             iconCache.getIcon(
                                 packageName = item.appModel.appPackage,
