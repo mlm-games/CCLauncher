@@ -1,3 +1,9 @@
+## vv10.7.3
+
+- Fix error for setting a shortcut as a swipe app
+- Renaming support for shortcuts
+
+
 ## vv10.7.2
 
 - Display pinned app shortcuts (works if default)

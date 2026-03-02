@@ -1,0 +1,2 @@
+- Fix error for setting a shortcut as a swipe app
+- Renaming support for shortcuts
