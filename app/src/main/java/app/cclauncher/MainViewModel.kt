@@ -15,12 +15,14 @@ import android.os.Handler
 import android.os.Looper
 import android.os.UserHandle
 import android.util.Log
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.cclauncher.data.*
 import app.cclauncher.data.Constants.MAX_PAGES
 import app.cclauncher.data.repository.AppRepository
+import app.cclauncher.helper.BitmapUtils
 import app.cclauncher.settings.AppSettingsRepository
 import app.cclauncher.settings.AppPreference
 import app.cclauncher.settings.AppSettings
@@ -186,6 +188,16 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 }
         }
 
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { it.showPinnedShortcuts }
+                .distinctUntilChanged()
+                .drop(1) // Skip initial value
+                .collect { _ ->
+                    appRepository.loadApps()
+                }
+        }
+
         // Rebuild alias index whenever app list or relevant settings change
         viewModelScope.launch {
             combine(
@@ -269,12 +281,31 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             when (item) {
                 is HomeItem.App -> {
                     val resolvedUser = getUserHandleFromString(appContext, item.appModel.userString)
-                    val icon = iconCache.getIcon(
-                        packageName = item.appModel.appPackage,
-                        className = item.appModel.activityClassName,
-                        user = resolvedUser,
-                        iconPackName = settings.selectedIconPack,
-                    )
+                    val icon = if (item.appModel.isSystemShortcut &&
+                        item.appModel.systemShortcutId != null &&
+                        item.appModel.systemShortcutPackage != null &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
+                    ) {
+                        val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                        val query = LauncherApps.ShortcutQuery()
+                            .setPackage(item.appModel.systemShortcutPackage)
+                            .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                        val shortcut = launcherApps.getShortcuts(query, resolvedUser)
+                            .orEmpty()
+                            .firstOrNull { it.id == item.appModel.systemShortcutId }
+
+                        val iconDrawable = shortcut?.let {
+                            launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                        }
+                        BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
+                    } else {
+                        iconCache.getIcon(
+                            packageName = item.appModel.appPackage,
+                            className = item.appModel.activityClassName,
+                            user = resolvedUser,
+                            iconPackName = settings.selectedIconPack,
+                        )
+                    }
                     val updatedAppModel = item.appModel.copy(appIcon = icon)
                     item.copy(appModel = updatedAppModel)
                 }
@@ -294,12 +325,31 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             when (item) {
                 is HomeItem.App -> {
                     val updatedIcon = if (settings.showHomeScreenIcons) {
-                        iconCache.getIcon(
-                            packageName = item.appModel.appPackage,
-                            className = item.appModel.activityClassName,
-                            user = item.appModel.user,
-                            iconPackName = settings.selectedIconPack,
-                        )
+                        if (item.appModel.isSystemShortcut &&
+                            item.appModel.systemShortcutId != null &&
+                            item.appModel.systemShortcutPackage != null &&
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
+                        ) {
+                            val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                            val query = LauncherApps.ShortcutQuery()
+                                .setPackage(item.appModel.systemShortcutPackage)
+                                .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                            val shortcut = launcherApps.getShortcuts(query, item.appModel.user)
+                                .orEmpty()
+                                .firstOrNull { it.id == item.appModel.systemShortcutId }
+
+                            val iconDrawable = shortcut?.let {
+                                launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
+                            }
+                            BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
+                        } else {
+                            iconCache.getIcon(
+                                packageName = item.appModel.appPackage,
+                                className = item.appModel.activityClassName,
+                                user = item.appModel.user,
+                                iconPackName = settings.selectedIconPack,
+                            )
+                        }
                     } else {
                         null
                     }
@@ -1082,6 +1132,82 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 launchAppInternal(app)
             } catch (e: Exception) {
                 snackbarManager.show("Failed to launch app: ${e.message}")
+            }
+        }
+    }
+
+    fun getAppShortcuts(app: AppModel, onResult: (List<AppShortcut>) -> Unit) {
+        viewModelScope.launch {
+            val shortcuts = appRepository.getAppShortcuts(app)
+            onResult(shortcuts)
+        }
+    }
+
+    fun launchShortcut(app: AppModel, shortcutId: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            snackbarManager.show("Shortcuts require Android 7.1 or higher")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                launcherApps.startShortcut(
+                    app.appPackage,
+                    shortcutId,
+                    null,
+                    null,
+                    app.user
+                )
+                settingsRepository.updateAppLaunchTime(app.getKey())
+            } catch (e: Exception) {
+                snackbarManager.show("Failed to open shortcut: ${e.message}")
+            }
+        }
+    }
+
+    fun pinShortcutToLauncher(app: AppModel, shortcutId: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            snackbarManager.show("Shortcuts require Android 7.1 or higher")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+                if (!launcherApps.hasShortcutHostPermission()) {
+                    snackbarManager.show("Set CCLauncher as the default launcher to pin shortcuts")
+                    return@launch
+                }
+
+                val query = LauncherApps.ShortcutQuery()
+                    .setPackage(app.appPackage)
+                    .setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                    )
+                val shortcuts = launcherApps.getShortcuts(query, app.user).orEmpty()
+                val shortcut = shortcuts.firstOrNull { it.id == shortcutId }
+                if (shortcut == null) {
+                    snackbarManager.show("Shortcut not available")
+                    return@launch
+                }
+
+                val pinnedQuery = LauncherApps.ShortcutQuery()
+                    .setPackage(app.appPackage)
+                    .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                val pinnedIds = launcherApps.getShortcuts(pinnedQuery, app.user)
+                    .orEmpty()
+                    .mapNotNull { it.id }
+                    .toMutableSet()
+                pinnedIds.add(shortcutId)
+
+                launcherApps.pinShortcuts(app.appPackage, pinnedIds.toList(), app.user)
+                appRepository.loadApps()
+                snackbarManager.show("Shortcut added")
+            } catch (e: Exception) {
+                snackbarManager.show("Failed to add shortcut: ${e.message}")
             }
         }
     }

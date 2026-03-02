@@ -38,6 +38,15 @@ data class AppSettings(
     )
     val showAppNamesInSearchAfter: Int = 0,
 
+    @Setting(
+        title = "Show Pinned Shortcuts",
+        description = "Display pinned app shortcuts in the app drawer.",
+        category = General::class,
+        type = Toggle::class,
+        key = "SHOW_PINNED_SHORTCUTS",
+    )
+    val showPinnedShortcuts: Boolean = true,
+
     @Persisted(key = "SHOW_APP_ICONS")
     val showAppIcons: Boolean = true,
 

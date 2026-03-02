@@ -6,6 +6,7 @@ import android.content.pm.LauncherApps
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.graphics.asImageBitmap
+import app.cclauncher.data.AppShortcut
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.AppKey
 import app.cclauncher.settings.AppKeyMigration
@@ -69,7 +70,11 @@ class AppRepository(
                 val visibleMobileApps = allMobileApps.filter { !it.isHidden }
                 val hiddenMobileApps = allMobileApps.filter { it.isHidden }
                 
-                val systemShortcuts = loadSystemShortcuts()
+                val systemShortcuts = if (settings.showPinnedShortcuts) {
+                    loadSystemShortcuts()
+                } else {
+                    emptyList()
+                }
 
                 val combinedVisible = visibleMobileApps + systemShortcuts
                 val combinedAll = allMobileApps + systemShortcuts
@@ -165,6 +170,49 @@ class AppRepository(
             }
         }
         return list
+    }
+
+    suspend fun getAppShortcuts(app: AppModel): List<AppShortcut> {
+        return withContext(Dispatchers.IO) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return@withContext emptyList()
+            if (app.isSystemShortcut) return@withContext emptyList()
+            if (!launcherApps.hasShortcutHostPermission()) return@withContext emptyList()
+
+            try {
+                val query = LauncherApps.ShortcutQuery()
+                    .setPackage(app.appPackage)
+                    .setQueryFlags(
+                        LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                    )
+
+                val shortcuts = launcherApps.getShortcuts(query, app.user).orEmpty()
+
+                shortcuts.map { shortcut ->
+                    val label = shortcut.shortLabel?.toString()
+                        ?: shortcut.longLabel?.toString()
+                        ?: shortcut.id
+
+                    val iconDrawable = launcherApps.getShortcutIconDrawable(
+                        shortcut,
+                        context.resources.displayMetrics.densityDpi
+                    )
+                    val iconBitmap = BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
+
+                    AppShortcut(
+                        id = shortcut.id,
+                        packageName = shortcut.`package`,
+                        label = label,
+                        user = app.user,
+                        icon = iconBitmap
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("AppRepository", "Error loading shortcuts for ${app.appPackage}", e)
+                emptyList()
+            }
+        }
     }
 
     fun getDefaultAppLabel(app: AppModel): String? {

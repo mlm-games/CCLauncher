@@ -3,9 +3,11 @@ package app.cclauncher.ui.screens
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,11 +33,13 @@ import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,6 +74,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import app.cclauncher.MainViewModel
+import app.cclauncher.data.AppShortcut
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.helper.openSearch
@@ -106,9 +112,13 @@ fun AppDrawerScreen(
 
     var isSearchFocused by remember { mutableStateOf(false) }
     var hasAutoSelected by remember { mutableStateOf(false) }
+    var shortcutsDialogApp by remember { mutableStateOf<AppModel?>(null) }
+    var appShortcuts by remember { mutableStateOf<List<AppShortcut>>(emptyList()) }
+    var shortcutsLoading by remember { mutableStateOf(false) }
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val supportsShortcuts = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
 
     val shouldShowIcons = if (settings.showAppIcons) {
         if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
@@ -405,7 +415,7 @@ fun AppDrawerScreen(
     }
 
     if (showContextMenu && selectedApp != null) {
-        val app = selectedApp!!
+        val app = selectedApp ?: return
         val isSystemShortcut = app.isSystemShortcut
         val hiddenApps by viewModel.hiddenApps.collectAsState()
         val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
@@ -427,6 +437,13 @@ fun AppDrawerScreen(
                         }
                         ContextMenuItem("Add to Home Screen", Icons.Default.Add) {
                             viewModel.addAppToHomeScreen(app)
+                            dismissMenu()
+                        }
+                        ContextMenuItem("App Info", Icons.Default.Info) {
+                            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", app.appPackage, null)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            })
                             dismissMenu()
                         }
                         ContextMenuItem("Delete", Icons.Default.Delete) {
@@ -455,6 +472,20 @@ fun AppDrawerScreen(
                         ContextMenuItem("Add to Home Screen", Icons.Default.Add) {
                             viewModel.addAppToHomeScreen(app)
                             dismissMenu()
+                        }
+                        if (supportsShortcuts && !selectionMode) {
+                            ContextMenuItem("Shortcuts", Icons.Default.SubdirectoryArrowRight) {
+                                shortcutsDialogApp = app
+                                shortcutsLoading = true
+                                appShortcuts = emptyList()
+                                viewModel.getAppShortcuts(app) { shortcuts ->
+                                    if (shortcutsDialogApp?.getKey() == app.getKey()) {
+                                        appShortcuts = shortcuts
+                                        shortcutsLoading = false
+                                    }
+                                }
+                                dismissMenu()
+                            }
                         }
                         if (viewModel.isPrivateSpaceSupported &&
                             viewModel.privateSpaceState.collectAsState().value == MainViewModel.PrivateSpaceState.Unlocked) {
@@ -503,6 +534,69 @@ fun AppDrawerScreen(
                 }
             )
         }
+
+    }
+
+    if (supportsShortcuts && shortcutsDialogApp != null) {
+        val app = shortcutsDialogApp ?: return
+        AlertDialog(
+            onDismissRequest = { shortcutsDialogApp = null },
+            title = { Text("${app.appLabel} Shortcuts") },
+            text = {
+                Column {
+                    when {
+                        shortcutsLoading -> {
+                            Text("Loading shortcuts...")
+                        }
+                        appShortcuts.isEmpty() -> {
+                            Text("No shortcuts available")
+                        }
+                        else -> {
+                            appShortcuts.forEach { shortcut ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.launchShortcut(app, shortcut.id)
+                                            shortcutsDialogApp = null
+                                        }
+                                        .padding(vertical = 8.dp, horizontal = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (shortcut.icon != null) {
+                                        Image(
+                                            bitmap = shortcut.icon,
+                                            contentDescription = shortcut.label,
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .padding(end = 0.dp),
+                                        )
+                                    }
+                                    Text(
+                                        text = shortcut.label,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.pinShortcutToLauncher(app, shortcut.id)
+                                            shortcutsDialogApp = null
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.Add, "Add")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { shortcutsDialogApp = null }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
 
@@ -558,5 +652,3 @@ fun AppDrawerSearch(
         )
     )
 }
-
-
