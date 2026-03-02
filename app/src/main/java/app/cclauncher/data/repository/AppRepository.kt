@@ -306,9 +306,32 @@ class AppRepository(
     suspend fun launchApp(appModel: AppModel) {
         withContext(Dispatchers.Main) {
             try {
+                if (appModel.isSystemShortcut) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+                        throw AppLaunchException("Shortcuts require Android 7.1 or higher")
+                    }
+                    if (!launcherApps.hasShortcutHostPermission()) {
+                        throw AppLaunchException("Set CCLauncher as the default launcher to open shortcuts")
+                    }
+
+                    val shortcutId = appModel.systemShortcutId
+                    val shortcutPackage = appModel.systemShortcutPackage
+                    if (shortcutId.isNullOrBlank() || shortcutPackage.isNullOrBlank()) {
+                        throw AppLaunchException("Shortcut not available")
+                    }
+
+                    launcherApps.startShortcut(shortcutPackage, shortcutId, null, null, appModel.user)
+                    return@withContext
+                }
+
+                val activityClassName = appModel.activityClassName
+                if (activityClassName.isNullOrBlank()) {
+                    throw AppLaunchException("App component not found for ${appModel.appLabel}")
+                }
+
                 val component = ComponentName(
                     appModel.appPackage,
-                    appModel.activityClassName ?: ""
+                    activityClassName
                 )
                 launcherApps.startMainActivity(component, appModel.user, null, null)
             } catch (e: SecurityException) {

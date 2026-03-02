@@ -524,7 +524,10 @@ data class AppPreference(
     val label: String = "",
     val packageName: String = "",
     val activityClassName: String? = null,
-    val userString: String = ""
+    val userString: String = "",
+    val isSystemShortcut: Boolean = false,
+    val systemShortcutId: String? = null,
+    val systemShortcutPackage: String? = null
 )
 
 data class AppKeyMigration(

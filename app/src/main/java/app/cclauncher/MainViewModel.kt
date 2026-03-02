@@ -1254,7 +1254,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
-                userString = app.user.toString()
+                userString = app.user.toString(),
+                isSystemShortcut = app.isSystemShortcut,
+                systemShortcutId = app.systemShortcutId,
+                systemShortcutPackage = app.systemShortcutPackage
             )
             settingsRepository.setSwipeLeftApp(appPreference)
         }
@@ -1266,7 +1269,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 label = app.appLabel,
                 packageName = app.appPackage,
                 activityClassName = app.activityClassName,
-                userString = app.user.toString()
+                userString = app.user.toString(),
+                isSystemShortcut = app.isSystemShortcut,
+                systemShortcutId = app.systemShortcutId,
+                systemShortcutPackage = app.systemShortcutPackage
             )
             settingsRepository.setSwipeRightApp(appPreference)
         }
@@ -1281,7 +1287,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     key = null,
                     appPackage = swipeUpApp.packageName,
                     activityClassName = swipeUpApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeUpApp.userString)
+                    user = getUserHandleFromString(appContext, swipeUpApp.userString),
+                    isSystemShortcut = swipeUpApp.isSystemShortcut,
+                    systemShortcutId = swipeUpApp.systemShortcutId,
+                    systemShortcutPackage = swipeUpApp.systemShortcutPackage
                 )
                 launchApp(app)
             }
@@ -1297,7 +1306,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     key = null,
                     appPackage = swipeDownApp.packageName,
                     activityClassName = swipeDownApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeDownApp.userString)
+                    user = getUserHandleFromString(appContext, swipeDownApp.userString),
+                    isSystemShortcut = swipeDownApp.isSystemShortcut,
+                    systemShortcutId = swipeDownApp.systemShortcutId,
+                    systemShortcutPackage = swipeDownApp.systemShortcutPackage
                 )
                 launchApp(app)
             }
@@ -1313,7 +1325,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     key = null,
                     appPackage = swipeLeftApp.packageName,
                     activityClassName = swipeLeftApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeLeftApp.userString)
+                    user = getUserHandleFromString(appContext, swipeLeftApp.userString),
+                    isSystemShortcut = swipeLeftApp.isSystemShortcut,
+                    systemShortcutId = swipeLeftApp.systemShortcutId,
+                    systemShortcutPackage = swipeLeftApp.systemShortcutPackage
                 )
                 launchApp(app)
             }
@@ -1329,7 +1344,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     key = null,
                     appPackage = swipeRightApp.packageName,
                     activityClassName = swipeRightApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeRightApp.userString)
+                    user = getUserHandleFromString(appContext, swipeRightApp.userString),
+                    isSystemShortcut = swipeRightApp.isSystemShortcut,
+                    systemShortcutId = swipeRightApp.systemShortcutId,
+                    systemShortcutPackage = swipeRightApp.systemShortcutPackage
                 )
                 launchApp(app)
             }
@@ -1343,7 +1361,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     label = app.appLabel,
                     packageName = app.appPackage,
                     activityClassName = app.activityClassName,
-                    userString = app.user.toString()
+                    userString = app.user.toString(),
+                    isSystemShortcut = app.isSystemShortcut,
+                    systemShortcutId = app.systemShortcutId,
+                    systemShortcutPackage = app.systemShortcutPackage
                 )
             )
         }
@@ -1356,7 +1377,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     label = app.appLabel,
                     packageName = app.appPackage,
                     activityClassName = app.activityClassName,
-                    userString = app.user.toString()
+                    userString = app.user.toString(),
+                    isSystemShortcut = app.isSystemShortcut,
+                    systemShortcutId = app.systemShortcutId,
+                    systemShortcutPackage = app.systemShortcutPackage
                 )
             )
         }
