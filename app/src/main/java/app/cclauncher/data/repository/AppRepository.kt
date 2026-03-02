@@ -71,7 +71,7 @@ class AppRepository(
                 val hiddenMobileApps = allMobileApps.filter { it.isHidden }
                 
                 val systemShortcuts = if (settings.showPinnedShortcuts) {
-                    loadSystemShortcuts()
+                    loadSystemShortcuts(settings.renamedApps)
                 } else {
                     emptyList()
                 }
@@ -125,7 +125,7 @@ class AppRepository(
         }
     }
 
-    private fun loadSystemShortcuts(): List<AppModel> {
+    private fun loadSystemShortcuts(renamedApps: Map<String, String>): List<AppModel> {
         val list = mutableListOf<AppModel>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             try {
@@ -145,12 +145,19 @@ class AppRepository(
                         val shortcuts = launcherApps.getShortcuts(query, user) ?: emptyList()
 
                         for (shortcut in shortcuts) {
+                            val userString = user.toString()
+                            val appKey = AppKey.shortcutKey(shortcut.`package`, shortcut.id, userString)
+                            val legacyKey = AppKey.legacyShortcutKey(shortcut.`package`, shortcut.id, user.hashCode())
+                            val label = shortcut.shortLabel?.toString() ?: shortcut.id
+                            val shownLabel = listOf(appKey, legacyKey)
+                                .firstNotNullOfOrNull { renamedApps[it] }
+                                ?: label
                             val iconDrawable = launcherApps.getShortcutIconDrawable(shortcut, context.resources.displayMetrics.densityDpi)
                             val iconBitmap = BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
 
                             list.add(
                                 AppModel(
-                                    appLabel = shortcut.shortLabel?.toString() ?: shortcut.id,
+                                    appLabel = shownLabel,
                                     appPackage = shortcut.`package`,
                                     activityClassName = null,
                                     user = user,

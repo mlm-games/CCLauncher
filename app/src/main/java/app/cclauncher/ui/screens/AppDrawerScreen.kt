@@ -435,6 +435,9 @@ fun AppDrawerScreen(
                             handleAppClick(app)
                             dismissMenu()
                         }
+                        ContextMenuItem("Rename", Icons.Default.DriveFileRenameOutline) {
+                            renameDialogVisible = true
+                        }
                         ContextMenuItem("Add to Home Screen", Icons.Default.Add) {
                             viewModel.addAppToHomeScreen(app)
                             dismissMenu()
