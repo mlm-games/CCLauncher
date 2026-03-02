@@ -1,3 +1,11 @@
+## vv10.7.1
+
+- Display pinned app shortcuts (works if default)
+- Bump kmpSettingsCore from 0.5.3 to 0.6.1
+- Bump androidx.compose.foundation:foundation from 1.10.3 to 1.10.4
+- Bump kmpSettingsCore from 0.5.0 to 0.5.3
+
+
 ## vv10.6.4
 
 - Bump kmpSettingsCore from 0.5.3 to 0.6.1
