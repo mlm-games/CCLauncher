@@ -571,6 +571,7 @@ fun AppDrawerScreen(
                                                 .size(32.dp)
                                                 .padding(end = 0.dp),
                                         )
+                                        Spacer(modifier = Modifier.width(12.dp))
                                     }
                                     Text(
                                         text = shortcut.label,
