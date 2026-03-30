@@ -59,8 +59,8 @@ kmp-settings-ui-compose = { module = "io.github.mlm-games:kmp-settings-ui-compos
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
-koin-annotations = { module = "io.insert-koin:koin-annotations" }
-koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinBom" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinBom" }
 
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3Runtime" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3Runtime" }
