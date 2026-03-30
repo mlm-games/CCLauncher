@@ -18,6 +18,8 @@ import app.cclauncher.data.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,6 +32,8 @@ class AppRepository(
     coroutineScope: CoroutineScope
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+
+    private val loadMutex = Mutex()
 
     private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
     val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
@@ -50,8 +54,7 @@ class AppRepository(
                 .drop(1) // Skip initial value
                 .collect {
                     // Reload apps to get new icons
-                    loadApps()
-                    loadHiddenApps()
+                    loadApps(forceEmit = true)
                 }
         }
     }
@@ -59,7 +62,7 @@ class AppRepository(
     /**
      * Load all visible apps
      */
-    suspend fun loadApps() {
+    suspend fun loadApps(forceEmit: Boolean = false): Boolean = loadMutex.withLock {
         withContext(Dispatchers.IO) {
             try {
                 val settings = settingsRepository.settings.first()
@@ -98,16 +101,54 @@ class AppRepository(
                     }
                 }
 
-                _appList.value = finalVisibleList
-                _appListAll.value = finalFullList
-                _hiddenApps.value = hiddenMobileApps
+                var changed = false
+
+                if (forceEmit || !sameAppList(_appList.value, finalVisibleList)) {
+                    _appList.value = finalVisibleList
+                    changed = true
+                }
+
+                if (forceEmit || !sameAppList(_appListAll.value, finalFullList)) {
+                    _appListAll.value = finalFullList
+                    changed = true
+                }
+
+                if (forceEmit || !sameAppList(_hiddenApps.value, hiddenMobileApps)) {
+                    _hiddenApps.value = hiddenMobileApps
+                    changed = true
+                }
+
+                changed
                 
             } catch (e: Exception) {
                 Log.e("AppRepository", "Error loading apps", e)
                 e.printStackTrace()
+                false
             }
         }
     }
+
+    private fun List<AppModel>.uiSignature(): List<String> =
+        map { app ->
+            buildString {
+                append(app.getKey())
+                append('|')
+                append(app.appLabel)
+                append('|')
+                append(app.isHidden)
+                append('|')
+                append(app.lastLaunchTime)
+                append('|')
+                append(app.isNew)
+                append('|')
+                append(app.isSystemShortcut)
+            }
+        }
+
+    private fun sameAppList(
+        oldList: List<AppModel>,
+        newList: List<AppModel>
+    ): Boolean = oldList.uiSignature() == newList.uiSignature()
 
     private fun sortApps(list: List<AppModel>, sortOrder: Int): List<AppModel> {
         return when (sortOrder) {
@@ -290,8 +331,7 @@ class AppRepository(
                     )
                 }
 
-                loadApps()
-                loadHiddenApps()
+                loadApps(forceEmit = true)
             } catch (e: Exception) {
                 println("Error toggling app hidden state: ${e.message}")
                 e.printStackTrace()

@@ -1,10 +1,7 @@
 package app.cclauncher.ui.screens
 
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -77,6 +74,7 @@ import app.cclauncher.MainViewModel
 import app.cclauncher.data.AppShortcut
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
+import app.cclauncher.helper.openAppInfo
 import app.cclauncher.helper.openSearch
 import app.cclauncher.ui.BackHandler
 import app.cclauncher.ui.components.AppListItem
@@ -443,10 +441,7 @@ fun AppDrawerScreen(
                             dismissMenu()
                         }
                         ContextMenuItem("App Info", Icons.Default.Info) {
-                            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", app.appPackage, null)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            })
+                            openAppInfo(context, app)
                             dismissMenu()
                         }
                         ContextMenuItem("Delete", Icons.Default.Delete) {
@@ -466,10 +461,7 @@ fun AppDrawerScreen(
                             renameDialogVisible = true
                         }
                         ContextMenuItem("App Info", Icons.Default.Info) {
-                            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", app.appPackage, null)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            })
+                            openAppInfo(context, app)
                             dismissMenu()
                         }
                         ContextMenuItem("Add to Home Screen", Icons.Default.Add) {

@@ -36,6 +36,8 @@ import app.cclauncher.helper.getUserHandleFromString
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
 import app.cclauncher.ui.components.snackbar.SnackbarManager
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -46,6 +48,7 @@ import kotlin.math.ceil
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application), KoinComponent {
     private val appContext = application.applicationContext
     val settingsRepository: AppSettingsRepository by inject()
@@ -56,6 +59,23 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger = _refreshTrigger.asStateFlow()
+
+    private data class AppReloadRequest(
+        val reason: String,
+        val forceEmit: Boolean = false
+    )
+
+    private val appReloadRequests = MutableSharedFlow<AppReloadRequest>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    private fun requestAppReload(
+        reason: String,
+        forceEmit: Boolean = false
+    ) {
+        appReloadRequests.tryEmit(AppReloadRequest(reason, forceEmit))
+    }
 
     private val privateSpaceHelper = PrivateSpaceHelper(application.applicationContext)
 
@@ -100,28 +120,40 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private val launcherAppsCallback = object : LauncherApps.Callback() {
         override fun onPackageRemoved(packageName: String, user: UserHandle) {
-            loadApps()
+            requestAppReload("packageRemoved:$packageName")
         }
 
         override fun onPackageAdded(packageName: String, user: UserHandle) {
-            loadApps()
+            requestAppReload("packageAdded:$packageName")
         }
 
         override fun onPackageChanged(packageName: String, user: UserHandle) {
-            loadApps()
+            requestAppReload("packageChanged:$packageName")
         }
 
-        override fun onPackagesAvailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
-            loadApps()
+        override fun onPackagesAvailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
+            requestAppReload("packagesAvailable:${packageNames.joinToString()}")
         }
 
-        override fun onPackagesUnavailable(packageNames: Array<out String>, user: UserHandle, replacing: Boolean) {
-            loadApps()
+        override fun onPackagesUnavailable(
+            packageNames: Array<out String>,
+            user: UserHandle,
+            replacing: Boolean
+        ) {
+            requestAppReload("packagesUnavailable:${packageNames.joinToString()}")
         }
 
-        override fun onShortcutsChanged(packageName: String, shortcuts: List<android.content.pm.ShortcutInfo>, user: UserHandle) {
-            Log.d("MainViewModel", "System shortcuts changed for $packageName, reloading apps")
-            loadApps()
+        override fun onShortcutsChanged(
+            packageName: String,
+            shortcuts: List<android.content.pm.ShortcutInfo>,
+            user: UserHandle
+        ) {
+            Log.d("MainViewModel", "System shortcuts changed for $packageName")
+            requestAppReload("shortcutsChanged:$packageName")
         }
     }
 
@@ -129,9 +161,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         override fun onReceive(context: Context, intent: Intent?) {
             Log.d("MainViewModel", "Received broadcast: ${intent?.action}")
             if (intent?.action == "app.cclauncher.ACTION_REFRESH_APPS") {
-                Log.d("MainViewModel", "Refreshing apps after shortcut addition")
-                loadApps()
-                updatePrivateSpaceState()
+                Log.d("MainViewModel", "Queueing app refresh after broadcast")
+                requestAppReload("customRefreshBroadcast", forceEmit = true)
             }
         }
     }
@@ -194,7 +225,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 .distinctUntilChanged()
                 .drop(1) // Skip initial value
                 .collect { _ ->
-                    appRepository.loadApps()
+                    requestAppReload("showPinnedShortcutsChanged", forceEmit = true)
                 }
         }
 
@@ -217,7 +248,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 .map { Triple(it.searchType, it.searchSortOrder, it.showHiddenAppsOnSearch) }
                 .distinctUntilChanged()
                 .collect { 
-                    appRepository.loadApps()
+                    requestAppReload("searchSettingsChanged", forceEmit = true)
                     reapplySearchFilter() 
                 }
         }
@@ -242,6 +273,21 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 Log.e("MainViewModel", "Failed to register LauncherApps callback", e)
             }
         }
+
+        viewModelScope.launch {
+            appReloadRequests
+                .debounce(250L)
+                .collectLatest { request ->
+                    Log.d(
+                        "MainViewModel",
+                        "Reloading apps. reason=${request.reason}, forceEmit=${request.forceEmit}"
+                    )
+                    appRepository.loadApps(forceEmit = request.forceEmit)
+                    updatePrivateSpaceState()
+                }
+        }
+
+        requestAppReload("initial", forceEmit = true)
     }
 
     private suspend fun rebuildSearchAliasIndex() {
@@ -1030,6 +1076,24 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
+    fun openPrivateSpaceSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val intentSender = privateSpaceHelper.getPrivateSpaceSettingsIntentSender()
+            if (intentSender != null) {
+                try {
+                    @Suppress("DEPRECATION")
+                    intentSender.sendIntent(appContext, 0, null, null, null)
+                } catch (e: Exception) {
+                    snackbarManager.show("Failed to open Private Space settings")
+                }
+            } else {
+                snackbarManager.show("Private Space settings intent available only on Android 16+")
+            }
+        } else {
+            snackbarManager.show("Private Space requires Android 15 or higher")
+        }
+    }
+
     fun isAppInPrivateSpace(app: AppModel): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             return privateSpaceHelper.isPrivateSpaceProfile(app.user)
@@ -1044,19 +1108,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     }
 
     fun loadApps() {
-        viewModelScope.launch {
-            try {
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
-                updatePrivateSpaceState()
-                appRepository.loadApps()
-                migrateLegacyKeysForCurrentApps()
-                // Rebuild alias index after loading apps (in case we missed the combine for some reason)
-                rebuildSearchAliasIndex()
-            } catch (e: Exception) {
-                Log.w("CCLauncher","Failed to load apps: ${e.message}")
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
-            }
-        }
+        requestAppReload("manualLoadApps", forceEmit = true)
     }
 
     private suspend fun migrateLegacyKeysForCurrentApps() {
@@ -1107,7 +1159,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
         if (migrations.isNotEmpty()) {
             settingsRepository.migrateAppKeys(migrations)
-            appRepository.loadApps()
+            appRepository.loadApps(forceEmit = true)
         }
     }
 
@@ -1212,7 +1264,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 pinnedIds.add(shortcutId)
 
                 launcherApps.pinShortcuts(app.appPackage, pinnedIds.toList(), app.user)
-                appRepository.loadApps()
+                requestAppReload("shortcutAdded", forceEmit = true)
                 snackbarManager.show("Shortcut added")
             } catch (e: Exception) {
                 snackbarManager.show("Failed to add shortcut: ${e.message}")

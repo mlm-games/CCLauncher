@@ -186,4 +186,22 @@ class PrivateSpaceHelper(private val context: Context) {
             return emptyList()
         }
     }
+
+    /**
+     * Get the intent to open Private Space settings
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun getPrivateSpaceSettingsIntentSender(): android.content.IntentSender? {
+        if (!isPrivateSpaceSupported()) {
+            return null
+        }
+
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            launcherApps.privateSpaceSettingsIntent
+        } else {
+            null
+        }
+    }
 }

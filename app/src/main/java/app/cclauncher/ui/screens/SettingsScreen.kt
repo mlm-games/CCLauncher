@@ -732,21 +732,21 @@ fun SettingsScreen(
                         val privateSpaceState by mainViewModel.privateSpaceState.collectAsState()
 
                         val subtitle = when (privateSpaceState) {
-                            MainViewModel.PrivateSpaceState.NotSetUp -> "Private Space is not set up (or is not the default launcher)"
-                            MainViewModel.PrivateSpaceState.Locked -> "Private Space is locked"
-                            MainViewModel.PrivateSpaceState.Unlocked -> "Private Space is unlocked"
+                            MainViewModel.PrivateSpaceState.NotSetUp -> "Tap to set up or manage Private Space"
+                            MainViewModel.PrivateSpaceState.Locked -> "Tap to manage Private Space"
+                            MainViewModel.PrivateSpaceState.Unlocked -> "Tap to manage Private Space"
                             else -> ""
                         }
 
                         SettingsItem(
-                            title = "Toggle Private Space",
+                            title = "Private Space",
                             subtitle = subtitle,
-                            onClick = { mainViewModel.togglePrivateSpace() }
+                            onClick = { mainViewModel.openPrivateSpaceSettings() }
                         )
 
                         Text(
                             text = "Private Space allows you to hide apps from your main profile. " +
-                                    "Apps in Private Space are only accessible when it's unlocked.",
+                                    "Apps in Private Space are only accessible when unlocked.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -756,7 +756,7 @@ fun SettingsScreen(
                             title = "Private Space",
                             subtitle = "Requires Android 15 or higher",
                             enabled = false,
-                            onClick = {},
+                            onClick = { },
                             transparency = 0.7f
                         )
                     }

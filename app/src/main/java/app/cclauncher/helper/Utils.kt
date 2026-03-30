@@ -7,6 +7,7 @@ import android.app.SearchManager
 import android.app.WallpaperManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -45,6 +46,17 @@ import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+fun getLauncherVisibleProfiles(
+    userManager: UserManager,
+    launcherApps: LauncherApps
+): List<UserHandle> {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        launcherApps.profiles
+    } else {
+        userManager.userProfiles
+    }
+}
+
 suspend fun getAppsList(
     context: Context,
     settingsRepository: AppSettingsRepository,
@@ -67,7 +79,17 @@ suspend fun getAppsList(
 
         val iconCache = IconCache(context)
 
-        for (profile in userManager.userProfiles) {
+        val profiles = getLauncherVisibleProfiles(userManager, launcherApps)
+
+        for (profile in profiles) {
+            val isPrivateProfile =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                    launcherApps.getLauncherUserInfo(profile)?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+
+            if (isPrivateProfile && userManager.isQuietModeEnabled(profile)) {
+                continue
+            }
+
             for (activity in launcherApps.getActivityList(null, profile)) {
                 val pkg = activity.applicationInfo.packageName
 
@@ -82,8 +104,15 @@ suspend fun getAppsList(
                 ).distinct()
                 val keyCandidates = listOf(appKey) + legacyKeys
 
+                val isPrivateProfile =
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                        launcherApps.getLauncherUserInfo(profile)?.userType == UserManager.USER_TYPE_PROFILE_PRIVATE
+
+                val shouldMarkClone =
+                    profile != android.os.Process.myUserHandle() && !isPrivateProfile
+
                 val defaultLabel = activity.label.toString() +
-                        if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
+                    if (shouldMarkClone) " (Clone)" else ""
 
                 val shownLabel = keyCandidates.firstNotNullOfOrNull { renamedApps[it] }
                     ?: defaultLabel
@@ -151,7 +180,10 @@ fun isPackageInstalled(context: Context, packageName: String, userString: String
 
 fun getUserHandleFromString(context: Context, userHandleString: String): UserHandle {
     val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-    for (userHandle in userManager.userProfiles) {
+    val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+    val profiles = getLauncherVisibleProfiles(userManager, launcherApps)
+
+    for (userHandle in profiles) {
         if (userHandle.toString() == userHandleString) {
             return userHandle
         }
@@ -207,13 +239,36 @@ fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
     }
 }
 
-fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
+fun openAppInfo(context: Context, app: AppModel) {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    val intent: Intent? = context.packageManager.getLaunchIntentForPackage(packageName)
 
-    intent?.let {
-        launcher.startAppDetailsActivity(intent.component, userHandle, null, null)
-    } ?: context.showToast(context.getString(R.string.unable_to_open_app))
+    val directComponent = app.activityClassName
+        ?.takeIf { it.isNotBlank() }
+        ?.let { ComponentName(app.appPackage, it) }
+
+    val fallbackComponent = launcher
+        .getActivityList(null, app.user)
+        .firstOrNull {
+            it.applicationInfo.packageName == app.appPackage &&
+                (app.activityClassName == null || it.componentName.className == app.activityClassName)
+        }
+        ?.componentName
+        ?: launcher.getActivityList(null, app.user)
+            .firstOrNull { it.applicationInfo.packageName == app.appPackage }
+            ?.componentName
+
+    val component = directComponent ?: fallbackComponent
+
+    if (component != null) {
+        try {
+            launcher.startAppDetailsActivity(component, app.user, null, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            context.showToast(context.getString(R.string.unable_to_open_app))
+        }
+    } else {
+        context.showToast(context.getString(R.string.unable_to_open_app))
+    }
 }
 
 fun getScreenDimensions(context: Context): Pair<Int, Int> {
