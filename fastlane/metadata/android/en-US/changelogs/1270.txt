@@ -1,0 +1,20 @@
+- Fix app info intent for private spaces, and jittering improvements (#221)
+- Bump androidx.compose:compose-bom from 2026.03.00 to 2026.03.01
+- Bump androidx.compose.foundation:foundation from 1.10.5 to 1.10.6
+- Bump androidx.work:work-runtime-ktx from 2.11.1 to 2.11.2
+- Bump gradle/actions from 5 to 6 in /.github/workflows
+- Bump gradle-wrapper from 9.4.0 to 9.4.1
+- Bump org.jetbrains.kotlin:kotlin-stdlib from 2.3.10 to 2.3.20
+- Bump org.jetbrains.kotlin:kotlin-reflect from 2.3.10 to 2.3.20
+- Bump kmpSettingsCore from 0.6.1 to 0.6.3
+- Bump kotlin from 2.3.10 to 2.3.20
+- tap to open app drawer is false by dedault (fix #149)
+- Bump androidx.compose.foundation:foundation from 1.10.4 to 1.10.5
+- Bump androidx.datastore:datastore-preferences from 1.2.0 to 1.2.1
+- Bump androidx.datastore:datastore-preferences-core from 1.2.0 to 1.2.1
+- Bump androidx.compose:compose-bom from 2026.02.01 to 2026.03.00
+- Bump androidx.activity:activity-compose from 1.12.4 to 1.13.0
+- Bump androidx.core:core-ktx from 1.17.0 to 1.18.0
+- Bump gradle-wrapper from 9.3.1 to 9.4.0
+- Bump androidx.compose:compose-bom from 2026.02.00 to 2026.02.01
+- Bump actions/upload-artifact from 6 to 7 in /.github/workflows
