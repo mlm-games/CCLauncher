@@ -48,7 +48,7 @@ import kotlin.math.ceil
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
-@OptIn(kotlinx.coroutines.FlowPreview::class)
+@OptIn(FlowPreview::class)
 class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application), KoinComponent {
     private val appContext = application.applicationContext
     val settingsRepository: AppSettingsRepository by inject()
@@ -1084,6 +1084,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     @Suppress("DEPRECATION")
                     intentSender.sendIntent(appContext, 0, null, null, null)
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     snackbarManager.show("Failed to open Private Space settings")
                 }
             } else {

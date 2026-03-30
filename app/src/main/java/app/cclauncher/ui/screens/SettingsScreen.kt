@@ -732,24 +732,15 @@ fun SettingsScreen(
                         val privateSpaceState by mainViewModel.privateSpaceState.collectAsState()
 
                         val subtitle = when (privateSpaceState) {
-                            MainViewModel.PrivateSpaceState.NotSetUp -> "Tap to set up or manage Private Space"
+                            MainViewModel.PrivateSpaceState.NotSetUp -> "Tap to set up or manage Private Space (needs to be the default launcher)"
                             MainViewModel.PrivateSpaceState.Locked -> "Tap to manage Private Space"
                             MainViewModel.PrivateSpaceState.Unlocked -> "Tap to manage Private Space"
                             else -> ""
                         }
-
                         SettingsItem(
                             title = "Private Space",
                             subtitle = subtitle,
                             onClick = { mainViewModel.openPrivateSpaceSettings() }
-                        )
-
-                        Text(
-                            text = "Private Space allows you to hide apps from your main profile. " +
-                                    "Apps in Private Space are only accessible when unlocked.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     } else {
                         SettingsItem(
