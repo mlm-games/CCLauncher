@@ -21,12 +21,12 @@ androidbrowserhelper = "2.6.2"
 datastorePreferencesCore = "1.2.1"
 composeBom = "2026.03.01"
 apkDist = "0.5.2"
-kmpSettingsCore = "0.6.3"
+kmpSettingsCore = "0.7.1"
 ksp = "2.3.6"
 
-koinBom = "4.1.1"
+koinBom = "4.2.0"
 navigation3Runtime = "1.0.1"
-koin-annotations = "2.3.1"
+koin-annotations = "4.2.0"
 foundation = "1.10.6"
 
 [libraries]
