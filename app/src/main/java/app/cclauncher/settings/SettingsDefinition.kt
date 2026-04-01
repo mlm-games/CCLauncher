@@ -296,7 +296,7 @@ data class AppSettings(
         type = Toggle::class,
         key = "APP_DRAWER_TAP_TO_OPEN",
     )
-    val appDrawerTapToOpen: Boolean = false,
+    val appDrawerTapToOpen: Boolean = true,
 
     @Setting(
         title = "Scale Home Apps",
