@@ -1,0 +1,1 @@
+- Revert "tap to open app drawer is false by dedault (fix #149)"

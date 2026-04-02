@@ -1,3 +1,8 @@
+## vv10.7.5
+
+- Revert "tap to open app drawer is false by dedault (fix #149)"
+
+
 ## vv10.7.4
 
 - Fix app info intent for private spaces, and jittering improvements (#221)

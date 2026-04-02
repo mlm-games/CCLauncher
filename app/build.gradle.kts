@@ -28,8 +28,8 @@ android {
         applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1270
-        versionName = "v10.7.4"
+        versionCode = 1280
+        versionName = "v10.7.5"
 
         androidResources {
             localeFilters += setOf("en", "ar", "de", "es-rES", "es-rUS", "fr", "hr", "hu", "in", "it", "ja", "pl", "pt-rBR", "ru-rRU", "sv", "tr", "uk", "zh")
