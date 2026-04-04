@@ -1,0 +1,2 @@
+- Text Size now only applies for home screen items (fix #201)
+- chore(deps): bump kmpSettingsCore from 0.7.1 to 0.7.3

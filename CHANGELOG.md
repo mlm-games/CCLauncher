@@ -1,3 +1,9 @@
+## vv10.7.6
+
+- Text Size now only applies for home screen items (fix #201)
+- chore(deps): bump kmpSettingsCore from 0.7.1 to 0.7.3
+
+
 ## vv10.7.5
 
 - Revert "tap to open app drawer is false by dedault (fix #149)"
