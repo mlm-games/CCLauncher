@@ -113,7 +113,7 @@ data class AppSettings(
 
     @Setting(
         title = "Search Aliases",
-        description = "Match app names across transliterations and keyboard layouts (e.g., ProtonVPN ↔ ПротонВПН; Африка ↔ Afrika). May slightly increase CPU use on older devices.",
+        description = "Match app names across transliterations and keyboard layouts (e.g. Африка ↔ Afrika). May slightly increase CPU use on older devices.",
         category = General::class,
         type = Dropdown::class,
         options = ["Off", "Transliteration", "Keyboard layout swap", "Both"],
