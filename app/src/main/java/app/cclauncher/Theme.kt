@@ -214,8 +214,6 @@ fun CLauncherTheme(
 
     val settings = settingsRepository.settings.collectAsState(initial = AppSettings()).value
 
-    val textSizeScale = settings.textSizeScale
-
     val appTheme = settings.appTheme
     val darkTheme = when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
@@ -270,7 +268,7 @@ fun CLauncherTheme(
         }
     }
 
-    val baseTypography = scaledTypography(textSizeScale) // Call only ONCE
+    val baseTypography = defaultTypography() // NOTE: No need to use the text size scale (just scale home apps)
 
     val typography = if (fontFamily != null) {
         baseTypography.copy(

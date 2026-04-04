@@ -134,7 +134,7 @@ data class AppSettings(
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
 
     @Setting(
-        title = "Text Size",
+        title = "Home Text Size",
         category = Appearance::class,
         type = Slider::class,
         min = 0.5f,

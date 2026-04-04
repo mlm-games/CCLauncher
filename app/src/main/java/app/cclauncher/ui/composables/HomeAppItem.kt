@@ -95,16 +95,21 @@ fun HomeAppItem(
     }
     val iconCornerRadius = settings.iconCornerRadius.dp
 
-    val (iconSize, scaledFontSize) = if (settings.scaleHomeApps) {
+    val (iconSize, baseFontSize) = if (settings.scaleHomeApps) {
         val computedIconSize = (minOf(appWidth, appHeight) * 0.6f)
-        // Use a baseline cell height (e.g. 80.dp) to compute scale factor; adjust as needed.
+
+        // Use a baseline cell height (e.g. 80.dp) to compute scale factor; adjust as needed. (rem. when you want to)
         val baselineCellHeight = 80.dp
         val scaleFactor = appWidth / baselineCellHeight
-        val computedFontSize = (MaterialTheme.typography.bodyMedium.fontSize.value * scaleFactor).sp
+        val computedFontSize =
+            (MaterialTheme.typography.bodyMedium.fontSize.value * scaleFactor).sp
+
         Pair(computedIconSize, computedFontSize)
     } else {
         Pair(48.dp, MaterialTheme.typography.bodyMedium.fontSize)
     }
+
+    val effectiveFontSize = (baseFontSize.value * fontScale).sp
 
     val textAlign = when (settings.appLabelAlignment) {
         1 -> TextAlign.Center
@@ -144,9 +149,8 @@ fun HomeAppItem(
         if (showName) {
             Text(
                 text = app.appLabel,
-                fontSize = scaledFontSize,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
+                    fontSize = effectiveFontSize,
                     fontWeight = fontWeight
                 ),
                 color = textColor,
