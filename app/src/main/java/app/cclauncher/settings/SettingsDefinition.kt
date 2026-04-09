@@ -47,7 +47,11 @@ data class AppSettings(
     )
     val showPinnedShortcuts: Boolean = true,
 
-    @Persisted(key = "SHOW_APP_ICONS")
+    @Setting(
+        title = "Show App Drawer Icons",
+        category = General::class,
+        type = Toggle::class,
+        key = "SHOW_APP_ICONS")
     val showAppIcons: Boolean = true,
 
     @Setting(
@@ -374,6 +378,7 @@ data class AppSettings(
         category = Layout::class,
         type = Toggle::class,
         key = "SHOW_ICONS_IN_LANDSCAPE",
+//        dependsOn = "showAppIcons"
     )
     val showIconsInLandscape: Boolean = false,
 
@@ -382,6 +387,7 @@ data class AppSettings(
         category = Layout::class,
         type = Toggle::class,
         key = "SHOW_ICONS_IN_PORTRAIT",
+//        dependsOn = "showAppIcons"
     )
     val showIconsInPortrait: Boolean = false,
 
