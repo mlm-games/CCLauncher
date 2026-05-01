@@ -1,0 +1,16 @@
+- chore(deps): bump gradle-wrapper from 9.4.1 to 9.5.0
+- chore(deps): bump org.jetbrains.kotlin:kotlin-reflect
+- chore(deps): bump org.jetbrains.kotlin:kotlin-stdlib
+- chore(deps): bump com.google.code.gson:gson from 2.13.2 to 2.14.0
+- chore(deps): bump kotlin from 2.3.20 to 2.3.21
+- chore(deps): bump com.google.devtools.ksp from 2.3.6 to 2.3.7
+- chore(deps): bump navigation3Runtime from 1.1.0 to 1.1.1
+- chore(deps): bump androidx.compose.foundation:foundation
+- chore(deps): bump androidx.compose:compose-bom
+- chore(deps): bump dependabot/fetch-metadata in /.github/workflows
+- chore(deps): bump softprops/action-gh-release in /.github/workflows
+- chore(deps): bump koinBom from 4.2.0 to 4.2.1
+- chore(deps): bump org.jetbrains.kotlinx:kotlinx-serialization-json
+- Add back "Show App Icons" setting
+- chore(deps): bump com.google.androidbrowserhelper:androidbrowserhelper
+- chore(deps): bump navigation3Runtime from 1.0.1 to 1.1.0
