@@ -21,7 +21,7 @@ androidbrowserhelper = "2.7.0"
 datastorePreferencesCore = "1.2.1"
 composeBom = "2026.04.01"
 apkDist = "0.5.2"
-kmpSettingsCore = "0.7.3"
+kmpSettingsCore = "0.8.1"
 ksp = "2.3.8"
 
 koinBom = "4.2.1"
