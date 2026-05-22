@@ -22,12 +22,12 @@ kotlin {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.cclauncher"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1300
         versionName = "v10.7.7"
 
