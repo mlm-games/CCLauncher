@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.apk.dist)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
 }
 
 kotlin {
@@ -133,8 +134,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.annotations)
-    ksp(libs.koin.ksp.compiler)
-
 
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
