@@ -22,7 +22,7 @@ datastorePreferencesCore = "1.2.1"
 composeBom = "2026.05.01"
 apkDist = "0.5.2"
 kmpSettingsCore = "0.8.1"
-ksp = "2.3.8"
+ksp = "2.3.9"
 
 koinBom = "4.2.1"
 koin-plugin = "1.0.0"
