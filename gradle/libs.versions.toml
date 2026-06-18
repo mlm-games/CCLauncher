@@ -27,7 +27,7 @@ ksp = "2.3.9"
 koinBom = "4.2.1"
 koin-plugin = "1.0.1"
 navigation3Runtime = "1.1.2"
-foundation = "1.11.2"
+foundation = "1.11.3"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
