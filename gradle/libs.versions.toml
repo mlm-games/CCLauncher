@@ -24,7 +24,7 @@ apkDist = "0.5.2"
 kmpSettingsCore = "0.8.1"
 ksp = "2.3.9"
 
-koinBom = "4.2.1"
+koinBom = "4.2.2"
 koin-plugin = "1.0.1"
 navigation3Runtime = "1.1.3"
 foundation = "1.11.3"
