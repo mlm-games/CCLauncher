@@ -26,7 +26,7 @@ ksp = "2.3.9"
 
 koinBom = "4.2.2"
 koin-plugin = "1.0.1"
-navigation3Runtime = "1.1.3"
+navigation3Runtime = "1.1.4"
 foundation = "1.11.3"
 
 [libraries]
