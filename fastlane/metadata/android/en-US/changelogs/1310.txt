@@ -1,0 +1,42 @@
+- chore(deps): bump gradle-wrapper from 9.6.0 to 9.6.1
+- chore(deps): bump actions/checkout from 6 to 7 in /.github/workflows
+- chore(deps): bump gradle-wrapper from 9.5.1 to 9.6.0
+- chore(deps): bump kotlin from 2.3.21 to 2.4.0
+- chore(deps): bump koinBom from 4.2.1 to 4.2.2
+- chore(deps): bump com.google.androidbrowserhelper:androidbrowserhelper
+- chore(deps): bump androidx.lifecycle:lifecycle-viewmodel-ktx
+- chore(deps): bump lifecycleViewmodelCompose from 2.10.0 to 2.11.0
+- chore(deps): bump androidx.compose:compose-bom
+- chore(deps): bump navigation3Runtime from 1.1.2 to 1.1.3
+- chore(deps): bump androidx.compose.foundation:foundation
+- chore(deps): bump io.insert-koin.compiler.plugin from 1.0.0 to 1.0.1
+- chore(deps): bump org.jetbrains.kotlin:kotlin-stdlib
+- chore(deps): bump androidx.core:core-ktx from 1.18.0 to 1.19.0
+- chore(deps): bump org.jetbrains.kotlin:kotlin-reflect
+- chore(deps): bump com.google.devtools.ksp from 2.3.8 to 2.3.9
+- update compile sdk and targetsdk to 37
+- Bump agp to 9.2.1
+- chore(deps): bump com.google.androidbrowserhelper:androidbrowserhelper
+- chore(deps): bump androidx.compose:compose-bom
+- chore(deps): bump navigation3Runtime from 1.1.1 to 1.1.2
+- chore(deps): bump androidx.compose.foundation:foundation
+- chore(deps): bump com.google.android.material:material
+- chore(deps): bump com.google.devtools.ksp from 2.3.7 to 2.3.8
+- chore(deps): bump gradle-wrapper from 9.5.0 to 9.5.1
+- chore(deps): bump androidx.compose.foundation:foundation
+- chore(deps): bump gradle-wrapper from 9.4.1 to 9.5.0
+- chore(deps): bump org.jetbrains.kotlin:kotlin-reflect
+- chore(deps): bump org.jetbrains.kotlin:kotlin-stdlib
+- chore(deps): bump com.google.code.gson:gson from 2.13.2 to 2.14.0
+- chore(deps): bump kotlin from 2.3.20 to 2.3.21
+- chore(deps): bump com.google.devtools.ksp from 2.3.6 to 2.3.7
+- chore(deps): bump navigation3Runtime from 1.1.0 to 1.1.1
+- chore(deps): bump androidx.compose.foundation:foundation
+- chore(deps): bump androidx.compose:compose-bom
+- chore(deps): bump dependabot/fetch-metadata in /.github/workflows
+- chore(deps): bump softprops/action-gh-release in /.github/workflows
+- chore(deps): bump koinBom from 4.2.0 to 4.2.1
+- chore(deps): bump org.jetbrains.kotlinx:kotlinx-serialization-json
+- Add back "Show App Icons" setting
+- chore(deps): bump com.google.androidbrowserhelper:androidbrowserhelper
+- chore(deps): bump navigation3Runtime from 1.0.1 to 1.1.0
