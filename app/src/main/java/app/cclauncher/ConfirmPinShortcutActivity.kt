@@ -3,6 +3,7 @@ package app.cclauncher
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.LauncherApps
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.core.content.getSystemService
@@ -27,36 +28,48 @@ class ConfirmPinShortcutActivity : Activity() {
             return
         }
 
-        val request = launcherApps.getPinItemRequest(intent)
+        val request = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            launcherApps.getPinItemRequest(intent)
+        } else {
+            null
+        }
 
-        if (request == null || !request.isValid ||
-            request.requestType != LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT
-        ) {
+        if (request == null) {
             Log.e(TAG, "Invalid pin item request")
             finish()
             return
         }
 
-        val shortcutInfo = request.shortcutInfo
-        if (shortcutInfo == null) {
-            Log.e(TAG, "No shortcut info in request")
-            finish()
-            return
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!request.isValid ||
+                request.requestType != LauncherApps.PinItemRequest.REQUEST_TYPE_SHORTCUT
+            ) {
+                Log.e(TAG, "Invalid pin item request")
+                finish()
+                return
+            }
 
-        Log.d(TAG, "Pin request received for ${shortcutInfo.`package`}/${shortcutInfo.id}")
+            val shortcutInfo = request.shortcutInfo
+            if (shortcutInfo == null) {
+                Log.e(TAG, "No shortcut info in request")
+                finish()
+                return
+            }
 
-        val accepted = request.accept()
+            Log.d(TAG, "Pin request received for ${shortcutInfo.`package`}/${shortcutInfo.id}")
 
-        if (accepted) {
-            snackbarManager.show("Shortcut '${shortcutInfo.shortLabel}' added")
+            val accepted = request.accept()
 
-            val refreshIntent = Intent("app.cclauncher.ACTION_REFRESH_APPS")
-            refreshIntent.`package` = applicationContext.packageName
-            sendBroadcast(refreshIntent)
-            Log.d(TAG, "Shortcut pinned successfully, refresh broadcast sent")
-        } else {
-            Log.w(TAG, "Shortcut pin was rejected")
+            if (accepted) {
+                snackbarManager.show("Shortcut '${shortcutInfo.shortLabel}' added")
+
+                val refreshIntent = Intent("app.cclauncher.ACTION_REFRESH_APPS")
+                refreshIntent.`package` = applicationContext.packageName
+                sendBroadcast(refreshIntent)
+                Log.d(TAG, "Shortcut pinned successfully, refresh broadcast sent")
+            } else {
+                Log.w(TAG, "Shortcut pin was rejected")
+            }
         }
 
         finish()

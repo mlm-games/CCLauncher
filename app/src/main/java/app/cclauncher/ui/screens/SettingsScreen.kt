@@ -96,6 +96,7 @@ import java.util.Locale
 import kotlin.reflect.KClass
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("NonObservableLocale")
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
