@@ -835,6 +835,7 @@ fun SettingsScreen(
 
     if (showAccessibilityDisclosure) {
         AccessibilityDisclosureDialog(
+            privacyPolicyUrl = Constants.URL_CCLAUNCHER_PRIVACY,
             onDismiss = {
                 showAccessibilityDisclosure = false
                 coroutineScope.launch { viewModel.updateSetting("doubleTapToLock", false) }

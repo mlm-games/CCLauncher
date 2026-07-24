@@ -1,7 +1,6 @@
 package app.cclauncher.helper
 
 import android.accessibilityservice.AccessibilityService
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
@@ -13,7 +12,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-@SuppressLint("AccessibilityPolicy")
 class MyAccessibilityService : AccessibilityService(), KoinComponent {
 
     private val settingsRepository: AppSettingsRepository by inject()

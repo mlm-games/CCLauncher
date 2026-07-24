@@ -1,13 +1,17 @@
 package app.cclauncher.ui.dialogs
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
@@ -120,16 +124,35 @@ fun SettingsLockDialog(
 @Composable
 fun AccessibilityDisclosureDialog(
     onDismiss: () -> Unit,
-    onAccept: () -> Unit
+    onAccept: () -> Unit,
+    privacyPolicyUrl: String = "https://mlm-games.github.io/privacy-policy/"
 ) {
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Enable Accessibility Service") },
         text = {
             Column {
-                Text("CCLauncher uses Android’s Accessibility Service only to perform the 'Lock screen' action when you explicitly trigger it (e.g., double‑tap on the home screen).")
+                Text("CCLauncher uses the Accessibility Service only to lock your screen when you double-tap on the home screen.")
                 Spacer(Modifier.height(8.dp))
-                Text("The app does not read what you type or view. It does not collect or send any data off your device. You can disable this anytime in Android Settings > Accessibility.")
+                Text("This service does not read, collect, or transmit any data from your device. It does not access any window content, keystrokes, or personal information.")
+                Spacer(Modifier.height(8.dp))
+                Text("No data is shared with any third parties.")
+                Spacer(Modifier.height(12.dp))
+                TextButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
+                        context.startActivity(intent)
+                    }
+                ) {
+                    Text("View Privacy Policy", textDecoration = TextDecoration.Underline)
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "You can disable this service anytime in Android Settings > Accessibility.",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         },
         confirmButton = {
