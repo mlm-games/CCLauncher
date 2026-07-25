@@ -402,6 +402,35 @@ data class AppSettings(
     val appLabelAlignment: Int = 0,
 
     @Setting(
+        title = "Search Bar Position",
+        description = "Position of the search bar in the app drawer",
+        category = Layout::class,
+        type = Dropdown::class,
+        options = ["Top", "Bottom"],
+        key = "SEARCH_BAR_POSITION",
+    )
+    val searchBarPosition: Int = 0,
+
+    @Setting(
+        title = "App Drawer Results Alignment",
+        description = "Horizontal alignment of app names in app drawer results",
+        category = Appearance::class,
+        type = Dropdown::class,
+        options = ["Left", "Center", "Right"],
+        key = "SEARCH_RESULTS_ALIGNMENT",
+    )
+    val searchResultsAlignment: Int = 0,
+
+    @Setting(
+        title = "Reverse Search Results",
+        description = "Display results bottom-to-top",
+        category = Layout::class,
+        type = Toggle::class,
+        key = "REVERSE_SEARCH_RESULTS",
+    )
+    val reverseSearchResults: Boolean = false,
+
+    @Setting(
         title = "Gesture Sensitivity",
         description = "Adjust how easily swipe gestures are triggered",
         category = Gestures::class,

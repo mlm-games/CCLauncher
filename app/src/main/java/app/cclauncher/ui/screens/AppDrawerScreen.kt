@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -136,6 +138,15 @@ fun AppDrawerScreen(
         else -> FontWeight.Normal
     }
 
+    val isSearchBarBottom = settings.searchBarPosition == 1
+    val reverseLayout = settings.reverseSearchResults
+    val resultsTextAlign = when (settings.searchResultsAlignment) {
+        1 -> TextAlign.Center
+        2 -> TextAlign.End
+        else -> TextAlign.Start
+    }
+    val canAutoFocusSearch = !reverseLayout && !isSearchBarBottom
+
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
 
@@ -232,11 +243,16 @@ fun AppDrawerScreen(
                             focusManager.clearFocus() // Will trigger onFocusStateChanged(false)
                         }
                         keyboardController?.hide()
-                    } else { // User scrolled up
-                        if (currentIndex == 0 && currentOffset == 0) { // Reached the very top of the list
-                            if (!isSearchFocused) {
-                                focusRequester.requestFocus() // Will trigger onFocusStateChanged(true) & show keyboard
-                            }
+                    } else if (canAutoFocusSearch) { // User scrolled up
+                        val reachedTop = if (reverseLayout) {
+                            scrollState.layoutInfo.totalItemsCount > 0 &&
+                            scrollState.firstVisibleItemIndex <= 0 &&
+                            currentOffset <= 0
+                        } else {
+                            currentIndex == 0 && currentOffset == 0
+                        }
+                        if (reachedTop && !isSearchFocused) {
+                            focusRequester.requestFocus()
                         }
                     }
                 }
@@ -254,11 +270,17 @@ fun AppDrawerScreen(
                 onSwipeDown = { // General swipe down (anywhere) to trigger onSwipeDown action (e.g., go home)
                     onSwipeDown()
                 },
-                onSwipeUp = { // Swipe up when at the very top of the list to trigger onSwipeDown action
-                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0) {
+                onSwipeUp = {
+                    val atStart = if (reverseLayout) {
+                        scrollState.layoutInfo.totalItemsCount > 0 &&
+                        scrollState.firstVisibleItemIndex == 0 &&
+                        scrollState.firstVisibleItemScrollOffset == 0
+                    } else {
+                        scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0
+                    }
+                    if (atStart) {
                         onSwipeDown()
                     }
-                    // If not at the top, LazyColumn handles the swipe for its own scrolling.
                 }
             )
             .statusBarsPadding()
@@ -270,38 +292,19 @@ fun AppDrawerScreen(
             )
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            AppDrawerSearch(
+        if (!isSearchBarBottom) {
+            SearchBarRow(
                 searchQuery = searchQuery,
                 onSearchChanged = { query -> searchQuery = query },
-                modifier = Modifier.focusRequester(focusRequester).weight(1f),
                 onEnterPressed = {
                     val appsToOpen =
                         if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
                     if (appsToOpen.isNotEmpty()) handleAppClick(appsToOpen[0])
-                    // Keyboard is hidden by AppDrawerSearch's onSearch action
                 },
-                onFocusStateChanged = { focused ->
-                    isSearchFocused = focused
-                    // Keyboard visibility is handled by onFocusChanged in AppDrawerSearch for focus gain,
-                    // and by scroll logic or IME actions for focus loss/hide.
-                }
+                onFocusStateChanged = { focused -> isSearchFocused = focused },
+                focusRequester = focusRequester,
+                viewModel = viewModel
             )
-
-            if (viewModel.isPrivateSpaceSupported) {
-                if (viewModel.privateSpaceState.collectAsState().value != MainViewModel.PrivateSpaceState.NotSetUp) {
-
-                    Spacer(modifier = Modifier.width(8.dp))
-                    PrivateSpaceToggle(viewModel)
-                }
-            }
         }
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
@@ -336,79 +339,100 @@ fun AppDrawerScreen(
             }
         }
 
-        when {
-            uiState.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-            uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
-            uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
-            uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
-                Box(Modifier.fillMaxSize(), Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No apps found matching \"$searchQuery\"", color = MaterialTheme.colorScheme.onBackground)
-                        if (settings.showWebSearchOption) {
-                            Button(
-                                onClick = {
-                                    if (searchQuery.startsWith("!")) {
-                                        context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
-                                    } else {
-                                        context.openSearch(searchQuery.trim())
-                                    }
-                                },
-                                modifier = Modifier.padding(top = 16.dp)
-                            ) {
-                                Text("Search Web")
+        Box(modifier = Modifier.weight(1f).fillMaxWidth().then(
+            if (isSearchBarBottom) Modifier.navigationBarsPadding() else Modifier
+        )) {
+            when {
+                uiState.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+                uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
+                uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
+                uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("No apps found matching \"$searchQuery\"", color = MaterialTheme.colorScheme.onBackground)
+                            if (settings.showWebSearchOption) {
+                                Button(
+                                    onClick = {
+                                        if (searchQuery.startsWith("!")) {
+                                            context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
+                                        } else {
+                                            context.openSearch(searchQuery.trim())
+                                        }
+                                    },
+                                    modifier = Modifier.padding(top = 16.dp)
+                                ) {
+                                    Text("Search Web")
+                                }
                             }
                         }
                     }
                 }
-            }
-            else -> {
-                LazyColumn(
-                    state = scrollState,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(itemSpacing)
-                ) {
-                    items(
-                        items = appsToShow,
-                        key = { app -> app.getKey() }
-                    ) { app ->
-                        val customTextColor = if (settings.useCustomTextColor && settings.textColor != 0) {
-                            Color(settings.textColor)
-                        } else {
-                            null
-                        }
+                else -> {
+                    LazyColumn(
+                        state = scrollState,
+                        modifier = Modifier.fillMaxSize(),
+                        reverseLayout = reverseLayout,
+                        verticalArrangement = Arrangement.spacedBy(itemSpacing)
+                    ) {
+                        items(
+                            items = appsToShow,
+                            key = { app -> app.getKey() }
+                        ) { app ->
+                            val customTextColor = if (settings.useCustomTextColor && settings.textColor != 0) {
+                                Color(settings.textColor)
+                            } else {
+                                null
+                            }
 
-                        AppListItem(
-                            appLabel = app.appLabel,
-                            appIcon = if (shouldShowIcons) app.appIcon else null,
-                            showIcon = shouldShowIcons,
-                            showLabel = showLabelsInList,
-                            iconCornerRadius = settings.iconCornerRadius.dp,
-                            fontScale = searchResultsFontSize,
-                            fontWeight = fontWeight,
-                            textColor = customTextColor,
-                            onClick = {
-                                if (selectionMode || settings.appDrawerTapToOpen) {
-                                    handleAppClick(app)
-                                }
-                            },
-                            onLongClick = {
-                                if (settings.appDrawerLongPressEnabled && !selectionMode) {
-                                    selectedApp = app
-                                    showContextMenu = true
-                                }
-                            },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                                placementSpec = AnimationConfig.listItemAnimationSpec
-                            ),
-                            trailing = if (viewModel.isPrivateSpaceSupported && viewModel.isAppInPrivateSpace(app)) {
-                                { PrivateSpaceIndicator(true) }
-                            } else null
-                        )
+                            AppListItem(
+                                appLabel = app.appLabel,
+                                appIcon = if (shouldShowIcons) app.appIcon else null,
+                                showIcon = shouldShowIcons,
+                                showLabel = showLabelsInList,
+                                iconCornerRadius = settings.iconCornerRadius.dp,
+                                fontScale = searchResultsFontSize,
+                                fontWeight = fontWeight,
+                                textColor = customTextColor,
+                                textAlign = resultsTextAlign,
+                                onClick = {
+                                    if (selectionMode || settings.appDrawerTapToOpen) {
+                                        handleAppClick(app)
+                                    }
+                                },
+                                onLongClick = {
+                                    if (settings.appDrawerLongPressEnabled && !selectionMode) {
+                                        selectedApp = app
+                                        showContextMenu = true
+                                    }
+                                },
+                                modifier = Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = AnimationConfig.listItemAnimationSpec
+                                ),
+                                trailing = if (viewModel.isPrivateSpaceSupported && viewModel.isAppInPrivateSpace(app)) {
+                                    { PrivateSpaceIndicator(true) }
+                                } else null
+                            )
+                        }
                     }
                 }
             }
+        }
+
+        if (isSearchBarBottom) {
+            SearchBarRow(
+                searchQuery = searchQuery,
+                onSearchChanged = { query -> searchQuery = query },
+                onEnterPressed = {
+                    val appsToOpen =
+                        if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
+                    if (appsToOpen.isNotEmpty()) handleAppClick(appsToOpen[0])
+                },
+                onFocusStateChanged = { focused -> isSearchFocused = focused },
+                focusRequester = focusRequester,
+                viewModel = viewModel
+            )
         }
     }
 
@@ -606,6 +630,39 @@ private fun ContextMenuItem(text: String, icon: ImageVector, onClick: () -> Unit
     ) {
         Icon(icon, text, Modifier.padding(end = 16.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun SearchBarRow(
+    searchQuery: String,
+    onSearchChanged: (String) -> Unit,
+    onEnterPressed: () -> Unit,
+    onFocusStateChanged: (Boolean) -> Unit,
+    focusRequester: FocusRequester,
+    viewModel: MainViewModel
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppDrawerSearch(
+            searchQuery = searchQuery,
+            onSearchChanged = onSearchChanged,
+            modifier = Modifier.focusRequester(focusRequester).weight(1f),
+            onEnterPressed = onEnterPressed,
+            onFocusStateChanged = onFocusStateChanged
+        )
+
+        if (viewModel.isPrivateSpaceSupported) {
+            if (viewModel.privateSpaceState.collectAsState().value != MainViewModel.PrivateSpaceState.NotSetUp) {
+                Spacer(modifier = Modifier.width(8.dp))
+                PrivateSpaceToggle(viewModel)
+            }
+        }
     }
 }
 

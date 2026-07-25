@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ fun LauncherListItem(
     textColor: Color? = null,
     horizontalPadding: Dp = 20.dp,
     verticalPadding: Dp = 12.dp,
+    textAlign: TextAlign = TextAlign.Start,
     onClick: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null
@@ -81,7 +83,8 @@ fun LauncherListItem(
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
                     fontWeight = fontWeight
                 ),
-                color = textColor ?: MaterialTheme.colorScheme.onSurface, // Use custom color
+                color = textColor ?: MaterialTheme.colorScheme.onSurface,
+                textAlign = textAlign,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -108,6 +111,7 @@ fun AppListItem(
     fontScale: Float = 1.0f,
     fontWeight: FontWeight = FontWeight.Normal,
     textColor: Color? = null,
+    textAlign: TextAlign = TextAlign.Start,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null
@@ -122,6 +126,7 @@ fun AppListItem(
         fontScale = fontScale,
         fontWeight = fontWeight,
         textColor = textColor,
+        textAlign = textAlign,
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = modifier,
