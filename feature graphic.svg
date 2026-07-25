@@ -358,16 +358,16 @@
       </g>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:216.012px;line-height:0px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, @opsz=32';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;font-variation-settings:'opsz' 32;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#1e1b0f;fill-opacity:1;stroke-width:4.73163;stroke-linecap:round;stroke-linejoin:round;paint-order:fill markers stroke"
-         x="539.09912"
-         y="836.24805"
-         id="text16"
-         transform="rotate(-45.321712)"><tspan
-           sodipodi:role="line"
-           id="tspan16"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:216.012px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, @opsz=32';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;font-variation-settings:'opsz' 32;fill:#1e1b0f;fill-opacity:1;stroke-width:4.73163"
-           x="539.09912"
-           y="836.24805">CCLauncher</tspan></text>
+style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:216.012px;line-height:0px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, @opsz=32';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;font-variation-settings:'opsz' 32;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#1b1b3a;fill-opacity:1;stroke-width:4.73163;stroke-linecap:round;stroke-linejoin:round;paint-order:fill markers stroke"
+          x="539.09912"
+          y="836.24805"
+          id="text16"
+          transform="rotate(-45.321712)"><tspan
+            sodipodi:role="line"
+            id="tspan16"
+            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:216.012px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math, @opsz=32';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;font-variation-settings:'opsz' 32;fill:#1b1b3a;fill-opacity:1;stroke-width:4.73163"
+            x="539.09912"
+            y="836.24805">CCLauncher</tspan></text>
     </g>
   </g>
   <script
