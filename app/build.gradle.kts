@@ -29,8 +29,8 @@ android {
         applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1340
-        versionName = "v10.7.9"
+        versionCode = 1350
+        versionName = "v10.7.10"
 
         androidResources {
             generateLocaleConfig = true
