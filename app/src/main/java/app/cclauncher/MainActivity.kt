@@ -14,11 +14,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
-import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -184,7 +184,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        window.addFlags(FLAG_LAYOUT_NO_LIMITS)
+        // Edge-to-edge via the supported insets path. FLAG_LAYOUT_NO_LIMITS extends the
+        // window into the navigation bar area, which on gesture-nav devices is the bottom
+        // gesture region — that made the home gesture ambiguous and stopped other apps
+        // from entering picture-in-picture (issue #291). The theme already sets
+        // windowLayoutInDisplayCutoutMode, so nothing else is needed.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             CLauncherTheme {
