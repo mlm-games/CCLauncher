@@ -1,7 +1,9 @@
 package app.cclauncher.helper
 
+import android.icu.text.Transliterator
 import android.os.Build
 import java.text.Normalizer
+import java.util.Locale
 
 /**
  * Utilities for building and matching search aliases (transliteration and keyboard layout swap).
@@ -29,6 +31,41 @@ object SearchAliasUtils {
     private val enToRu = en.zip(ru).toMap() + en.map { it.uppercaseChar() }.zip(ru.map { it.uppercaseChar() }).toMap()
     private val ruToEn = ru.zip(en).toMap() + ru.map { it.uppercaseChar() }.zip(en.map { it.uppercaseChar() }).toMap()
 
+    private val NON_ASCII_REGEX = "[^\\p{ASCII}]".toRegex()
+
+    private val anyLatinTransliterator: TransliteratorHandle by lazy { transliterator("Any-Latin") }
+    private val latinCyrillicTransliterator: TransliteratorHandle by lazy { transliterator("Latin-Cyrillic") }
+
+    private class TransliteratorHandle(private val direct: Transliterator?, private val legacy: Any?) {
+        fun transliterate(text: String): String {
+            val fast = direct
+            if (fast != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                return runCatching { fast.transliterate(text) }.getOrDefault(text)
+            }
+            val slow = legacy ?: return text
+            return runCatching {
+                slow.javaClass.getMethod("transliterate", String::class.java)
+                    .invoke(slow, text) as String
+            }.getOrDefault(text)
+        }
+    }
+
+    // android.icu.text.Transliterator is only in the public SDK from API 29; earlier
+    // releases still have the class on-device, so reach it reflectively there.
+    private fun transliterator(id: String): TransliteratorHandle =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            TransliteratorHandle(runCatching { Transliterator.getInstance(id) }.getOrNull(), null)
+        } else {
+            TransliteratorHandle(
+                null,
+                runCatching {
+                    Class.forName("android.icu.text.Transliterator")
+                        .getMethod("getInstance", String::class.java)
+                        .invoke(null, id)
+                }.getOrNull()
+            )
+        }
+
     fun swapKeyboardLayout(text: String, ruToEnDirection: Boolean): String {
         val map = if (ruToEnDirection) ruToEn else enToRu
         val sb = StringBuilder(text.length)
@@ -42,33 +79,18 @@ object SearchAliasUtils {
         for (c in norm) {
             if (Character.getType(c) != Character.NON_SPACING_MARK.toInt()) sb.append(c)
         }
-        return sb.toString().replace("[^\\p{ASCII}]".toRegex(), "")
-    }
-
-    private fun transliterate(id: String, text: String): String {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return try {
-                val cls = Class.forName("android.icu.text.Transliterator")
-                val getInstance = cls.getMethod("getInstance", String::class.java)
-                val transform = cls.getMethod("transliterate", String::class.java)
-                val inst = getInstance.invoke(null, id)
-                transform.invoke(inst, text) as String
-            } catch (_: Throwable) {
-                text
-            }
-        }
-        return text
+        return sb.toString().replace(NON_ASCII_REGEX, "")
     }
 
     fun anyToLatin(text: String): String {
         // Any script -> Latin -> ASCII-ish
-        val toLatin = transliterate("Any-Latin", text)
+        val toLatin = anyLatinTransliterator.transliterate(text)
         return asciiFold(toLatin)
     }
 
-    fun latinToCyrillic(text: String): String = transliterate("Latin-Cyrillic", text)
+    fun latinToCyrillic(text: String): String = latinCyrillicTransliterator.transliterate(text)
 
-    fun normalize(s: String): String = s.lowercase().trim()
+    fun normalize(s: String): String = s.lowercase(Locale.ROOT).trim()
 
     /**
      * Build a set of aliases for an app label and optional package name.

@@ -191,13 +191,13 @@ data class AppSettings(
         options = ["System Default", "Force Portrait", "Force Landscape"],
         category = Appearance::class
     )
-    var screenOrientation: Int = 0,
+    val screenOrientation: Int = 0,
 
     @Setting(
         title = "Item Spacing",
         category = Appearance::class,
         type = Dropdown::class,
-        options = ["None", "Small", "Medium", "Large"]
+        options = ["None", "Small", "Medium", "Large"],
     )
     val itemSpacing: Int = 1,
 
@@ -205,7 +205,7 @@ data class AppSettings(
         title = "Search Results Use Home Font Size",
         category = Appearance::class,
         type = Toggle::class,
-        description = "Use the same font size for search results as home screen"
+        description = "Use the same font size for search results as home screen",
     )
     val searchResultsUseHomeFont: Boolean = false,
 
@@ -215,7 +215,7 @@ data class AppSettings(
         type = Slider::class,
         min = 0.5f,
         max = 2.0f,
-        step = 0.1f
+        step = 0.1f,
     )
     val searchResultsFontSize: Float = 1.0f,
 

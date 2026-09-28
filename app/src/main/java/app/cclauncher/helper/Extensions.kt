@@ -42,9 +42,15 @@ fun Context.showToast(
 
 
 fun Context.openSearch(query: String? = null) {
-    val intent = Intent(Intent.ACTION_WEB_SEARCH)
-    intent.putExtra(SearchManager.QUERY, query ?: "")
-    startActivity(intent)
+    try {
+        val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
+            putExtra(SearchManager.QUERY, query ?: "")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    } catch (_: Exception) {
+        // No search handler — ignore
+    }
 }
 
 fun Context.isEinkDisplay(): Boolean {
@@ -52,7 +58,7 @@ fun Context.isEinkDisplay(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val refreshRate = (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(Display.DEFAULT_DISPLAY)
-                .refreshRate
+                ?.refreshRate ?: return false
             refreshRate <= AnimationConstants.MIN_ANIM_REFRESH_RATE
         } else {
             // Legacy API (pre-Android 11)
@@ -61,7 +67,7 @@ fun Context.isEinkDisplay(): Boolean {
             display.refreshRate <= AnimationConstants.MIN_ANIM_REFRESH_RATE
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        android.util.Log.w("LauncherExt", "isEinkDisplay failed", e)
         false
     }
 }

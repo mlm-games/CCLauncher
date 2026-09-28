@@ -320,6 +320,7 @@ fun HomeScreen(
         }
 
         // Resize dialog
+        val density = LocalDensity.current.density
         ResizeDialog(
             item = resizeDialogItem,
             currentRows = homeLayoutState.rows,
@@ -329,10 +330,10 @@ fun HomeScreen(
                 when (item) {
                     is HomeItem.Widget -> {
                         val screenDimensions = getScreenDimensions(context)
-                        val cellWidth = screenDimensions.first / homeLayoutState.columns
-                        val cellHeight = screenDimensions.second / homeLayoutState.rows
-                        val widgetWidthDp = (cellWidth * newColSpan)
-                        val widgetHeightDp = (cellHeight * newRowSpan)
+                        val cellWidth = (screenDimensions.first / density) / homeLayoutState.columns
+                        val cellHeight = (screenDimensions.second / density) / homeLayoutState.rows
+                        val widgetWidthDp = (cellWidth * newColSpan).toInt()
+                        val widgetHeightDp = (cellHeight * newRowSpan).toInt()
 
                         val options = Bundle().apply {
                             putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetWidthDp)

@@ -14,10 +14,13 @@ import org.xmlpull.v1.XmlPullParser
 import java.util.concurrent.ConcurrentHashMap
 
 class IconPackManager(context: Context) {
-    private val packageManager = context.packageManager
+    private val appContext = context.applicationContext
+    private val packageManager = appContext.packageManager
 
-    // cacheKey = "pack|package/class"
-    private val iconPackCache = LruCache<String, Bitmap>(150)
+    // Byte-sized LRU (~8MB).
+    private val iconPackCache = object : LruCache<String, Bitmap>(8 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount.coerceAtLeast(1)
+    }
     private val iconPackMappings = ConcurrentHashMap<String, IconPackInfo>()
 
     data class IconPackInfo(
@@ -32,17 +35,37 @@ class IconPackManager(context: Context) {
         iconPacks.add(IconPackInfo("default", "Default Icons"))
 
         runCatching {
-            val intentResults =
-                packageManager.queryIntentActivities(android.content.Intent("org.adw.launcher.THEMES"), 0) +
-                        packageManager.queryIntentActivities(android.content.Intent("com.gau.go.launcherex.theme"), 0) +
-                        packageManager.queryIntentActivities(android.content.Intent("com.anddoes.launcher.THEME"), 0)
+            val intents = listOf(
+                android.content.Intent("org.adw.launcher.THEMES"),
+                android.content.Intent("com.gau.go.launcherex.theme"),
+                android.content.Intent("com.anddoes.launcher.THEME")
+            )
+            val intentResults = intents.flatMap { intent ->
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.queryIntentActivities(
+                        intent,
+                        android.content.pm.PackageManager.ResolveInfoFlags.of(0)
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.queryIntentActivities(intent, 0)
+                }
+            }
 
             intentResults
                 .distinctBy { it.activityInfo.packageName }
                 .forEach { resolveInfo ->
                     val packageName = resolveInfo.activityInfo.packageName
                     runCatching {
-                        val appInfo = packageManager.getApplicationInfo(packageName, 0)
+                        val appInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            packageManager.getApplicationInfo(
+                                packageName,
+                                android.content.pm.PackageManager.ApplicationInfoFlags.of(0)
+                            )
+                        } else {
+                            @Suppress("DEPRECATION")
+                            packageManager.getApplicationInfo(packageName, 0)
+                        }
                         val name = packageManager.getApplicationLabel(appInfo).toString()
                         iconPacks.add(IconPackInfo(packageName, name))
                     }
@@ -63,11 +86,18 @@ class IconPackManager(context: Context) {
             val resources = packageManager.getResourcesForApplication(packageName)
             val componentMap = parseAppFilter(resources, packageName)
 
+            val appInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getApplicationInfo(
+                    packageName,
+                    android.content.pm.PackageManager.ApplicationInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getApplicationInfo(packageName, 0)
+            }
             val iconPack = IconPackInfo(
                 packageName = packageName,
-                name = packageManager.getApplicationLabel(
-                    packageManager.getApplicationInfo(packageName, 0)
-                ).toString(),
+                name = packageManager.getApplicationLabel(appInfo).toString(),
                 componentMap = componentMap,
                 isLoaded = true
             )
@@ -99,7 +129,8 @@ class IconPackManager(context: Context) {
         val iconId = resources.getIdentifier(iconName, "drawable", iconPackName)
         if (iconId == 0) return@withContext null
 
-        val drawable = runCatching { resources.getDrawable(iconId, null) }.getOrNull() ?: return@withContext null
+        val drawable = runCatching { resources.getDrawable(iconId, null) }.getOrNull()
+            ?: return@withContext null
         val bmp = drawableToBitmap(drawable) ?: return@withContext null
 
         iconPackCache.put(cacheKey, bmp)

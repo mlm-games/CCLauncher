@@ -3,12 +3,14 @@ package app.cclauncher.helper
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Manages interaction with Android 15's Private Space feature
@@ -139,30 +141,59 @@ class PrivateSpaceHelper(private val context: Context) {
 
     /**
      * Toggle the lock state of the private space.
+     * Suspend version — verifies after a delay without Handler.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun togglePrivateSpaceLock(onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+    suspend fun togglePrivateSpaceLockSuspend(): Result<Boolean> {
         if (!isPrivateSpaceSupported()) {
-            onFailure("Private Space requires Android 15 or higher")
-            return
+            return Result.failure(IllegalStateException("Private Space requires Android 15 or higher"))
         }
-
         if (!isPrivateSpaceSetUp()) {
-            onFailure("Private Space is not set up on this device")
-            return
+            return Result.failure(IllegalStateException("Private Space is not set up on this device"))
         }
-
         val currentlyLocked = isPrivateSpaceLocked()
         setPrivateSpaceLock(!currentlyLocked)
+        // Allow the system to process the change
+        delay(500)
+        return if (isPrivateSpaceLocked() == !currentlyLocked) {
+            Result.success(!currentlyLocked)
+        } else {
+            Result.failure(IllegalStateException("Failed to ${if (currentlyLocked) "unlock" else "lock"} Private Space"))
+        }
+    }
 
-        // Verify the change after a short delay
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (isPrivateSpaceLocked() == !currentlyLocked) {
-                onSuccess()
-            } else {
-                onFailure("Failed to ${if (currentlyLocked) "unlock" else "lock"} Private Space")
-            }
-        }, 500) // Short delay to allow the system to process the change
+    /**
+     * Toggle the lock state of the private space.
+     * Callback version kept for existing callers; delegates to a coroutine scope.
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun togglePrivateSpaceLock(
+        scope: CoroutineScope,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        scope.launchWhenSupported(onSuccess, onFailure)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun CoroutineScope.launchWhenSupported(
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) = launch {
+        togglePrivateSpaceLockSuspend()
+            .onSuccess { onSuccess() }
+            .onFailure { onFailure(it.message ?: "Private Space operation failed") }
+    }
+
+    @Deprecated(
+        "Use togglePrivateSpaceLock(scope, onSuccess, onFailure) to avoid Handler leaks",
+        ReplaceWith("togglePrivateSpaceLock(scope, onSuccess, onFailure)")
+    )
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun togglePrivateSpaceLock(onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        // Fallback for callers without a scope: run on a supervised IO scope.
+        // Prefer the scope overload above.
+        CoroutineScope(Dispatchers.IO).launchWhenSupported(onSuccess, onFailure)
     }
 
     /**

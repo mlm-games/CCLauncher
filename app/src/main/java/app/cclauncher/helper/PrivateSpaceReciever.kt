@@ -20,8 +20,10 @@ class PrivateSpaceReceiver : BroadcastReceiver() {
                 // Private Space was unlocked
                 Toast.makeText(context, "Private Space unlocked", Toast.LENGTH_LONG).show()
 
-                // Notify the launcher to refresh app list
+                // Notify the launcher to refresh app list — scoped to our package so
+                // no other app can trigger reload loops.
                 val refreshIntent = Intent("app.cclauncher.ACTION_REFRESH_APPS")
+                    .setPackage(context.packageName)
                 context.sendBroadcast(refreshIntent)
             }
 
@@ -29,8 +31,9 @@ class PrivateSpaceReceiver : BroadcastReceiver() {
                 // Private Space was locked
                 Toast.makeText(context, "Private Space locked", Toast.LENGTH_LONG).show()
 
-                // Notify the launcher to refresh app list
+                // Notify the launcher to refresh app list — scoped to our package.
                 val refreshIntent = Intent("app.cclauncher.ACTION_REFRESH_APPS")
+                    .setPackage(context.packageName)
                 context.sendBroadcast(refreshIntent)
             }
         }

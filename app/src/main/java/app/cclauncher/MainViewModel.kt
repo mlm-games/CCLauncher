@@ -29,6 +29,7 @@ import app.cclauncher.settings.AppSettings
 import app.cclauncher.settings.AppKeyMigration
 import app.cclauncher.helper.IconCache
 import app.cclauncher.helper.MyAccessibilityService
+import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.SearchAliasUtils
 import app.cclauncher.helper.getScreenDimensions
@@ -37,22 +38,30 @@ import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.AppDrawerUiState
 import app.cclauncher.ui.components.snackbar.SnackbarManager
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import kotlinx.coroutines.withContext
 import java.util.UUID
+import java.util.Locale
 import kotlin.math.ceil
 
 /**
  * MainViewModel is the primary ViewModel for CCLauncher that manages app state and user interactions.
  */
 @OptIn(FlowPreview::class)
-class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application), KoinComponent {
+class MainViewModel(
+    application: Application,
+    private val appWidgetHost: AppWidgetHost,
+    private val settingsRepository: AppSettingsRepository,
+    private val appRepository: AppRepository,
+    private val snackbarManager: SnackbarManager,
+    private val iconCache: IconCache,
+    private val privateSpaceHelper: PrivateSpaceHelper,
+    private val permissionManager: PermissionManager,
+) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    val settingsRepository: AppSettingsRepository by inject()
-    private val appRepository: AppRepository by inject()
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = WidgetConstants.REQUEST_CONFIGURE_WIDGET
     private var pendingWidgetInfo: PendingWidgetInfo? = null
@@ -77,8 +86,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         appReloadRequests.tryEmit(AppReloadRequest(reason, forceEmit))
     }
 
-    private val privateSpaceHelper = PrivateSpaceHelper(application.applicationContext)
-
     val isPrivateSpaceSupported = privateSpaceHelper.isPrivateSpaceSupported()
 
     private val _privateSpaceState = MutableStateFlow<PrivateSpaceState>(PrivateSpaceState.Unsupported)
@@ -86,8 +93,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     data class PendingWidgetInfo(val appWidgetId: Int, val providerInfo: android.appwidget.AppWidgetProviderInfo)
 
-    // Events manager for UI events
-    private val _eventsFlow = MutableSharedFlow<UiEvent>()
+    // Events manager for UI events — buffered so emit never suspends when nav isn't composed yet.
+    private val _eventsFlow = MutableSharedFlow<UiEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
     // UI States
@@ -115,8 +122,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
 
     val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
-
-    val snackbarManager : SnackbarManager by inject()
 
     private val launcherAppsCallback = object : LauncherApps.Callback() {
         override fun onPackageRemoved(packageName: String, user: UserHandle) {
@@ -177,9 +182,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 settingsRepository.getHomeLayout(),
                 settingsRepository.settings
             ) { layout, settings ->
-                if (settings.homeScreenPages != layout.pageCount) {
-                    settingsRepository.updateSetting("homeScreenPages", layout.pageCount)
-                }
                 val updatedLayout = layout.copy(
                     rows = settings.homeScreenRows,
                     columns = settings.homeScreenColumns
@@ -188,6 +190,19 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             }.collect { updatedLayout ->
                 _homeLayoutState.value = updatedLayout
             }
+        }
+
+        viewModelScope.launch {
+            combine(
+                settingsRepository.getHomeLayout().map { it.pageCount },
+                settingsRepository.settings.map { it.homeScreenPages }
+            ) { layoutPages, settingPages -> layoutPages to settingPages }
+                .distinctUntilChanged()
+                .collect { (layoutPages, settingPages) ->
+                    if (layoutPages != settingPages) {
+                        settingsRepository.updateSetting("homeScreenPages", layoutPages)
+                    }
+                }
         }
 
         viewModelScope.launch {
@@ -290,14 +305,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         requestAppReload("initial", forceEmit = true)
     }
 
-    private suspend fun rebuildSearchAliasIndex() {
+    private suspend fun rebuildSearchAliasIndex() = withContext(Dispatchers.Default) {
         val settings = settingsRepository.settings.first()
         val mode = settings.searchAliasesMode
         val includePkg = settings.searchIncludePackageNames
 
         if (mode == SearchAliasUtils.Mode.OFF && !includePkg) {
             searchAliasIndex = emptyMap()
-            return
+            return@withContext
         }
 
         val idx = HashMap<String, Set<String>>(_appListAll.value.size)
@@ -314,6 +329,54 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     }
 
     /**
+     * Resolve a home app icon. Extracted so load + refresh share one path (was ~70 duplicated lines).
+     * Shortcut icons are batched per (package, user) via [pinnedShortcutCache] to avoid N+1 IPC.
+     */
+    private suspend fun resolveHomeAppIcon(
+        app: AppModel,
+        iconPackName: String,
+        pinnedShortcutCache: MutableMap<String, List<android.content.pm.ShortcutInfo>>? = null
+    ): androidx.compose.ui.graphics.ImageBitmap? = withContext(Dispatchers.IO) {
+        if (app.isSystemShortcut &&
+            app.systemShortcutId != null &&
+            app.systemShortcutPackage != null &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
+        ) {
+            val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+            if (!launcherApps.hasShortcutHostPermission()) return@withContext null
+            val cacheKey = "${app.systemShortcutPackage}|${app.user}"
+            val shortcuts = pinnedShortcutCache?.getOrPut(cacheKey) {
+                val query = LauncherApps.ShortcutQuery()
+                    .setPackage(app.systemShortcutPackage)
+                    .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                runCatching { launcherApps.getShortcuts(query, app.user).orEmpty() }.getOrDefault(emptyList())
+            } ?: run {
+                val query = LauncherApps.ShortcutQuery()
+                    .setPackage(app.systemShortcutPackage)
+                    .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
+                runCatching { launcherApps.getShortcuts(query, app.user).orEmpty() }.getOrDefault(emptyList())
+            }
+            val shortcut = shortcuts.firstOrNull { it.id == app.systemShortcutId } ?: return@withContext null
+            val iconDrawable = runCatching {
+                launcherApps.getShortcutIconDrawable(shortcut, appContext.resources.displayMetrics.densityDpi)
+            }.getOrNull()
+            return@withContext BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
+        } else {
+            val resolvedUser = try {
+                getUserHandleFromString(appContext, app.userString)
+            } catch (_: Exception) {
+                app.user
+            }
+            return@withContext iconCache.getIcon(
+                packageName = app.appPackage,
+                className = app.activityClassName,
+                user = resolvedUser,
+                iconPackName = iconPackName,
+            )
+        }
+    }
+
+    /**
      * Load icons for all apps in the home layout
      */
     private suspend fun loadIconsForHomeLayout(layout: HomeLayout, settings: AppSettings): HomeLayout {
@@ -321,43 +384,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             return layout // Don't load icons if they're not shown
         }
 
-        val iconCache = IconCache(appContext)
-
+        val pinnedCache = mutableMapOf<String, List<android.content.pm.ShortcutInfo>>()
         val updatedItems = layout.items.map { item ->
             when (item) {
                 is HomeItem.App -> {
-                    val resolvedUser = getUserHandleFromString(appContext, item.appModel.userString)
-                    val icon = if (item.appModel.isSystemShortcut &&
-                        item.appModel.systemShortcutId != null &&
-                        item.appModel.systemShortcutPackage != null &&
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
-                    ) {
-                        val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-                        if (!launcherApps.hasShortcutHostPermission()) {
-                            null
-                        } else {
-                            val query = LauncherApps.ShortcutQuery()
-                                .setPackage(item.appModel.systemShortcutPackage)
-                                .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
-                            val shortcut = launcherApps.getShortcuts(query, resolvedUser)
-                                .orEmpty()
-                                .firstOrNull { it.id == item.appModel.systemShortcutId }
-
-                            val iconDrawable = shortcut?.let {
-                                launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
-                            }
-                            BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
-                        }
-                    } else {
-                        iconCache.getIcon(
-                            packageName = item.appModel.appPackage,
-                            className = item.appModel.activityClassName,
-                            user = resolvedUser,
-                            iconPackName = settings.selectedIconPack,
-                        )
-                    }
-                    val updatedAppModel = item.appModel.copy(appIcon = icon)
-                    item.copy(appModel = updatedAppModel)
+                    val icon = resolveHomeAppIcon(item.appModel, settings.selectedIconPack, pinnedCache)
+                    item.copy(appModel = item.appModel.copy(appIcon = icon))
                 }
                 is HomeItem.Widget -> item
             }
@@ -369,54 +401,24 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private suspend fun refreshHomeScreenAppIcons() {
         val currentLayout = _homeLayoutState.value
         val settings = settingsRepository.settings.first()
-        val iconCache = IconCache(appContext)
 
+        val pinnedCache = mutableMapOf<String, List<android.content.pm.ShortcutInfo>>()
         val updatedItems = currentLayout.items.map { item ->
             when (item) {
                 is HomeItem.App -> {
                     val updatedIcon = if (settings.showHomeScreenIcons) {
-                        if (item.appModel.isSystemShortcut &&
-                            item.appModel.systemShortcutId != null &&
-                            item.appModel.systemShortcutPackage != null &&
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
-                        ) {
-                            val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-                            if (!launcherApps.hasShortcutHostPermission()) {
-                                null
-                            } else {
-                                val query = LauncherApps.ShortcutQuery()
-                                    .setPackage(item.appModel.systemShortcutPackage)
-                                    .setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED)
-                                val shortcut = launcherApps.getShortcuts(query, item.appModel.user)
-                                    .orEmpty()
-                                    .firstOrNull { it.id == item.appModel.systemShortcutId }
-
-                                val iconDrawable = shortcut?.let {
-                                    launcherApps.getShortcutIconDrawable(it, appContext.resources.displayMetrics.densityDpi)
-                                }
-                                BitmapUtils.drawableToBitmap(iconDrawable)?.asImageBitmap()
-                            }
-                        } else {
-                            iconCache.getIcon(
-                                packageName = item.appModel.appPackage,
-                                className = item.appModel.activityClassName,
-                                user = item.appModel.user,
-                                iconPackName = settings.selectedIconPack,
-                            )
-                        }
+                        resolveHomeAppIcon(item.appModel, settings.selectedIconPack, pinnedCache)
                     } else {
                         null
                     }
-                    val updatedAppModel = item.appModel.copy(appIcon = updatedIcon)
-                    item.copy(appModel = updatedAppModel)
+                    item.copy(appModel = item.appModel.copy(appIcon = updatedIcon))
                 }
                 is HomeItem.Widget -> item
             }
         }
 
-        val updatedLayout = currentLayout.copy(items = updatedItems)
-        _homeLayoutState.value = updatedLayout
-        settingsRepository.saveHomeLayout(updatedLayout)
+        // In-memory only: icons are @Transient and not persisted, so don't rewrite DataStore here.
+        _homeLayoutState.value = currentLayout.copy(items = updatedItems)
     }
 
     suspend fun updateGridSize(newRows: Int, newColumns: Int) {
@@ -502,8 +504,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             viewModelScope.launch {
                 try {
-                    val privateSpaceHelper = PrivateSpaceHelper(appContext)
-
                     if (!privateSpaceHelper.isPrivateSpaceSupported()) {
                         snackbarManager.show("Private Space requires Android 15 or higher")
                         return@launch
@@ -560,13 +560,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
                 if (app.systemShortcutId != null && app.systemShortcutPackage != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                        launcherApps.startShortcut(
-                            app.systemShortcutPackage,
-                            app.systemShortcutId,
-                            null,
-                            null,
-                            app.user
-                        )
+                        withContext(Dispatchers.IO) {
+                            launcherApps.startShortcut(
+                                app.systemShortcutPackage,
+                                app.systemShortcutId,
+                                null,
+                                null,
+                                app.user
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -574,39 +576,51 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 snackbarManager.show("Failed to open shortcut: ${e.message}")
             }
         } else {
-            appRepository.launchApp(app)
+            try {
+                appRepository.launchApp(app)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error launching app", e)
+                snackbarManager.show("Failed to open app: ${e.message}")
+                return
+            }
         }
-        settingsRepository.updateAppLaunchTime(app.getKey())
+        // History write off the critical path — IO dispatcher, failures only logged.
+        withContext(Dispatchers.IO) {
+            runCatching { settingsRepository.updateAppLaunchTime(app.getKey()) }
+            runCatching { migrateLegacyKeysForApp(app) }
+        }
+    }
 
+    /** Shared legacy-key migration (was triplicated across launch/toggle/rename paths). */
+    private suspend fun migrateLegacyKeysForApp(app: AppModel) {
         val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
         val legacyCopyKeys = AppKey.legacyCopyKeysForApp(app)
-        if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
-            val settings = settingsRepository.settings.first()
-            val appKey = app.getKey()
-            val hasNewRename = settings.renamedApps.containsKey(appKey)
-            val hasNewHidden = settings.hiddenApps.contains(appKey)
-            val newHistory = settings.recentAppHistory[appKey]
+        if (legacyMoveKeys.isEmpty() && legacyCopyKeys.isEmpty()) return
+        val appKey = app.getKey()
+        val settings = settingsRepository.settings.first()
+        val hasNewRename = settings.renamedApps.containsKey(appKey)
+        val hasNewHidden = settings.hiddenApps.contains(appKey)
+        val newHistory = settings.recentAppHistory[appKey]
 
-            val legacyRename = legacyCopyKeys.firstNotNullOfOrNull { settings.renamedApps[it] }
-            val legacyHidden = legacyCopyKeys.any { settings.hiddenApps.contains(it) }
-            val legacyHistory = legacyCopyKeys.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
+        val legacyRename = legacyCopyKeys.firstNotNullOfOrNull { settings.renamedApps[it] }
+        val legacyHidden = legacyCopyKeys.any { settings.hiddenApps.contains(it) }
+        val legacyHistory = legacyCopyKeys.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
 
-            val shouldCopy = (!hasNewRename && legacyRename != null) ||
-                (!hasNewHidden && legacyHidden) ||
-                (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
+        val shouldCopy = (!hasNewRename && legacyRename != null) ||
+            (!hasNewHidden && legacyHidden) ||
+            (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
 
-            val copyKeys = if (shouldCopy) legacyCopyKeys else emptySet()
+        val copyKeys = if (shouldCopy) legacyCopyKeys else emptySet()
 
-            settingsRepository.migrateAppKeys(
-                listOf(
-                    AppKeyMigration(
-                        newKey = appKey,
-                        moveKeys = legacyMoveKeys,
-                        copyKeys = copyKeys
-                    )
+        settingsRepository.migrateAppKeys(
+            listOf(
+                AppKeyMigration(
+                    newKey = appKey,
+                    moveKeys = legacyMoveKeys,
+                    copyKeys = copyKeys
                 )
             )
-        }
+        )
     }
 
 
@@ -653,21 +667,16 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     }
 
     fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                @Suppress("SENSELESS_COMPARISON")
-                if (providerInfo == null) {
-                    Log.e("WidgetDebug", "CRITICAL: providerInfo is NULL in startWidgetConfiguration")
-                    snackbarManager.show("Internal error: Widget provider information missing.")
-                    return@launch
-                }
-
                 val componentName = providerInfo.provider
-                if (componentName == null) {
-                    Log.e("WidgetDebug", "CRITICAL: providerInfo.provider is NULL")
-                    snackbarManager.show("Internal error: Widget component name missing.")
-                    return@launch
-                }
+                    ?: run {
+                        Log.e("WidgetDebug", "CRITICAL: providerInfo.provider is NULL")
+                        withContext(Dispatchers.Main) {
+                            snackbarManager.show("Internal error: Widget component name missing.")
+                        }
+                        return@launch
+                    }
 
                 val appWidgetId = appWidgetHost.allocateAppWidgetId()
                 val bindSuccess = appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, componentName)
@@ -675,7 +684,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 if (bindSuccess) {
                     if (providerInfo.configure != null) {
                         pendingWidgetInfo = PendingWidgetInfo(appWidgetId, providerInfo)
-                        emitEvent(UiEvent.ConfigureWidget(appWidgetId))
+                        withContext(Dispatchers.Main) {
+                            emitEvent(UiEvent.ConfigureWidget(appWidgetId))
+                        }
                     } else {
                         // No configuration needed — add immediately
                         addWidgetToLayout(appWidgetId, providerInfo)
@@ -686,11 +697,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, componentName)
                     }
-                    emitEvent(UiEvent.LaunchWidgetBindIntent(bindIntent))
+                    withContext(Dispatchers.Main) {
+                        emitEvent(UiEvent.LaunchWidgetBindIntent(bindIntent))
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("WidgetDebug", "Error in startWidgetConfiguration", e)
-                snackbarManager.show("Failed to start widget configuration: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    snackbarManager.show("Failed to start widget configuration: ${e.message}")
+                }
             }
         }
     }
@@ -698,9 +713,11 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
-                val screenDimensions = getScreenDimensions(context = appContext)
-                val screenWidthDp = screenDimensions.first
-                val screenHeightDp = screenDimensions.second
+                // getScreenDimensions returns pixels; convert to dp for minWidth/minHeight (dp) math.
+                val density = appContext.resources.displayMetrics.density
+                val (screenWidthPx, screenHeightPx) = getScreenDimensions(context = appContext)
+                val screenWidthDp = screenWidthPx / density
+                val screenHeightDp = screenHeightPx / density
 
                 val currentLayout = _homeLayoutState.value
                 val cellWidthDp = screenWidthDp / currentLayout.columns
@@ -753,7 +770,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, providerInfo.minHeight)
                     }
                     appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
-                    settingsRepository.triggerHomeLayoutRefresh()
+                    // No triggerHomeLayoutRefresh(): layout was already saved above and icons
+                    // are transient — re-emitting the same value only caused loops.
 
                     _currentPage.value = targetPage
                 } else {
@@ -854,18 +872,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             } else {
                 settingsRepository.setAppCustomName(appKey, trimmedName)
             }
-            val migrations = buildList {
-                if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
-                    add(
-                        AppKeyMigration(
-                            newKey = appKey,
-                            moveKeys = legacyMoveKeys,
-                            copyKeys = legacyCopyKeys
-                        )
-                    )
-                }
+            // Reuse shared migration helper instead of duplicating logic here.
+            withContext(Dispatchers.IO) {
+                runCatching { migrateLegacyKeysForApp(app) }
             }
-            settingsRepository.migrateAppKeys(migrations)
 
             loadApps()
         }
@@ -878,9 +888,10 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val newItems = currentLayout.items.filterNot { it.id == widgetItem.id }
                 val newLayout = currentLayout.copy(items = newItems)
                 _homeLayoutState.value = newLayout
-                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
+                withContext(Dispatchers.IO) {
+                    runCatching { appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId) }
+                }
                 settingsRepository.saveHomeLayout(newLayout)
-                settingsRepository.triggerHomeLayoutRefresh()
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
                 snackbarManager.show("Failed to remove widget.")
@@ -954,13 +965,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             val newLayout = currentLayout.copy(items = newItems)
             _homeLayoutState.value = newLayout
             settingsRepository.saveHomeLayout(newLayout)
-            settingsRepository.triggerHomeLayoutRefresh()
 
-            // Update options
-            val screenWidthDp = getScreenDimensions(context = appContext).first
-            val screenHeightDp = getScreenDimensions(appContext).second
-            val cellWidthDp = screenWidthDp.toFloat() / currentLayout.columns
-            val cellHeightDp = screenHeightDp.toFloat() / currentLayout.rows
+            // Update options — dimensions are pixels, convert to dp for widget sizing.
+            val density = appContext.resources.displayMetrics.density
+            val (screenWidthPx, screenHeightPx) = getScreenDimensions(context = appContext)
+            val cellWidthDp = (screenWidthPx / density) / currentLayout.columns
+            val cellHeightDp = (screenHeightPx / density) / currentLayout.rows
 
             val options = Bundle().apply {
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, (newColSpan * cellWidthDp).toInt())
@@ -1001,7 +1011,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             val newLayout = currentLayout.copy(items = updatedItems)
             _homeLayoutState.value = newLayout
             settingsRepository.saveHomeLayout(newLayout)
-            settingsRepository.triggerHomeLayoutRefresh()
         }
     }
 
@@ -1022,12 +1031,13 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                         viewModelScope.launch {
                             val currentLayout = _homeLayoutState.value
                             _homeLayoutState.value = currentLayout.copy()
-                            settingsRepository.triggerHomeLayoutRefresh()
                         }
                     }
                 } else {
                     Log.w("ViewModelWidget", "Widget configuration cancelled/failed for ID $widgetId")
-                    appWidgetHost.deleteAppWidgetId(widgetId)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        runCatching { appWidgetHost.deleteAppWidgetId(widgetId) }
+                    }
                     snackbarManager.show("Widget configuration cancelled.")
                 }
             }
@@ -1064,6 +1074,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun togglePrivateSpace() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             privateSpaceHelper.togglePrivateSpaceLock(
+                viewModelScope,
                 onSuccess = {
                     updatePrivateSpaceState()
                     loadApps()
@@ -1084,7 +1095,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     @Suppress("DEPRECATION")
                     intentSender.sendIntent(appContext, 0, null, null, null)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("MainViewModel", "Failed to open Private Space settings", e)
                     snackbarManager.show("Failed to open Private Space settings")
                 }
             } else {
@@ -1110,58 +1121,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     fun loadApps() {
         requestAppReload("manualLoadApps", forceEmit = true)
-    }
-
-    private suspend fun migrateLegacyKeysForCurrentApps() {
-        val settings = settingsRepository.settings.first()
-        val renamedKeys = settings.renamedApps.keys
-        val hiddenKeys = settings.hiddenApps
-        val historyKeys = settings.recentAppHistory.keys
-        val existingKeys = buildSet {
-            addAll(renamedKeys)
-            addAll(hiddenKeys)
-            addAll(historyKeys)
-        }
-
-        val migrations = mutableListOf<AppKeyMigration>()
-        for (app in appRepository.appListAll.value) {
-            val appKey = app.getKey()
-            val legacyMoveKeys = AppKey.legacyMoveKeysForApp(app)
-                .filter { existingKeys.contains(it) }
-                .toSet()
-            val legacyCopyCandidates = AppKey.legacyCopyKeysForApp(app)
-                .filter { existingKeys.contains(it) }
-                .toSet()
-
-            val hasNewRename = settings.renamedApps.containsKey(appKey)
-            val hasNewHidden = settings.hiddenApps.contains(appKey)
-            val newHistory = settings.recentAppHistory[appKey]
-
-            val legacyRename = legacyCopyCandidates.firstNotNullOfOrNull { settings.renamedApps[it] }
-            val legacyHidden = legacyCopyCandidates.any { settings.hiddenApps.contains(it) }
-            val legacyHistory = legacyCopyCandidates.mapNotNull { settings.recentAppHistory[it] }.maxOrNull()
-
-            val shouldCopy = (!hasNewRename && legacyRename != null) ||
-                (!hasNewHidden && legacyHidden) ||
-                (legacyHistory != null && (newHistory == null || legacyHistory > newHistory))
-
-            val legacyCopyKeys = if (shouldCopy) legacyCopyCandidates else emptySet()
-
-            if (legacyMoveKeys.isNotEmpty() || legacyCopyKeys.isNotEmpty()) {
-                migrations.add(
-                    AppKeyMigration(
-                        newKey = appKey,
-                        moveKeys = legacyMoveKeys,
-                        copyKeys = legacyCopyKeys
-                    )
-                )
-            }
-        }
-
-        if (migrations.isNotEmpty()) {
-            settingsRepository.migrateAppKeys(migrations)
-            appRepository.loadApps(forceEmit = true)
-        }
     }
 
     fun getHiddenApps() {
@@ -1210,7 +1169,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
                 launcherApps.startShortcut(
@@ -1220,9 +1179,12 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                     null,
                     app.user
                 )
-                settingsRepository.updateAppLaunchTime(app.getKey())
+                runCatching { settingsRepository.updateAppLaunchTime(app.getKey()) }
             } catch (e: Exception) {
-                snackbarManager.show("Failed to open shortcut: ${e.message}")
+                Log.e("MainViewModel", "launchShortcut failed", e)
+                withContext(Dispatchers.Main) {
+                    snackbarManager.show("Failed to open shortcut: ${e.message}")
+                }
             }
         }
     }
@@ -1233,11 +1195,13 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
                 if (!launcherApps.hasShortcutHostPermission()) {
-                    snackbarManager.show("Set CCLauncher as the default launcher to pin shortcuts")
+                    withContext(Dispatchers.Main) {
+                        snackbarManager.show("Set CCLauncher as the default launcher to pin shortcuts")
+                    }
                     return@launch
                 }
 
@@ -1251,7 +1215,9 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 val shortcuts = launcherApps.getShortcuts(query, app.user).orEmpty()
                 val shortcut = shortcuts.firstOrNull { it.id == shortcutId }
                 if (shortcut == null) {
-                    snackbarManager.show("Shortcut not available")
+                    withContext(Dispatchers.Main) {
+                        snackbarManager.show("Shortcut not available")
+                    }
                     return@launch
                 }
 
@@ -1266,9 +1232,14 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
                 launcherApps.pinShortcuts(app.appPackage, pinnedIds.toList(), app.user)
                 requestAppReload("shortcutAdded", forceEmit = true)
-                snackbarManager.show("Shortcut added")
+                withContext(Dispatchers.Main) {
+                    snackbarManager.show("Shortcut added")
+                }
             } catch (e: Exception) {
-                snackbarManager.show("Failed to add shortcut: ${e.message}")
+                Log.e("MainViewModel", "pinShortcut failed", e)
+                withContext(Dispatchers.Main) {
+                    snackbarManager.show("Failed to add shortcut: ${e.message}")
+                }
             }
         }
     }
@@ -1301,7 +1272,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    private fun setSwipeLeftApp(app: AppModel) {
+    private fun setSwipeApp(app: AppModel, direction: SwipeDirection) {
         viewModelScope.launch {
             val appPreference = AppPreference(
                 label = app.appLabel,
@@ -1312,132 +1283,65 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 systemShortcutId = app.systemShortcutId,
                 systemShortcutPackage = app.systemShortcutPackage
             )
-            settingsRepository.setSwipeLeftApp(appPreference)
+            when (direction) {
+                SwipeDirection.LEFT -> settingsRepository.setSwipeLeftApp(appPreference)
+                SwipeDirection.RIGHT -> settingsRepository.setSwipeRightApp(appPreference)
+                SwipeDirection.UP -> settingsRepository.setSwipeUpApp(appPreference)
+                SwipeDirection.DOWN -> settingsRepository.setSwipeDownApp(appPreference)
+            }
         }
     }
 
-    private fun setSwipeRightApp(app: AppModel) {
+    private enum class SwipeDirection { LEFT, RIGHT, UP, DOWN }
+
+    private fun setSwipeLeftApp(app: AppModel) = setSwipeApp(app, SwipeDirection.LEFT)
+
+    private fun setSwipeRightApp(app: AppModel) = setSwipeApp(app, SwipeDirection.RIGHT)
+
+    private fun launchSwipeApp(pref: AppPreference) {
+        if (pref.packageName.isEmpty()) return
         viewModelScope.launch {
-            val appPreference = AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString(),
-                isSystemShortcut = app.isSystemShortcut,
-                systemShortcutId = app.systemShortcutId,
-                systemShortcutPackage = app.systemShortcutPackage
+            val app = AppModel(
+                appLabel = pref.label,
+                key = null,
+                appPackage = pref.packageName,
+                activityClassName = pref.activityClassName,
+                user = getUserHandleFromString(appContext, pref.userString),
+                isSystemShortcut = pref.isSystemShortcut,
+                systemShortcutId = pref.systemShortcutId,
+                systemShortcutPackage = pref.systemShortcutPackage
             )
-            settingsRepository.setSwipeRightApp(appPreference)
+            launchApp(app)
         }
     }
 
     fun launchSwipeUpApp() {
         viewModelScope.launch {
-            val swipeUpApp = settingsRepository.settings.first().swipeUpApp
-            if (swipeUpApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeUpApp.label,
-                    key = null,
-                    appPackage = swipeUpApp.packageName,
-                    activityClassName = swipeUpApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeUpApp.userString),
-                    isSystemShortcut = swipeUpApp.isSystemShortcut,
-                    systemShortcutId = swipeUpApp.systemShortcutId,
-                    systemShortcutPackage = swipeUpApp.systemShortcutPackage
-                )
-                launchApp(app)
-            }
+            launchSwipeApp(settingsRepository.settings.first().swipeUpApp)
         }
     }
 
     fun launchSwipeDownApp() {
         viewModelScope.launch {
-            val swipeDownApp = settingsRepository.settings.first().swipeDownApp
-            if (swipeDownApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeDownApp.label,
-                    key = null,
-                    appPackage = swipeDownApp.packageName,
-                    activityClassName = swipeDownApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeDownApp.userString),
-                    isSystemShortcut = swipeDownApp.isSystemShortcut,
-                    systemShortcutId = swipeDownApp.systemShortcutId,
-                    systemShortcutPackage = swipeDownApp.systemShortcutPackage
-                )
-                launchApp(app)
-            }
+            launchSwipeApp(settingsRepository.settings.first().swipeDownApp)
         }
     }
 
     fun launchSwipeLeftApp() {
         viewModelScope.launch {
-            val swipeLeftApp = settingsRepository.getSwipeLeftApp()
-            if (swipeLeftApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeLeftApp.label,
-                    key = null,
-                    appPackage = swipeLeftApp.packageName,
-                    activityClassName = swipeLeftApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeLeftApp.userString),
-                    isSystemShortcut = swipeLeftApp.isSystemShortcut,
-                    systemShortcutId = swipeLeftApp.systemShortcutId,
-                    systemShortcutPackage = swipeLeftApp.systemShortcutPackage
-                )
-                launchApp(app)
-            }
+            launchSwipeApp(settingsRepository.getSwipeLeftApp())
         }
     }
 
     fun launchSwipeRightApp() {
         viewModelScope.launch {
-            val swipeRightApp = settingsRepository.getSwipeRightApp()
-            if (swipeRightApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeRightApp.label,
-                    key = null,
-                    appPackage = swipeRightApp.packageName,
-                    activityClassName = swipeRightApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeRightApp.userString),
-                    isSystemShortcut = swipeRightApp.isSystemShortcut,
-                    systemShortcutId = swipeRightApp.systemShortcutId,
-                    systemShortcutPackage = swipeRightApp.systemShortcutPackage
-                )
-                launchApp(app)
-            }
+            launchSwipeApp(settingsRepository.getSwipeRightApp())
         }
     }
 
-    private fun setSwipeUpApp(app: AppModel) {
-        viewModelScope.launch {
-            settingsRepository.setSwipeUpApp(
-                AppPreference(
-                    label = app.appLabel,
-                    packageName = app.appPackage,
-                    activityClassName = app.activityClassName,
-                    userString = app.user.toString(),
-                    isSystemShortcut = app.isSystemShortcut,
-                    systemShortcutId = app.systemShortcutId,
-                    systemShortcutPackage = app.systemShortcutPackage
-                )
-            )
-        }
-    }
+    private fun setSwipeUpApp(app: AppModel) = setSwipeApp(app, SwipeDirection.UP)
 
-    private fun setSwipeDownApp(app: AppModel) {
-        viewModelScope.launch {
-            settingsRepository.setSwipeDownApp(
-                AppPreference(
-                    label = app.appLabel,
-                    packageName = app.appPackage,
-                    activityClassName = app.activityClassName,
-                    userString = app.user.toString(),
-                    isSystemShortcut = app.isSystemShortcut,
-                    systemShortcutId = app.systemShortcutId,
-                    systemShortcutPackage = app.systemShortcutPackage
-                )
-            )
-        }
-    }
+    private fun setSwipeDownApp(app: AppModel) = setSwipeApp(app, SwipeDirection.DOWN)
 
     fun setCurrentPage(page: Int) {
         val layout = _homeLayoutState.value
@@ -1535,28 +1439,34 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     fun lockScreen() {
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
-            if (settings.doubleTapToLock) {
-                val intent = Intent(appContext, MyAccessibilityService::class.java)
-                intent.action = "LOCK_SCREEN"
-                appContext.startService(intent)
+            if (!settings.doubleTapToLock) return@launch
+            if (!permissionManager.hasAccessibilityPermission()) {
+                snackbarManager.show("Enable accessibility service to lock screen")
+                return@launch
+            }
+            withContext(Dispatchers.Main) {
+                if (!MyAccessibilityService.lockScreenIfConnected()) {
+                    snackbarManager.show("Failed to lock screen")
+                }
             }
         }
     }
 
     /**
-     * Search apps by query with alias support.
+     * Search apps by query with alias support. Heavy filtering runs on Default.
      */
     fun searchApps(query: String) {
         viewModelScope.launch {
             _appDrawerState.value = _appDrawerState.value.copy(searchQuery = query, isLoading = true)
             try {
-                val filtered = filterAndRank(query)
+                val filtered = withContext(Dispatchers.Default) { filterAndRank(query) }
                 _appDrawerState.value = _appDrawerState.value.copy(
                     filteredApps = filtered,
                     isLoading = false,
                     error = null
                 )
             } catch (e: Exception) {
+                Log.e("MainViewModel", "Search failed", e)
                 snackbarManager.show("Search failed: ${e.message}")
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = false, error = e.message)
             }
@@ -1572,13 +1482,15 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         val mode = settings.searchAliasesMode
         val searchType = settings.searchType
         val queryVariants = SearchAliasUtils.buildQueryVariants(query, mode)
+        // Variants are already Locale.ROOT-normalized; normalize labels the same way.
+        val queryLower = query.lowercase(Locale.ROOT)
 
         val filtered = listToFilter.filter { app ->
             val label = app.appLabel
-            val labelNorm = label.lowercase()
+            val labelNorm = label.lowercase(Locale.ROOT)
 
             val direct = when (searchType) {
-                Constants.SearchType.FUZZY -> fuzzyMatch(label, query)
+                Constants.SearchType.FUZZY -> fuzzyMatch(label, queryLower)
                 Constants.SearchType.STARTS_WITH -> queryVariants.any { v -> labelNorm.startsWith(v) }
                 Constants.SearchType.EXACT -> queryVariants.any { v -> labelNorm == v }
                 else -> queryVariants.any { v -> labelNorm.contains(v) }
@@ -1599,7 +1511,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     private suspend fun reapplySearchFilter() {
         val current = _appDrawerState.value
-        val newFiltered = filterAndRank(current.searchQuery)
+        val newFiltered = withContext(Dispatchers.Default) { filterAndRank(current.searchQuery) }
         _appDrawerState.value = current.copy(
             filteredApps = newFiltered,
             isLoading = false,
@@ -1632,9 +1544,8 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    private fun fuzzyMatch(text: String, pattern: String): Boolean {
-        val textLower = text.lowercase()
-        val patternLower = pattern.lowercase()
+    private fun fuzzyMatch(text: String, patternLower: String): Boolean {
+        val textLower = text.lowercase(Locale.ROOT)
         var textIndex = 0
         var patternIndex = 0
         while (textIndex < textLower.length && patternIndex < patternLower.length) {
@@ -1647,7 +1558,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     }
 
     fun emitEvent(event: UiEvent) {
-        viewModelScope.launch { _eventsFlow.emit(event) }
+        viewModelScope.launch { _eventsFlow.tryEmit(event) }
     }
 
     override fun onCleared() {

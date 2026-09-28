@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
                 addAction(Intent.ACTION_PROFILE_AVAILABLE)
                 addAction(Intent.ACTION_PROFILE_UNAVAILABLE)
             }
-            registerReceiver(privateSpaceReceiver, intentFilter)
+            registerReceiver(privateSpaceReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
         }
 
         // Initialize theme based on settings

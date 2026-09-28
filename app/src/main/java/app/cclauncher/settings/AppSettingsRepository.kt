@@ -1,6 +1,7 @@
 package app.cclauncher.settings
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -14,21 +15,39 @@ import io.github.mlmgames.settings.core.backup.ImportResult
 import io.github.mlmgames.settings.core.backup.SettingsBackupManager
 import io.github.mlmgames.settings.core.backup.ValidationResult
 import io.github.mlmgames.settings.core.datastore.createSettingsDataStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import org.koin.core.component.KoinComponent
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.security.MessageDigest
+import java.security.SecureRandom
 import kotlin.time.Clock
 
-class AppSettingsRepository(private val context: Context): KoinComponent {
+class AppSettingsRepository(private val context: Context) {
 
-    private val dataStore = createSettingsDataStore(context, name = "app.cclauncher.settings")
+    companion object {
+        private const val TAG = "SettingsRepo"
+        private const val MAX_FONT_BYTES = 5 * 1024 * 1024L
+        private const val MAX_IMPORT_BYTES = 2 * 1024 * 1024L
+    }
+
+    private val appContext = context.applicationContext
+    private val dataStore = createSettingsDataStore(appContext, name = "app.cclauncher.settings")
     private val repo = SettingsRepository(dataStore, AppSettingsSchema)
 
     private val backupManager by lazy {
         val packageInfo = try {
-            context.packageManager.getPackageInfo(context.packageName, 0)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                appContext.packageManager.getPackageInfo(
+                    appContext.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                appContext.packageManager.getPackageInfo(appContext.packageName, 0)
+            }
         } catch (_: Exception) {
             null
         }
@@ -66,11 +85,6 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
         repo.set("homeLayout", layout)
     }
 
-    suspend fun triggerHomeLayoutRefresh() {
-        val currentLayout = getHomeLayout().first()
-        saveHomeLayout(currentLayout)
-    }
-
     suspend fun setSwipeLeftApp(app: AppPreference) { repo.update { it.copy(swipeLeftApp = app) } }
 
     suspend fun setSwipeRightApp(app: AppPreference) { repo.update { it.copy(swipeRightApp = app) } }
@@ -83,18 +97,87 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
     suspend fun getSwipeRightApp(): AppPreference = settings.first().swipeRightApp
 
     suspend fun setSettingsLock(locked: Boolean) = repo.set("lockSettings", locked)
-    suspend fun setSettingsLockPin(pin: String) = repo.set("settingsLockPin", pin)
-    suspend fun validateSettingsPin(pin: String): Boolean = settings.first().settingsLockPin == pin
 
-    suspend fun setCustomFont(uri: Uri) {
+    /**
+     * Store only a salted SHA-256 hash (format "saltHex:hashHex"), never the plaintext PIN.
+     * Breaking change vs old plaintext values — old PINs will no longer validate (acceptable pre-launch).
+     */
+    suspend fun setSettingsLockPin(pin: String) {
+        if (pin.isEmpty()) {
+            repo.set("settingsLockPin", "")
+            return
+        }
+        repo.set("settingsLockPin", hashPin(pin))
+    }
+
+    suspend fun validateSettingsPin(pin: String): Boolean {
+        if (pin.isEmpty()) return false
+        val stored = settings.first().settingsLockPin
+        if (stored.isEmpty()) return false
+        // Back-compat: very old installs stored plaintext; migrate on successful match.
+        if (!stored.contains(":")) {
+            val matches = MessageDigest.isEqual(
+                stored.toByteArray(Charsets.UTF_8),
+                pin.toByteArray(Charsets.UTF_8)
+            )
+            if (matches) setSettingsLockPin(pin)
+            return matches
+        }
+        return verifyPin(pin, stored)
+    }
+
+    private fun hashPin(pin: String): String {
+        val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
+        val hash = sha256(salt + pin.toByteArray(Charsets.UTF_8))
+        return "${salt.toHex()}:${hash.toHex()}"
+    }
+
+    private fun verifyPin(pin: String, stored: String): Boolean {
+        val parts = stored.split(":")
+        if (parts.size != 2) return false
+        val salt = parts[0].hexToBytes() ?: return false
+        val expected = parts[1].hexToBytes() ?: return false
+        val actual = sha256(salt + pin.toByteArray(Charsets.UTF_8))
+        return MessageDigest.isEqual(expected, actual)
+    }
+
+    private fun sha256(input: ByteArray): ByteArray =
+        MessageDigest.getInstance("SHA-256").digest(input)
+
+    private fun ByteArray.toHex(): String = joinToString("") { "%02x".format(it) }
+
+    private fun String.hexToBytes(): ByteArray? = runCatching {
+        require(length % 2 == 0)
+        chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    }.getOrNull()
+
+    suspend fun setCustomFont(uri: Uri) = withContext(Dispatchers.IO) {
         try {
-            val fontFile = File(context.filesDir, Constants.CUSTOM_FONT_FILENAME)
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                FileOutputStream(fontFile).use { output -> input.copyTo(output) }
+            val type = appContext.contentResolver.getType(uri)
+            if (type != null && !type.startsWith("font/") &&
+                !type.startsWith("application/") && !type.startsWith("text/")
+            ) {
+                Log.w(TAG, "Rejected font with unexpected mime type: $type")
+                return@withContext
             }
+            val fontFile = File(appContext.filesDir, Constants.CUSTOM_FONT_FILENAME)
+            // Bounded copy — reject >5MB to avoid zip-bomb/OOM.
+            var total = 0L
+            appContext.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(fontFile).use { output ->
+                    val buf = ByteArray(8 * 1024)
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n <= 0) break
+                        total += n
+                        if (total > MAX_FONT_BYTES) throw IllegalArgumentException("Font file too large")
+                        output.write(buf, 0, n)
+                    }
+                }
+            } ?: return@withContext
             repo.set("customFontPath", fontFile.absolutePath)
         } catch (e: Exception) {
-            Log.e("SettingsRepo", "Failed to copy font file", e)
+            Log.e(TAG, "Failed to copy font file", e)
         }
     }
 
@@ -102,7 +185,7 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
         val currentPath = settings.first().customFontPath
         if (currentPath.isNotEmpty()) {
             try { File(currentPath).delete() }
-            catch (e: Exception) { Log.e("SettingsRepo", "Error deleting old font file", e) }
+            catch (e: Exception) { Log.e(TAG, "Error deleting old font file", e) }
         }
         repo.set("customFontPath", "")
     }
@@ -237,7 +320,7 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
         return try {
             when (val result = exportSettings()) {
                 is ExportResult.Success -> {
-                    context.contentResolver.openOutputStream(uri)?.use { output ->
+                    appContext.contentResolver.openOutputStream(uri)?.use { output ->
                         output.write(result.json.toByteArray(Charsets.UTF_8))
                     } ?: return Result.failure(Exception("Could not open output stream"))
                     Result.success(Unit)
@@ -247,22 +330,37 @@ class AppSettingsRepository(private val context: Context): KoinComponent {
                 }
             }
         } catch (e: Exception) {
-            Log.e("SettingsRepo", "Failed to export settings to URI", e)
+            Log.e(TAG, "Failed to export settings to URI", e)
             Result.failure(e)
         }
     }
 
-    suspend fun importSettingsFromUri(uri: Uri): ImportResult {
-        return try {
-            val jsonString = context.contentResolver.openInputStream(uri)?.use { input ->
-                input.bufferedReader().readText()
-            } ?: return ImportResult.Error(
+    suspend fun importSettingsFromUri(uri: Uri): ImportResult = withContext(Dispatchers.IO) {
+        try {
+            var total = 0L
+            val sb = StringBuilder()
+            appContext.contentResolver.openInputStream(uri)?.use { input ->
+                val reader = input.bufferedReader()
+                val buf = CharArray(8 * 1024)
+                while (true) {
+                    val n = reader.read(buf)
+                    if (n <= 0) break
+                    total += n * 2L
+                    if (total > MAX_IMPORT_BYTES) {
+                        return@withContext ImportResult.Error(
+                            io.github.mlmgames.settings.core.backup.ImportError.PARSE_ERROR,
+                            "Backup file too large"
+                        )
+                    }
+                    sb.append(buf, 0, n)
+                }
+            } ?: return@withContext ImportResult.Error(
                 io.github.mlmgames.settings.core.backup.ImportError.PARSE_ERROR,
                 "Could not read file"
             )
-            importSettings(jsonString)
+            importSettings(sb.toString())
         } catch (e: Exception) {
-            Log.e("SettingsRepo", "Failed to import settings from URI", e)
+            Log.e(TAG, "Failed to import settings from URI", e)
             ImportResult.Error(
                 io.github.mlmgames.settings.core.backup.ImportError.PARSE_ERROR,
                 e.message ?: "Unknown error"

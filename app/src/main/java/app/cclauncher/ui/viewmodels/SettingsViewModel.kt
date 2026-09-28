@@ -2,6 +2,7 @@ package app.cclauncher.ui.viewmodels
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,21 +11,32 @@ import app.cclauncher.settings.AppSettings
 import app.cclauncher.ui.UiEvent
 import io.github.mlmgames.settings.core.backup.ImportResult
 import io.github.mlmgames.settings.core.backup.ValidationResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import kotlinx.coroutines.withContext
 import java.io.File
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-    internal val settingsRepository: AppSettingsRepository by inject()
+class SettingsViewModel(
+    application: Application,
+    private val settingsRepository: AppSettingsRepository
+) : AndroidViewModel(application) {
+
+    companion object {
+        private const val TAG = "SettingsVM"
+        private const val MAX_VALIDATE_BYTES = 2 * 1024 * 1024L
+    }
 
     private val _settingsState = MutableStateFlow(AppSettings())
     val settingsState: StateFlow<AppSettings> = _settingsState.asStateFlow()
 
     val isLoading = mutableStateOf(true)
 
-    private val _eventsFlow = MutableSharedFlow<UiEvent>()
+    private val _eventsFlow = MutableSharedFlow<UiEvent>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
     private val _isLocked = MutableStateFlow(false)
@@ -39,7 +51,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     val effectiveLockState: StateFlow<Boolean> = combine(_isLocked, _isTemporarilyUnlocked) { locked, tempUnlocked ->
         locked && !tempUnlocked
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), false)
 
     // Import/Export states
     private val _importExportState = MutableStateFlow<ImportExportState>(ImportExportState.Idle)
@@ -112,9 +124,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _eventsFlow.emit(event)
-        }
+        _eventsFlow.tryEmit(event)
     }
 
     fun setShowLockDialog(show: Boolean, isSettingPin: Boolean = false) {
@@ -122,13 +132,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _isSettingPin.value = isSettingPin
     }
 
-    suspend fun validatePin(pin: String): Boolean {
+    suspend fun validatePin(pin: String): Boolean = withContext(Dispatchers.Default) {
         val ok = settingsRepository.validateSettingsPin(pin)
         if (ok) {
             _isTemporarilyUnlocked.value = true
             _showLockDialog.value = false
         }
-        return ok
+        ok
     }
 
     fun setPin(pin: String) {
@@ -185,11 +195,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun validateBackup(uri: Uri): ValidationResult? {
         return try {
             val context = getApplication<Application>()
-            val jsonString = context.contentResolver.openInputStream(uri)?.use { input ->
-                input.bufferedReader().readText()
+            var total = 0L
+            val sb = StringBuilder()
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                val reader = input.bufferedReader()
+                val buf = CharArray(8 * 1024)
+                while (true) {
+                    val n = reader.read(buf)
+                    if (n <= 0) break
+                    total += n * 2L
+                    if (total > MAX_VALIDATE_BYTES) return null
+                    sb.append(buf, 0, n)
+                }
             } ?: return null
-            settingsRepository.validateSettingsBackup(jsonString)
-        } catch (_: Exception) {
+            settingsRepository.validateSettingsBackup(sb.toString())
+        } catch (e: Exception) {
+            Log.w(TAG, "validateBackup failed", e)
             null
         }
     }

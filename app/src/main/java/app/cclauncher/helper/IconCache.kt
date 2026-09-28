@@ -12,12 +12,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class IconCache(context: Context) {
-    private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+    private val appContext = context.applicationContext
+    private val launcherApps = appContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
-    // cacheKey = "pack|package|class|userHash"
-    private val iconCache = LruCache<String, Bitmap>(250)
+    // Byte-sized LRU (~12MB) instead of fixed 250 full-size bitmaps.
+    private val iconCache = object : LruCache<String, Bitmap>(12 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount.coerceAtLeast(1)
+    }
 
-    private val iconPackManager = IconPackManager(context)
+    private val iconPackManager = IconPackManager(appContext)
 
     suspend fun getAvailableIconPacks() = iconPackManager.getAvailableIconPacks()
 
@@ -28,24 +31,23 @@ class IconCache(context: Context) {
         iconPackName: String = "default"
     ): ImageBitmap? = withContext(Dispatchers.IO) {
 
-        // Resolve class name if null.
-        val resolvedClassName = runCatching {
-            val list = launcherApps.getActivityList(packageName, user)
-            val info = list.firstOrNull { className == null || it.componentName.className == className }
-                ?: list.firstOrNull()
-            info?.componentName?.className
-        }.getOrNull() ?: className
+        // Single binder call — reuse the activity list instead of querying 2-3x per icon.
+        val activities = runCatching { launcherApps.getActivityList(packageName, user) }.getOrNull()
+            .orEmpty()
+        val resolvedClassName = activities
+            .firstOrNull { className == null || it.componentName.className == className }
+            ?.componentName?.className
+            ?: activities.firstOrNull()?.componentName?.className
+            ?: className
 
         val cacheKey = "$iconPackName|$packageName|$resolvedClassName|${user.hashCode()}"
         synchronized(iconCache) {
             iconCache[cacheKey]?.let { return@withContext it.asImageBitmap() }
         }
 
-        val activityInfo = runCatching {
-            launcherApps.getActivityList(packageName, user)
-                .firstOrNull { resolvedClassName != null && it.componentName.className == resolvedClassName }
-                ?: launcherApps.getActivityList(packageName, user).firstOrNull()
-        }.getOrNull()
+        val activityInfo = activities
+            .firstOrNull { resolvedClassName != null && it.componentName.className == resolvedClassName }
+            ?: activities.firstOrNull()
 
         val originalDrawable = runCatching { activityInfo?.getIcon(0) }.getOrNull()
         val componentName = if (resolvedClassName.isNullOrBlank()) {

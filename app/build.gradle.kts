@@ -29,7 +29,7 @@ android {
         applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1320
+        versionCode = 1340
         versionName = "v10.7.9"
 
         androidResources {
