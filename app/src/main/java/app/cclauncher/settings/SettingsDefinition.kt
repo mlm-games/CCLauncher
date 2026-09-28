@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatDelegate
 import app.cclauncher.data.Constants
 import kotlinx.serialization.Serializable
 import app.cclauncher.data.HomeLayout
+import io.github.mlmgames.settings.core.annotations.ActionHandler
 import io.github.mlmgames.settings.core.annotations.CategoryDefinition
 import io.github.mlmgames.settings.core.annotations.Persisted
 import io.github.mlmgames.settings.core.annotations.SchemaVersion
 import io.github.mlmgames.settings.core.annotations.Serialized
 import io.github.mlmgames.settings.core.annotations.Setting
+import io.github.mlmgames.settings.core.annotations.SettingAction
 import io.github.mlmgames.settings.core.types.Button
 import io.github.mlmgames.settings.core.types.Dropdown
 import io.github.mlmgames.settings.core.types.SettingTypeMarker
@@ -263,9 +265,9 @@ data class AppSettings(
         description = "Set a plain black/white wallpaper based on theme",
         category = Appearance::class,
         type = Button::class,
-        key = "PLAIN_WALLPAPER",
     )
-    val plainWallpaper: Boolean = false,
+    @ActionHandler(SetPlainWallpaperAction::class)
+    val plainWallpaper: Unit = Unit,
 
     @Setting(
         title = "Long Press in App Drawer",
@@ -580,3 +582,5 @@ object FontPicker : SettingTypeMarker
 object AppPicker : SettingTypeMarker
 object IconPackPicker : SettingTypeMarker
 object ColorPicker : SettingTypeMarker
+
+object SetPlainWallpaperAction : SettingAction
