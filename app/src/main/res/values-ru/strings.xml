@@ -4,7 +4,7 @@
     <string name="system_font">Системный шрифт</string>
     <string name="app">Приложение</string>
     <string name="set_as_default_launcher">Сделать лаунчером по умолчанию</string>
-    <string name="set_as_default_launcher_u"><u>Сделать лаунчером по умолчанию</u></string>
+    <string name="set_as_default_launcher_u"><u></u></string>
     <string name="set_as_default_launcher_first">Сделать лаунчером по умолчанию</string>
     <string name="app_text_color">Цвет текста</string>
     <string name="double_tap_to_lock_screen">Блокировка двойным тапом</string>
@@ -23,7 +23,7 @@
     <string name="follow">Перейти</string>
     <string name="email">Электронная почта</string>
     <string name="donate">Пожертвовать</string>
-    <string name="swipe_up_for_apps">1. Проведите вверх чтобы открыть все приложения.\\\\n2. Длительным нажатием в любом месте открываются настройки</string>
+    <string name="swipe_up_for_apps">1. Проведите вверх чтобы открыть все приложения.\\\\\\\\n2. Длительным нажатием в любом месте открываются настройки</string>
     <string name="apps_on_home_screen">Количество приложений на главном экране</string>
     <string name="use_plain_wallpaper">Использовать обычные обои</string>
     <string name="left">Слева</string>
@@ -47,20 +47,20 @@
     <string name="dark">Темная</string>
     <string name="light">Светлая</string>
     <string name="welcome_to_clauncher_settings">Добро пожаловать в настройки!
-        \\\\n\\\\nПомните, если у вас есть вопросы, на нашей странице «О нас» есть ответ.</string>
+        \\\\\\\\n\\\\\\\\nПомните, если у вас есть вопросы, на нашей странице «О нас» есть ответ.</string>
     <string name="rate_us_message">Здравствуйте, вы больше не увидите это сообщение.
-        \\\\n\\\\nЕсли вам нравится CClauncher, не могли бы вы поставить нам 5 звезд? Это поможет улучшить наш рейтинг и сделает нас счастливыми. Спасибо!</string>
+        \\\\\\\\n\\\\\\\\nЕсли вам нравится CClauncher, не могли бы вы поставить нам 5 звезд? Это поможет улучшить наш рейтинг и сделает нас счастливыми. Спасибо!</string>
     <string name="share_message">Привет, нам нужна ваша помощь! В прошлом году мы преодолели миллион загрузок. В этом году мы хотим достичь еще миллиона, но мы не можем сделать это в одиночку.
-        \\\\n\\\\nНе могли бы вы поделиться CClauncher со своими друзьями, пожалуйста? Спасибо, хорошего дня!</string>
+        \\\\\\\\n\\\\\\\\nНе могли бы вы поделиться CClauncher со своими друзьями, пожалуйста? Спасибо, хорошего дня!</string>
     <string name="keyboard_message">Привет, клавиатура — это самый быстрый способ найти и запустить приложения в CClauncher. Могли бы вы продолжить использовать Автопоказ клавиатуры еще несколько дней, прежде чем принять окончательное решение?
-        \\\\n\\\\nВыбор всегда за вами.</string>
+        \\\\\\\\n\\\\\\\\nВыбор всегда за вами.</string>
     <string name="digital_wellbeing_message">Если вы хотите установить ограничения по времени для определенных приложений, функция «Цифровое благополучие» Android может помочь вам в этом.
-        \\\\n\\\\nНайдите параметр «Цифровое благополучие» в настройках телефона и включите его.</string>
+        \\\\\\\\n\\\\\\\\nНайдите параметр «Цифровое благополучие» в настройках телефона и включите его.</string>
     <string name="app_usage_message">Чтобы показать/скрыть время экрана на домашнем экране, разрешите или запретите разрешение на использование приложения.
-        \\\\n\\\\nПримечание: Не собираются данные об использовании приложения. Все обрабатывается на вашем устройстве.</string>
-    <string name="accessibility_service_description">\\\" Разрешение на доступ требуется, чтобы включить двойное касание для блокировки. Любые данные, полученные CClauncher через этот сервис, не покинут ваше устройство.\\\"</string>
+        \\\\\\\\n\\\\\\\\nПримечание: Не собираются данные об использовании приложения. Все обрабатывается на вашем устройстве.</string>
+    <string name="accessibility_service_description">\\\\\\\" Разрешение на доступ требуется, чтобы включить двойное касание для блокировки. Любые данные, полученные CClauncher через этот сервис, не покинут ваше устройство.\\\\\\\"</string>
     <string name="support_clauncher_for_free">Поддержите CClauncher бесплатно, используя нашу партнерскую ссылку Amazon.</string>
-    <string name="support_clauncher_message">Каждый раз, когда вы покупаете что-то по нашей ссылке, мы получаем небольшую комиссию. Пожалуйста, сохраните ссылку и используйте ее при совершении покупок в Интернете.\\\\nСпасибо!</string>
+    <string name="support_clauncher_message">Каждый раз, когда вы покупаете что-то по нашей ссылке, мы получаем небольшую комиссию. Пожалуйста, сохраните ссылку и используйте ее при совершении покупок в Интернете.\\\\\\\\nСпасибо!</string>
     <string name="open">Открыть ссылку</string>
     <string name="copy">Копировать</string>
     <string name="close">Закрыть</string>
@@ -77,25 +77,25 @@
     <string name="affiliate">Партнер</string>
     <string name="tip_start_typing_for_rename">Совет: начните вводить текст чтобы ПЕРЕИМЕНОВАТЬ приложение.</string>
     <string name="hidden_apps_message">Примечание: для доступа к скрытым приложениям, нажмите «CClauncher» в верхней части страницы настроек.
-        \\\\n\\\\nБолее подробная информация доступна на нашей странице «О нас» ниже.</string>
+        \\\\\\\\n\\\\\\\\nБолее подробная информация доступна на нашей странице «О нас» ниже.</string>
     <string name="swipe_down_for">Проведите вниз для</string>
     <string name="search">Поиск</string>
     <string name="notifications">Уведомления</string>
     <string name="accessibility_disclosure">Включите или отключите службу специальных возможностей CClauncher в настройках вашего устройства, чтобы включить или отключить эту функцию.
-        \\\\n\\\\nОбратите внимание, что эта служба используется только для того, чтобы вы могли выключить экран вашего устройства с помощью жеста двойного касания. Наша служба доступности не собирает и не передает какие-либо данные.</string>
+        \\\\\\\\n\\\\\\\\nОбратите внимание, что эта служба используется только для того, чтобы вы могли выключить экран вашего устройства с помощью жеста двойного касания. Наша служба доступности не собирает и не передает какие-либо данные.</string>
     <string name="accept">Принять</string>
     <string name="permission">Разрешение</string>
     <string name="double_tap_lock">Блокировка двойным касанием</string>
     <string name="enable">Включить</string>
     <string name="disable">Выключить</string>
-    <string name="not_working"><u>Не работает?</u></string>
+    <string name="not_working"><u></u></string>
     <string name="info">Информация</string>
     <string name="delete">Удалить</string>
     <string name="text_size">Размер текста</string>
     <string name="enabled">Включено</string>
     <string name="disabled">Выключено</string>
     <string name="please_turn_on_double_tap_to_unlock">Пожалуйста, включите двойное касание для блокировки</string>
-    <string name="launcher_failed_to_lock_device">CClauncher не удалось заблокировать устройство.\\\\nПожалуйста, проверьте настройки вашего приложения.</string>
+    <string name="launcher_failed_to_lock_device">CClauncher не удалось заблокировать устройство.\\\\\\\\nПожалуйста, проверьте настройки вашего приложения.</string>
     <string name="long_press_to_select_app">Длительное нажатие для выбора приложения</string>
     <string name="unable_to_open_app">Не удалось открыть информацию о приложении</string>
     <string name="copied">Скопировано</string>
@@ -109,7 +109,7 @@
     <string name="swipe_left_app_disabled">Приложение для левого свайпа отключено</string>
     <string name="swipe_right_app_disabled">Приложение для правого свайпа отключено</string>
     <string name="change_to_your_preferred_wallpaper_in_settings">Ваши обои скоро обновятся</string>
-    <string name="clauncher_is_not_default_launcher">CClauncher не является лаунчером по умолчанию.\\\\nЕжедневное обновление обоев может завершиться ошибкой.</string>
+    <string name="clauncher_is_not_default_launcher">CClauncher не является лаунчером по умолчанию.\\\\\\\\nЕжедневное обновление обоев может завершиться ошибкой.</string>
     <string name="long_press_to_enable">Нажмите и удерживайте, чтобы включить</string>
     <string name="no_hidden_apps">Нет скрытых приложений</string>
     <string name="hidden_apps">Скрытые приложения</string>
@@ -122,7 +122,7 @@
     <string name="did_you_know">Вы знали?</string>
     <string name="leave_a_review">Оставить отзыв</string>
     <string name="review_message">CClauncher есть и всегда будет полностью бесплатным. В нем нет рекламы. Он не собирает никаких данных. Самое главное, это помогает вам сократить время, проводимое перед экраном, и вести более здоровую цифровую жизнь.
-        \\\\n\\\\nМы считаем, что переход на минимальный лаунчер — отличное решение. Хотя мы явно предвзяты, мы надеемся, что вам понравится этот опыт. Не стесняйтесь поделиться с нами своим мнением!</string>
+        \\\\\\\\n\\\\\\\\nМы считаем, что переход на минимальный лаунчер — отличное решение. Хотя мы явно предвзяты, мы надеемся, что вам понравится этот опыт. Не стесняйтесь поделиться с нами своим мнением!</string>
     <string name="alignment_changed">Выравнивание изменено ✅</string>
     <string name="home_screen">Главный экран</string>
     <string name="show_app_names">Показывать названия приложений</string>
@@ -138,5 +138,5 @@
     <string name="private_space_toggle">Переключить Личное пространство</string>
     <string name="private_space_unsupported">Для Личного пространства требуется Android 15 или новее</string>
     <string name="private_space_description">Личное пространство позволяет скрыть приложения и данные от основного профиля. Приложения в Личном пространстве доступны только пока оно разблокировано.</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Настройки</string>
 </resources>

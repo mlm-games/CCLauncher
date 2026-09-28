@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="use_system_font">Usar fuente del sistema</string>
+    <string name="system_font">Fuente del sistema</string>
     <string name="app">App</string>
     <string name="set_as_default_launcher">Establecer como lanzador principal</string>
     <string name="set_as_default_launcher_u"><u>Establecer como lanzador principal</u></string>
@@ -20,25 +22,16 @@
     <string name="rate_now">Calificar ya</string>
     <string name="follow">Seguir</string>
     <string name="email">Correo electrónico</string>
-
     <string name="donate">Donar</string>
-    <string name="swipe_up_for_apps">1. Deslize hacia arriba para todas las aplicaciones\n2. Mantenga pulsado en cualquier lugar para la configuración</string>
+    <string name="swipe_up_for_apps">1. Deslize hacia arriba para todas las aplicaciones\\\\n2. Mantenga pulsado en cualquier lugar para la configuración</string>
     <string name="apps_on_home_screen">Aplicaciones en la pantalla de inicio</string>
+    <string name="use_plain_wallpaper">Usar fondo de pantalla liso</string>
     <string name="left">Izquierda</string>
     <string name="right">Derecha</string>
     <string name="center">Centro</string>
     <string name="home_layout_alignment">Alineación de aplicaciones</string>
     <string name="swipe_left_app">Deslizar a la izquierda para abrir</string>
     <string name="swipe_right_app">Deslizar a la derecha para abrir</string>
-    <string name="_0">0</string>
-    <string name="_1">1</string>
-    <string name="_2">2</string>
-    <string name="_3">3</string>
-    <string name="_4">4</string>
-    <string name="_5">5</string>
-    <string name="_6">6</string>
-    <string name="_7">7</string>
-    <string name="_8">8</string>
     <string name="app_drawer_tips">Sugerencia: Comienze a escribir el nombre de una aplicación para abrirla automáticamente</string>
     <string name="okay">Bueno</string>
     <string name="cool">¡Fresco!</string>
@@ -54,16 +47,16 @@
     <string name="dark">Oscuro</string>
     <string name="light">Claro</string>
     <string name="welcome_to_clauncher_settings">¡Bienvenido a la configuración!
-        \n\nRecuerda, si tienes alguna pregunta, nuestra página Acerca de tiene la respuesta.</string>
+        \\\\n\\\\nRecuerda, si tienes alguna pregunta, nuestra página Acerca de tiene la respuesta.</string>
     <string name="rate_us_message">Hola, no volverá a ver este mensaje.
-        \n\nSi le gusta CClauncher, ¿puede darnos una calificación de 5 estrellas? Nos ayuda a mejorar nuestra clasificación y nos hace felices. ¡Gracias!</string>
+        \\\\n\\\\nSi le gusta CClauncher, ¿puede darnos una calificación de 5 estrellas? Nos ayuda a mejorar nuestra clasificación y nos hace felices. ¡Gracias!</string>
     <string name="share_message">Hola, necesitamos su ayuda! El año pasado superamos el millón de descargas. Este año queremos llegar a un millón más pero no podemos hacerlo solos.
-        \n\n¿Sería tan amable de compartir CClauncher con sus amigos, por favor? ¡Gracias, y tenga un maravilloso día!</string>
+        \\\\n\\\\n¿Sería tan amable de compartir CClauncher con sus amigos, por favor? ¡Gracias, y tenga un maravilloso día!</string>
     <string name="keyboard_message">Hola, el teclado es la forma más rápida de encontrar y abrir aplicaciones en CClauncher. ¿Podemos pedirle que mantenga esto activado por unos días más y luego decidir? La decisión siempre es suya.</string>
     <string name="digital_wellbeing_message">Si desea establecer límites de tiempo para determinadas aplicaciones, la función Bienestar Digital de Android puede ayudarle a hacerlo.
-        \n\nBusque Bienestar Digital en la configuración de su teléfono y habilítelo.</string>
+        \\\\n\\\\nBusque Bienestar Digital en la configuración de su teléfono y habilítelo.</string>
     <string name="app_usage_message">Para mostrar/ocultar el tiempo de pantalla en la pantalla de inicio, permita o deniegue el permiso de uso de la aplicación.
-        \n\nNota: No se recopilan datos de uso de la aplicación. Todo se procesa en su dispositivo.</string>
+        \\\\n\\\\nNota: No se recopilan datos de uso de la aplicación. Todo se procesa en su dispositivo.</string>
     <string name="accessibility_service_description">Se necesita el permiso de Accesibilidad para activar el bloqueo con doble toque. Cualquier dato recolectado por CClauncher no saldrá de su dispositivo.</string>
     <string name="support_clauncher_for_free">Apoye CClauncher de forma gratuita utilizando nuestro enlace de afiliado de Amazon.</string>
     <string name="support_clauncher_message">Cada vez que compre algo usando nuestro enlace, obtenemos una pequeña comisión. Por favor, guarde el enlace y úselo cada vez que compre en línea. ¡Gracias!</string>
@@ -82,7 +75,7 @@
     <string name="please_set_clauncher_as_default_first">Por favor, primero configure CClauncher como su lanzador principal</string>
     <string name="affiliate">Afiliar</string>
     <string name="tip_start_typing_for_rename">Consejo: Comience a escribir para poder RENOMBRAR la aplicación</string>
-    <string name="hidden_apps_message">Nota: Toque \'CClauncher\' en la parte superior de esta página de Configuración para encontrar sus aplicaciones ocultas. Más detalles disponibles en nuestra página Acerca de abajo.</string>
+    <string name="hidden_apps_message">Nota: Toque \\\\\\\'CClauncher\\\\\\\' en la parte superior de esta página de Configuración para encontrar sus aplicaciones ocultas. Más detalles disponibles en nuestra página Acerca de abajo.</string>
     <string name="swipe_down_for">Deslize el dedo hacia abajo para</string>
     <string name="search">Buscar</string>
     <string name="notifications">Notificaciones</string>
@@ -121,13 +114,26 @@
     <string name="adapter_hide">esconder</string>
     <string name="are_you_using_your_phone_or_is_your_phone_using_you">¿Está usando su teléfono, o el teléfono lo usa a usted?</string>
     <string name="about_clauncher">Acerca de CClauncher</string>
-    <string name="learn_more">Aprenda más</string>
     <string name="screen_time">Tiempo de pantalla</string>
+    <string name="learn_more">Aprenda más</string>
     <string name="did_you_know">¿Sabía qué?</string>
     <string name="leave_a_review">Dejar un comentario</string>
     <string name="review_message">CClauncher es y será siempre completamente gratuito. No tiene anuncios. No recopila datos. Lo más importante es que le ayuda a reducir el tiempo que pasa frente a la pantalla y a vivir una vida digital más saludable.
-        \n\nCreemos que cambiar a un lanzador mínimo es una excelente decisión. Aunque obviamente somos parciales, esperamos que disfrutes la experiencia. ¡No dude en compartir sus pensamientos con nosotros!</string>
+        \\\\n\\\\nCreemos que cambiar a un lanzador mínimo es una excelente decisión. Aunque obviamente somos parciales, esperamos que disfrutes la experiencia. ¡No dude en compartir sus pensamientos con nosotros!</string>
     <string name="alignment_changed">Alineación cambiada ✅</string>
     <string name="home_screen">Pantalla de inicio</string>
+    <string name="show_app_names">Mostrar nombres de aplicaciones</string>
+    <string name="set">Establecer</string>
+    <string name="widget_permission_failed">No se ha podido solicitar el permiso del widget: %1$s</string>
+    <string name="widget_configuration_failed">No se ha podido configurar el widget. Comprueba los permisos de la aplicación.</string>
+    <string name="tap_to_move_app">Toca donde quieras mover la aplicación</string>
+    <string name="tap_to_move_widget">Toca donde quieras mover el widget</string>
+    <string name="private_space">Espacio privado</string>
+    <string name="private_space_locked">El Espacio privado está bloqueado</string>
+    <string name="private_space_unlocked">El Espacio privado está desbloqueado</string>
+    <string name="private_space_not_setup">El Espacio privado no está configurado</string>
+    <string name="private_space_toggle">Alternar Espacio privado</string>
+    <string name="private_space_unsupported">El Espacio privado requiere Android 15 o posterior</string>
+    <string name="private_space_description">El Espacio privado te permite ocultar aplicaciones y datos de tu perfil principal. Las aplicaciones del Espacio privado solo son accesibles cuando está desbloqueado.</string>
     <string name="settings">Settings</string>
 </resources>
