@@ -137,5 +137,5 @@
     <string name="private_space_toggle">Alternar Espaço privado</string>
     <string name="private_space_unsupported">O Espaço privado requer Android 15 ou posterior</string>
     <string name="private_space_description">O Espaço privado permite ocultar aplicativos e dados do seu perfil principal. Os aplicativos no Espaço privado só ficam acessíveis quando ele está desbloqueado.</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Definições</string>
 </resources>

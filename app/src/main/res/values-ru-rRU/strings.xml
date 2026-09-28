@@ -138,5 +138,5 @@
     <string name="private_space_toggle">Переключить Личное пространство</string>
     <string name="private_space_unsupported">Для Личного пространства требуется Android 15 или новее</string>
     <string name="private_space_description">Личное пространство позволяет скрыть приложения и данные от основного профиля. Приложения в Личном пространстве доступны только пока оно разблокировано.</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Настройки</string>
 </resources>

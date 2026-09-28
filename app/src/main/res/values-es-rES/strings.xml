@@ -2,7 +2,7 @@
 <resources>
     <string name="use_system_font">Usar fuente del sistema</string>
     <string name="system_font">Fuente del sistema</string>
-    <string name="app">App</string>
+    <string name="app">Aplicación</string>
     <string name="set_as_default_launcher">Establecer como lanzador principal</string>
     <string name="set_as_default_launcher_u"><u>Establecer como lanzador principal</u></string>
     <string name="set_as_default_launcher_first">Establecer como lanzador principal</string>
@@ -138,5 +138,5 @@
     <string name="private_space_toggle">Alternar Espacio privado</string>
     <string name="private_space_unsupported">El Espacio privado requiere Android 15 o posterior</string>
     <string name="private_space_description">El Espacio privado te permite ocultar aplicaciones y datos de tu perfil principal. Las aplicaciones del Espacio privado solo son accesibles cuando está desbloqueado.</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Ajustes</string>
 </resources>

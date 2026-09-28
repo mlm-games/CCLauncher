@@ -2,7 +2,7 @@
 <resources>
     <string name="use_system_font">Utiliser la police système</string>
     <string name="system_font">Police système</string>
-    <string name="app">App</string>
+    <string name="app">Application</string>
     <string name="set_as_default_launcher">Définir comme lanceur par défaut</string>
     <string name="set_as_default_launcher_u"><u></u></string>
     <string name="set_as_default_launcher_first">Définir comme lanceur par défaut</string>
@@ -86,7 +86,7 @@
     <string name="enable">Activer</string>
     <string name="disable">Désactiver</string>
     <string name="not_working"><u></u></string>
-    <string name="info">Info</string>
+    <string name="info">Infos</string>
     <string name="delete">Supprimer</string>
     <string name="text_size">Taille du texte</string>
     <string name="enabled">Activé</string>
