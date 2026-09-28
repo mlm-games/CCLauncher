@@ -17,7 +17,7 @@ on:
         required: true
         default: 'production'
         type: choice
-        options: [internal, alpha, beta, production]
+        options: [none, internal, alpha, beta, production]
       bump_type:
         description: 'Version bump type'
         required: true
@@ -39,12 +39,14 @@ jobs:
     with:
       app-name: CCLauncher
       app-slug: cclauncher
-      application-id: com.app.cclauncher
-      play-track: ${{ inputs.play_track || 'alpha' }}
+      application-id: app.cclauncher
+      play-track: ${{ inputs.upload_releases && inputs.play_track || 'none' }}
       bump-type: ${{ inputs.bump_type }}
+      prerelease: ${{ inputs.mark_prerelease }}
     secrets:
       KEYSTORE: ${{ secrets.KEYSTORE }}
       KEYSTORE_PASSPHRASE: ${{ secrets.KEYSTORE_PASSPHRASE }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
