@@ -2,8 +2,5 @@
 <full-backup-content>
     <!-- Exclude launcher settings (contains settings-lock PIN hash + home layout).
          Users can export/import explicitly via Settings instead. -->
-    <exclude domain="file" path="datastore/app.cclauncher.settings.preferences_pb" />
     <exclude domain="file" path="datastore/" />
-    <exclude domain="database" path="datastore/" />
-    <exclude domain="sharedpref" path="app.cclauncher.settings.preferences_pb" />
 </full-backup-content>

@@ -21,11 +21,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -35,12 +37,14 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import app.cclauncher.MainActivity
 import app.cclauncher.MainViewModel
+import app.cclauncher.R
 import app.cclauncher.data.Constants
 import app.cclauncher.data.WidgetConstants
 import app.cclauncher.helper.WidgetHelper
 import app.cclauncher.helper.showToast
 import app.cclauncher.ui.components.snackbar.LauncherSnackbarHost
 import app.cclauncher.ui.components.snackbar.SnackbarManager
+import app.cclauncher.ui.dialogs.AccessibilityDisclosureDialog
 import app.cclauncher.ui.screens.AppDrawerScreen
 import app.cclauncher.ui.screens.HiddenAppsScreen
 import app.cclauncher.ui.screens.HomeScreen
@@ -50,6 +54,7 @@ import app.cclauncher.ui.theme.AnimationConfig
 import app.cclauncher.ui.util.SystemUIController
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
@@ -79,6 +84,9 @@ fun CLauncherNavigation(
 
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
     var didSyncHome by remember { mutableStateOf(false) }
+    var showAccessibilityDisclosure by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val accessibilitySettingsHint = stringResource(R.string.accessibility_settings_hint)
 
     fun popToHome(clearSelection: Boolean = true) {
         while (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
@@ -124,6 +132,10 @@ fun CLauncherNavigation(
 
             UiEvent.NavigateBack -> {
                 popToHome()
+            }
+
+            UiEvent.ShowAccessibilityDisclosure -> {
+                showAccessibilityDisclosure = true
             }
 
             is UiEvent.NavigateToAppSelection -> {
@@ -311,6 +323,31 @@ fun CLauncherNavigation(
                 entryProvider = provider
             )
         }
+    }
+
+    if (showAccessibilityDisclosure) {
+        AccessibilityDisclosureDialog(
+            privacyPolicyUrl = Constants.URL_CCLAUNCHER_PRIVACY,
+            onDismiss = { showAccessibilityDisclosure = false },
+            onAccept = {
+                showAccessibilityDisclosure = false
+                coroutineScope.launch {
+                    settingsViewModel.updateSetting("accessibilityConsent", true)
+                    settingsViewModel.updateSetting("doubleTapToLock", true)
+                }
+                try {
+                    context.startActivity(
+                        Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                    Toast.makeText(
+                        context,
+                        accessibilitySettingsHint,
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (_: Exception) {}
+            }
+        )
     }
 
     LaunchedEffect(homeDestination) {

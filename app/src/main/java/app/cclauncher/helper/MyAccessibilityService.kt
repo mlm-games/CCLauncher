@@ -40,7 +40,11 @@ class MyAccessibilityService : AccessibilityService(), KoinComponent {
         super.onServiceConnected()
         connected = this
         serviceScope.launch {
-            runCatching { settingsRepository.updateSetting { it.copy(lockMode = true) } }
+            runCatching {
+                settingsRepository.updateSetting {
+                    it.copy(lockMode = it.doubleTapToLock && it.accessibilityConsent)
+                }
+            }
         }
     }
 

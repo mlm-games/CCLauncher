@@ -28,7 +28,7 @@ sealed class UiEvent {
 
     data class ConfigureWidget(val widgetId: Int) : UiEvent()
 
-
+    data object ShowAccessibilityDisclosure : UiEvent()
 
 }
 

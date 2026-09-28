@@ -1439,16 +1439,18 @@ class MainViewModel(
     fun lockScreen() {
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
-            if (!settings.doubleTapToLock) return@launch
-            if (!permissionManager.hasAccessibilityPermission()) {
-                snackbarManager.show("Enable accessibility service to lock screen")
+            val serviceReady = settings.accessibilityConsent && permissionManager.hasAccessibilityPermission()
+            if (serviceReady) {
+                if (settings.doubleTapToLock) {
+                    withContext(Dispatchers.Main) {
+                        if (!MyAccessibilityService.lockScreenIfConnected()) {
+                            snackbarManager.show("Failed to lock screen")
+                        }
+                    }
+                }
                 return@launch
             }
-            withContext(Dispatchers.Main) {
-                if (!MyAccessibilityService.lockScreenIfConnected()) {
-                    snackbarManager.show("Failed to lock screen")
-                }
-            }
+            emitEvent(UiEvent.ShowAccessibilityDisclosure)
         }
     }
 

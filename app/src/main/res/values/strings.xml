@@ -109,6 +109,12 @@
     <string name="notifications">Notifications</string>
     <string name="accessibility_disclosure">Please turn on or off CClauncher\'s accessibility service in your device\'s settings to enable or disable this feature.
     \n\nPlease note that this service is only used to let you turn off your device\'s screen using the double tap gesture. Our accessibility service does not collect or share any data.</string>
+    <string name="accessibility_disclosure_title">CClauncher accessibility service</string>
+    <string name="accessibility_disclosure_data">What this service accesses: no screen content, no keystrokes, no app data, and no personal information. Nothing is collected and nothing leaves your device.</string>
+    <string name="accessibility_disclosure_disable">You can turn this service off at any time in Android Settings &gt; Accessibility.</string>
+    <string name="accessibility_settings_hint">Turn on CClauncher under Accessibility &gt; Downloaded apps (called Installed services on some devices).</string>
+    <string name="view_privacy_policy">View privacy policy</string>
+    <string name="agree_and_continue">Agree and continue</string>
     <string name="accept">Accept</string>
     <string name="permission">Permission</string>
     <string name="double_tap_lock">Double tap to lock</string>

@@ -213,9 +213,7 @@ fun HomeScreen(
                 onWidgetLongPress = { item -> showWidgetContextMenu = item },
                 onEmptyLongPress = { onNavigateToSettings() },
                 onDoubleTap = {
-                    if (settings.doubleTapToLock) {
-                        viewModel.lockScreen()
-                    }
+                    viewModel.lockScreen()
                 },
                 onSwipeUp = onSwipeUp,
                 onSwipeDown = onSwipeDown,

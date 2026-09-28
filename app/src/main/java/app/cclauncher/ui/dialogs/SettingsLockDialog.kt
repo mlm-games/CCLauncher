@@ -3,17 +3,22 @@ package app.cclauncher.ui.dialogs
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import app.cclauncher.R
 
 @Composable
 fun SettingsLockDialog(
@@ -129,37 +134,69 @@ fun AccessibilityDisclosureDialog(
 ) {
     val context = LocalContext.current
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        title = { Text("Enable Accessibility Service") },
-        text = {
-            Column {
-                Text("CCLauncher uses the Accessibility Service only to lock your screen when you double-tap on the home screen.")
-                Spacer(Modifier.height(8.dp))
-                Text("This service does not read, collect, or transmit any data from your device. It does not access any window content, keystrokes, or personal information.")
-                Spacer(Modifier.height(8.dp))
-                Text("No data is shared with any third parties.")
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    stringResource(R.string.accessibility_disclosure_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
                 Spacer(Modifier.height(12.dp))
+                Text(
+                    stringResource(R.string.accessibility_disclosure),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    stringResource(R.string.accessibility_disclosure_data),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(8.dp))
                 TextButton(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl))
                         context.startActivity(intent)
                     }
                 ) {
-                    Text("View Privacy Policy", textDecoration = TextDecoration.Underline)
+                    Text(
+                        stringResource(R.string.view_privacy_policy),
+                        textDecoration = TextDecoration.Underline
+                    )
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "You can disable this service anytime in Android Settings > Accessibility.",
+                    stringResource(R.string.accessibility_disclosure_disable),
                     style = MaterialTheme.typography.bodySmall
                 )
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.not_now))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = onAccept) {
+                        Text(stringResource(R.string.agree_and_continue))
+                    }
+                }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onAccept) { Text("I agree and continue") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
-    )
+    }
 }

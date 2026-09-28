@@ -44,9 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
+import app.cclauncher.R
 import app.cclauncher.data.Constants
 import app.cclauncher.settings.AppPreference
 import app.cclauncher.settings.AppSettings
@@ -105,6 +107,7 @@ fun SettingsScreen(
     onNavigateToHiddenApps: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val accessibilitySettingsHint = stringResource(R.string.accessibility_settings_hint)
     val uiState by viewModel.settingsState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -843,9 +846,8 @@ fun SettingsScreen(
             onAccept = {
                 showAccessibilityDisclosure = false
                 coroutineScope.launch {
+                    viewModel.updateSetting("accessibilityConsent", true)
                     viewModel.updateSetting("doubleTapToLock", true)
-                    // Preserving your current behavior (even though it looks inverted)
-                    viewModel.updateSetting("accessibilityConsent", false)
                 }
                 try {
                     context.startActivity(
@@ -854,7 +856,7 @@ fun SettingsScreen(
                     )
                     Toast.makeText(
                         context,
-                        "Enable CCLauncher under Accessibility > Downloaded services.",
+                        accessibilitySettingsHint,
                         Toast.LENGTH_LONG
                     ).show()
                 } catch (_: Exception) {}
