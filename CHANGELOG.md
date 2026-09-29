@@ -1,3 +1,13 @@
+## vv10.7.11
+
+- Move to kmp-settings 0.10.3
+- Translations
+- add SearchBar positioning and App Drawer text alignment options
+- update compile sdk and targetsdk to 37
+- Bump agp to 9.2.1
+- Add back "Show App Icons" setting
+
+
 ## vv10.7.10
 
 - Move to kmp-settings 0.10.3
