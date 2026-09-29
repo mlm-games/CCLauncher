@@ -171,4 +171,179 @@
     <string name="private_space_unsupported">Private Space requires Android 15 or higher</string>
     <string name="private_space_description">Private Space allows you to hide apps and data from your main profile. Apps in Private Space are only accessible when it\'s unlocked.</string>
     <string name="settings">Settings</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Adjust how easily swipe gestures are triggered</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Align app names on the home screen</string>
+    <string name="setting_app_drawer_results_alignment">App Drawer Results Alignment</string>
+    <string name="setting_auto_open_single_matches">Auto Open Single Matches</string>
+    <string name="setting_auto_show_keyboard">Auto Show Keyboard</string>
+    <string name="setting_auto_update_wallpaper">Auto Update Wallpaper</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Automatically update plain wallpaper when system theme changes</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Choose custom icon pack for apps</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Choose which screen to show when opening the launcher</string>
+    <string name="setting_custom_font">Custom Font</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Customize text color for better visibility</string>
+    <string name="setting_default_screen">Default Screen</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Display app icons on the home screen</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Display pinned app shortcuts in the app drawer.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Display results bottom-to-top</string>
+    <string name="setting_double_tap_to_lock_screen">Double Tap to Lock Screen</string>
+    <string name="setting_font_weight">Font Weight</string>
+    <string name="setting_gesture_sensitivity">Gesture Sensitivity</string>
+    <string name="setting_home_app_label_alignment">Home App Label Alignment</string>
+    <string name="setting_home_screen_columns">Home Screen Columns</string>
+    <string name="setting_home_screen_pages">Home Screen Pages</string>
+    <string name="setting_home_screen_rows">Home Screen Rows</string>
+    <string name="setting_home_text_size">Home Text Size</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Horizontal alignment of app names in app drawer results</string>
+    <string name="setting_icon_corner_radius">Icon Corner Radius</string>
+    <string name="setting_icon_pack">Icon Pack</string>
+    <string name="setting_item_spacing">Item Spacing</string>
+    <string name="setting_left_swipe_app">Left Swipe App</string>
+    <string name="setting_long_press_in_app_drawer">Long Press in App Drawer</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Long press on apps shows options menu</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Match app names across transliterations and keyboard layouts (e.g. Африка ↔ Afrika). May slightly increase CPU use on older devices.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Number of columns in the home screen grid</string>
+    <string name="setting_number_of_home_screen_pages_desc">Number of home screen pages</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Number of rows in the home screen grid</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Override theme text color with custom color</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Position of the search bar in the app drawer</string>
+    <string name="setting_return_to_home_after_app">Return to Home After App</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Return to home screen instead of search after closing an app</string>
+    <string name="setting_reverse_search_results">Reverse Search Results</string>
+    <string name="setting_right_swipe_app">Right Swipe App</string>
+    <string name="setting_scale_home_apps">Scale Home Apps</string>
+    <string name="setting_screen_orientation">Screen Orientation</string>
+    <string name="setting_search_aliases">Search Aliases</string>
+    <string name="setting_search_bar_position">Search Bar Position</string>
+    <string name="setting_search_results_font_size">Search Results Font Size</string>
+    <string name="setting_search_results_use_home_font_size">Search Results Use Home Font Size</string>
+    <string name="setting_search_sort_order">Search Sort Order</string>
+    <string name="setting_search_type">Search Type</string>
+    <string name="setting_select_a_custom_font_file_desc">Select a custom font file</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Set a plain black/white wallpaper based on theme</string>
+    <string name="setting_set_plain_wallpaper">Set Plain Wallpaper</string>
+    <string name="setting_show_app_drawer_icons">Show App Drawer Icons</string>
+    <string name="setting_show_app_icons_in_landscape">Show App Icons in Landscape</string>
+    <string name="setting_show_app_icons_in_portrait">Show App Icons in Portrait</string>
+    <string name="setting_show_app_icons_on_home_screen">Show App Icons on Home Screen</string>
+    <string name="setting_show_app_names">Show App Names</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Show app names in search results after typing this many characters. Set to 0 to use the \'Show App Names\' setting instead.</string>
+    <string name="setting_show_hidden_in_search">Show Hidden in Search</string>
+    <string name="setting_show_names_in_search_after">Show Names in Search After</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Show page dots at the bottom of the home screen</string>
+    <string name="setting_show_page_indicator">Show Page Indicator</string>
+    <string name="setting_show_pinned_shortcuts">Show Pinned Shortcuts</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Show \'Search Web\' button when no apps match</string>
+    <string name="setting_show_status_bar">Show Status Bar</string>
+    <string name="setting_show_web_search_option">Show Web Search Option</string>
+    <string name="setting_swipe_down_action">Swipe Down Action</string>
+    <string name="setting_swipe_down_app">Swipe Down App</string>
+    <string name="setting_swipe_left_action">Swipe Left Action</string>
+    <string name="setting_swipe_right_action">Swipe Right Action</string>
+    <string name="setting_swipe_up_action">Swipe Up Action</string>
+    <string name="setting_swipe_up_app">Swipe Up App</string>
+    <string name="setting_tap_to_open_in_app_drawer">Tap to Open in App Drawer</string>
+    <string name="setting_text_color">Text Color</string>
+    <string name="setting_theme">Theme</string>
+    <string name="setting_use_custom_text_color">Use Custom Text Color</string>
+    <string name="setting_use_dynamic_theme">Use Dynamic Theme</string>
+    <string name="setting_use_system_font">Use System Font</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Use the same font size for search results as home screen</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">When disabled, tapping an app drawer app does nothing. Long‑press still opens the menu.</string>
+    <string-array name="setting_applabelalignment_options">
+        <item>Left</item>
+        <item>Center</item>
+        <item>Right</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>System</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Home</item>
+        <item>App Drawer</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Thin</item>
+        <item>Light</item>
+        <item>Normal</item>
+        <item>Medium</item>
+        <item>Bold</item>
+        <item>Black</item>
+    </string-array>
+    <string-array name="setting_itemspacing_options">
+        <item>None</item>
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>System Default</item>
+        <item>Force Portrait</item>
+        <item>Force Landscape</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Off</item>
+        <item>Transliteration</item>
+        <item>Keyboard layout swap</item>
+        <item>Both</item>
+    </string-array>
+    <string-array name="setting_searchbarposition_options">
+        <item>Top</item>
+        <item>Bottom</item>
+    </string-array>
+    <string-array name="setting_searchresultsalignment_options">
+        <item>Left</item>
+        <item>Center</item>
+        <item>Right</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alphabetical</item>
+        <item>Reverse Alpha</item>
+        <item>Last Launch</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Contains</item>
+        <item>Fuzzy Match</item>
+        <item>Starts With</item>
+        <item>Exact Match</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>None</item>
+        <item>Search</item>
+        <item>Notifications</item>
+        <item>App</item>
+        <item>Next Page</item>
+        <item>Previous Page</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>None</item>
+        <item>Search</item>
+        <item>Notifications</item>
+        <item>App</item>
+        <item>Next Page</item>
+        <item>Previous Page</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>None</item>
+        <item>Search</item>
+        <item>Notifications</item>
+        <item>App</item>
+        <item>Next Page</item>
+        <item>Previous Page</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>None</item>
+        <item>Search</item>
+        <item>Notifications</item>
+        <item>App</item>
+        <item>Next Page</item>
+        <item>Previous Page</item>
+    </string-array>
+    <string name="category_general">General</string>
+    <string name="category_appearance">Appearance</string>
+    <string name="category_layout">Layout</string>
+    <string name="category_gestures">Gestures</string>
+    <string name="category_system">System</string>
 </resources>

@@ -83,6 +83,7 @@ import app.cclauncher.ui.components.snackbar.SnackbarManager
 import app.cclauncher.ui.dialogs.ImportExportResultDialog
 import app.cclauncher.ui.dialogs.ImportValidationDialog
 import app.cclauncher.ui.viewmodels.ImportExportState
+import io.github.mlmgames.settings.core.resources.StringResourceProvider
 import io.github.mlmgames.settings.core.types.Button
 import io.github.mlmgames.settings.core.SettingField
 import io.github.mlmgames.settings.core.backup.ValidationResult
@@ -112,6 +113,7 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarManager: SnackbarManager = koinInject()
+    val stringProvider: StringResourceProvider = koinInject()
 
     val schema = remember { AppSettingsSchema }
 
@@ -244,7 +246,7 @@ fun SettingsScreen(
                 }
 
                 SliderSettingDialog(
-                    title = meta.title,
+                    title = meta.resolvedTitle(stringProvider),
                     currentValue = currentValue,
                     min = meta.min,
                     max = meta.max,
@@ -301,8 +303,8 @@ fun SettingsScreen(
                 val selectedIndex = (field.get(uiState) as? Int) ?: 0
 
                 DropdownSettingDialog(
-                    title = meta.title,
-                    options = meta.options,
+                    title = meta.resolvedTitle(stringProvider),
+                    options = meta.resolvedOptions(stringProvider),
                     selectedIndex = selectedIndex,
                     onDismiss = { showingDialog = null },
                     onOptionSelected = { index ->
@@ -334,7 +336,7 @@ fun SettingsScreen(
             val meta = field?.meta
             if (field != null && meta != null) {
                 FontPickerDialog(
-                    title = meta.title,
+                    title = meta.resolvedTitle(stringProvider),
                     onDismiss = { showingDialog = null },
                     onSelectClicked = { pickFontLauncher.launch("font/*") },
                     viewModel = viewModel,
@@ -353,7 +355,7 @@ fun SettingsScreen(
                 val currentColor = (field.get(uiState) as? Int) ?: 0
 
                 ColorPickerDialog(
-                    title = meta.title,
+                    title = meta.resolvedTitle(stringProvider),
                     currentColor = currentColor,
                     onDismiss = { showingDialog = null },
                     onColorSelected = { color ->
@@ -456,9 +458,9 @@ fun SettingsScreen(
                 if (categoryFields.isEmpty()) continue
 
                 item(key = "cat_${category.qualifiedName ?: category.simpleName}") {
-                    val title = (category.simpleName ?: "Settings")
-                        .lowercase()
-                        .capitalize(Locale.getDefault())
+                    val title = schema.categoryTitleKeys[category]
+                        ?.let { stringProvider.getString(it) }
+                        ?: category.simpleName.orEmpty()
 
                     SettingsSection(title = title) {
                         categoryFields.forEach { field ->
@@ -471,8 +473,8 @@ fun SettingsScreen(
                                         Toggle::class -> {
                                             val value = (field.get(uiState) as? Boolean) ?: false
                                             SettingsToggle(
-                                                title = meta.title,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                title = meta.resolvedTitle(stringProvider),
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 isChecked = value,
                                                 enabled = isEnabled,
                                                 onCheckedChange = { checked ->
@@ -539,9 +541,9 @@ fun SettingsScreen(
                                             }
 
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = subtitle,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -553,13 +555,13 @@ fun SettingsScreen(
 
                                         Dropdown::class -> {
                                             val idx = (field.get(uiState) as? Int) ?: 0
-                                            val options = meta.options
+                                            val options = meta.resolvedOptions(stringProvider)
                                             val displayText = options.getOrNull(idx) ?: "Unknown"
 
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = displayText,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -570,8 +572,8 @@ fun SettingsScreen(
 
                                         Button::class -> {
                                             SettingsAction(
-                                                title = meta.title,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                title = meta.resolvedTitle(stringProvider),
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -584,9 +586,9 @@ fun SettingsScreen(
                                             val pref = (field.get(uiState) as? AppPreference)
                                                 ?: AppPreference(label = "Not set")
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = pref.label.ifBlank { "Not set" },
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     val selectionType = when (field.name) {
@@ -635,9 +637,9 @@ fun SettingsScreen(
                                             }?.name ?: "Default Icons"
 
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = selectedPackDisplayName,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = { showIconPackDialog = true }
                                             )
@@ -670,9 +672,9 @@ fun SettingsScreen(
                                             }
 
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = displayText,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -687,9 +689,9 @@ fun SettingsScreen(
                                                 if (colorValue == 0) "Theme Default" else "Custom Color"
 
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = displayText,
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -701,9 +703,9 @@ fun SettingsScreen(
                                         else -> {
                                             // Unknown / custom type not handled
                                             SettingsItem(
-                                                title = meta.title,
+                                                title = meta.resolvedTitle(stringProvider),
                                                 subtitle = "Unsupported setting type",
-                                                description = meta.description.takeIf { it.isNotEmpty() },
+                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
                                                 enabled = false,
                                                 onClick = {}
                                             )

@@ -9,6 +9,7 @@ import app.cclauncher.helper.PermissionManager
 import app.cclauncher.helper.PrivateSpaceHelper
 import app.cclauncher.helper.iconpack.IconPackManager
 import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.ccLauncherStringResourceProvider
 import app.cclauncher.ui.components.snackbar.SnackbarManager
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -18,11 +19,14 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import io.github.mlmgames.settings.core.resources.StringResourceProvider
 
 val appModule = module {
 
     // Application-scoped IO supervisor. Cancelled only on process death; tied to Application lifecycle.
     single { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
+
+    single<StringResourceProvider> { ccLauncherStringResourceProvider(androidApplication()) }
 
     single { AppSettingsRepository(androidApplication()) }
 
