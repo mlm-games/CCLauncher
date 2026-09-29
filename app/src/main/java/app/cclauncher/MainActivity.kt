@@ -30,6 +30,7 @@ import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.helper.setPlainWallpaperLightGrey
 import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.applyAppLocale
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
 import app.cclauncher.ui.util.updateStatusBarVisibility
@@ -185,6 +186,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        lifecycleScope.launch {
+            settingsRepository.settings.collect { settings ->
+                applyAppLocale(settings.language.languageTag)
+            }
+        }
 
         setContent {
             CLauncherTheme {

@@ -11,6 +11,8 @@ import io.github.mlmgames.settings.core.annotations.SchemaVersion
 import io.github.mlmgames.settings.core.annotations.Serialized
 import io.github.mlmgames.settings.core.annotations.Setting
 import io.github.mlmgames.settings.core.annotations.SettingAction
+import io.github.mlmgames.settings.core.locale.AppLanguage
+import io.github.mlmgames.settings.core.resources.SettingsTextKeys
 import io.github.mlmgames.settings.core.types.Button
 import io.github.mlmgames.settings.core.types.Dropdown
 import io.github.mlmgames.settings.core.types.SettingTypeMarker
@@ -146,6 +148,16 @@ data class AppSettings(
 
     @Persisted(key = "SEARCH_INCLUDE_PACKAGE_NAMES")
     val searchIncludePackageNames: Boolean = false,
+
+    @Setting(
+        title = "Language",
+        titleKey = SettingsTextKeys.LANGUAGE,
+        category = Appearance::class,
+        type = Dropdown::class,
+        key = "language",
+        languages = ["en", "ar", "cs", "de", "el", "es", "fa", "fi", "fr", "he", "hr", "hu", "id", "it", "ja", "ko", "nl", "pl", "pt", "ru", "sv", "tr", "uk", "vi", "zh-CN"]
+    )
+    val language: AppLanguage = AppLanguage.System,
 
     @Setting(
         title = "Theme",
