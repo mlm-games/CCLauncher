@@ -184,11 +184,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Edge-to-edge via the supported insets path. FLAG_LAYOUT_NO_LIMITS extends the
-        // window into the navigation bar area, which on gesture-nav devices is the bottom
-        // gesture region — that made the home gesture ambiguous and stopped other apps
-        // from entering picture-in-picture (issue #291). The theme already sets
-        // windowLayoutInDisplayCutoutMode, so nothing else is needed.
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
