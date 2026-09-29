@@ -4,7 +4,7 @@
     <string name="system_font">Police système</string>
     <string name="app">Application</string>
     <string name="set_as_default_launcher">Définir comme lanceur par défaut</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Définir comme lanceur par défaut</u></string>
     <string name="set_as_default_launcher_first">Définir comme lanceur par défaut</string>
     <string name="app_text_color">Couleur du texte</string>
     <string name="double_tap_to_lock_screen">Double appui pour verrouiller</string>
@@ -85,7 +85,7 @@
     <string name="double_tap_lock">Appuyer deux fois pour verrouiller</string>
     <string name="enable">Activer</string>
     <string name="disable">Désactiver</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Ça ne marche pas ?</u></string>
     <string name="info">Infos</string>
     <string name="delete">Supprimer</string>
     <string name="text_size">Taille du texte</string>
@@ -138,4 +138,10 @@
     <string name="private_space_unsupported">L\\\\\\\'Espace privé nécessite Android 15 ou une version ultérieure</string>
     <string name="private_space_description">L\\\\\\\'Espace privé vous permet de masquer des applications et des données depuis votre profil principal. Les applications de l\\\\\\\'Espace privé ne sont accessibles que lorsqu\\\\\\\'il est déverrouillé.</string>
     <string name="settings">Paramètres</string>
+    <string name="accessibility_disclosure_title">Service d’accessibilité de CCLauncher</string>
+    <string name="accessibility_disclosure_data">Ce à quoi ce service accède : aucun contenu d’écran, aucune frappe clavier, aucune donnée d’application et aucune information personnelle. Rien n’est collecté et rien ne quitte votre appareil.</string>
+    <string name="accessibility_disclosure_disable">Vous pouvez désactiver ce service à tout moment dans Paramètres Android > Accessibilité.</string>
+    <string name="accessibility_settings_hint">Activez CCLauncher dans Accessibilité > Applications téléchargées (appelées Services installés sur certains appareils).</string>
+    <string name="view_privacy_policy">Voir la politique de confidentialité</string>
+    <string name="agree_and_continue">Accepter et continuer</string>
 </resources>

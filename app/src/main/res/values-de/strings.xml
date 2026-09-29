@@ -4,7 +4,7 @@
     <string name="system_font">Systemschriftart</string>
     <string name="app">App</string>
     <string name="set_as_default_launcher">Als Standard-Launcher festlegen</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Als Standard-Launcher festlegen</u></string>
     <string name="set_as_default_launcher_first">Als Standard-Launcher festlegen</string>
     <string name="app_text_color">Textfarbe</string>
     <string name="double_tap_to_lock_screen">Zum Sperren zweimal tippen</string>
@@ -88,7 +88,7 @@
     <string name="double_tap_lock">Zum Sperren zweimal tippen</string>
     <string name="enable">Aktivieren</string>
     <string name="disable">Deaktivieren</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Funktioniert nicht?</u></string>
     <string name="info">Die Info</string>
     <string name="delete">Löschen</string>
     <string name="text_size">Textgröße</string>
@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">Der Private Bereich erfordert Android 15 oder höher</string>
     <string name="private_space_description">Der Private Bereich ermöglicht es Ihnen, Apps und Daten vor Ihrem Hauptprofil zu verbergen. Apps im Privaten Bereich sind nur zugänglich, wenn dieser entsperrt ist.</string>
     <string name="settings">Einstellungen</string>
+    <string name="accessibility_disclosure_title">CCLauncher-Bedienhilfe</string>
+    <string name="accessibility_disclosure_data">Worauf dieser Dienst zugreift: auf keine Bildschirminhalte, keine Tastatureingaben, keine App-Daten und keine personenbezogenen Daten. Es wird nichts erhoben und nichts verlässt dein Gerät.</string>
+    <string name="accessibility_disclosure_disable">Du kannst diesen Dienst jederzeit unter Android-Einstellungen > Bedienhilfe deaktivieren.</string>
+    <string name="accessibility_settings_hint">Aktiviere CCLauncher unter Bedienhilfe > Heruntergeladene Apps (auf manchen Geräten Installierte Dienste genannt).</string>
+    <string name="view_privacy_policy">Datenschutzrichtlinie ansehen</string>
+    <string name="agree_and_continue">Zustimmen und fortfahren</string>
 </resources>

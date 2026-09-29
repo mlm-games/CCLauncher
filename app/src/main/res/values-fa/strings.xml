@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">فضای خصوصی به اندروید ۱۵ یا بالاتر نیاز دارد</string>
     <string name="private_space_description">فضای خصوصی به شما اجازه می‌دهد برنامه‌ها و داده‌ها را از نمایهٔ اصلی خود پنهان کنید. برنامه‌های درون فضای خصوصی تنها زمانی در دسترس‌اند که باز باشد.</string>
     <string name="settings">تنظیمات</string>
+    <string name="accessibility_disclosure_title">سرویس دسترس‌پذیری CCLauncher</string>
+    <string name="accessibility_disclosure_data">این سرویس به چه دسترسی دارد: به هیچ محتوای صفحه، هیچ کلید فشرده‌شده، هیچ داده برنامه و هیچ اطلاعات شخصی. هیچ چیزی جمع‌آوری نمی‌شود و هیچ چیزی از دستگاه شما خارج نمی‌شود.</string>
+    <string name="accessibility_disclosure_disable">می‌توانید این سرویس را هر زمان در تنظیمات Android > دسترس‌پذیری خاموش کنید.</string>
+    <string name="accessibility_settings_hint">CCLauncher را در دسترس‌پذیری > برنامه‌های دانلودشده (در برخی دستگاه‌ها «سرویس‌های نصب‌شده») فعال کنید.</string>
+    <string name="view_privacy_policy">مشاهده سیاست حفظ حریم خصوصی</string>
+    <string name="agree_and_continue">موافقت و ادامه</string>
 </resources>

@@ -4,7 +4,7 @@
     <string name="system_font">Czcionka systemowa</string>
     <string name="app">Aplikacja</string>
     <string name="set_as_default_launcher">Ustaw jako domyślny program uruchamiający</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Ustaw jako domyślny program uruchamiający</u></string>
     <string name="set_as_default_launcher_first">Ustaw jako domyślny program uruchamiający</string>
     <string name="app_text_color">Kolor tekstu</string>
     <string name="double_tap_to_lock_screen">Kliknij dwukrotnie, aby zablokować</string>
@@ -86,7 +86,7 @@
     <string name="double_tap_lock">Kliknij dwukrotnie, aby zablokować</string>
     <string name="enable">Włącz</string>
     <string name="disable">Wyłącz</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Nie działa?</u></string>
     <string name="info">Informacje</string>
     <string name="delete">Usuń</string>
     <string name="text_size">Rozmiar czcionki</string>
@@ -137,4 +137,10 @@
     <string name="private_space_unsupported">Przestrzeń prywatna wymaga Androida 15 lub nowszego</string>
     <string name="private_space_description">Przestrzeń prywatna pozwala ukrywać aplikacje i dane przed profilem głównym. Aplikacje w Przestrzeni prywatnej są dostępne tylko po jej odblokowaniu.</string>
     <string name="settings">Ustawienia</string>
+    <string name="accessibility_disclosure_title">Usługa ułatwień dostępu CCLaunchera</string>
+    <string name="accessibility_disclosure_data">Do czego ta usługa ma dostęp: żadnej treści ekranu, żadnych naciśnięć klawiszy, żadnych danych aplikacji ani informacji osobistych. Nic nie jest zbierane i nic nie opuszcza urządzenia.</string>
+    <string name="accessibility_disclosure_disable">Tę usługę możesz w każdej chwili wyłączyć w Ustawieniach Androida > Ułatwienia dostępu.</string>
+    <string name="accessibility_settings_hint">Włącz CCLaunchera w Ułatwieniach dostępu > Pobrane aplikacje (na niektórych urządzeniach Zainstalowane usługi).</string>
+    <string name="view_privacy_policy">Zobacz politykę prywatności</string>
+    <string name="agree_and_continue">Zgadzam się i kontynuuj</string>
 </resources>

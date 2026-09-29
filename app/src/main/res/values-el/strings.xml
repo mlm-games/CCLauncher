@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">Ο Ιδιωτικός χώρος απαιτεί Android 15 ή νεότερη έκδοση</string>
     <string name="private_space_description">Ο Ιδιωτικός χώρος σας επιτρέπει να αποκρύψετε εφαρμογές και δεδομένα από το κύριο προφίλ σας. Οι εφαρμογές στον Ιδιωτικό χώρο είναι προσβάσιμες μόνο όταν είναι ξεκλείδωτος.</string>
     <string name="settings">Ρυθμίσεις</string>
+    <string name="accessibility_disclosure_title">Υπηρεσία προσβασιμότητας του CCLauncher</string>
+    <string name="accessibility_disclosure_data">Σε τι έχει πρόσβαση αυτή η υπηρεσία: σε κανένα περιεχόμενο οθόνης, σε κανένα πάτημα πληκτρολογίου, σε δεδομένα εφαρμογών και σε καμία προσωπική πληροφορία. Δεν συλλέγεται τίποτα και τίποτα δεν αποστέλλεται από τη συσκευή σου.</string>
+    <string name="accessibility_disclosure_disable">Μπορείς να απενεργοποιήσεις αυτή την υπηρεσία ανά πάσα στιγμή στις Ρυθμίσεις Android > Προσβασιμότητα.</string>
+    <string name="accessibility_settings_hint">Ενεργοποίησε το CCLauncher στην Προσβασιμότητα > Ληφθένσες εφαρμογές (ονομάζονται Εγκατεστημένες υπηρεσίες σε ορισμένες συσκευές).</string>
+    <string name="view_privacy_policy">Προβολή πολιτικής απορρήτου</string>
+    <string name="agree_and_continue">Συμφωνώ και συνεχίζω</string>
 </resources>

@@ -4,7 +4,7 @@
     <string name="system_font">系统字体</string>
     <string name="app">应用程序</string>
     <string name="set_as_default_launcher">设置为默认启动器</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>设置为默认启动器</u></string>
     <string name="set_as_default_launcher_first">设置为默认启动器</string>
     <string name="app_text_color">文字颜色</string>
     <string name="double_tap_to_lock_screen">双击即可锁定</string>
@@ -88,7 +88,7 @@
     <string name="double_tap_lock">双击即可锁定</string>
     <string name="enable">启用</string>
     <string name="disable">禁用</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>无法使用？</u></string>
     <string name="info">信息</string>
     <string name="delete">删除</string>
     <string name="text_size">字体大小</string>
@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">私密空间需要 Android 15 或更高版本</string>
     <string name="private_space_description">私密空间可让你把应用和数据从主资料中隐藏。私密空间中的应用仅在解锁时才能访问。</string>
     <string name="settings">设置</string>
+    <string name="accessibility_disclosure_title">CCLauncher 无障碍服务</string>
+    <string name="accessibility_disclosure_data">此服务访问的内容：不读取屏幕内容、不读取按键、不读取应用数据，也不读取任何个人信息。不会收集任何信息，也不会有任何信息离开你的设备。</string>
+    <string name="accessibility_disclosure_disable">你可以随时在 Android 设置 > 无障碍中关闭此服务。</string>
+    <string name="accessibility_settings_hint">在无障碍 > 已下载的应用（部分设备上称为“已安装的服务”）中开启 CCLauncher。</string>
+    <string name="view_privacy_policy">查看隐私政策</string>
+    <string name="agree_and_continue">同意并继续</string>
 </resources>

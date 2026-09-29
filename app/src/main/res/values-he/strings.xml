@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">המרחב הפרטי דורש Android 15 או גרסה חדשה יותר</string>
     <string name="private_space_description">מרחב פרטי מאפשר לך להסתיר אפליקציות ונתונים מהפרופיל הראשי שלך. אפליקציות במרחב הפרטי נגישות רק כשהוא פתוח.</string>
     <string name="settings">הגדרות</string>
+    <string name="accessibility_disclosure_title">שירות הנגישות של CCLauncher</string>
+    <string name="accessibility_disclosure_data">מה השירות הזה ניגש אליו: לא לתוכן מסך, לא להקשות מקלדת, לא לנתוני אפליקציות ולא למידע אישי. שום דבר לא נאסף ושום דבר אינו יוצא מהמכשיר שלך.</string>
+    <string name="accessibility_disclosure_disable">ניתן לכבות את השירות הזה בכל עת בהגדרות Android > נגישות.</string>
+    <string name="accessibility_settings_hint">הפעילו את CCLauncher תחת נגישות > אפליקציות שהורדת (נקראות שירותים מותקנים במכשירים מסוימים).</string>
+    <string name="view_privacy_policy">הצגת מדיניות הפרטיות</string>
+    <string name="agree_and_continue">הסכמה והמשך</string>
 </resources>

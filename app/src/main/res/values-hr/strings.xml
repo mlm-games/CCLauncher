@@ -4,7 +4,7 @@
     <string name="system_font">Sistemski font</string>
     <string name="app">Aplikacija</string>
     <string name="set_as_default_launcher">Postavi kao zadani pokretač</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Postavi kao zadani pokretač</u></string>
     <string name="set_as_default_launcher_first">Postavi kao zadani pokretač</string>
     <string name="app_text_color">Boja teksta</string>
     <string name="double_tap_to_lock_screen">Dvostruki dodir za zaključavanje</string>
@@ -86,7 +86,7 @@
     <string name="double_tap_lock">Dvostruki dodir za zaključavanje</string>
     <string name="enable">Omogući</string>
     <string name="disable">Onemogući</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Ne radi?</u></string>
     <string name="info">Informacije</string>
     <string name="delete">Izbriši</string>
     <string name="text_size">Veličina teksta</string>
@@ -137,4 +137,10 @@
     <string name="private_space_unsupported">Privatni prostor zahtijeva Android 15 ili noviji</string>
     <string name="private_space_description">Privatni prostor omogućuje skrivanje aplikacija i podataka od glavnog profila. Aplikacije u Privatnom prostoru dostupne su samo kada je otključan.</string>
     <string name="settings">Postavke</string>
+    <string name="accessibility_disclosure_title">Uslužba pristupačnosti CCLaunchera</string>
+    <string name="accessibility_disclosure_data">Čemu ova usluga pristupa: nema sadržaja zaslona, nema pritisaka tipki, nema podataka aplikacija i nema osobnih podataka. Ništa se ne prikuplja i ništa ne napušta vaš uređaj.</string>
+    <string name="accessibility_disclosure_disable">Ovu uslugu možete isključiti u bilo kojem trenutku u Postavkama Androida > Pristupačnost.</string>
+    <string name="accessibility_settings_hint">Uključite CCLauncher u Pristupačnost > Preuzete aplikacije (na nekim uređajima nazvane Instalirane usluge).</string>
+    <string name="view_privacy_policy">Prikaži pravila privatnosti</string>
+    <string name="agree_and_continue">Slaži se i nastavi</string>
 </resources>

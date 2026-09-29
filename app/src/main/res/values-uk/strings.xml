@@ -4,7 +4,7 @@
     <string name="system_font">Системний шрифт</string>
     <string name="app">Додаток</string>
     <string name="set_as_default_launcher">Зробити лаунчером за замовчування</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Зробити лаунчером за замовчування</u></string>
     <string name="set_as_default_launcher_first">Зробити лаунчером за замовчування</string>
     <string name="app_text_color">Кольор тексту</string>
     <string name="double_tap_to_lock_screen">Блокування подвійним тапом</string>
@@ -88,7 +88,7 @@
     <string name="double_tap_lock">Блокування подвійним дотиком</string>
     <string name="enable">Включити</string>
     <string name="disable">Виключити</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Не працює?</u></string>
     <string name="info">Інформація</string>
     <string name="delete">Видалити</string>
     <string name="text_size">Розмір тексту</string>
@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">Особистий простір потребує Android 15 або новішої версії</string>
     <string name="private_space_description">Особистий простір дає змогу приховувати застосунки та дані від основного профілю. Застосунки в Особистому просторі доступні лише коли він розблокований.</string>
     <string name="settings">Налаштування</string>
+    <string name="accessibility_disclosure_title">Служба спеціальних можливостей CCLauncher</string>
+    <string name="accessibility_disclosure_data">До чого має доступ ця служба: до вмісту екрана, натискань клавіш, даних застосунків та особистої інформації — ні до чого. Нічого не збирається і нічого не залишає ваш пристрій.</string>
+    <string name="accessibility_disclosure_disable">Службу можна вимкнути будь-коли: Налаштування Android > Спеціальні можливості.</string>
+    <string name="accessibility_settings_hint">Увімкніть CCLauncher у розділі Спеціальні можливості > Завантажені застосунки (на деяких пристроях — Встановлені служби).</string>
+    <string name="view_privacy_policy">Переглянути політику конфіденційності</string>
+    <string name="agree_and_continue">Погодитися та продовжити</string>
 </resources>

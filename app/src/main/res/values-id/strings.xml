@@ -4,7 +4,7 @@
     <string name="system_font">Huruf sistem</string>
     <string name="app">Aplikasi</string>
     <string name="set_as_default_launcher">Tetapkan sebagai peluncur default</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Tetapkan sebagai peluncur default</u></string>
     <string name="set_as_default_launcher_first">Tetapkan sebagai peluncur default</string>
     <string name="app_text_color">Warna teks</string>
     <string name="double_tap_to_lock_screen">Ketuk dua kali untuk mengunci</string>
@@ -85,7 +85,7 @@
     <string name="double_tap_lock">Ketuk dua kali untuk mengunci</string>
     <string name="enable">Aktifkan</string>
     <string name="disable">Nonaktifkan</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Tidak berfungsi?</u></string>
     <string name="info">Info</string>
     <string name="delete">Hapus</string>
     <string name="text_size">Ukuran teks</string>
@@ -136,4 +136,10 @@
     <string name="private_space_unsupported">Ruang Pribadi memerlukan Android 15 atau lebih baru</string>
     <string name="private_space_description">Ruang Pribadi memungkinkan Anda menyembunyikan aplikasi dan data dari profil utama Anda. Aplikasi di Ruang Pribadi hanya dapat diakses saat ruang tersebut tidak terkunci.</string>
     <string name="settings">Pengaturan</string>
+    <string name="accessibility_disclosure_title">Layanan aksesibilitas CCLauncher</string>
+    <string name="accessibility_disclosure_data">Yang diakses layanan ini: tidak ada konten layar, tidak ada ketukan tombol, tidak ada data aplikasi, dan tidak ada informasi pribadi. Tidak ada yang dikumpulkan dan tidak ada yang meninggalkan perangkat Anda.</string>
+    <string name="accessibility_disclosure_disable">Anda dapat menonaktifkan layanan ini kapan saja di Setelan Android > Aksesibilitas.</string>
+    <string name="accessibility_settings_hint">Aktifkan CCLauncher di Aksesibilitas > Aplikasi yang diunduh (disebut Layanan terpasang di beberapa perangkat).</string>
+    <string name="view_privacy_policy">Lihat kebijakan privasi</string>
+    <string name="agree_and_continue">Setuju dan lanjutkan</string>
 </resources>

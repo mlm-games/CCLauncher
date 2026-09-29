@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">Không gian riêng cần Android 15 trở lên</string>
     <string name="private_space_description">Không gian riêng cho phép bạn ẩn ứng dụng và dữ liệu khỏi hồ sơ chính. Các ứng dụng trong Không gian riêng chỉ truy cập được khi không gian này được mở khóa.</string>
     <string name="settings">Cài đặt</string>
+    <string name="accessibility_disclosure_title">Dịch vụ trợ năng của CCLauncher</string>
+    <string name="accessibility_disclosure_data">Dịch vụ này truy cập vào: không có nội dung màn hình, không có phím nhấn, không có dữ liệu ứng dụng và không có thông tin cá nhân. Không có gì được thu thập và không có gì rời khỏi thiết bị của bạn.</string>
+    <string name="accessibility_disclosure_disable">Bạn có thể tắt dịch vụ này bất cứ lúc nào trong Cài đặt Android > Trợ năng.</string>
+    <string name="accessibility_settings_hint">Bật CCLauncher trong Trợ năng > Ứng dụng đã tải (gọi là Dịch vụ đã cài trên một số thiết bị).</string>
+    <string name="view_privacy_policy">Xem chính sách quyền riêng tư</string>
+    <string name="agree_and_continue">Đồng ý và tiếp tục</string>
 </resources>

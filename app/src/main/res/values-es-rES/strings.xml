@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">El Espacio privado requiere Android 15 o posterior</string>
     <string name="private_space_description">El Espacio privado te permite ocultar aplicaciones y datos de tu perfil principal. Las aplicaciones del Espacio privado solo son accesibles cuando está desbloqueado.</string>
     <string name="settings">Ajustes</string>
+    <string name="accessibility_disclosure_title">Servicio de accesibilidad de CCLauncher</string>
+    <string name="accessibility_disclosure_data">A qué accede este servicio: a ningún contenido de pantalla, ninguna pulsación de teclas, ningún dato de aplicaciones ni información personal. No se recopila nada y nada sale de tu dispositivo.</string>
+    <string name="accessibility_disclosure_disable">Puedes desactivar este servicio en cualquier momento en Ajustes de Android > Accesibilidad.</string>
+    <string name="accessibility_settings_hint">Activa CCLauncher en Accesibilidad > Aplicaciones descargadas (llamadas Servicios instalados en algunos dispositivos).</string>
+    <string name="view_privacy_policy">Ver la política de privacidad</string>
+    <string name="agree_and_continue">Aceptar y continuar</string>
 </resources>

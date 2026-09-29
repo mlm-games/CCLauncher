@@ -4,7 +4,7 @@
     <string name="system_font">Systemteckensnitt</string>
     <string name="app">App</string>
     <string name="set_as_default_launcher">Ange som förvald startskärmsapp</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Ange som förvald startskärmsapp</u></string>
     <string name="set_as_default_launcher_first">Ange CClauncher som förvald först</string>
     <string name="app_text_color">Textfärg</string>
     <string name="double_tap_to_lock_screen">Dubbeltryck för att låsa</string>
@@ -87,7 +87,7 @@
     <string name="double_tap_lock">Dubbeltryck för att låsa</string>
     <string name="enable">Aktivera</string>
     <string name="disable">Inaktivera</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Fungerar det inte?</u></string>
     <string name="info">Info</string>
     <string name="delete">Radera</string>
     <string name="text_size">Textstorlek</string>
@@ -138,4 +138,10 @@
     <string name="private_space_unsupported">Privat utrymme kräver Android 15 eller senare</string>
     <string name="private_space_description">Privat utrymme låter dölja appar och data från din huvudprofil. Appar i Privat utrymme är endast tillgängliga när det är upplåst.</string>
     <string name="settings">Inställningar</string>
+    <string name="accessibility_disclosure_title">CCLaunchers tillgänglighetstjänst</string>
+    <string name="accessibility_disclosure_data">Vad tjänsten kommer åt: inget skärminnehåll, inga tangenttryck, inga appdata och ingen personlig information. Inget samlas in och ingenting lämnar din enhet.</string>
+    <string name="accessibility_disclosure_disable">Du kan inaktivera tjänsten när som helst i Android-inställningar > Tillgänglighet.</string>
+    <string name="accessibility_settings_hint">Aktivera CCLauncher under Tillgänglighet > Nedladdade appar (kallas Installerade tjänster på vissa enheter).</string>
+    <string name="view_privacy_policy">Visa integritetspolicyn</string>
+    <string name="agree_and_continue">Godkänn och fortsätt</string>
 </resources>

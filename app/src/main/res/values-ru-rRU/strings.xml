@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">Для Личного пространства требуется Android 15 или новее</string>
     <string name="private_space_description">Личное пространство позволяет скрыть приложения и данные от основного профиля. Приложения в Личном пространстве доступны только пока оно разблокировано.</string>
     <string name="settings">Настройки</string>
+    <string name="accessibility_disclosure_title">Служба специальных возможностей CCLauncher</string>
+    <string name="accessibility_disclosure_data">Что доступно этой службе: содержимое экрана, нажатия клавиш, данные приложений и личная информация — ничто из этого. Ничего не собирается и ничего не покидает ваше устройство.</string>
+    <string name="accessibility_disclosure_disable">Службу можно отключить в любой момент: Настройки Android > Специальные возможности.</string>
+    <string name="accessibility_settings_hint">Включите CCLauncher в разделе Специальные возможности > Загруженные приложения (на некоторых устройствах — Установленные службы).</string>
+    <string name="view_privacy_policy">Показать политику конфиденциальности</string>
+    <string name="agree_and_continue">Принять и продолжить</string>
 </resources>

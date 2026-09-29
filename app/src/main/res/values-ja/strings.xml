@@ -4,7 +4,7 @@
     <string name="system_font">システムフォント</string>
     <string name="app">アプリ</string>
     <string name="set_as_default_launcher">デフォルトのランチャーとして設定</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>デフォルトのランチャーとして設定</u></string>
     <string name="set_as_default_launcher_first">デフォルトのランチャーとして設定</string>
     <string name="app_text_color">テキストの色</string>
     <string name="double_tap_to_lock_screen">ダブルタップしてロックします</string>
@@ -86,7 +86,7 @@
     <string name="double_tap_lock">ダブルタップしてロックします</string>
     <string name="enable">有効</string>
     <string name="disable">無効にする</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>動作しませんか？</u></string>
     <string name="info">情報</string>
     <string name="delete">消去</string>
     <string name="text_size">文字サイズ</string>
@@ -137,4 +137,10 @@
     <string name="private_space_unsupported">プライベートスペースには Android 15 以降が必要です</string>
     <string name="private_space_description">プライベートスペースを使うと、メインプロフィールからアプリやデータを隠せます。プライベートスペース内のアプリは、ロックが解除されている間だけアクセスできます。</string>
     <string name="settings">設定</string>
+    <string name="accessibility_disclosure_title">CCLauncher のアクセシビリティサービス</string>
+    <string name="accessibility_disclosure_data">このサービスがアクセスするのは画面の内容、キー入力、アプリのデータ、個人情報のいずれにも一切アクセスしません。収集されるものはなく、端末の外に出るものもありません。</string>
+    <string name="accessibility_disclosure_disable">このサービスは Android の設定 > ユーザー補助でいつでも無効にできます。</string>
+    <string name="accessibility_settings_hint">ユーザー補助 > ダウンロード済みのアプリ（一部の端末では「インストール済みサービス」）で CCLauncher を有効にしてください。</string>
+    <string name="view_privacy_policy">プライバシーポリシーを表示</string>
+    <string name="agree_and_continue">同意して続行</string>
 </resources>

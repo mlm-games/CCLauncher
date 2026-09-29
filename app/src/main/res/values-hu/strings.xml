@@ -4,7 +4,7 @@
     <string name="system_font">Rendszerbetűtípus</string>
     <string name="app">Alkalmazás</string>
     <string name="set_as_default_launcher">Beállítás alapért. indítóként</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Beállítás alapért. indítóként</u></string>
     <string name="set_as_default_launcher_first">Beállítás alapértelmezett indítóként</string>
     <string name="app_text_color">Szövegszín</string>
     <string name="double_tap_to_lock_screen">Dupla koppintás a képernyő lezárásához</string>
@@ -89,7 +89,7 @@
     <string name="double_tap_lock">Dupla koppintás a lezáráshoz</string>
     <string name="enable">Engedélyezés</string>
     <string name="disable">Letiltás</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Nem működik?</u></string>
     <string name="info">Információ</string>
     <string name="delete">Törlés</string>
     <string name="text_size">Szövegméret</string>
@@ -140,4 +140,10 @@
     <string name="private_space_unsupported">A Magánterülethez Android 15 vagy újabb szükséges</string>
     <string name="private_space_description">A Magánterület segítségével elrejthatja az alkalmazásokat és az adatokat a főprofil elől. A Magánterületen lévő alkalmazások csak akkor érhetők el, ha a terület nincs zárolva.</string>
     <string name="settings">Beállítások</string>
+    <string name="accessibility_disclosure_title">A CCLauncher akadálymentességi szolgáltatása</string>
+    <string name="accessibility_disclosure_data">Mire fér ez a szolgáltatás: sem kijelzőtartalomra, sem billentyűleütésekre, sem alkalmazásadatokra, sem személyes adatokra. Semmi nem gyűjtődik, és semmi nem hagyja el az eszközödet.</string>
+    <string name="accessibility_disclosure_disable">Ezt a szolgáltatást bármikor kikapcsolhatod az Android beállítások > Akadálymentesség menüpontban.</string>
+    <string name="accessibility_settings_hint">Kapcsold be a CCLaunchert az Akadálymentesség > Letöltött alkalmazások (egyes eszközökön Telepített szolgáltatások) pontban.</string>
+    <string name="view_privacy_policy">Adatvédelmi szabályzat megtekintése</string>
+    <string name="agree_and_continue">Elfogadom és folytatom</string>
 </resources>

@@ -4,7 +4,7 @@
     <string name="system_font">Sistem yazı tipi</string>
     <string name="app">Uygulama</string>
     <string name="set_as_default_launcher">Varsayılan başlatıcı olarak ayarla</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>Varsayılan başlatıcı olarak ayarla</u></string>
     <string name="set_as_default_launcher_first">Varsayılan başlatıcı olarak ayarla</string>
     <string name="app_text_color">metin rengi</string>
     <string name="double_tap_to_lock_screen">Kilitlemek için iki kez dokunun</string>
@@ -88,7 +88,7 @@
     <string name="double_tap_lock">Kilitlemek için iki kez dokunun</string>
     <string name="enable">Olanak vermek</string>
     <string name="disable">Devre dışı bırakmak</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>Çalışmıyor mu?</u></string>
     <string name="info">Bilgi</string>
     <string name="delete">Silmek</string>
     <string name="text_size">Yazı Boyutu</string>
@@ -139,4 +139,10 @@
     <string name="private_space_unsupported">Özel alan Android 15 veya üzeri gerektirir</string>
     <string name="private_space_description">Özel alan, uygulamaları ve verileri ana profilinizden gizlemenize olanak tanır. Özel alandaki uygulamalara yalnızca kilidi açıkken erişilebilir.</string>
     <string name="settings">Ayarlar</string>
+    <string name="accessibility_disclosure_title">CCLauncher erişilebilirlik hizmeti</string>
+    <string name="accessibility_disclosure_data">Bu hizmetin eriştiği şeyler: ekran içeriği, tuş basışı, uygulama verisi veya kişisel bilgi — hiçbiri. Hiçbir şey toplanmaz ve hiçbir şey cihazınızdan çıkmaz.</string>
+    <string name="accessibility_disclosure_disable">Bu hizmeti Android ayarları > Erişilebilirlik bölümünden istediğiniz zaman kapatabilirsiniz.</string>
+    <string name="accessibility_settings_hint">Erişilebilirlik > İndirilen uygulamalar (bazı cihazlarda Yüklü hizmetler) bölümünden CCLauncher’ı etkinleştirin.</string>
+    <string name="view_privacy_policy">Gizlilik politikasını görüntüle</string>
+    <string name="agree_and_continue">Kabul et ve devam et</string>
 </resources>

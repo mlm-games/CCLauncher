@@ -4,7 +4,7 @@
     <string name="system_font">خط النظام</string>
     <string name="app">تطبيق</string>
     <string name="set_as_default_launcher">تعيين كمشغل افتراضي</string>
-    <string name="set_as_default_launcher_u"><u></u></string>
+    <string name="set_as_default_launcher_u"><u>تعيين كمشغل افتراضي</u></string>
     <string name="set_as_default_launcher_first">تعيين كمشغل افتراضي</string>
     <string name="app_text_color">لون الخط</string>
     <string name="double_tap_to_lock_screen">انقر نقرًا مزدوجًا للقفل</string>
@@ -84,7 +84,7 @@
     <string name="double_tap_lock">انقر نقرًا مزدوجًا للقفل</string>
     <string name="enable">يُمكَِن</string>
     <string name="disable">إبطال</string>
-    <string name="not_working"><u></u></string>
+    <string name="not_working"><u>لا يعمل؟</u></string>
     <string name="info">معلومات</string>
     <string name="delete">يمسح</string>
     <string name="text_size">حجم الخط</string>
@@ -135,4 +135,10 @@
     <string name="private_space_unsupported">تتطلب المساحة الخاصة Android 15 أو أحدث</string>
     <string name="private_space_description">تتيح لك المساحة الخاصة إخفاء التطبيقات والبيانات عن ملفك الشخصي الرئيسي. لا يمكن الوصول إلى التطبيقات في المساحة الخاصة إلا أثناء فتحها.</string>
     <string name="settings">الإعدادات</string>
+    <string name="accessibility_disclosure_title">خدمة إتاحة الوصول في CCLauncher</string>
+    <string name="accessibility_disclosure_data">ما الذي تصل إليه هذه الخدمة: لا محتوى الشاشة ولا ضغطات المفاتيح ولا بيانات التطبيقات ولا أي معلومات شخصية. لا يُجمع شيء ولا يغادر جهازك.</string>
+    <string name="accessibility_disclosure_disable">يمكنك إيقاف هذه الخدمة في أي وقت من إعدادات Android > إمكانية الوصول.</string>
+    <string name="accessibility_settings_hint">فعّل CCLauncher ضمن إمكانية الوصول > التطبيقات التي نزّلتها (تسمى الخدمات المثبتة على بعض الأجهزة).</string>
+    <string name="view_privacy_policy">عرض سياسة الخصوصية</string>
+    <string name="agree_and_continue">موافق ومتابعة</string>
 </resources>

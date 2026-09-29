@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">Privéruimte vereist Android 15 of hoger</string>
     <string name="private_space_description">Met Privéruimte kun je apps en gegevens verbergen voor je hoofdprofiel. Apps in Privéruimte zijn alleen toegankelijk wanneer die ontgrendeld is.</string>
     <string name="settings">Instellingen</string>
+    <string name="accessibility_disclosure_title">Toegankelijkheidsdienst van CCLauncher</string>
+    <string name="accessibility_disclosure_data">Wat deze dienst benadert: geen scherminhoud, geen toetsaanslagen, geen appgegevens en geen persoonlijke informatie. Er wordt niets verzameld en niets verlaat je apparaat.</string>
+    <string name="accessibility_disclosure_disable">Je kunt deze dienst op elk moment uitschakelen in Android-instellingen > Toegankelijkheid.</string>
+    <string name="accessibility_settings_hint">Schakel CCLauncher in bij Toegankelijkheid > Gedownloade apps (op sommige apparaten Installed services genoemd).</string>
+    <string name="view_privacy_policy">Privacybeleid bekijken</string>
+    <string name="agree_and_continue">Akkoord en doorgaan</string>
 </resources>

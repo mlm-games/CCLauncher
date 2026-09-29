@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">Soukromý prostor vyžaduje Android 15 nebo vyšší</string>
     <string name="private_space_description">Soukromý prostor vám umožňuje skrýt aplikace a data před hlavním profilem. Aplikace v soukromém prostoru jsou dostupné pouze, když je odemčený.</string>
     <string name="settings">Nastavení</string>
+    <string name="accessibility_disclosure_title">Služba přístupnosti CCLauncher</string>
+    <string name="accessibility_disclosure_data">K čemu tato služba přistupuje: k žádnému obsahu obrazovky, žádným stiskům kláves, žádným datům aplikací ani osobním údajům. Nic se neshromažďuje a nic neopouští vaše zařízení.</string>
+    <string name="accessibility_disclosure_disable">Tuto službu můžete kdykoli vypnout v Nastavení Android > Přístupnost.</string>
+    <string name="accessibility_settings_hint">Zapněte CCLauncher v Přístupnost > Stažené aplikace (na některých zařízeních nazvané Nainstalované služby).</string>
+    <string name="view_privacy_policy">Zobrazit zásady ochrany soukromí</string>
+    <string name="agree_and_continue">Souhlasit a pokračovat</string>
 </resources>

@@ -130,4 +130,10 @@
     <string name="private_space_unsupported">Yksityinen tila vaatii Android 15 tai uudemman</string>
     <string name="private_space_description">Yksityisen tilan avulla voit piilottaa sovellukset ja tiedot pääprofiililtasi. Yksityisen tilan sovelluksiin pääsee vain, kun tila on avattu.</string>
     <string name="settings">Asetukset</string>
+    <string name="accessibility_disclosure_title">CCLauncherin saavutettavuuspalvelu</string>
+    <string name="accessibility_disclosure_data">Mitä tämä palvelu käyttää: ei näytön sisältöä, ei näppäinpainalluksia, ei sovellustietoja eikä henkilökohtaisia tietoja. Mitään ei kerätä eikä mitään poistu laitteeltasi.</string>
+    <string name="accessibility_disclosure_disable">Voit poistaa tämän palvelun käytöstä milloin tahansa kohdassa Android-asetukset > Saavutettavuus.</string>
+    <string name="accessibility_settings_hint">Ota käyttöön CCLauncher kohdassa Saavutettavuus > Ladatut sovellukset (joillakin laitteilla Asennetut palvelut).</string>
+    <string name="view_privacy_policy">Näytä tietosuojakäytäntö</string>
+    <string name="agree_and_continue">Hyväksy ja jatka</string>
 </resources>
