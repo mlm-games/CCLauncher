@@ -46,6 +46,7 @@ jobs:
       app-slug: cclauncher
       application-id: app.cclauncher
       play-track: ${{ inputs.upload_to_play && inputs.play_track || 'none' }}
+      publish-release: ${{ inputs.publish_github_release }}
       bump-type: ${{ inputs.bump_type }}
       prerelease: ${{ inputs.mark_prerelease }}
     secrets:
