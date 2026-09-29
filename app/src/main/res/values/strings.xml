@@ -250,7 +250,7 @@
     <string name="setting_use_system_font">Use System Font</string>
     <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Use the same font size for search results as home screen</string>
     <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">When disabled, tapping an app drawer app does nothing. Long‑press still opens the menu.</string>
-    <string-array name="setting_applabelalignment_options">
+    <string-array name="setting_app_label_alignment_options">
         <item>Left</item>
         <item>Center</item>
         <item>Right</item>
@@ -272,7 +272,7 @@
         <item>Bold</item>
         <item>Black</item>
     </string-array>
-    <string-array name="setting_itemspacing_options">
+    <string-array name="setting_item_spacing_options">
         <item>None</item>
         <item>Small</item>
         <item>Medium</item>
@@ -289,11 +289,11 @@
         <item>Keyboard layout swap</item>
         <item>Both</item>
     </string-array>
-    <string-array name="setting_searchbarposition_options">
+    <string-array name="setting_search_bar_position_options">
         <item>Top</item>
         <item>Bottom</item>
     </string-array>
-    <string-array name="setting_searchresultsalignment_options">
+    <string-array name="setting_search_results_alignment_options">
         <item>Left</item>
         <item>Center</item>
         <item>Right</item>
