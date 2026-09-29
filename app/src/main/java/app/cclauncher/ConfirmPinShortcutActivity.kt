@@ -1,16 +1,22 @@
 package app.cclauncher
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import app.cclauncher.ui.components.snackbar.SnackbarManager
 import org.koin.android.ext.android.inject
 
 class ConfirmPinShortcutActivity : Activity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ContextCompat.getContextForLanguage(newBase))
+    }
 
     companion object {
         private const val TAG = "ConfirmPinShortcut"
