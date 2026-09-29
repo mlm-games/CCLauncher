@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">Schakel CCLauncher in bij Toegankelijkheid > Gedownloade apps (op sommige apparaten Installed services genoemd).</string>
     <string name="view_privacy_policy">Privacybeleid bekijken</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Instellen hoe gemakkelijk veeggebaren worden geactiveerd</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">App-namen op het startscherm uitlijnen</string>
+    <string name="setting_app_drawer_results_alignment">Uitlijning van de resultaten in de app-lijst</string>
+    <string name="setting_auto_open_single_matches">Automatisch openen bij een enkele overeenkomst</string>
+    <string name="setting_auto_show_keyboard">Toetsenbord automatisch weergeven</string>
+    <string name="setting_auto_update_wallpaper">Achtergrond automatisch bijwerken</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Eenvoudige achtergrond automatisch bijwerken wanneer het systeemthema verandert</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Eigen icoonpakket voor apps kiezen</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Kiezen welk scherm wordt getoond bij het openen van de launcher</string>
+    <string name="setting_custom_font">Eigen lettertype</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Tekstkleur aanpassen voor betere leesbaarheid</string>
+    <string name="setting_default_screen">Standaardscherm</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">App-icoontjes op het startscherm weergeven</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Vastgezette app-snelkoppelingen in de app-lijst weergeven.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Resultaten van onder naar boven weergeven</string>
+    <string name="setting_double_tap_to_lock_screen">Dubbeltikken om te vergrendelen</string>
+    <string name="setting_font_weight">Lettertypegewicht</string>
+    <string name="setting_gesture_sensitivity">Gevoeligheid van gebaren</string>
+    <string name="setting_home_app_label_alignment">Uitlijning van app-namen op het startscherm</string>
+    <string name="setting_home_screen_columns">Kolommen op het startscherm</string>
+    <string name="setting_home_screen_pages">Pagina\'s op het startscherm</string>
+    <string name="setting_home_screen_rows">Rijen op het startscherm</string>
+    <string name="setting_home_text_size">Tekstgrootte op het startscherm</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Horizontale uitlijning van app-namen in de resultaten van de app-lijst</string>
+    <string name="setting_icon_corner_radius">Hoekradius van icoontjes</string>
+    <string name="setting_icon_pack">Icoonpakket</string>
+    <string name="setting_item_spacing">Afstand tussen items</string>
+    <string name="setting_left_swipe_app">App bij vegen naar links</string>
+    <string name="setting_long_press_in_app_drawer">Lang drukken in de app-lijst</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Lang drukken op een app opent het optiemenu</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">App-namen tussen transliteraties en toetsenbordindelingen vergelijken (bijv. Африка ↔ Afrika). Kan het CPU-gebruik op oudere apparaten licht verhogen.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Aantal kolommen in het raster van het startscherm</string>
+    <string name="setting_number_of_home_screen_pages_desc">Aantal pagina\'s op het startscherm</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Aantal rijen in het raster van het startscherm</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Tekstkleur van het thema overschrijven met een eigen kleur</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Positie van de zoekbalk in de app-lijst</string>
+    <string name="setting_return_to_home_after_app">Terug naar het startscherm na de app</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Na het sluiten van een app terug naar het startscherm in plaats van naar zoeken</string>
+    <string name="setting_reverse_search_results">Zoekresultaten omkeren</string>
+    <string name="setting_right_swipe_app">App bij vegen naar rechts</string>
+    <string name="setting_scale_home_apps">Apps op het startscherm schalen</string>
+    <string name="setting_screen_orientation">Schermoriëntatie</string>
+    <string name="setting_search_aliases">Zoekaliassen</string>
+    <string name="setting_search_bar_position">Positie van de zoekbalk</string>
+    <string name="setting_search_results_font_size">Tekstgrootte van zoekresultaten</string>
+    <string name="setting_search_results_use_home_font_size">Tekstgrootte van het startscherm gebruiken voor zoekresultaten</string>
+    <string name="setting_search_sort_order">Sorteervolgorde van zoeken</string>
+    <string name="setting_search_type">Zoekmethode</string>
+    <string name="setting_select_a_custom_font_file_desc">Eigen lettertypebestand selecteren</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Een eenvoudige zwart-witte achtergrond instellen op basis van het thema</string>
+    <string name="setting_set_plain_wallpaper">Eenvoudige achtergrond instellen</string>
+    <string name="setting_show_app_drawer_icons">Icoontjes in de app-lijst weergeven</string>
+    <string name="setting_show_app_icons_in_landscape">App-icoontjes in landschapsmodus weergeven</string>
+    <string name="setting_show_app_icons_in_portrait">App-icoontjes in portretmodus weergeven</string>
+    <string name="setting_show_app_icons_on_home_screen">App-icoontjes op het startscherm weergeven</string>
+    <string name="setting_show_app_names">App-namen weergeven</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">App-namen in zoekresultaten weergeven na het typen van dit aantal tekens. Stel 0 in om in plaats daarvan de instelling \'App-namen weergeven\' te gebruiken.</string>
+    <string name="setting_show_hidden_in_search">Verborgen apps in de zoekresultaten weergeven</string>
+    <string name="setting_show_names_in_search_after">Aantal tekens voordat namen in de zoekresultaten worden weergeven</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Stippen onderaan het startscherm weergeven</string>
+    <string name="setting_show_page_indicator">Pagina-indicator weergeven</string>
+    <string name="setting_show_pinned_shortcuts">Vastgezette snelkoppelingen weergeven</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Knop \'Op het web zoeken\' weergeven wanneer geen apps overeenkomen</string>
+    <string name="setting_show_status_bar">Statusbalk weergeven</string>
+    <string name="setting_show_web_search_option">Optie voor webzoeken weergeven</string>
+    <string name="setting_swipe_down_action">Actie bij vegen omlaag</string>
+    <string name="setting_swipe_down_app">App bij vegen omlaag</string>
+    <string name="setting_swipe_left_action">Actie bij vegen naar links</string>
+    <string name="setting_swipe_right_action">Actie bij vegen naar rechts</string>
+    <string name="setting_swipe_up_action">Actie bij vegen omhoog</string>
+    <string name="setting_swipe_up_app">App bij vegen omhoog</string>
+    <string name="setting_tap_to_open_in_app_drawer">Tikken in de app-lijst opent de app</string>
+    <string name="setting_text_color">Tekstkleur</string>
+    <string name="setting_theme">Thema</string>
+    <string name="setting_use_custom_text_color">Eigen tekstkleur gebruiken</string>
+    <string name="setting_use_dynamic_theme">Dynamisch thema gebruiken</string>
+    <string name="setting_use_system_font">Systeemlettertype gebruiken</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Voor zoekresultaten dezelfde tekstgrootte als het startscherm gebruiken</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Wanneer dit is uitgeschakeld, doet tikken op een app in de app-lijst niets. Lang drukken opent nog steeds het menu.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Links</item>
+        <item>Midden</item>
+        <item>Rechts</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Systeem</item>
+        <item>Licht</item>
+        <item>Donker</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Startscherm</item>
+        <item>App-lijst</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Dun</item>
+        <item>Licht</item>
+        <item>Normaal</item>
+        <item>Middel</item>
+        <item>Dik</item>
+        <item>Zwaar</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Geen</item>
+        <item>Klein</item>
+        <item>Middel</item>
+        <item>Groot</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Systeemstandaard</item>
+        <item>Portret forceren</item>
+        <item>Landschap forceren</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Uit</item>
+        <item>Transliteratie</item>
+        <item>Toetsenbordindeling wisselen</item>
+        <item>Beide</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Boven</item>
+        <item>Onder</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Links</item>
+        <item>Midden</item>
+        <item>Rechts</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alfabetisch</item>
+        <item>Omgekeerd alfabetisch</item>
+        <item>Laatst gestart</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Bevat</item>
+        <item>Benaderende overeenkomst</item>
+        <item>Begint met</item>
+        <item>Exacte overeenkomst</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Geen</item>
+        <item>Zoeken</item>
+        <item>Meldingen</item>
+        <item>App</item>
+        <item>Volgende pagina</item>
+        <item>Vorige pagina</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Geen</item>
+        <item>Zoeken</item>
+        <item>Meldingen</item>
+        <item>App</item>
+        <item>Volgende pagina</item>
+        <item>Vorige pagina</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Geen</item>
+        <item>Zoeken</item>
+        <item>Meldingen</item>
+        <item>App</item>
+        <item>Volgende pagina</item>
+        <item>Vorige pagina</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Geen</item>
+        <item>Zoeken</item>
+        <item>Meldingen</item>
+        <item>App</item>
+        <item>Volgende pagina</item>
+        <item>Vorige pagina</item>
+    </string-array>
+    <string name="category_general">Algemeen</string>
+    <string name="category_appearance">Uiterlijk</string>
+    <string name="category_layout">Indeling</string>
+    <string name="category_gestures">Gebaren</string>
+    <string name="category_system">Systeem</string>
 </resources>

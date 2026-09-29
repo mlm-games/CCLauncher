@@ -145,4 +145,179 @@
     <string name="accessibility_settings_hint">Увімкніть CCLauncher у розділі Спеціальні можливості > Завантажені застосунки (на деяких пристроях — Встановлені служби).</string>
     <string name="view_privacy_policy">Переглянути політику конфіденційності</string>
     <string name="agree_and_continue">Погодитися та продовжити</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Налаштувати, наскільки легко спрацьовують жести свайпів</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Вирівняти назви додатків на головному екрані</string>
+    <string name="setting_app_drawer_results_alignment">Вирівнювання результатів у списку додатків</string>
+    <string name="setting_auto_open_single_matches">Автоматично відкривати, якщо збігів лише один</string>
+    <string name="setting_auto_show_keyboard">Автоматично показувати клавіатуру</string>
+    <string name="setting_auto_update_wallpaper">Автоматично оновлювати шпалери</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Автоматично оновлювати однотонні шпалери під час зміни системної теми</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Вибрати власний пакет іконок для додатків</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Вибрати, який екран показувати під час відкриття лаунчера</string>
+    <string name="setting_custom_font">Власний шрифт</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Налаштувати колір тексту для кращої читабельності</string>
+    <string name="setting_default_screen">Екран за замовчуванням</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Показувати іконки додатків на головному екрані</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Показувати закріплені ярлики додатків у списку додатків.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Показувати результати знизу вгору</string>
+    <string name="setting_double_tap_to_lock_screen">Блокування подвійним тапом</string>
+    <string name="setting_font_weight">Товщина шрифту</string>
+    <string name="setting_gesture_sensitivity">Чутливість жестів</string>
+    <string name="setting_home_app_label_alignment">Вирівнювання назв додатків на головному екрані</string>
+    <string name="setting_home_screen_columns">Стовпці на головному екрані</string>
+    <string name="setting_home_screen_pages">Сторінки на головному екрані</string>
+    <string name="setting_home_screen_rows">Рядки на головному екрані</string>
+    <string name="setting_home_text_size">Розмір тексту на головному екрані</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Горизонтальне вирівнювання назв додатків у результатах списку додатків</string>
+    <string name="setting_icon_corner_radius">Радіус заокруглення іконок</string>
+    <string name="setting_icon_pack">Пакет іконок</string>
+    <string name="setting_item_spacing">Відступ між елементами</string>
+    <string name="setting_left_swipe_app">Додаток для свайпу ліворуч</string>
+    <string name="setting_long_press_in_app_drawer">Довге натискання у списку додатків</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Довге натискання на додатку відкриває меню параметрів</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Зіставлення назв додатків під час транслітерації та різних розкладках клавіатури (наприклад, Африка ↔ Afrika). Може трохи збільшити навантаження на процесор на старих пристроях.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Кількість стовпців у сітці на головному екрані</string>
+    <string name="setting_number_of_home_screen_pages_desc">Кількість сторінок на головному екрані</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Кількість рядків у сітці на головному екрані</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Замінювати колір тексту теми власним кольором</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Положення рядка пошуку в списку додатків</string>
+    <string name="setting_return_to_home_after_app">Повертатися на головний екран після додатка</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Після закриття додатка повертатися на головний екран, а не до пошуку</string>
+    <string name="setting_reverse_search_results">Перевертати результати пошуку</string>
+    <string name="setting_right_swipe_app">Додаток для свайпу праворуч</string>
+    <string name="setting_scale_home_apps">Масштаб додатків на головному екрані</string>
+    <string name="setting_screen_orientation">Орієнтація екрана</string>
+    <string name="setting_search_aliases">Псевдоніми для пошуку</string>
+    <string name="setting_search_bar_position">Положення рядка пошуку</string>
+    <string name="setting_search_results_font_size">Розмір шрифту результатів пошуку</string>
+    <string name="setting_search_results_use_home_font_size">Розмір шрифту головного екрана для результатів пошуку</string>
+    <string name="setting_search_sort_order">Порядок сортування пошуку</string>
+    <string name="setting_search_type">Тип пошуку</string>
+    <string name="setting_select_a_custom_font_file_desc">Вибрати файл власного шрифту</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Встановити чорно-білі однотонні шпалери залежно від теми</string>
+    <string name="setting_set_plain_wallpaper">Встановити однотонні шпалери</string>
+    <string name="setting_show_app_drawer_icons">Показувати іконки в списку додатків</string>
+    <string name="setting_show_app_icons_in_landscape">Показувати іконки додатків в альбомній орієнтації</string>
+    <string name="setting_show_app_icons_in_portrait">Показувати іконки додатків у книжковій орієнтації</string>
+    <string name="setting_show_app_icons_on_home_screen">Показувати іконки додатків на головному екрані</string>
+    <string name="setting_show_app_names">Показувати назви додатків</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Показувати назви додатків у результатах пошуку після введення вказаної кількості символів. Встановіть 0, щоб натомість використовувати параметр \'Показувати назви додатків\'.</string>
+    <string name="setting_show_hidden_in_search">Показувати приховані додатки в пошуку</string>
+    <string name="setting_show_names_in_search_after">Кількість символів перед показом назв у пошуку</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Показувати крапки сторінок унизу на головному екрані</string>
+    <string name="setting_show_page_indicator">Показувати індикатор сторінок</string>
+    <string name="setting_show_pinned_shortcuts">Показувати закріплені ярлики</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Показувати кнопку \'Шукати в інтернеті\', якщо збігів не знайдено</string>
+    <string name="setting_show_status_bar">Показувати рядок стану</string>
+    <string name="setting_show_web_search_option">Показувати параметр веб-пошуку</string>
+    <string name="setting_swipe_down_action">Дія під час свайпу вниз</string>
+    <string name="setting_swipe_down_app">Додаток для свайпу вниз</string>
+    <string name="setting_swipe_left_action">Дія під час свайпу ліворуч</string>
+    <string name="setting_swipe_right_action">Дія під час свайпу праворуч</string>
+    <string name="setting_swipe_up_action">Дія під час свайпу вгору</string>
+    <string name="setting_swipe_up_app">Додаток для свайпу вгору</string>
+    <string name="setting_tap_to_open_in_app_drawer">Натискання в списку додатків відкриває додаток</string>
+    <string name="setting_text_color">Кольор тексту</string>
+    <string name="setting_theme">Тема</string>
+    <string name="setting_use_custom_text_color">Використовувати власний колір тексту</string>
+    <string name="setting_use_dynamic_theme">Використовувати динамічну тему</string>
+    <string name="setting_use_system_font">Використовувати системний шрифт</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Використовувати для результатів пошуку той самий розмір шрифту, що й на головному екрані</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Якщо вимкнено, натискання на додаток у списку додатків нічого не робить. Довге натискання все одно відкриває меню.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Ліворуч</item>
+        <item>По центру</item>
+        <item>Праворуч</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Системна</item>
+        <item>Світла</item>
+        <item>Темна</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Головний екран</item>
+        <item>Список додатків</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Тонке</item>
+        <item>Світле</item>
+        <item>Звичайне</item>
+        <item>Середнє</item>
+        <item>Жирне</item>
+        <item>Чорне</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Немає</item>
+        <item>Маленький</item>
+        <item>Середній</item>
+        <item>Великий</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Системна</item>
+        <item>Примусово книжкова</item>
+        <item>Примусово альбомна</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Вимк</item>
+        <item>Транслітерація</item>
+        <item>Зміна розкладки клавіатури</item>
+        <item>Обидва варіанти</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Зверху</item>
+        <item>Знизу</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Ліворуч</item>
+        <item>По центру</item>
+        <item>Праворуч</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>За алфавітом</item>
+        <item>У зворотному алфавітному порядку</item>
+        <item>Останній запуск</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Містить</item>
+        <item>Схожий збіг</item>
+        <item>Починається з</item>
+        <item>Точний збіг</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Немає</item>
+        <item>Пошук</item>
+        <item>Сповіщення</item>
+        <item>Додаток</item>
+        <item>Наступна сторінка</item>
+        <item>Попередня сторінка</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Немає</item>
+        <item>Пошук</item>
+        <item>Сповіщення</item>
+        <item>Додаток</item>
+        <item>Наступна сторінка</item>
+        <item>Попередня сторінка</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Немає</item>
+        <item>Пошук</item>
+        <item>Сповіщення</item>
+        <item>Додаток</item>
+        <item>Наступна сторінка</item>
+        <item>Попередня сторінка</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Немає</item>
+        <item>Пошук</item>
+        <item>Сповіщення</item>
+        <item>Додаток</item>
+        <item>Наступна сторінка</item>
+        <item>Попередня сторінка</item>
+    </string-array>
+    <string name="category_general">Загальні</string>
+    <string name="category_appearance">Оформлення</string>
+    <string name="category_layout">Розкладка</string>
+    <string name="category_gestures">Жести</string>
+    <string name="category_system">Система</string>
 </resources>

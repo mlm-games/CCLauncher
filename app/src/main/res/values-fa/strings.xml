@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">CCLauncher را در دسترس‌پذیری > برنامه‌های دانلودشده (در برخی دستگاه‌ها «سرویس‌های نصب‌شده») فعال کنید.</string>
     <string name="view_privacy_policy">مشاهده سیاست حفظ حریم خصوصی</string>
     <string name="agree_and_continue">موافقت و ادامه</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">میزان آسانی فعال شدن اشاره‌های کشیدن را تنظیم کنید</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">تراز کردن نام برنامه‌ها در صفحهٔ اصلی</string>
+    <string name="setting_app_drawer_results_alignment">تراز نتایج فهرست برنامه‌ها</string>
+    <string name="setting_auto_open_single_matches">باز کردن خودکار نتایج منفرد</string>
+    <string name="setting_auto_show_keyboard">نمایش خودکار صفحه‌کلید</string>
+    <string name="setting_auto_update_wallpaper">به‌روزرسانی خودکار پس‌زمینه</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">به‌روزرسانی خودکار پس‌زمینهٔ ساده هنگام تغییر پوستهٔ سیستم</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">انتخاب مجموعه آیکون دلخواه برای برنامه‌ها</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">انتخاب صفحه‌ای که هنگام باز کردن اجراکننده نمایش داده شود</string>
+    <string name="setting_custom_font">قلم دلخواه</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">سفارشی‌سازی رنگ متن برای خوانایی بهتر</string>
+    <string name="setting_default_screen">صفحهٔ پیش‌فرض</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">نمایش آیکون برنامه‌ها در صفحهٔ اصلی</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">نمایش میان‌برهای سنجاق‌شدهٔ برنامه‌ها در فهرست برنامه‌ها.</string>
+    <string name="setting_display_results_bottom_to_top_desc">نمایش نتایج از پایین به بالا</string>
+    <string name="setting_double_tap_to_lock_screen">قفل کردن با اشارهٔ دوبار</string>
+    <string name="setting_font_weight">وزن قلم</string>
+    <string name="setting_gesture_sensitivity">حساسیت اشاره‌ها</string>
+    <string name="setting_home_app_label_alignment">تراز برچسب برنامه‌ها در صفحهٔ اصلی</string>
+    <string name="setting_home_screen_columns">ستون‌های صفحهٔ اصلی</string>
+    <string name="setting_home_screen_pages">صفحه‌های صفحهٔ اصلی</string>
+    <string name="setting_home_screen_rows">ردیف‌های صفحهٔ اصلی</string>
+    <string name="setting_home_text_size">اندازهٔ متن در صفحهٔ اصلی</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">تراز افقی نام برنامه‌ها در نتایج فهرست برنامه‌ها</string>
+    <string name="setting_icon_corner_radius">شعاع گوشهٔ آیکون</string>
+    <string name="setting_icon_pack">مجموعه آیکون</string>
+    <string name="setting_item_spacing">فاصلهٔ میان موارد</string>
+    <string name="setting_left_swipe_app">برنامه هنگام کشیدن به چپ</string>
+    <string name="setting_long_press_in_app_drawer">فشار طولانی در فهرست برنامه‌ها</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">فشار طولانی روی برنامه‌ها منوی گزینه‌ها را نشان می‌دهد</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">تطابق نام برنامه‌ها در نوشتارهای گوناگون و چیدمان‌های صفحه‌کلید (مثلاً آفریقا ↔ Afrika). ممکن است مصرف پردازنده را در دستگاه‌های قدیمی اندکی افزایش دهد.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">تعداد ستون‌های شبکهٔ صفحهٔ اصلی</string>
+    <string name="setting_number_of_home_screen_pages_desc">تعداد صفحه‌های صفحهٔ اصلی</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">تعداد ردیف‌های شبکهٔ صفحهٔ اصلی</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">جایگزینی رنگ متن پوسته با رنگ دلخواه</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">مکان نوار جست‌وجو در فهرست برنامه‌ها</string>
+    <string name="setting_return_to_home_after_app">بازگشت به صفحهٔ اصلی پس از برنامه</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">بازگشت به صفحهٔ اصلی به‌جای جست‌وجو پس از بستن برنامه</string>
+    <string name="setting_reverse_search_results">معکوس کردن نتایج جست‌وجو</string>
+    <string name="setting_right_swipe_app">برنامه هنگام کشیدن به راست</string>
+    <string name="setting_scale_home_apps">مقیاس‌بندی برنامه‌های صفحهٔ اصلی</string>
+    <string name="setting_screen_orientation">جهت صفحه</string>
+    <string name="setting_search_aliases">نام‌های مستعار جست‌وجو</string>
+    <string name="setting_search_bar_position">مکان نوار جست‌وجو</string>
+    <string name="setting_search_results_font_size">اندازهٔ قلم نتایج جست‌وجو</string>
+    <string name="setting_search_results_use_home_font_size">استفاده از اندازهٔ قلم صفحهٔ اصلی برای نتایج جست‌وجو</string>
+    <string name="setting_search_sort_order">ترتیب مرتب‌سازی جست‌وجو</string>
+    <string name="setting_search_type">نوع جست‌وجو</string>
+    <string name="setting_select_a_custom_font_file_desc">انتخاب پروندهٔ قلم دلخواه</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">تنظیم پس‌زمینهٔ سادهٔ سفید/سیاه بر اساس پوسته</string>
+    <string name="setting_set_plain_wallpaper">تنظیم پس‌زمینهٔ ساده</string>
+    <string name="setting_show_app_drawer_icons">نمایش آیکون‌های فهرست برنامه‌ها</string>
+    <string name="setting_show_app_icons_in_landscape">نمایش آیکون برنامه‌ها در حالت افقی</string>
+    <string name="setting_show_app_icons_in_portrait">نمایش آیکون برنامه‌ها در حالت عمودی</string>
+    <string name="setting_show_app_icons_on_home_screen">نمایش آیکون برنامه‌ها در صفحهٔ اصلی</string>
+    <string name="setting_show_app_names">نمایش نام برنامه‌ها</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">نمایش نام برنامه‌ها در نتایج جست‌وجو پس از تایپ این تعداد نویسه. برای استفاده از تنظیم «نمایش نام برنامه‌ها» به‌جای آن، ۰ را وارد کنید.</string>
+    <string name="setting_show_hidden_in_search">نمایش برنامه‌های پنهان در جست‌وجو</string>
+    <string name="setting_show_names_in_search_after">تعداد نویسه‌ها پیش از نمایش نام‌ها در جست‌وجو</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">نمایش نقطه‌های صفحه در پایین صفحهٔ اصلی</string>
+    <string name="setting_show_page_indicator">نمایش نشانگر صفحه</string>
+    <string name="setting_show_pinned_shortcuts">نمایش میان‌برهای سنجاق‌شده</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">نمایش دکمهٔ «جست‌وجو در وب» هنگامی که هیچ برنامه‌ای مطابقت ندارد</string>
+    <string name="setting_show_status_bar">نمایش نوار وضعیت</string>
+    <string name="setting_show_web_search_option">نمایش گزینهٔ جست‌وجوی وب</string>
+    <string name="setting_swipe_down_action">کنش هنگام کشیدن به پایین</string>
+    <string name="setting_swipe_down_app">برنامه هنگام کشیدن به پایین</string>
+    <string name="setting_swipe_left_action">کنش هنگام کشیدن به چپ</string>
+    <string name="setting_swipe_right_action">کنش هنگام کشیدن به راست</string>
+    <string name="setting_swipe_up_action">کنش هنگام کشیدن به بالا</string>
+    <string name="setting_swipe_up_app">برنامه هنگام کشیدن به بالا</string>
+    <string name="setting_tap_to_open_in_app_drawer">ضربه زدن برای باز کردن در فهرست برنامه‌ها</string>
+    <string name="setting_text_color">رنگ متن</string>
+    <string name="setting_theme">پوسته</string>
+    <string name="setting_use_custom_text_color">استفاده از رنگ متن دلخواه</string>
+    <string name="setting_use_dynamic_theme">استفاده از پوستهٔ پویا</string>
+    <string name="setting_use_system_font">استفاده از قلم سیستم</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">استفاده از اندازهٔ یکسان قلم برای نتایج جست‌وجو و صفحهٔ اصلی</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">هنگامی که غیرفعال است، ضربه زدن به برنامه‌ای در فهرست برنامه‌ها هیچ کاری انجام نمی‌دهد. فشار طولانی همچنان منو را باز می‌کند.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>چپ</item>
+        <item>وسط</item>
+        <item>راست</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>سیستم</item>
+        <item>روشن</item>
+        <item>تاریک</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>صفحهٔ اصلی</item>
+        <item>فهرست برنامه‌ها</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>نازک</item>
+        <item>سبک</item>
+        <item>معمولی</item>
+        <item>متوسط</item>
+        <item>ضخیم</item>
+        <item>مشکی</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>بدون</item>
+        <item>کوچک</item>
+        <item>متوسط</item>
+        <item>بزرگ</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>پیش‌فرض سیستم</item>
+        <item>اجبار چرخش عمودی</item>
+        <item>اجبار چرخش افقی</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>غیرفعال</item>
+        <item>تبدیل حروف</item>
+        <item>جابه‌جایی چیدمان صفحه‌کلید</item>
+        <item>هر دو</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>بالا</item>
+        <item>پایین</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>چپ</item>
+        <item>وسط</item>
+        <item>راست</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>الفبایی</item>
+        <item>برعکس الفبایی</item>
+        <item>آخرین اجرا</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>شامل</item>
+        <item>مطابقت تقریبی</item>
+        <item>شروع با</item>
+        <item>مطابقت کامل</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>بدون</item>
+        <item>جست‌وجو</item>
+        <item>اعلان‌ها</item>
+        <item>برنامه</item>
+        <item>صفحهٔ بعد</item>
+        <item>صفحهٔ قبل</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>بدون</item>
+        <item>جست‌وجو</item>
+        <item>اعلان‌ها</item>
+        <item>برنامه</item>
+        <item>صفحهٔ بعد</item>
+        <item>صفحهٔ قبل</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>بدون</item>
+        <item>جست‌وجو</item>
+        <item>اعلان‌ها</item>
+        <item>برنامه</item>
+        <item>صفحهٔ بعد</item>
+        <item>صفحهٔ قبل</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>بدون</item>
+        <item>جست‌وجو</item>
+        <item>اعلان‌ها</item>
+        <item>برنامه</item>
+        <item>صفحهٔ بعد</item>
+        <item>صفحهٔ قبل</item>
+    </string-array>
+    <string name="category_general">عمومی</string>
+    <string name="category_appearance">ظاهر</string>
+    <string name="category_layout">چیدمان</string>
+    <string name="category_gestures">اشاره‌ها</string>
+    <string name="category_system">سیستم</string>
 </resources>

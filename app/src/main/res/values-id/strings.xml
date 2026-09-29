@@ -142,4 +142,179 @@
     <string name="accessibility_settings_hint">Aktifkan CCLauncher di Aksesibilitas > Aplikasi yang diunduh (disebut Layanan terpasang di beberapa perangkat).</string>
     <string name="view_privacy_policy">Lihat kebijakan privasi</string>
     <string name="agree_and_continue">Setuju dan lanjutkan</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Atur seberapa mudah gerakan usapan diaktifkan</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Ratakan nama aplikasi di layar beranda</string>
+    <string name="setting_app_drawer_results_alignment">Perataan hasil laci aplikasi</string>
+    <string name="setting_auto_open_single_matches">Buka hasil yang cocok satu secara otomatis</string>
+    <string name="setting_auto_show_keyboard">Tampilkan papan ketik secara otomatis</string>
+    <string name="setting_auto_update_wallpaper">Perbarui wallpaper secara otomatis</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Perbarui wallpaper polos secara otomatis saat tema sistem berubah</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Pilih paket ikon kustom untuk aplikasi</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Pilih layar yang ditampilkan saat membuka peluncur</string>
+    <string name="setting_custom_font">Huruf kustom</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Sesuaikan warna teks agar lebih mudah dibaca</string>
+    <string name="setting_default_screen">Layar bawaan</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Tampilkan ikon aplikasi di layar beranda</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Tampilkan pintasan aplikasi yang disematkan di laci aplikasi.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Tampilkan hasil dari bawah ke atas</string>
+    <string name="setting_double_tap_to_lock_screen">Kunci layar dengan ketukan dua kali</string>
+    <string name="setting_font_weight">Tebal huruf</string>
+    <string name="setting_gesture_sensitivity">Sensitivitas gerakan</string>
+    <string name="setting_home_app_label_alignment">Perataan label aplikasi di layar beranda</string>
+    <string name="setting_home_screen_columns">Kolom layar beranda</string>
+    <string name="setting_home_screen_pages">Halaman layar beranda</string>
+    <string name="setting_home_screen_rows">Baris layar beranda</string>
+    <string name="setting_home_text_size">Ukuran teks di layar beranda</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Perataan horizontal nama aplikasi di hasil laci aplikasi</string>
+    <string name="setting_icon_corner_radius">Radius sudut ikon</string>
+    <string name="setting_icon_pack">Paket ikon</string>
+    <string name="setting_item_spacing">Jarak antar item</string>
+    <string name="setting_left_swipe_app">Aplikasi saat usap ke kiri</string>
+    <string name="setting_long_press_in_app_drawer">Ketuk lama di laci aplikasi</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Ketuk lama pada aplikasi menampilkan menu opsi</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Cocokkan nama aplikasi lintas transliterasi dan tata letak papan ketik (mis. Африка ↔ Afrika). Dapat sedikit meningkatkan penggunaan CPU pada perangkat lama.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Jumlah kolom dalam kisi layar beranda</string>
+    <string name="setting_number_of_home_screen_pages_desc">Jumlah halaman layar beranda</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Jumlah baris dalam kisi layar beranda</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Timpa warna teks tema dengan warna kustom</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Posisi bilah pencarian di laci aplikasi</string>
+    <string name="setting_return_to_home_after_app">Kembali ke beranda setelah aplikasi</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Kembali ke layar beranda alih-alih pencarian setelah menutup aplikasi</string>
+    <string name="setting_reverse_search_results">Balikkan hasil pencarian</string>
+    <string name="setting_right_swipe_app">Aplikasi saat usap ke kanan</string>
+    <string name="setting_scale_home_apps">Skala aplikasi layar beranda</string>
+    <string name="setting_screen_orientation">Orientasi layar</string>
+    <string name="setting_search_aliases">Alias pencarian</string>
+    <string name="setting_search_bar_position">Posisi bilah pencarian</string>
+    <string name="setting_search_results_font_size">Ukuran huruf hasil pencarian</string>
+    <string name="setting_search_results_use_home_font_size">Gunakan ukuran huruf layar beranda untuk hasil pencarian</string>
+    <string name="setting_search_sort_order">Urutan pengurutan pencarian</string>
+    <string name="setting_search_type">Jenis pencarian</string>
+    <string name="setting_select_a_custom_font_file_desc">Pilih berkas huruf kustom</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Atur wallpaper polos hitam/putih berdasarkan tema</string>
+    <string name="setting_set_plain_wallpaper">Atur wallpaper polos</string>
+    <string name="setting_show_app_drawer_icons">Tampilkan ikon laci aplikasi</string>
+    <string name="setting_show_app_icons_in_landscape">Tampilkan ikon aplikasi dalam lanskap</string>
+    <string name="setting_show_app_icons_in_portrait">Tampilkan ikon aplikasi dalam potret</string>
+    <string name="setting_show_app_icons_on_home_screen">Tampilkan ikon aplikasi di layar beranda</string>
+    <string name="setting_show_app_names">Tampilkan nama aplikasi</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Tampilkan nama aplikasi di hasil pencarian setelah mengetik sejumlah karakter ini. Atur ke 0 untuk memakai pengaturan \'Tampilkan nama aplikasi\'.</string>
+    <string name="setting_show_hidden_in_search">Tampilkan yang tersembunyi dalam pencarian</string>
+    <string name="setting_show_names_in_search_after">Jumlah karakter sebelum menampilkan nama dalam pencarian</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Tampilkan titik halaman di bagian bawah layar beranda</string>
+    <string name="setting_show_page_indicator">Tampilkan indikator halaman</string>
+    <string name="setting_show_pinned_shortcuts">Tampilkan pintasan yang disematkan</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Tampilkan tombol \'Telusuri Web\' saat tidak ada aplikasi yang cocok</string>
+    <string name="setting_show_status_bar">Tampilkan bilah status</string>
+    <string name="setting_show_web_search_option">Tampilkan opsi pencarian web</string>
+    <string name="setting_swipe_down_action">Tindakan saat usap ke bawah</string>
+    <string name="setting_swipe_down_app">Aplikasi saat usap ke bawah</string>
+    <string name="setting_swipe_left_action">Tindakan saat usap ke kiri</string>
+    <string name="setting_swipe_right_action">Tindakan saat usap ke kanan</string>
+    <string name="setting_swipe_up_action">Tindakan saat usap ke atas</string>
+    <string name="setting_swipe_up_app">Aplikasi saat usap ke atas</string>
+    <string name="setting_tap_to_open_in_app_drawer">Ketuk untuk membuka di laci aplikasi</string>
+    <string name="setting_text_color">Warna teks</string>
+    <string name="setting_theme">Tema</string>
+    <string name="setting_use_custom_text_color">Gunakan warna teks kustom</string>
+    <string name="setting_use_dynamic_theme">Gunakan tema dinamis</string>
+    <string name="setting_use_system_font">Gunakan huruf sistem</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Gunakan ukuran huruf yang sama dengan layar beranda untuk hasil pencarian</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Saat dinonaktifkan, mengetuk aplikasi di laci aplikasi tidak melakukan apa pun. Ketuk lama tetap membuka menu.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Kiri</item>
+        <item>Tengah</item>
+        <item>Kanan</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Sistem</item>
+        <item>Terang</item>
+        <item>Gelap</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Beranda</item>
+        <item>Laci aplikasi</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Tipis</item>
+        <item>Ringan</item>
+        <item>Normal</item>
+        <item>Sedang</item>
+        <item>Tebal</item>
+        <item>Hitam</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Tanpa</item>
+        <item>Kecil</item>
+        <item>Sedang</item>
+        <item>Besar</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Bawaan sistem</item>
+        <item>Paksa potret</item>
+        <item>Paksa lanskap</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Nonaktif</item>
+        <item>Transliterasi</item>
+        <item>Pertukaran tata letak papan ketik</item>
+        <item>Keduanya</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Atas</item>
+        <item>Bawah</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Kiri</item>
+        <item>Tengah</item>
+        <item>Kanan</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alfabetis</item>
+        <item>Alfabetis terbalik</item>
+        <item>Peluncuran terakhir</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Berisi</item>
+        <item>Pencocokan samar</item>
+        <item>Diawali</item>
+        <item>Pencocokan persis</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Tanpa</item>
+        <item>Pencarian</item>
+        <item>Notifikasi</item>
+        <item>Aplikasi</item>
+        <item>Halaman berikutnya</item>
+        <item>Halaman sebelumnya</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Tanpa</item>
+        <item>Pencarian</item>
+        <item>Notifikasi</item>
+        <item>Aplikasi</item>
+        <item>Halaman berikutnya</item>
+        <item>Halaman sebelumnya</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Tanpa</item>
+        <item>Pencarian</item>
+        <item>Notifikasi</item>
+        <item>Aplikasi</item>
+        <item>Halaman berikutnya</item>
+        <item>Halaman sebelumnya</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Tanpa</item>
+        <item>Pencarian</item>
+        <item>Notifikasi</item>
+        <item>Aplikasi</item>
+        <item>Halaman berikutnya</item>
+        <item>Halaman sebelumnya</item>
+    </string-array>
+    <string name="category_general">Umum</string>
+    <string name="category_appearance">Tampilan</string>
+    <string name="category_layout">Tata letak</string>
+    <string name="category_gestures">Gerakan</string>
+    <string name="category_system">Sistem</string>
 </resources>

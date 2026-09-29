@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">הפעילו את CCLauncher תחת נגישות > אפליקציות שהורדת (נקראות שירותים מותקנים במכשירים מסוימים).</string>
     <string name="view_privacy_policy">הצגת מדיניות הפרטיות</string>
     <string name="agree_and_continue">הסכמה והמשך</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">כוון עד כמה קל להפעיל מחוות החלקה</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">יישור שמות אפליקציות במסך הבית</string>
+    <string name="setting_app_drawer_results_alignment">יישור תוצאות מגירת האפליקציות</string>
+    <string name="setting_auto_open_single_matches">פתיחה אוטומטית של תוצאה בודדת</string>
+    <string name="setting_auto_show_keyboard">הצגת מקלדת אוטומטית</string>
+    <string name="setting_auto_update_wallpaper">עדכון אוטומטי של הרקע</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">עדכון אוטומטי של רקע פשוט כאשר ערכת הנושא של המערכת משתנה</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">בחירת חבילת אייקונים מותאמת אישית לאפליקציות</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">בחירת איזה מסך יוצג בעת פתיחת המפעיל</string>
+    <string name="setting_custom_font">גופן מותאם אישית</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">התאמה אישית של צבע הטקסט לטובת קריאות טובה יותר</string>
+    <string name="setting_default_screen">מסך ברירת מחדל</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">הצגת אייקוני אפליקציות במסך הבית</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">הצגת קיצורי אפליקציות נעוצים במגירת האפליקציות.</string>
+    <string name="setting_display_results_bottom_to_top_desc">הצגת תוצאות מלמטה למעלה</string>
+    <string name="setting_double_tap_to_lock_screen">נעילה בהקשה כפולה</string>
+    <string name="setting_font_weight">עובי הגופן</string>
+    <string name="setting_gesture_sensitivity">רגישות מחוות</string>
+    <string name="setting_home_app_label_alignment">יישור תוויות האפליקציות במסך הבית</string>
+    <string name="setting_home_screen_columns">עמודות במסך הבית</string>
+    <string name="setting_home_screen_pages">עמודים במסך הבית</string>
+    <string name="setting_home_screen_rows">שורות במסך הבית</string>
+    <string name="setting_home_text_size">גודל הטקסט במסך הבית</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">יישור אופקי של שמות אפליקציות בתוצאות מגירת האפליקציות</string>
+    <string name="setting_icon_corner_radius">רדיוס פינות האייקון</string>
+    <string name="setting_icon_pack">חבילת אייקונים</string>
+    <string name="setting_item_spacing">מרווח בין פריטים</string>
+    <string name="setting_left_swipe_app">אפליקציה בהחלקה שמאלה</string>
+    <string name="setting_long_press_in_app_drawer">לחיצה ארוכה במגירת האפליקציות</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">לחיצה ארוכה על אפליקציות מציגה את תפריט האפשרויות</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">התאמת שמות אפליקציות בין תעתיקים ופריסות מקלדת (למשל אפריקה ↔ Afrika). עשויה להגדיל מעט את השימוש במעבד במכשירים ישנים.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">מספר העמודות ברשת מסך הבית</string>
+    <string name="setting_number_of_home_screen_pages_desc">מספר העמודים במסך הבית</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">מספר השורות ברשת מסך הבית</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">עקיפת צבע הטקסט של ערכת הנושא בצבע מותאם אישית</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">מיקום סרגל החיפוש במגירת האפליקציות</string>
+    <string name="setting_return_to_home_after_app">חזרה לבית לאחר האפליקציה</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">חזרה למסך הבית במקום לחיפוש לאחר סגירת אפליקציה</string>
+    <string name="setting_reverse_search_results">היפוך תוצאות החיפוש</string>
+    <string name="setting_right_swipe_app">אפליקציה בהחלקה ימינה</string>
+    <string name="setting_scale_home_apps">שינוי גודל אפליקציות מסך הבית</string>
+    <string name="setting_screen_orientation">כיוון המסך</string>
+    <string name="setting_search_aliases">כינויי חיפוש</string>
+    <string name="setting_search_bar_position">מיקום סרגל החיפוש</string>
+    <string name="setting_search_results_font_size">גודל גופן תוצאות החיפוש</string>
+    <string name="setting_search_results_use_home_font_size">שימוש באותו גודל גופן כמו במסך הבית עבור תוצאות החיפוש</string>
+    <string name="setting_search_sort_order">סדר מיון החיפוש</string>
+    <string name="setting_search_type">סוג חיפוש</string>
+    <string name="setting_select_a_custom_font_file_desc">בחירת קובץ גופן מותאם אישית</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">הגדרת רקע פשוט שחור/לבן לפי ערכת הנושא</string>
+    <string name="setting_set_plain_wallpaper">הגדרת רקע פשוט</string>
+    <string name="setting_show_app_drawer_icons">הצגת אייקוני מגירת האפליקציות</string>
+    <string name="setting_show_app_icons_in_landscape">הצגת אייקוני אפליקציות לרוחב</string>
+    <string name="setting_show_app_icons_in_portrait">הצגת אייקוני אפליקציות לגובה</string>
+    <string name="setting_show_app_icons_on_home_screen">הצגת אייקוני אפליקציות במסך הבית</string>
+    <string name="setting_show_app_names">הצגת שמות אפליקציות</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">הצגת שמות אפליקציות בתוצאות החיפוש לאחר הקלדת מספר התווים הזה. הגדר 0 כדי להשתמש במקום זאת בהגדרה \'הצגת שמות אפליקציות\'.</string>
+    <string name="setting_show_hidden_in_search">הצגת מוסתרים בחיפוש</string>
+    <string name="setting_show_names_in_search_after">מספר תווים לפני הצגת השמות בחיפוש</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">הצגת נקודות העמוד בתחתית מסך הבית</string>
+    <string name="setting_show_page_indicator">הצגת מחוון עמוד</string>
+    <string name="setting_show_pinned_shortcuts">הצגת קיצורים נעוצים</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">הצגת כפתור \'חיפוש באינטרנט\' כאשר אין אפליקציות תואמות</string>
+    <string name="setting_show_status_bar">הצגת סרגל המצב</string>
+    <string name="setting_show_web_search_option">הצגת אפשרות חיפוש באינטרנט</string>
+    <string name="setting_swipe_down_action">פעולה בהחלקה למטה</string>
+    <string name="setting_swipe_down_app">אפליקציה בהחלקה למטה</string>
+    <string name="setting_swipe_left_action">פעולה בהחלקה שמאלה</string>
+    <string name="setting_swipe_right_action">פעולה בהחלקה ימינה</string>
+    <string name="setting_swipe_up_action">פעולה בהחלקה למעלה</string>
+    <string name="setting_swipe_up_app">אפליקציה בהחלקה למעלה</string>
+    <string name="setting_tap_to_open_in_app_drawer">הקשה לפתיחה במגירת האפליקציות</string>
+    <string name="setting_text_color">צבע הטקסט</string>
+    <string name="setting_theme">ערכת נושא</string>
+    <string name="setting_use_custom_text_color">שימוש בצבע טקסט מותאם אישית</string>
+    <string name="setting_use_dynamic_theme">שימוש בערכת נושא דינמית</string>
+    <string name="setting_use_system_font">שימוש בגופן מערכת</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">שימוש באותו גודל גופן לתוצאות החיפוש כמו במסך הבית</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">כאשר זה מושבת, הקשה על אפליקציה במגירת האפליקציות אינה עושה דבר. לחיצה ארוכה עדיין פותחת את התפריט.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>שמאל</item>
+        <item>מרכז</item>
+        <item>ימין</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>מערכת</item>
+        <item>בהיר</item>
+        <item>כהה</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>מסך בית</item>
+        <item>מגירת האפליקציות</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>דק</item>
+        <item>קל</item>
+        <item>רגיל</item>
+        <item>בינוני</item>
+        <item>מודגש</item>
+        <item>שחור</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>ללא</item>
+        <item>קטן</item>
+        <item>בינוני</item>
+        <item>גדול</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>ברירת מחדל של המערכת</item>
+        <item>כפייה לגובה</item>
+        <item>כפייה לרוחב</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>כבוי</item>
+        <item>תעתיק</item>
+        <item>החלפת פריסת מקלדת</item>
+        <item>שניהם</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>למעלה</item>
+        <item>למטה</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>שמאל</item>
+        <item>מרכז</item>
+        <item>ימין</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>לפי סדר האלפבית</item>
+        <item>אלפבית הפוך</item>
+        <item>הפעלה אחרונה</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>מכיל</item>
+        <item>התאמה קרובה</item>
+        <item>מתחיל ב</item>
+        <item>התאמה מדויקת</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>ללא</item>
+        <item>חיפוש</item>
+        <item>התראות</item>
+        <item>אפליקציה</item>
+        <item>עמוד הבא</item>
+        <item>עמוד קודם</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>ללא</item>
+        <item>חיפוש</item>
+        <item>התראות</item>
+        <item>אפליקציה</item>
+        <item>עמוד הבא</item>
+        <item>עמוד קודם</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>ללא</item>
+        <item>חיפוש</item>
+        <item>התראות</item>
+        <item>אפליקציה</item>
+        <item>עמוד הבא</item>
+        <item>עמוד קודם</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>ללא</item>
+        <item>חיפוש</item>
+        <item>התראות</item>
+        <item>אפליקציה</item>
+        <item>עמוד הבא</item>
+        <item>עמוד קודם</item>
+    </string-array>
+    <string name="category_general">כללי</string>
+    <string name="category_appearance">מראה</string>
+    <string name="category_layout">פריסה</string>
+    <string name="category_gestures">מחוות</string>
+    <string name="category_system">מערכת</string>
 </resources>

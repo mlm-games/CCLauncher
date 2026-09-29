@@ -144,4 +144,179 @@
     <string name="accessibility_settings_hint">Aktivera CCLauncher under Tillgänglighet > Nedladdade appar (kallas Installerade tjänster på vissa enheter).</string>
     <string name="view_privacy_policy">Visa integritetspolicyn</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Anpassa hur lätt svepgester utlöses</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Justera appnamnen på startskärmen</string>
+    <string name="setting_app_drawer_results_alignment">Justering av resultaten i applistan</string>
+    <string name="setting_auto_open_single_matches">Öppna enskilda träffar automatiskt</string>
+    <string name="setting_auto_show_keyboard">Visa tangentbord automatiskt</string>
+    <string name="setting_auto_update_wallpaper">Uppdatera bakgrund automatiskt</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Uppdatera enkel bakgrund automatiskt när systemtemat ändras</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Välj anpassat ikonpaket för appar</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Välj vilken skärm som ska visas när startskärmsprogrammet öppnas</string>
+    <string name="setting_custom_font">Anpassat teckensnitt</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Anpassa textfärgen för bättre läsbarhet</string>
+    <string name="setting_default_screen">Standardskärm</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Visa ikoner för appar på startskärmen</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Visa fastnålade appgenvägar i applistan.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Visa resultat från nedan och uppåt</string>
+    <string name="setting_double_tap_to_lock_screen">Lås skärmen med dubbeltryck</string>
+    <string name="setting_font_weight">Teckensnittsvikt</string>
+    <string name="setting_gesture_sensitivity">Gesternas känslighet</string>
+    <string name="setting_home_app_label_alignment">Justering av appetiketter på startskärmen</string>
+    <string name="setting_home_screen_columns">Kolumner på startskärmen</string>
+    <string name="setting_home_screen_pages">Sidor på startskärmen</string>
+    <string name="setting_home_screen_rows">Rader på startskärmen</string>
+    <string name="setting_home_text_size">Textstorlek på startskärmen</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Vattenrätt justering av appnamn i resultaten i applistan</string>
+    <string name="setting_icon_corner_radius">Hörnradie för ikoner</string>
+    <string name="setting_icon_pack">Ikonpaket</string>
+    <string name="setting_item_spacing">Mellanrum mellan objekt</string>
+    <string name="setting_left_swipe_app">App vid svep åt vänster</string>
+    <string name="setting_long_press_in_app_drawer">Långtryck i applistan</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Långtryck på appar visar alternativmenyn</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Matcha appnamn över translittereringar och tangentbordslayouter (t.ex. Африка ↔ Afrika). Kan öka processoranvändningen något på äldre enheter.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Antal kolumner i rutnätet på startskärmen</string>
+    <string name="setting_number_of_home_screen_pages_desc">Antal sidor på startskärmen</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Antal rader i rutnätet på startskärmen</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Åsidosätt temats textfärg med en egen färg</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Plats för sökfältet i applistan</string>
+    <string name="setting_return_to_home_after_app">Tillbaka till startskärmen efter appen</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Gå tillbaka till startskärmen i stället för sökningen när en app stängts</string>
+    <string name="setting_reverse_search_results">Vänd sökresultaten</string>
+    <string name="setting_right_swipe_app">App vid svep åt höger</string>
+    <string name="setting_scale_home_apps">Skala appar på startskärmen</string>
+    <string name="setting_screen_orientation">Skärmens orientering</string>
+    <string name="setting_search_aliases">Sökalias</string>
+    <string name="setting_search_bar_position">Plats för sökfältet</string>
+    <string name="setting_search_results_font_size">Teckensnittsstorlek för sökresultat</string>
+    <string name="setting_search_results_use_home_font_size">Använd samma teckensnittsstorlek som startskärmen för sökresultat</string>
+    <string name="setting_search_sort_order">Sorteringsordning för sökning</string>
+    <string name="setting_search_type">Söktyp</string>
+    <string name="setting_select_a_custom_font_file_desc">Välj en anpassad teckensnittsfil</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Använd en enkel svartvit bakgrund utifrån temat</string>
+    <string name="setting_set_plain_wallpaper">Använd enkel bakgrund</string>
+    <string name="setting_show_app_drawer_icons">Visa ikoner i applistan</string>
+    <string name="setting_show_app_icons_in_landscape">Visa ikoner för appar i liggande läge</string>
+    <string name="setting_show_app_icons_in_portrait">Visa ikoner för appar i stående läge</string>
+    <string name="setting_show_app_icons_on_home_screen">Visa ikoner för appar på startskärmen</string>
+    <string name="setting_show_app_names">Visa appnamn</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Visa appnamn i sökresultaten efter att detta antal teckenskrivits. Ange 0 för att i stället använda inställningen \'Visa appnamn\'.</string>
+    <string name="setting_show_hidden_in_search">Visa dolda i sökningen</string>
+    <string name="setting_show_names_in_search_after">Antal tecken innan namn visas i sökningen</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Visa sidprickar längs ner på startskärmen</string>
+    <string name="setting_show_page_indicator">Visa sidindikator</string>
+    <string name="setting_show_pinned_shortcuts">Visa fastnålade genvägar</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Visa knappen \'Sök på webben\' när ingen app matchar</string>
+    <string name="setting_show_status_bar">Visa statusfältet</string>
+    <string name="setting_show_web_search_option">Visa alternativet för webbsökning</string>
+    <string name="setting_swipe_down_action">Åtgärd vid svep nedåt</string>
+    <string name="setting_swipe_down_app">App vid svep nedåt</string>
+    <string name="setting_swipe_left_action">Åtgärd vid svep åt vänster</string>
+    <string name="setting_swipe_right_action">Åtgärd vid svep åt höger</string>
+    <string name="setting_swipe_up_action">Åtgärd vid svep uppåt</string>
+    <string name="setting_swipe_up_app">App vid svep uppåt</string>
+    <string name="setting_tap_to_open_in_app_drawer">Tryck för att öppna i applistan</string>
+    <string name="setting_text_color">Textfärg</string>
+    <string name="setting_theme">Tema</string>
+    <string name="setting_use_custom_text_color">Använd egen textfärg</string>
+    <string name="setting_use_dynamic_theme">Använd dynamiskt tema</string>
+    <string name="setting_use_system_font">Använd systemteckensnitt</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Använd samma teckensnittsstorlek för sökresultat som på startskärmen</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">När det här är avstängt gör det ingen skillnad att trycka på en app i applistan. Långtryck öppnar fortfarande menyn.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Vänster</item>
+        <item>Mitt</item>
+        <item>Höger</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>System</item>
+        <item>Ljus</item>
+        <item>Mörk</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Startskärm</item>
+        <item>Applista</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Tunn</item>
+        <item>Lätt</item>
+        <item>Normal</item>
+        <item>Medel</item>
+        <item>Fet</item>
+        <item>Svart</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Inga</item>
+        <item>Liten</item>
+        <item>Mellan</item>
+        <item>Stor</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Systemstandard</item>
+        <item>Tvinga stående</item>
+        <item>Tvinga liggande</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Av</item>
+        <item>Translitterering</item>
+        <item>Tangentbordslayoutväxling</item>
+        <item>Båda</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Överst</item>
+        <item>Nederst</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Vänster</item>
+        <item>Mitt</item>
+        <item>Höger</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alfabetiskt</item>
+        <item>Omvänd alfabetiskt</item>
+        <item>Senast startad</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Innehåller</item>
+        <item>Ungefär matchning</item>
+        <item>Börjar med</item>
+        <item>Exakt matchning</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Inga</item>
+        <item>Sökning</item>
+        <item>Aviseringar</item>
+        <item>App</item>
+        <item>Nästa sida</item>
+        <item>Föregående sida</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Inga</item>
+        <item>Sökning</item>
+        <item>Aviseringar</item>
+        <item>App</item>
+        <item>Nästa sida</item>
+        <item>Föregående sida</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Inga</item>
+        <item>Sökning</item>
+        <item>Aviseringar</item>
+        <item>App</item>
+        <item>Nästa sida</item>
+        <item>Föregående sida</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Inga</item>
+        <item>Sökning</item>
+        <item>Aviseringar</item>
+        <item>App</item>
+        <item>Nästa sida</item>
+        <item>Föregående sida</item>
+    </string-array>
+    <string name="category_general">Allmänt</string>
+    <string name="category_appearance">Utseende</string>
+    <string name="category_layout">Layout</string>
+    <string name="category_gestures">Gester</string>
+    <string name="category_system">System</string>
 </resources>

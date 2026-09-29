@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">Zapněte CCLauncher v Přístupnost > Stažené aplikace (na některých zařízeních nazvané Nainstalované služby).</string>
     <string name="view_privacy_policy">Zobrazit zásady ochrany soukromí</string>
     <string name="agree_and_continue">Souhlasit a pokračovat</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Nastavit, jak snadno se spouštějí gesta přejetím prstem</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Zarovnat názvy aplikací na domovské obrazovce</string>
+    <string name="setting_app_drawer_results_alignment">Zarovnání výsledků v seznamu aplikací</string>
+    <string name="setting_auto_open_single_matches">Automaticky otevřít jedinou shodu</string>
+    <string name="setting_auto_show_keyboard">Klávesnici zobrazovat automaticky</string>
+    <string name="setting_auto_update_wallpaper">Pozadí aktualizovat automaticky</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Jednoduché pozadí automaticky aktualizovat při změně motivu systému</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Vybrat vlastní balíček ikon pro aplikace</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Vybrat, která obrazovka se zobrazí při otevření spouštěče</string>
+    <string name="setting_custom_font">Vlastní písmo</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Přizpůsobit barvu textu pro lepší čitelnost</string>
+    <string name="setting_default_screen">Výchozí obrazovka</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Zobrazovat ikony aplikací na domovské obrazovce</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Zobrazovat připnuté zkratky aplikací v seznamu aplikací.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Zobrazovat výsledky zdola nahoru</string>
+    <string name="setting_double_tap_to_lock_screen">Zamknout dvojitým ťuknutím</string>
+    <string name="setting_font_weight">Tloušťka písma</string>
+    <string name="setting_gesture_sensitivity">Citlivost gest</string>
+    <string name="setting_home_app_label_alignment">Zarovnání popisků aplikací na domovské obrazovce</string>
+    <string name="setting_home_screen_columns">Sloupce domovské obrazovky</string>
+    <string name="setting_home_screen_pages">Stránky domovské obrazovky</string>
+    <string name="setting_home_screen_rows">Řádky domovské obrazovky</string>
+    <string name="setting_home_text_size">Velikost textu na domovské obrazovce</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Vodorovné zarovnání názvů aplikací ve výsledcích seznamu aplikací</string>
+    <string name="setting_icon_corner_radius">Zaoblení rohů ikon</string>
+    <string name="setting_icon_pack">Balíček ikon</string>
+    <string name="setting_item_spacing">Odstup mezi položkami</string>
+    <string name="setting_left_swipe_app">Aplikace při přejetí doleva</string>
+    <string name="setting_long_press_in_app_drawer">Dlouhé stisknutí v seznamu aplikací</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Dlouhé stisknutí aplikace otevře nabídku možností</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Porovnávat názvy aplikací napříč přepisy a rozloženími klávesnice (např. Африка ↔ Afrika). Mírně to může zvýšit využití CPU na starších zařízeních.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Počet sloupců v mřížce domovské obrazovky</string>
+    <string name="setting_number_of_home_screen_pages_desc">Počet stránek domovské obrazovky</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Počet řádků v mřížce domovské obrazovky</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Přepsat barvu textu motivu vlastní barvou</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Umístění vyhledávacího pole v seznamu aplikací</string>
+    <string name="setting_return_to_home_after_app">Po aplikaci se vrátit na domovskou obrazovku</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Po zavření aplikace se vrátit na domovskou obrazovku místo vyhledávání</string>
+    <string name="setting_reverse_search_results">Obrátit pořadí výsledků hledání</string>
+    <string name="setting_right_swipe_app">Aplikace při přejetí doprava</string>
+    <string name="setting_scale_home_apps">Měřítko aplikací na domovské obrazovce</string>
+    <string name="setting_screen_orientation">Orientace obrazovky</string>
+    <string name="setting_search_aliases">Aliasy pro hledání</string>
+    <string name="setting_search_bar_position">Umístění vyhledávacího pole</string>
+    <string name="setting_search_results_font_size">Velikost písma výsledků hledání</string>
+    <string name="setting_search_results_use_home_font_size">Pro výsledky hledání použít velikost písma domovské obrazovky</string>
+    <string name="setting_search_sort_order">Řazení výsledků hledání</string>
+    <string name="setting_search_type">Typ hledání</string>
+    <string name="setting_select_a_custom_font_file_desc">Vybrat soubor s vlastním písmem</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Nastavit jednoduché černobílé pozadí podle motivu</string>
+    <string name="setting_set_plain_wallpaper">Nastavit jednoduché pozadí</string>
+    <string name="setting_show_app_drawer_icons">Zobrazovat ikony v seznamu aplikací</string>
+    <string name="setting_show_app_icons_in_landscape">Zobrazovat ikony aplikací na šířku</string>
+    <string name="setting_show_app_icons_in_portrait">Zobrazovat ikony aplikací na výšku</string>
+    <string name="setting_show_app_icons_on_home_screen">Zobrazovat ikony aplikací na domovské obrazovce</string>
+    <string name="setting_show_app_names">Zobrazovat názvy aplikací</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Zobrazovat názvy aplikací ve výsledcích hledání po zadání tohoto počtu znaků. Nastavte 0, aby se místo toho použilo nastavení \'Zobrazovat názvy aplikací\'.</string>
+    <string name="setting_show_hidden_in_search">Zobrazovat skryté aplikace při hledání</string>
+    <string name="setting_show_names_in_search_after">Počet znaků před zobrazením názvů ve hledání</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Zobrazovat tečky stránek ve spodní části domovské obrazovky</string>
+    <string name="setting_show_page_indicator">Zobrazovat indikátor stránek</string>
+    <string name="setting_show_pinned_shortcuts">Zobrazovat připnuté zkratky</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Zobrazovat tlačítko \'Hledat na webu\', když se nenajde žádná aplikace</string>
+    <string name="setting_show_status_bar">Zobrazovat stavový řádek</string>
+    <string name="setting_show_web_search_option">Zobrazovat možnost hledání na webu</string>
+    <string name="setting_swipe_down_action">Akce při přejetí dolů</string>
+    <string name="setting_swipe_down_app">Aplikace při přejetí dolů</string>
+    <string name="setting_swipe_left_action">Akce při přejetí doleva</string>
+    <string name="setting_swipe_right_action">Akce při přejetí doprava</string>
+    <string name="setting_swipe_up_action">Akce při přejetí nahoru</string>
+    <string name="setting_swipe_up_app">Aplikace při přejetí nahoru</string>
+    <string name="setting_tap_to_open_in_app_drawer">Ťuknutím otevřít v seznamu aplikací</string>
+    <string name="setting_text_color">Barva textu</string>
+    <string name="setting_theme">Motiv</string>
+    <string name="setting_use_custom_text_color">Použít vlastní barvu textu</string>
+    <string name="setting_use_dynamic_theme">Použít dynamický motiv</string>
+    <string name="setting_use_system_font">Použít systémové písmo</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Pro výsledky hledání použít stejnou velikost písma jako na domovské obrazovce</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Když je toto vypnuté, ťuknutí na aplikaci v seznamu aplikací nic neudělá. Dlouhé stisknutí nabídku stále otevře.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Levá</item>
+        <item>Prostředek</item>
+        <item>Pravá</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Systém</item>
+        <item>Světlý</item>
+        <item>Tmavý</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Domovská obrazovka</item>
+        <item>Seznam aplikací</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Tenký</item>
+        <item>Světlý</item>
+        <item>Normální</item>
+        <item>Střední</item>
+        <item>Tučný</item>
+        <item>Černý</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Žádný</item>
+        <item>Malý</item>
+        <item>Střední</item>
+        <item>Velký</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Výchozí systému</item>
+        <item>Vynutit na výšku</item>
+        <item>Vynutit na šířku</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Vypnuto</item>
+        <item>Přepis</item>
+        <item>Prohození rozložení klávesnice</item>
+        <item>Obojí</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Nahoře</item>
+        <item>Dole</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Levá</item>
+        <item>Prostředek</item>
+        <item>Pravá</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Abecedně</item>
+        <item>Opačně abecedně</item>
+        <item>Naposledy spuštěné</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Obsahuje</item>
+        <item>Přibližná shoda</item>
+        <item>Začíná na</item>
+        <item>Přesná shoda</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Žádný</item>
+        <item>Hledání</item>
+        <item>Oznámení</item>
+        <item>Aplikace</item>
+        <item>Další stránka</item>
+        <item>Předchozí stránka</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Žádný</item>
+        <item>Hledání</item>
+        <item>Oznámení</item>
+        <item>Aplikace</item>
+        <item>Další stránka</item>
+        <item>Předchozí stránka</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Žádný</item>
+        <item>Hledání</item>
+        <item>Oznámení</item>
+        <item>Aplikace</item>
+        <item>Další stránka</item>
+        <item>Předchozí stránka</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Žádný</item>
+        <item>Hledání</item>
+        <item>Oznámení</item>
+        <item>Aplikace</item>
+        <item>Další stránka</item>
+        <item>Předchozí stránka</item>
+    </string-array>
+    <string name="category_general">Obecné</string>
+    <string name="category_appearance">Vzhled</string>
+    <string name="category_layout">Rozvržení</string>
+    <string name="category_gestures">Gesta</string>
+    <string name="category_system">Systém</string>
 </resources>

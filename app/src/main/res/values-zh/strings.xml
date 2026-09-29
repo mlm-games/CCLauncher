@@ -145,4 +145,179 @@
     <string name="accessibility_settings_hint">在无障碍 > 已下载的应用（部分设备上称为“已安装的服务”）中开启 CCLauncher。</string>
     <string name="view_privacy_policy">查看隐私政策</string>
     <string name="agree_and_continue">同意并继续</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">调整滑动手势的触发灵敏度</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">在主屏幕上对齐应用名称</string>
+    <string name="setting_app_drawer_results_alignment">应用抽屉结果的对齐方式</string>
+    <string name="setting_auto_open_single_matches">仅一个结果时自动打开</string>
+    <string name="setting_auto_show_keyboard">自动显示键盘</string>
+    <string name="setting_auto_update_wallpaper">自动更新壁纸</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">系统主题变化时自动更新纯色壁纸</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">为应用选择自定义图标包</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">选择打开启动器时显示的屏幕</string>
+    <string name="setting_custom_font">自定义字体</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">自定义文字颜色以提升可见性</string>
+    <string name="setting_default_screen">默认屏幕</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">在主屏幕显示应用图标</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">在应用抽屉中显示已固定的快捷方式。</string>
+    <string name="setting_display_results_bottom_to_top_desc">自下而上显示结果</string>
+    <string name="setting_double_tap_to_lock_screen">双击即可锁定</string>
+    <string name="setting_font_weight">字体粗细</string>
+    <string name="setting_gesture_sensitivity">手势灵敏度</string>
+    <string name="setting_home_app_label_alignment">主屏幕应用名称的对齐方式</string>
+    <string name="setting_home_screen_columns">主屏幕列数</string>
+    <string name="setting_home_screen_pages">主屏幕页面</string>
+    <string name="setting_home_screen_rows">主屏幕行数</string>
+    <string name="setting_home_text_size">主屏幕文字大小</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">应用抽屉结果中应用名称的水平对齐方式</string>
+    <string name="setting_icon_corner_radius">图标圆角半径</string>
+    <string name="setting_icon_pack">图标包</string>
+    <string name="setting_item_spacing">项目间距</string>
+    <string name="setting_left_swipe_app">向左滑动打开的应用</string>
+    <string name="setting_long_press_in_app_drawer">在应用抽屉中长按</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">长按应用会显示选项菜单</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">跨转写和键盘布局匹配应用名称（例如北京 ↔ Beijing）。可能会略微增加旧设备的 CPU 使用量。</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">主屏幕网格的列数</string>
+    <string name="setting_number_of_home_screen_pages_desc">主屏幕的页面数</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">主屏幕网格的行数</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">使用自定义颜色覆盖主题文字颜色</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">应用抽屉中搜索栏的位置</string>
+    <string name="setting_return_to_home_after_app">关闭应用后返回主屏幕</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">关闭应用后返回主屏幕，而不是返回搜索</string>
+    <string name="setting_reverse_search_results">反转搜索结果</string>
+    <string name="setting_right_swipe_app">向右滑动打开的应用</string>
+    <string name="setting_scale_home_apps">缩放主屏幕应用</string>
+    <string name="setting_screen_orientation">屏幕方向</string>
+    <string name="setting_search_aliases">搜索别名</string>
+    <string name="setting_search_bar_position">搜索栏位置</string>
+    <string name="setting_search_results_font_size">搜索结果的字号</string>
+    <string name="setting_search_results_use_home_font_size">搜索结果使用主屏幕的字号</string>
+    <string name="setting_search_sort_order">搜索排序方式</string>
+    <string name="setting_search_type">搜索类型</string>
+    <string name="setting_select_a_custom_font_file_desc">选择自定义字体文件</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">根据主题设置黑白纯色壁纸</string>
+    <string name="setting_set_plain_wallpaper">设置纯色壁纸</string>
+    <string name="setting_show_app_drawer_icons">在应用抽屉中显示图标</string>
+    <string name="setting_show_app_icons_in_landscape">横屏时显示应用图标</string>
+    <string name="setting_show_app_icons_in_portrait">竖屏时显示应用图标</string>
+    <string name="setting_show_app_icons_on_home_screen">在主屏幕上显示应用图标</string>
+    <string name="setting_show_app_names">显示应用名称</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">输入这么多字符后在搜索结果中显示应用名称。设为 0 则改用「显示应用名称」设置。</string>
+    <string name="setting_show_hidden_in_search">在搜索中显示隐藏的应用</string>
+    <string name="setting_show_names_in_search_after">搜索中显示名称的字符数</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">在主屏幕底部显示页面圆点</string>
+    <string name="setting_show_page_indicator">显示页面指示器</string>
+    <string name="setting_show_pinned_shortcuts">显示已固定的快捷方式</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">没有匹配的应用时显示「网页搜索」按钮</string>
+    <string name="setting_show_status_bar">显示状态栏</string>
+    <string name="setting_show_web_search_option">显示网页搜索选项</string>
+    <string name="setting_swipe_down_action">向下滑动时的操作</string>
+    <string name="setting_swipe_down_app">向下滑动打开的应用</string>
+    <string name="setting_swipe_left_action">向左滑动时的操作</string>
+    <string name="setting_swipe_right_action">向右滑动时的操作</string>
+    <string name="setting_swipe_up_action">向上滑动时的操作</string>
+    <string name="setting_swipe_up_app">向上滑动打开的应用</string>
+    <string name="setting_tap_to_open_in_app_drawer">在应用抽屉中点按可打开应用</string>
+    <string name="setting_text_color">文字颜色</string>
+    <string name="setting_theme">主题</string>
+    <string name="setting_use_custom_text_color">使用自定义文字颜色</string>
+    <string name="setting_use_dynamic_theme">使用动态主题</string>
+    <string name="setting_use_system_font">使用系统字体</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">搜索结果使用与主屏幕相同的字号</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">停用后，在应用抽屉中点按应用不会有任何效果。长按仍会打开菜单。</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>左</item>
+        <item>居中</item>
+        <item>右</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>系统</item>
+        <item>浅色</item>
+        <item>深色</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>主屏幕</item>
+        <item>应用抽屉</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>极细</item>
+        <item>细</item>
+        <item>常规</item>
+        <item>中等</item>
+        <item>粗</item>
+        <item>特粗</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>无</item>
+        <item>小</item>
+        <item>中</item>
+        <item>大</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>系统默认</item>
+        <item>强制竖屏</item>
+        <item>强制横屏</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>关闭</item>
+        <item>转写</item>
+        <item>切换键盘布局</item>
+        <item>两者</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>顶部</item>
+        <item>底部</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>左</item>
+        <item>居中</item>
+        <item>右</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>字母顺序</item>
+        <item>字母逆序</item>
+        <item>最近打开</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>包含</item>
+        <item>模糊匹配</item>
+        <item>前缀匹配</item>
+        <item>完全匹配</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>无</item>
+        <item>搜索</item>
+        <item>通知</item>
+        <item>应用</item>
+        <item>下一页</item>
+        <item>上一页</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>无</item>
+        <item>搜索</item>
+        <item>通知</item>
+        <item>应用</item>
+        <item>下一页</item>
+        <item>上一页</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>无</item>
+        <item>搜索</item>
+        <item>通知</item>
+        <item>应用</item>
+        <item>下一页</item>
+        <item>上一页</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>无</item>
+        <item>搜索</item>
+        <item>通知</item>
+        <item>应用</item>
+        <item>下一页</item>
+        <item>上一页</item>
+    </string-array>
+    <string name="category_general">通用</string>
+    <string name="category_appearance">外观</string>
+    <string name="category_layout">布局</string>
+    <string name="category_gestures">手势</string>
+    <string name="category_system">系统</string>
 </resources>

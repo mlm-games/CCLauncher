@@ -143,4 +143,179 @@
     <string name="accessibility_settings_hint">ユーザー補助 > ダウンロード済みのアプリ（一部の端末では「インストール済みサービス」）で CCLauncher を有効にしてください。</string>
     <string name="view_privacy_policy">プライバシーポリシーを表示</string>
     <string name="agree_and_continue">同意して続行</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">スワイプジェスチャーが発動するしやすさを調整</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">ホーム画面でアプリ名を揃える</string>
+    <string name="setting_app_drawer_results_alignment">アプリ一覧の検索結果の揃え方</string>
+    <string name="setting_auto_open_single_matches">1件だけの一致を自動的に開く</string>
+    <string name="setting_auto_show_keyboard">キーボードを自動的に表示</string>
+    <string name="setting_auto_update_wallpaper">壁紙を自動的に更新</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">システムのテーマが変わったら無地の壁紙を自動的に更新</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">アプリごとにカスタムのアイコンパックを選ぶ</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">ランチャーを開いたときに表示する画面を選ぶ</string>
+    <string name="setting_custom_font">カスタムフォント</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">見やすさを上げるためにテキストの色をカスタマイズ</string>
+    <string name="setting_default_screen">デフォルトの画面</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">ホーム画面にアプリのアイコンが表示される</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">アプリ一覧にピン留めしたアプリのショートカットを表示。</string>
+    <string name="setting_display_results_bottom_to_top_desc">結果を下から上に表示</string>
+    <string name="setting_double_tap_to_lock_screen">ダブルタップしてロックします</string>
+    <string name="setting_font_weight">フォントの太さ</string>
+    <string name="setting_gesture_sensitivity">ジェスチャーの感度</string>
+    <string name="setting_home_app_label_alignment">ホーム画面のアプリ名の揃え方</string>
+    <string name="setting_home_screen_columns">ホーム画面の列</string>
+    <string name="setting_home_screen_pages">ホーム画面のページ</string>
+    <string name="setting_home_screen_rows">ホーム画面の行</string>
+    <string name="setting_home_text_size">ホーム画面の文字サイズ</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">アプリ一覧の検索結果におけるアプリ名の水平方向の揃え方</string>
+    <string name="setting_icon_corner_radius">アイコンの角の丸み</string>
+    <string name="setting_icon_pack">アイコンパック</string>
+    <string name="setting_item_spacing">項目の間隔</string>
+    <string name="setting_left_swipe_app">左スワイプで開くアプリ</string>
+    <string name="setting_long_press_in_app_drawer">アプリ一覧で長押し</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">アプリを長押しするとオプションメニューが表示される</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">転写やキーボードレイアウトの違いをまたいでアプリ名を照合します（例：東京 ↔ Tokyo）。古いデバイスではCPUの使用量がわずかに増える場合があります。</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">ホーム画面のグリッドの列数</string>
+    <string name="setting_number_of_home_screen_pages_desc">ホーム画面のページ数</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">ホーム画面のグリッドの行数</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">テーマのテキスト色を独自の色で上書き</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">アプリ一覧における検索バーの位置</string>
+    <string name="setting_return_to_home_after_app">アプリ終了後にホームへ戻る</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">アプリを閉じた後に検索ではなくホーム画面に戻る</string>
+    <string name="setting_reverse_search_results">検索結果を反転</string>
+    <string name="setting_right_swipe_app">右スワイプで開くアプリ</string>
+    <string name="setting_scale_home_apps">ホーム画面のアプリのスケール</string>
+    <string name="setting_screen_orientation">画面の向き</string>
+    <string name="setting_search_aliases">検索のエイリアス</string>
+    <string name="setting_search_bar_position">検索バーの位置</string>
+    <string name="setting_search_results_font_size">検索結果の文字サイズ</string>
+    <string name="setting_search_results_use_home_font_size">検索結果にホーム画面と同じ文字サイズを使う</string>
+    <string name="setting_search_sort_order">検索の並び替え順</string>
+    <string name="setting_search_type">検索の種類</string>
+    <string name="setting_select_a_custom_font_file_desc">独自のフォントファイルを選択</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">テーマに合わせて黒または白の無地の壁紙を設定</string>
+    <string name="setting_set_plain_wallpaper">無地の壁紙を設定</string>
+    <string name="setting_show_app_drawer_icons">アプリ一覧のアイコンを表示</string>
+    <string name="setting_show_app_icons_in_landscape">横向きでアプリのアイコンを表示</string>
+    <string name="setting_show_app_icons_in_portrait">縦向きでアプリのアイコンを表示</string>
+    <string name="setting_show_app_icons_on_home_screen">ホーム画面にアプリのアイコンを表示</string>
+    <string name="setting_show_app_names">アプリ名を表示</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">この文字数を入力すると検索結果にアプリ名を表示します。0にすると、代わりに「アプリ名を表示」の設定が使われます。</string>
+    <string name="setting_show_hidden_in_search">検索に非表示のアプリを表示</string>
+    <string name="setting_show_names_in_search_after">検索で名前を表示する文字数</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">ホーム画面の下端にページドットを表示</string>
+    <string name="setting_show_page_indicator">ページインジケーターを表示</string>
+    <string name="setting_show_pinned_shortcuts">ピン留めしたショートカットを表示</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">アプリが見つからないときに「ウェブで検索」ボタンを表示</string>
+    <string name="setting_show_status_bar">ステータスバーを表示</string>
+    <string name="setting_show_web_search_option">ウェブ検索オプションを表示</string>
+    <string name="setting_swipe_down_action">下スワイプ時の動作</string>
+    <string name="setting_swipe_down_app">下スワイプで開くアプリ</string>
+    <string name="setting_swipe_left_action">左スワイプ時の動作</string>
+    <string name="setting_swipe_right_action">右スワイプ時の動作</string>
+    <string name="setting_swipe_up_action">上スワイプ時の動作</string>
+    <string name="setting_swipe_up_app">上スワイプで開くアプリ</string>
+    <string name="setting_tap_to_open_in_app_drawer">アプリ一覧でタップするとアプリが開く</string>
+    <string name="setting_text_color">テキストの色</string>
+    <string name="setting_theme">テーマ</string>
+    <string name="setting_use_custom_text_color">カスタムのテキスト色を使う</string>
+    <string name="setting_use_dynamic_theme">ダイナミックテーマを使う</string>
+    <string name="setting_use_system_font">システムフォントを使用</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">検索結果の文字サイズをホーム画面と同じにする</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">オフの場合、アプリ一覧のアプリをタップしても何も起きません。長押しでは引き続きメニューが開きます。</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>左</item>
+        <item>中央</item>
+        <item>右</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>システム</item>
+        <item>ライト</item>
+        <item>ダーク</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>ホーム画面</item>
+        <item>アプリ一覧</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>極細</item>
+        <item>細</item>
+        <item>標準</item>
+        <item>中</item>
+        <item>太</item>
+        <item>極太</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>なし</item>
+        <item>小</item>
+        <item>中</item>
+        <item>大</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>システムのデフォルト</item>
+        <item>縦に固定</item>
+        <item>横に固定</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>オフ</item>
+        <item>転写</item>
+        <item>キーボードレイアウトの切り替え</item>
+        <item>両方</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>上</item>
+        <item>下</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>左</item>
+        <item>中央</item>
+        <item>右</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>アルファベット順</item>
+        <item>アルファベットの逆順</item>
+        <item>最近起動した順</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>含む</item>
+        <item>あいまい一致</item>
+        <item>前方一致</item>
+        <item>完全一致</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>なし</item>
+        <item>検索</item>
+        <item>通知</item>
+        <item>アプリ</item>
+        <item>次のページ</item>
+        <item>前のページ</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>なし</item>
+        <item>検索</item>
+        <item>通知</item>
+        <item>アプリ</item>
+        <item>次のページ</item>
+        <item>前のページ</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>なし</item>
+        <item>検索</item>
+        <item>通知</item>
+        <item>アプリ</item>
+        <item>次のページ</item>
+        <item>前のページ</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>なし</item>
+        <item>検索</item>
+        <item>通知</item>
+        <item>アプリ</item>
+        <item>次のページ</item>
+        <item>前のページ</item>
+    </string-array>
+    <string name="category_general">一般</string>
+    <string name="category_appearance">外観</string>
+    <string name="category_layout">レイアウト</string>
+    <string name="category_gestures">ジェスチャー</string>
+    <string name="category_system">システム</string>
 </resources>

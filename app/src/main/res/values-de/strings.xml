@@ -145,4 +145,179 @@
     <string name="accessibility_settings_hint">Aktiviere CCLauncher unter Bedienhilfe > Heruntergeladene Apps (auf manchen Geräten Installierte Dienste genannt).</string>
     <string name="view_privacy_policy">Datenschutzrichtlinie ansehen</string>
     <string name="agree_and_continue">Zustimmen und fortfahren</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Stellen Sie ein, wie leicht Wischgesten ausgelöst werden</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Richten Sie die App-Namen auf dem Startbildschirm aus</string>
+    <string name="setting_app_drawer_results_alignment">Ausrichtung der Ergebnisse in der App-Schublade</string>
+    <string name="setting_auto_open_single_matches">Einzelne Treffer automatisch öffnen</string>
+    <string name="setting_auto_show_keyboard">Tastatur automatisch anzeigen</string>
+    <string name="setting_auto_update_wallpaper">Hintergrundbild automatisch aktualisieren</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Das normale Hintergrundbild wird bei einem Wechsel des Systemdesigns automatisch aktualisiert</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Wählen Sie ein eigenes Symbolpaket für Ihre Apps aus</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Wählen Sie, welcher Bildschirm beim Öffnen des Launchers angezeigt wird</string>
+    <string name="setting_custom_font">Eigene Schriftart</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Passen Sie die Textfarbe für bessere Lesbarkeit an</string>
+    <string name="setting_default_screen">Standardbildschirm</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Zeigen Sie die App-Symbole auf dem Startbildschirm an</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Angeheftete App-Verknüpfungen in der App-Schublade anzeigen.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Ergebnisse von unten nach oben anzeigen</string>
+    <string name="setting_double_tap_to_lock_screen">Zum Sperren zweimal tippen</string>
+    <string name="setting_font_weight">Schriftstärke</string>
+    <string name="setting_gesture_sensitivity">Gestenempfindlichkeit</string>
+    <string name="setting_home_app_label_alignment">Ausrichtung der App-Namen auf dem Startbildschirm</string>
+    <string name="setting_home_screen_columns">Spalten auf dem Startbildschirm</string>
+    <string name="setting_home_screen_pages">Seiten auf dem Startbildschirm</string>
+    <string name="setting_home_screen_rows">Zeilen auf dem Startbildschirm</string>
+    <string name="setting_home_text_size">Textgröße auf dem Startbildschirm</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Horizontale Ausrichtung der App-Namen in den Ergebnissen der App-Schublade</string>
+    <string name="setting_icon_corner_radius">Eckenradius der Symbole</string>
+    <string name="setting_icon_pack">Symbolpaket</string>
+    <string name="setting_item_spacing">Abstand zwischen den Elementen</string>
+    <string name="setting_left_swipe_app">App beim Wischen nach links</string>
+    <string name="setting_long_press_in_app_drawer">Langes Drücken in der App-Schublade</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Ein langes Drücken auf eine App öffnet das Optionsmenü</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">App-Namen über Umschriften und Tastaturbelegungen hinweg abgleichen (z. B. Африка ↔ Afrika). Kann auf älteren Geräten die CPU-Nutzung leicht erhöhen.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Anzahl der Spalten im Raster des Startbildschirms</string>
+    <string name="setting_number_of_home_screen_pages_desc">Anzahl der Seiten des Startbildschirms</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Anzahl der Zeilen im Raster des Startbildschirms</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Die Textfarbe des Designs durch eine eigene Farbe ersetzen</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Position der Suchleiste in der App-Schublade</string>
+    <string name="setting_return_to_home_after_app">Nach der App zum Startbildschirm zurückkehren</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Nach dem Schließen einer App zum Startbildschirm statt zur Suche zurückkehren</string>
+    <string name="setting_reverse_search_results">Suchergebnisse umkehren</string>
+    <string name="setting_right_swipe_app">App beim Wischen nach rechts</string>
+    <string name="setting_scale_home_apps">Apps auf dem Startbildschirm skalieren</string>
+    <string name="setting_screen_orientation">Bildschirmausrichtung</string>
+    <string name="setting_search_aliases">Aliasse für die Suche</string>
+    <string name="setting_search_bar_position">Position der Suchleiste</string>
+    <string name="setting_search_results_font_size">Schriftgröße der Suchergebnisse</string>
+    <string name="setting_search_results_use_home_font_size">Schriftgröße des Startbildschirms für Suchergebnisse verwenden</string>
+    <string name="setting_search_sort_order">Sortierung der Suche</string>
+    <string name="setting_search_type">Suchmodus</string>
+    <string name="setting_select_a_custom_font_file_desc">Wählen Sie eine eigene Schriftdatei aus</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Ein normales schwarz-weißes Hintergrundbild passend zum Design festlegen</string>
+    <string name="setting_set_plain_wallpaper">Normales Hintergrundbild festlegen</string>
+    <string name="setting_show_app_drawer_icons">Symbole in der App-Schublade anzeigen</string>
+    <string name="setting_show_app_icons_in_landscape">App-Symbole im Querformat anzeigen</string>
+    <string name="setting_show_app_icons_in_portrait">App-Symbole im Hochformat anzeigen</string>
+    <string name="setting_show_app_icons_on_home_screen">App-Symbole auf dem Startbildschirm anzeigen</string>
+    <string name="setting_show_app_names">App-Namen anzeigen</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">App-Namen in den Suchergebnissen erst nach Eingabe so vieler Zeichen anzeigen. Auf 0 setzen, um stattdessen die Einstellung \'App-Namen anzeigen\' zu verwenden.</string>
+    <string name="setting_show_hidden_in_search">Ausgeblendete Apps in der Suche anzeigen</string>
+    <string name="setting_show_names_in_search_after">Zeichenanzahl, ab der die Namen in der Suche angezeigt werden</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Seitenpunkte am unteren Rand des Startbildschirms anzeigen</string>
+    <string name="setting_show_page_indicator">Seitenanzeige anzeigen</string>
+    <string name="setting_show_pinned_shortcuts">Angeheftete Verknüpfungen anzeigen</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Schaltfläche \'Im Web suchen\' anzeigen, wenn keine Apps gefunden werden</string>
+    <string name="setting_show_status_bar">Statusleiste anzeigen</string>
+    <string name="setting_show_web_search_option">Option zur Websuche anzeigen</string>
+    <string name="setting_swipe_down_action">Aktion beim Wischen nach unten</string>
+    <string name="setting_swipe_down_app">App beim Wischen nach unten</string>
+    <string name="setting_swipe_left_action">Aktion beim Wischen nach links</string>
+    <string name="setting_swipe_right_action">Aktion beim Wischen nach rechts</string>
+    <string name="setting_swipe_up_action">Aktion beim Wischen nach oben</string>
+    <string name="setting_swipe_up_app">App beim Wischen nach oben</string>
+    <string name="setting_tap_to_open_in_app_drawer">Tippen in der App-Schublade öffnet die App</string>
+    <string name="setting_text_color">Textfarbe</string>
+    <string name="setting_theme">Design</string>
+    <string name="setting_use_custom_text_color">Eigene Textfarbe verwenden</string>
+    <string name="setting_use_dynamic_theme">Dynamisches Design verwenden</string>
+    <string name="setting_use_system_font">Systemschriftart verwenden</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Für Suchergebnisse dieselbe Schriftgröße wie auf dem Startbildschirm verwenden</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Ist dies deaktiviert, hat das Tippen auf eine App in der App-Schublade keine Wirkung. Ein langes Drücken öffnet weiterhin das Menü.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Links</item>
+        <item>Mitte</item>
+        <item>Rechts</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>System</item>
+        <item>Hell</item>
+        <item>Dunkel</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Startbildschirm</item>
+        <item>App-Schublade</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Dünn</item>
+        <item>Leicht</item>
+        <item>Normal</item>
+        <item>Mittel</item>
+        <item>Fett</item>
+        <item>Schwarz</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Ohne</item>
+        <item>Klein</item>
+        <item>Mittel</item>
+        <item>Groß</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Systemvorgabe</item>
+        <item>Hochformat erzwingen</item>
+        <item>Querformat erzwingen</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Aus</item>
+        <item>Umschrift</item>
+        <item>Tastaturbelegung tauschen</item>
+        <item>Beides</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Oben</item>
+        <item>Unten</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Links</item>
+        <item>Mitte</item>
+        <item>Rechts</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alphabetisch</item>
+        <item>Absteigend alphabetisch</item>
+        <item>Zuletzt gestartet</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Enthält</item>
+        <item>Ähnliche Treffer</item>
+        <item>Beginnt mit</item>
+        <item>Exakter Treffer</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Keine</item>
+        <item>Suche</item>
+        <item>Benachrichtigungen</item>
+        <item>App</item>
+        <item>Nächste Seite</item>
+        <item>Vorherige Seite</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Keine</item>
+        <item>Suche</item>
+        <item>Benachrichtigungen</item>
+        <item>App</item>
+        <item>Nächste Seite</item>
+        <item>Vorherige Seite</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Keine</item>
+        <item>Suche</item>
+        <item>Benachrichtigungen</item>
+        <item>App</item>
+        <item>Nächste Seite</item>
+        <item>Vorherige Seite</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Keine</item>
+        <item>Suche</item>
+        <item>Benachrichtigungen</item>
+        <item>App</item>
+        <item>Nächste Seite</item>
+        <item>Vorherige Seite</item>
+    </string-array>
+    <string name="category_general">Allgemeines</string>
+    <string name="category_appearance">Darstellung</string>
+    <string name="category_layout">Layout</string>
+    <string name="category_gestures">Gesten</string>
+    <string name="category_system">System</string>
 </resources>

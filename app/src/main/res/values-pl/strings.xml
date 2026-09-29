@@ -143,4 +143,179 @@
     <string name="accessibility_settings_hint">Włącz CCLaunchera w Ułatwieniach dostępu > Pobrane aplikacje (na niektórych urządzeniach Zainstalowane usługi).</string>
     <string name="view_privacy_policy">Zobacz politykę prywatności</string>
     <string name="agree_and_continue">Zgadzam się i kontynuuj</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Ustaw, jak łatwo uruchamiają się gesty przesuwania</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Wyrównaj nazwy aplikacji na ekranie głównym</string>
+    <string name="setting_app_drawer_results_alignment">Wyrównanie wyników szuflady aplikacji</string>
+    <string name="setting_auto_open_single_matches">Automatycznie otwórz pojedyncze dopasowanie</string>
+    <string name="setting_auto_show_keyboard">Automatycznie pokazuj klawiaturę</string>
+    <string name="setting_auto_update_wallpaper">Automatycznie aktualizuj tapetę</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Automatycznie aktualizuj zwykłą tapetę po zmianie motywu systemowego</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Wybierz własny pakiet ikon dla aplikacji</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Wybierz, który ekran ma być pokazywany po otwarciu programu uruchamiającego</string>
+    <string name="setting_custom_font">Własna czcionka</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Dostosuj kolor tekstu, aby poprawić czytelność</string>
+    <string name="setting_default_screen">Ekran domyślny</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Pokazuj ikony aplikacji na ekranie głównym</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Pokazuj przypięte skróty aplikacji w szufladzie aplikacji.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Pokazuj wyniki od dołu do góry</string>
+    <string name="setting_double_tap_to_lock_screen">Blokuj ekran dwukrotnym kliknięciem</string>
+    <string name="setting_font_weight">Grubość czcionki</string>
+    <string name="setting_gesture_sensitivity">Czułość gestów</string>
+    <string name="setting_home_app_label_alignment">Wyrównanie etykiet aplikacji na ekranie głównym</string>
+    <string name="setting_home_screen_columns">Kolumny ekranu głównego</string>
+    <string name="setting_home_screen_pages">Strony ekranu głównego</string>
+    <string name="setting_home_screen_rows">Wiersze ekranu głównego</string>
+    <string name="setting_home_text_size">Rozmiar tekstu na ekranie głównym</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Poziome wyrównanie nazw aplikacji w wynikach szuflady aplikacji</string>
+    <string name="setting_icon_corner_radius">Promień zaokrąglenia ikon</string>
+    <string name="setting_icon_pack">Pakiet ikon</string>
+    <string name="setting_item_spacing">Odstęp między elementami</string>
+    <string name="setting_left_swipe_app">Aplikacja przy przesunięciu w lewo</string>
+    <string name="setting_long_press_in_app_drawer">Długie naciśnięcie w szufladzie aplikacji</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Długie naciśnięcie na aplikacje pokazuje menu opcji</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Dopasowanie nazw aplikacji między transliteracjami i układami klawiatury (np. Африка ↔ Afrika). Może nieznacznie zwiększyć użycie procesora na starszych urządzeniach.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Liczba kolumn w siatce ekranu głównego</string>
+    <string name="setting_number_of_home_screen_pages_desc">Liczba stron ekranu głównego</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Liczba wierszy w siatce ekranu głównego</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Zastąp kolor tekstu motywu własnym kolorem</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Położenie paska wyszukiwania w szufladzie aplikacji</string>
+    <string name="setting_return_to_home_after_app">Powrót na ekran główny po aplikacji</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Powrót na ekran główny zamiast wyszukiwania po zamknięciu aplikacji</string>
+    <string name="setting_reverse_search_results">Odwróć wyniki wyszukiwania</string>
+    <string name="setting_right_swipe_app">Aplikacja przy przesunięciu w prawo</string>
+    <string name="setting_scale_home_apps">Skaluj aplikacje ekranu głównego</string>
+    <string name="setting_screen_orientation">Orientacja ekranu</string>
+    <string name="setting_search_aliases">Aliasy wyszukiwania</string>
+    <string name="setting_search_bar_position">Położenie paska wyszukiwania</string>
+    <string name="setting_search_results_font_size">Rozmiar czcionki wyników wyszukiwania</string>
+    <string name="setting_search_results_use_home_font_size">Używaj rozmiaru czcionki ekranu głównego dla wyników wyszukiwania</string>
+    <string name="setting_search_sort_order">Kolejność sortowania wyszukiwania</string>
+    <string name="setting_search_type">Typ wyszukiwania</string>
+    <string name="setting_select_a_custom_font_file_desc">Wybierz własny plik czcionki</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Ustaw zwykłą czarno-białą tapetę na podstawie motywu</string>
+    <string name="setting_set_plain_wallpaper">Ustaw zwykłą tapetę</string>
+    <string name="setting_show_app_drawer_icons">Pokazuj ikony szuflady aplikacji</string>
+    <string name="setting_show_app_icons_in_landscape">Pokazuj ikony aplikacji w poziomie</string>
+    <string name="setting_show_app_icons_in_portrait">Pokazuj ikony aplikacji w pionie</string>
+    <string name="setting_show_app_icons_on_home_screen">Pokazuj ikony aplikacji na ekranie głównym</string>
+    <string name="setting_show_app_names">Pokazuj nazwy aplikacji</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Pokazuj nazwy aplikacji w wynikach wyszukiwania po wpisaniu tej liczby znaków. Ustaw 0, aby zamiast tego użyć ustawienia \'Pokazuj nazwy aplikacji\'.</string>
+    <string name="setting_show_hidden_in_search">Pokazuj ukryte w wyszukiwaniu</string>
+    <string name="setting_show_names_in_search_after">Liczba znaków przed pokazaniem nazw w wyszukiwaniu</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Pokazuj kropki stron na dole ekranu głównego</string>
+    <string name="setting_show_page_indicator">Pokazuj wskaźnik strony</string>
+    <string name="setting_show_pinned_shortcuts">Pokazuj przypięte skróty</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Pokazuj przycisk \'Szukaj w sieci\', gdy żadna aplikacja nie pasuje</string>
+    <string name="setting_show_status_bar">Pokazuj pasek stanu</string>
+    <string name="setting_show_web_search_option">Pokazuj opcję wyszukiwania w internecie</string>
+    <string name="setting_swipe_down_action">Akcja przy przesunięciu w dół</string>
+    <string name="setting_swipe_down_app">Aplikacja przy przesunięciu w dół</string>
+    <string name="setting_swipe_left_action">Akcja przy przesunięciu w lewo</string>
+    <string name="setting_swipe_right_action">Akcja przy przesunięciu w prawo</string>
+    <string name="setting_swipe_up_action">Akcja przy przesunięciu w górę</string>
+    <string name="setting_swipe_up_app">Aplikacja przy przesunięciu w górę</string>
+    <string name="setting_tap_to_open_in_app_drawer">Kliknij, aby otworzyć w szufladzie aplikacji</string>
+    <string name="setting_text_color">Kolor tekstu</string>
+    <string name="setting_theme">Motyw</string>
+    <string name="setting_use_custom_text_color">Użyj własnego koloru tekstu</string>
+    <string name="setting_use_dynamic_theme">Użyj dynamicznego motywu</string>
+    <string name="setting_use_system_font">Użyj czcionki systemowej</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Używaj tego samego rozmiaru czcionki dla wyników wyszukiwania co na ekranie głównym</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Gdy to jest wyłączone, kliknięcie aplikacji w szufladzie aplikacji nic nie robi. Długie naciśnięcie nadal otwiera menu.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Do lewej</item>
+        <item>Do środka</item>
+        <item>Do prawej</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>System</item>
+        <item>Jasny</item>
+        <item>Ciemny</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Ekran główny</item>
+        <item>Szuflada aplikacji</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Cienki</item>
+        <item>Lekki</item>
+        <item>Normalny</item>
+        <item>Średni</item>
+        <item>Pogrubiony</item>
+        <item>Czarny</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Brak</item>
+        <item>Mały</item>
+        <item>Średni</item>
+        <item>Duży</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Ustawienie domyślne systemu</item>
+        <item>Wymuś pion</item>
+        <item>Wymuś poziom</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Wyłączone</item>
+        <item>Transliteracja</item>
+        <item>Zamiana układu klawiatury</item>
+        <item>Oba</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Góra</item>
+        <item>Dół</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Do lewej</item>
+        <item>Do środka</item>
+        <item>Do prawej</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alfabetycznie</item>
+        <item>Odwrotnie alfabetycznie</item>
+        <item>Ostatnie uruchomienie</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Zawiera</item>
+        <item>Niedokładne dopasowanie</item>
+        <item>Zaczyna się od</item>
+        <item>Dokładne dopasowanie</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Brak</item>
+        <item>Wyszukiwanie</item>
+        <item>Powiadomienia</item>
+        <item>Aplikacja</item>
+        <item>Następna strona</item>
+        <item>Poprzednia strona</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Brak</item>
+        <item>Wyszukiwanie</item>
+        <item>Powiadomienia</item>
+        <item>Aplikacja</item>
+        <item>Następna strona</item>
+        <item>Poprzednia strona</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Brak</item>
+        <item>Wyszukiwanie</item>
+        <item>Powiadomienia</item>
+        <item>Aplikacja</item>
+        <item>Następna strona</item>
+        <item>Poprzednia strona</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Brak</item>
+        <item>Wyszukiwanie</item>
+        <item>Powiadomienia</item>
+        <item>Aplikacja</item>
+        <item>Następna strona</item>
+        <item>Poprzednia strona</item>
+    </string-array>
+    <string name="category_general">Ogólne</string>
+    <string name="category_appearance">Wygląd</string>
+    <string name="category_layout">Układ</string>
+    <string name="category_gestures">Gesty</string>
+    <string name="category_system">System</string>
 </resources>

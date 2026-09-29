@@ -145,4 +145,179 @@
     <string name="accessibility_settings_hint">Erişilebilirlik > İndirilen uygulamalar (bazı cihazlarda Yüklü hizmetler) bölümünden CCLauncher’ı etkinleştirin.</string>
     <string name="view_privacy_policy">Gizlilik politikasını görüntüle</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Kaydırma hareketlerinin ne kadar kolay tetikleneceğini ayarlayın</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Uygulama adlarını ana ekranda hizalayın</string>
+    <string name="setting_app_drawer_results_alignment">Uygulama çekmecesi sonuçlarının hizalaması</string>
+    <string name="setting_auto_open_single_matches">Tek eşleşmeyi otomatik aç</string>
+    <string name="setting_auto_show_keyboard">Klavyeyi otomatik göster</string>
+    <string name="setting_auto_update_wallpaper">Duvar kağıdını otomatik güncelle</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Sistem teması değiştiğinde düz duvar kağıdını otomatik güncelle</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Uygulamalar için özel simge paketi seç</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Başlatıcıyı açarken hangi ekranın gösterileceğini seç</string>
+    <string name="setting_custom_font">Özel yazı tipi</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Daha iyi okunabilirlik için metin rengini özelleştir</string>
+    <string name="setting_default_screen">Varsayılan ekran</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Uygulama simgelerini ana ekranda göster</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Uygulama çekmecesinde sabitlenmiş uygulama kısayollarını göster.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Sonuçları alttan üste göster</string>
+    <string name="setting_double_tap_to_lock_screen">Ekranı çift dokunuşla kilitle</string>
+    <string name="setting_font_weight">Yazı tipi kalınlığı</string>
+    <string name="setting_gesture_sensitivity">Hareket hassasiyeti</string>
+    <string name="setting_home_app_label_alignment">Ana ekrandaki uygulama etiketlerinin hizalaması</string>
+    <string name="setting_home_screen_columns">Ana ekran sütunları</string>
+    <string name="setting_home_screen_pages">Ana ekran sayfaları</string>
+    <string name="setting_home_screen_rows">Ana ekran satırları</string>
+    <string name="setting_home_text_size">Ana ekrandaki metin boyutu</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Uygulama çekmecesi sonuçlarında uygulama adlarının yatay hizalaması</string>
+    <string name="setting_icon_corner_radius">Simge köşe yarıçapı</string>
+    <string name="setting_icon_pack">Simge paketi</string>
+    <string name="setting_item_spacing">Öğe aralığı</string>
+    <string name="setting_left_swipe_app">Sola kaydırıldığında açılacak uygulama</string>
+    <string name="setting_long_press_in_app_drawer">Uygulama çekmecesinde uzun basma</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Uygulamalara uzun basma seçenek menüsünü gösterir</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Uygulama adlarını farklı transliterasyon ve klavye düzenlerinde eşleştir (örn. Африка ↔ Afrika). Eski cihazlarda CPU kullanımını biraz artırabilir.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Ana ekran ızgarasındaki sütun sayısı</string>
+    <string name="setting_number_of_home_screen_pages_desc">Ana ekran sayfalarının sayısı</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Ana ekran ızgarasındaki satır sayısı</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Tema metin rengini özel renkle geçersiz kıl</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Uygulama çekmecesinde arama çubuğunun konumu</string>
+    <string name="setting_return_to_home_after_app">Uygulamadan sonra ana ekrana dön</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Bir uygulamayı kapattıktan sonra arama yerine ana ekrana dön</string>
+    <string name="setting_reverse_search_results">Arama sonuçlarını tersine çevir</string>
+    <string name="setting_right_swipe_app">Sağa kaydırıldığında açılacak uygulama</string>
+    <string name="setting_scale_home_apps">Ana ekran uygulamalarını ölçekle</string>
+    <string name="setting_screen_orientation">Ekran yönü</string>
+    <string name="setting_search_aliases">Arama takma adları</string>
+    <string name="setting_search_bar_position">Arama çubuğu konumu</string>
+    <string name="setting_search_results_font_size">Arama sonuçlarının yazı tipi boyutu</string>
+    <string name="setting_search_results_use_home_font_size">Arama sonuçlarında ana ekran yazı tipi boyutunu kullan</string>
+    <string name="setting_search_sort_order">Arama sıralama düzeni</string>
+    <string name="setting_search_type">Arama türü</string>
+    <string name="setting_select_a_custom_font_file_desc">Özel yazı tipi dosyası seç</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Temaya göre düz siyah/beyaz duvar kağıdı ayarla</string>
+    <string name="setting_set_plain_wallpaper">Düz duvar kağıdı ayarla</string>
+    <string name="setting_show_app_drawer_icons">Uygulama çekmecesi simgelerini göster</string>
+    <string name="setting_show_app_icons_in_landscape">Uygulama simgelerini yatay modda göster</string>
+    <string name="setting_show_app_icons_in_portrait">Uygulama simgelerini dikey modda göster</string>
+    <string name="setting_show_app_icons_on_home_screen">Uygulama simgelerini ana ekranda göster</string>
+    <string name="setting_show_app_names">Uygulama adlarını göster</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Bu kadar karakter yazıldıktan sonra arama sonuçlarında uygulama adlarını göster. \'Uygulama adlarını göster\' ayarını kullanmak için 0 yapın.</string>
+    <string name="setting_show_hidden_in_search">Aramada gizli olanları göster</string>
+    <string name="setting_show_names_in_search_after">Adların aramada gösterilmesinden önceki karakter sayısı</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Ana ekranın altında sayfa noktalarını göster</string>
+    <string name="setting_show_page_indicator">Sayfa göstergesini göster</string>
+    <string name="setting_show_pinned_shortcuts">Sabitlenmiş kısayolları göster</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Hiçbir uygulama eşleşmediğinde «Web\'de Ara» düğmesini göster</string>
+    <string name="setting_show_status_bar">Durum çubuğunu göster</string>
+    <string name="setting_show_web_search_option">Web arama seçeneğini göster</string>
+    <string name="setting_swipe_down_action">Aşağı kaydırma eylemi</string>
+    <string name="setting_swipe_down_app">Aşağı kaydırıldığında açılacak uygulama</string>
+    <string name="setting_swipe_left_action">Sola kaydırma eylemi</string>
+    <string name="setting_swipe_right_action">Sağa kaydırma eylemi</string>
+    <string name="setting_swipe_up_action">Yukarı kaydırma eylemi</string>
+    <string name="setting_swipe_up_app">Yukarı kaydırıldığında açılacak uygulama</string>
+    <string name="setting_tap_to_open_in_app_drawer">Uygulama çekmecesinde açmak için dokun</string>
+    <string name="setting_text_color">Metin rengi</string>
+    <string name="setting_theme">Tema</string>
+    <string name="setting_use_custom_text_color">Özel metin rengi kullan</string>
+    <string name="setting_use_dynamic_theme">Dinamik tema kullan</string>
+    <string name="setting_use_system_font">Sistem yazı tipini kullan</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Arama sonuçları için ana ekranla aynı yazı tipi boyutunu kullan</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Devre dışı bırakıldığında, uygulama çekmecesindeki bir uygulamaya dokunmak hiçbir şey yapmaz. Uzun basma menüyü açmaya devam eder.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Sol</item>
+        <item>Orta</item>
+        <item>Sağ</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Sistem</item>
+        <item>Açık</item>
+        <item>Koyu</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Ana ekran</item>
+        <item>Uygulama çekmecesi</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>İnce</item>
+        <item>Hafif</item>
+        <item>Normal</item>
+        <item>Orta</item>
+        <item>Kalın</item>
+        <item>Siyah</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Yok</item>
+        <item>Küçük</item>
+        <item>Orta</item>
+        <item>Büyük</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Sistem varsayılanı</item>
+        <item>Dikeyi zorla</item>
+        <item>Yatayı zorla</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Kapalı</item>
+        <item>Transliterasyon</item>
+        <item>Klavye düzeni değişimi</item>
+        <item>İkisi birden</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Üst</item>
+        <item>Alt</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Sol</item>
+        <item>Orta</item>
+        <item>Sağ</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Alfabetik</item>
+        <item>Ters alfabetik</item>
+        <item>Son açılan</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>İçerir</item>
+        <item>Bulanık eşleşme</item>
+        <item>Şununla başlar</item>
+        <item>Tam eşleşme</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Yok</item>
+        <item>Arama</item>
+        <item>Bildirimler</item>
+        <item>Uygulama</item>
+        <item>Sonraki sayfa</item>
+        <item>Önceki sayfa</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Yok</item>
+        <item>Arama</item>
+        <item>Bildirimler</item>
+        <item>Uygulama</item>
+        <item>Sonraki sayfa</item>
+        <item>Önceki sayfa</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Yok</item>
+        <item>Arama</item>
+        <item>Bildirimler</item>
+        <item>Uygulama</item>
+        <item>Sonraki sayfa</item>
+        <item>Önceki sayfa</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Yok</item>
+        <item>Arama</item>
+        <item>Bildirimler</item>
+        <item>Uygulama</item>
+        <item>Sonraki sayfa</item>
+        <item>Önceki sayfa</item>
+    </string-array>
+    <string name="category_general">Genel</string>
+    <string name="category_appearance">Görünüm</string>
+    <string name="category_layout">Yerleşim</string>
+    <string name="category_gestures">Hareketler</string>
+    <string name="category_system">Sistem</string>
 </resources>

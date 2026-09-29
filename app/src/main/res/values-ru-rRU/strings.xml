@@ -145,4 +145,179 @@
     <string name="accessibility_settings_hint">Включите CCLauncher в разделе Специальные возможности > Загруженные приложения (на некоторых устройствах — Установленные службы).</string>
     <string name="view_privacy_policy">Показать политику конфиденциальности</string>
     <string name="agree_and_continue">Принять и продолжить</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Настроить, насколько легко срабатывают жесты свайпа</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Выровнять названия приложений на главном экране</string>
+    <string name="setting_app_drawer_results_alignment">Выравнивание результатов в списке приложений</string>
+    <string name="setting_auto_open_single_matches">Автоматически открывать, если совпадение одно</string>
+    <string name="setting_auto_show_keyboard">Автоматически показывать клавиатуру</string>
+    <string name="setting_auto_update_wallpaper">Автоматически обновлять обои</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Автоматически обновлять однотонные обои при смене системной темы</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Выбрать свой пакет иконок для приложений</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Выбрать, какой экран показывать при открытии лаунчера</string>
+    <string name="setting_custom_font">Свой шрифт</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Настроить цвет текста для лучшей читаемости</string>
+    <string name="setting_default_screen">Экран по умолчанию</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Показывать иконки приложений на главном экране</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Показывать закреплённые ярлыки приложений в списке приложений.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Показывать результаты снизу вверх</string>
+    <string name="setting_double_tap_to_lock_screen">Блокировка двойным тапом</string>
+    <string name="setting_font_weight">Начертание шрифта</string>
+    <string name="setting_gesture_sensitivity">Чувствительность жестов</string>
+    <string name="setting_home_app_label_alignment">Выравнивание названий приложений на главном экране</string>
+    <string name="setting_home_screen_columns">Столбцы на главном экране</string>
+    <string name="setting_home_screen_pages">Страницы на главном экране</string>
+    <string name="setting_home_screen_rows">Строки на главном экране</string>
+    <string name="setting_home_text_size">Размер текста на главном экране</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Горизонтальное выравнивание названий приложений в результатах списка приложений</string>
+    <string name="setting_icon_corner_radius">Радиус закругления иконок</string>
+    <string name="setting_icon_pack">Пакет иконок</string>
+    <string name="setting_item_spacing">Отступ между элементами</string>
+    <string name="setting_left_swipe_app">Приложение для свайпа влево</string>
+    <string name="setting_long_press_in_app_drawer">Долгое нажатие в списке приложений</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Долгое нажатие на приложении открывает меню параметров</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Сопоставление названий приложений при транслитерации и разной раскладке клавиатуры (например, Африка ↔ Afrika). Может немного увеличить нагрузку на процессор на старых устройствах.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Количество столбцов в сетке на главном экране</string>
+    <string name="setting_number_of_home_screen_pages_desc">Количество страниц на главном экране</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Количество строк в сетке на главном экране</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Заменять цвет текста темы собственным цветом</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Положение строки поиска в списке приложений</string>
+    <string name="setting_return_to_home_after_app">Возвращаться на главный экран после приложения</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">После закрытия приложения возвращаться на главный экран, а не к поиску</string>
+    <string name="setting_reverse_search_results">Переворачивать результаты поиска</string>
+    <string name="setting_right_swipe_app">Приложение для свайпа вправо</string>
+    <string name="setting_scale_home_apps">Масштаб приложений на главном экране</string>
+    <string name="setting_screen_orientation">Ориентация экрана</string>
+    <string name="setting_search_aliases">Псевдонимы для поиска</string>
+    <string name="setting_search_bar_position">Положение строки поиска</string>
+    <string name="setting_search_results_font_size">Размер шрифта результатов поиска</string>
+    <string name="setting_search_results_use_home_font_size">Использовать для результатов поиска размер шрифта главного экрана</string>
+    <string name="setting_search_sort_order">Порядок сортировки поиска</string>
+    <string name="setting_search_type">Тип поиска</string>
+    <string name="setting_select_a_custom_font_file_desc">Выбрать файл своего шрифта</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Установить чёрно-белые однотонные обои в зависимости от темы</string>
+    <string name="setting_set_plain_wallpaper">Установить однотонные обои</string>
+    <string name="setting_show_app_drawer_icons">Показывать иконки в списке приложений</string>
+    <string name="setting_show_app_icons_in_landscape">Показывать иконки приложений в альбомной ориентации</string>
+    <string name="setting_show_app_icons_in_portrait">Показывать иконки приложений в книжной ориентации</string>
+    <string name="setting_show_app_icons_on_home_screen">Показывать иконки приложений на главном экране</string>
+    <string name="setting_show_app_names">Показывать названия приложений</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Показывать названия приложений в результатах поиска после ввода указанного числа символов. Установите 0, чтобы вместо этого использовать настройку \'Показывать названия приложений\'.</string>
+    <string name="setting_show_hidden_in_search">Показывать скрытые приложения в поиске</string>
+    <string name="setting_show_names_in_search_after">Число символов перед показом названий в поиске</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Показывать точки страниц внизу главного экрана</string>
+    <string name="setting_show_page_indicator">Показывать индикатор страниц</string>
+    <string name="setting_show_pinned_shortcuts">Показывать закреплённые ярлыки</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Показывать кнопку \'Искать в интернете\', если совпадений не найдено</string>
+    <string name="setting_show_status_bar">Показывать строку состояния</string>
+    <string name="setting_show_web_search_option">Показывать опцию веб-поиска</string>
+    <string name="setting_swipe_down_action">Действие при свайпе вниз</string>
+    <string name="setting_swipe_down_app">Приложение для свайпа вниз</string>
+    <string name="setting_swipe_left_action">Действие при свайпе влево</string>
+    <string name="setting_swipe_right_action">Действие при свайпе вправо</string>
+    <string name="setting_swipe_up_action">Действие при свайпе вверх</string>
+    <string name="setting_swipe_up_app">Приложение для свайпа вверх</string>
+    <string name="setting_tap_to_open_in_app_drawer">Нажатие в списке приложений открывает приложение</string>
+    <string name="setting_text_color">Цвет текста</string>
+    <string name="setting_theme">Тема</string>
+    <string name="setting_use_custom_text_color">Использовать свой цвет текста</string>
+    <string name="setting_use_dynamic_theme">Использовать динамическую тему</string>
+    <string name="setting_use_system_font">Использовать системный шрифт</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Использовать для результатов поиска тот же размер шрифта, что и на главном экране</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Если отключено, нажатие на приложение в списке приложений ничего не делает. Долгое нажатие по-прежнему открывает меню.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Слева</item>
+        <item>По центру</item>
+        <item>Справа</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Системная</item>
+        <item>Светлая</item>
+        <item>Тёмная</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Главный экран</item>
+        <item>Список приложений</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Тонкое</item>
+        <item>Светлое</item>
+        <item>Обычное</item>
+        <item>Среднее</item>
+        <item>Полужирное</item>
+        <item>Чёрное</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Нет</item>
+        <item>Маленький</item>
+        <item>Средний</item>
+        <item>Большой</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Системная</item>
+        <item>Принудительно книжная</item>
+        <item>Принудительно альбомная</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Выкл</item>
+        <item>Транслитерация</item>
+        <item>Смена раскладки клавиатуры</item>
+        <item>Оба варианта</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Сверху</item>
+        <item>Снизу</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Слева</item>
+        <item>По центру</item>
+        <item>Справа</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>По алфавиту</item>
+        <item>В обратном алфавитном порядке</item>
+        <item>Последний запуск</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Содержит</item>
+        <item>Похожее совпадение</item>
+        <item>Начинается с</item>
+        <item>Точное совпадение</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Нет</item>
+        <item>Поиск</item>
+        <item>Уведомления</item>
+        <item>Приложение</item>
+        <item>Следующая страница</item>
+        <item>Предыдущая страница</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Нет</item>
+        <item>Поиск</item>
+        <item>Уведомления</item>
+        <item>Приложение</item>
+        <item>Следующая страница</item>
+        <item>Предыдущая страница</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Нет</item>
+        <item>Поиск</item>
+        <item>Уведомления</item>
+        <item>Приложение</item>
+        <item>Следующая страница</item>
+        <item>Предыдущая страница</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Нет</item>
+        <item>Поиск</item>
+        <item>Уведомления</item>
+        <item>Приложение</item>
+        <item>Следующая страница</item>
+        <item>Предыдущая страница</item>
+    </string-array>
+    <string name="category_general">Общие</string>
+    <string name="category_appearance">Оформление</string>
+    <string name="category_layout">Раскладка</string>
+    <string name="category_gestures">Жесты</string>
+    <string name="category_system">Система</string>
 </resources>

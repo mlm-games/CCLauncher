@@ -146,4 +146,179 @@
     <string name="accessibility_settings_hint">Kapcsold be a CCLaunchert az Akadálymentesség > Letöltött alkalmazások (egyes eszközökön Telepített szolgáltatások) pontban.</string>
     <string name="view_privacy_policy">Adatvédelmi szabályzat megtekintése</string>
     <string name="agree_and_continue">Elfogadom és folytatom</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Állítsa be, mennyire könnyen aktiválódnak a simítási mozdulatok</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Alkalmazásnevek igazítása a kezdőképernyőn</string>
+    <string name="setting_app_drawer_results_alignment">Az alkalmazáslista találatainak igazítása</string>
+    <string name="setting_auto_open_single_matches">Az egyetlen találat automatikus megnyitása</string>
+    <string name="setting_auto_show_keyboard">Billentyűzet automatikus megjelenítése</string>
+    <string name="setting_auto_update_wallpaper">Háttérkép automatikus frissítése</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Az egyszerű háttérkép automatikus frissítése a rendszertéma változásakor</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Egyéni ikoncsomag választása az alkalmazásokhoz</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Válassza ki, melyik képernyő jelenjen meg az indító megnyitásakor</string>
+    <string name="setting_custom_font">Egyéni betűtípus</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Szövegszín testreszabása a jobb olvashatóságért</string>
+    <string name="setting_default_screen">Alapértelmezett képernyő</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Alkalmazásikonok megjelenítése a kezdőképernyőn</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Rögzített alkalmazásparancsok megjelenítése az alkalmazáslistában.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Találatok megjelenítése alulról felfelé</string>
+    <string name="setting_double_tap_to_lock_screen">Zárolás dupla koppintással</string>
+    <string name="setting_font_weight">Betűvastagság</string>
+    <string name="setting_gesture_sensitivity">Mozdulatok érzékenysége</string>
+    <string name="setting_home_app_label_alignment">Alkalmazáscímkék igazítása a kezdőképernyőn</string>
+    <string name="setting_home_screen_columns">Kezdőképernyő oszlopai</string>
+    <string name="setting_home_screen_pages">Kezdőképernyő oldalai</string>
+    <string name="setting_home_screen_rows">Kezdőképernyő sorai</string>
+    <string name="setting_home_text_size">Szövegméret a kezdőképernyőn</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Az alkalmazásnevek vízszintes igazítása az alkalmazáslista találataiban</string>
+    <string name="setting_icon_corner_radius">Ikonok sarok sugara</string>
+    <string name="setting_icon_pack">Ikoncsomag</string>
+    <string name="setting_item_spacing">Elemek közötti távolság</string>
+    <string name="setting_left_swipe_app">Alkalmazás balra simításkor</string>
+    <string name="setting_long_press_in_app_drawer">Hosszú lenyomás az alkalmazáslistában</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Az alkalmazások hosszú lenyomása megjeleníti az opciók menüt</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Alkalmazásnevek egyeztetése átírásokon és billentyűzetkiosztásokon át (pl. Африка ↔ Afrika). Régebbi eszközökön enyhén növelheti a processzorhasználatot.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Az oszlopok száma a kezdőképernyő rácsában</string>
+    <string name="setting_number_of_home_screen_pages_desc">A kezdőképernyő oldalainak száma</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">A sorok száma a kezdőképernyő rácsában</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">A téma szövegszínének felülírása egyéni színnel</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">A keresősáv helye az alkalmazáslistában</string>
+    <string name="setting_return_to_home_after_app">Visszatérés a kezdőképernyőre az alkalmazás után</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Visszatérés a kezdőképernyőre a keresés helyett egy alkalmazás bezárása után</string>
+    <string name="setting_reverse_search_results">Keresési találatok megfordítása</string>
+    <string name="setting_right_swipe_app">Alkalmazás jobbra simításkor</string>
+    <string name="setting_scale_home_apps">Kezdőképernyő alkalmazásainak méretezése</string>
+    <string name="setting_screen_orientation">Képernyő tájolása</string>
+    <string name="setting_search_aliases">Keresési aliasok</string>
+    <string name="setting_search_bar_position">Keresősáv helye</string>
+    <string name="setting_search_results_font_size">A keresési találatok betűmérete</string>
+    <string name="setting_search_results_use_home_font_size">A kezdőképernyő betűméretének használata a keresési találatokhoz</string>
+    <string name="setting_search_sort_order">Keresési rendezési sorrend</string>
+    <string name="setting_search_type">Keresés típusa</string>
+    <string name="setting_select_a_custom_font_file_desc">Egyéni betűfájl kiválasztása</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Egyszerű fekete-fehér háttérkép beállítása a téma alapján</string>
+    <string name="setting_set_plain_wallpaper">Egyszerű háttérkép beállítása</string>
+    <string name="setting_show_app_drawer_icons">Az alkalmazáslista ikonjainak megjelenítése</string>
+    <string name="setting_show_app_icons_in_landscape">Alkalmazásikonok megjelenítése fekvő helyzetben</string>
+    <string name="setting_show_app_icons_in_portrait">Alkalmazásikonok megjelenítése álló helyzetben</string>
+    <string name="setting_show_app_icons_on_home_screen">Alkalmazásikonok megjelenítése a kezdőképernyőn</string>
+    <string name="setting_show_app_names">Alkalmazásnevek megjelenítése</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Alkalmazásnevek megjelenítése a keresési találatokban ennyi karakter beírása után. Állítson 0-ra a(z) \'Alkalmazásnevek megjelenítése\' beállítás használatához.</string>
+    <string name="setting_show_hidden_in_search">Rejtett megjelenítése a keresésben</string>
+    <string name="setting_show_names_in_search_after">Karakterek száma a nevek keresésben történő megjelenítése előtt</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Oldaljelző pontok megjelenítése a kezdőképernyő alján</string>
+    <string name="setting_show_page_indicator">Oldaljelző megjelenítése</string>
+    <string name="setting_show_pinned_shortcuts">Rögzített parancsok megjelenítése</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">A(z) \'Keresés a weben\' gomb megjelenítése, ha nincs találat</string>
+    <string name="setting_show_status_bar">Állapotsor megjelenítése</string>
+    <string name="setting_show_web_search_option">A webes keresés lehetőségének megjelenítése</string>
+    <string name="setting_swipe_down_action">Művelet lefelé simításkor</string>
+    <string name="setting_swipe_down_app">Alkalmazás lefelé simításkor</string>
+    <string name="setting_swipe_left_action">Művelet balra simításkor</string>
+    <string name="setting_swipe_right_action">Művelet jobbra simításkor</string>
+    <string name="setting_swipe_up_action">Művelet felfelé simításkor</string>
+    <string name="setting_swipe_up_app">Alkalmazás felfelé simításkor</string>
+    <string name="setting_tap_to_open_in_app_drawer">Koppintson a megnyitáshoz az alkalmazáslistában</string>
+    <string name="setting_text_color">Szövegszín</string>
+    <string name="setting_theme">Téma</string>
+    <string name="setting_use_custom_text_color">Egyéni szövegszín használata</string>
+    <string name="setting_use_dynamic_theme">Dinamikus téma használata</string>
+    <string name="setting_use_system_font">Rendszerbetűtípus használata</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">A keresési találatokhoz a kezdőképernyővel azonos betűméret használata</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Ha ki van kapcsolva, az alkalmazáslista egy alkalmazására történő koppintás nem csinál semmit. A hosszú lenyomás továbbra is megnyitja a menüt.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Bal</item>
+        <item>Középre</item>
+        <item>Jobb</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Rendszer</item>
+        <item>Világos</item>
+        <item>Sötét</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Kezdőképernyő</item>
+        <item>Alkalmazáslista</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Vékony</item>
+        <item>Könnyű</item>
+        <item>Normál</item>
+        <item>Közepes</item>
+        <item>Félkövér</item>
+        <item>Fekete</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Nincs</item>
+        <item>Kicsi</item>
+        <item>Közepes</item>
+        <item>Nagy</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Rendszer alapértelmezése</item>
+        <item>Álló helyzet kényszerítése</item>
+        <item>Fekvő helyzet kényszerítése</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Kikapcsolva</item>
+        <item>Átírás</item>
+        <item>Billentyűzetkiosztás cseréje</item>
+        <item>Mindkettő</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Felül</item>
+        <item>Alul</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Bal</item>
+        <item>Középre</item>
+        <item>Jobb</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Betűrend szerint</item>
+        <item>Betűrend szerint fordítva</item>
+        <item>Legutóbb indított</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Tartalmazza</item>
+        <item>Hasonló találat</item>
+        <item>Ezzel kezdődik</item>
+        <item>Pontos egyezés</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Nincs</item>
+        <item>Keresés</item>
+        <item>Értesítések</item>
+        <item>Alkalmazás</item>
+        <item>Következő oldal</item>
+        <item>Előző oldal</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Nincs</item>
+        <item>Keresés</item>
+        <item>Értesítések</item>
+        <item>Alkalmazás</item>
+        <item>Következő oldal</item>
+        <item>Előző oldal</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Nincs</item>
+        <item>Keresés</item>
+        <item>Értesítések</item>
+        <item>Alkalmazás</item>
+        <item>Következő oldal</item>
+        <item>Előző oldal</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Nincs</item>
+        <item>Keresés</item>
+        <item>Értesítések</item>
+        <item>Alkalmazás</item>
+        <item>Következő oldal</item>
+        <item>Előző oldal</item>
+    </string-array>
+    <string name="category_general">Általános</string>
+    <string name="category_appearance">Megjelenés</string>
+    <string name="category_layout">Elrendezés</string>
+    <string name="category_gestures">Mozdulatok</string>
+    <string name="category_system">Rendszer</string>
 </resources>

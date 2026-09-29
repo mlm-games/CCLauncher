@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">접근성 > 다운로드한 앱(일부 기기에서는 ‘설치된 서비스’이라고 표시됨)에서 CCLauncher를 켜세요.</string>
     <string name="view_privacy_policy">개인정보 처리방침 보기</string>
     <string name="agree_and_continue">동의하고 계속</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">스와이프 제스처가 발동하기 쉬운 정도를 조절합니다</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">홈 화면에서 앱 이름을 정렬합니다</string>
+    <string name="setting_app_drawer_results_alignment">앱 목록 검색 결과 정렬</string>
+    <string name="setting_auto_open_single_matches">결과가 하나면 자동으로 열기</string>
+    <string name="setting_auto_show_keyboard">키보드 자동 표시</string>
+    <string name="setting_auto_update_wallpaper">배경화면 자동 업데이트</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">시스템 테마가 바뀌면 단순한 배경화면을 자동으로 업데이트합니다</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">앱에 사용할 아이콘 팩을 선택합니다</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">런처를 열 때 표시할 화면을 선택합니다</string>
+    <string name="setting_custom_font">사용자 지정 글꼴</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">더 잘 보이도록 글자 색을 지정합니다</string>
+    <string name="setting_default_screen">기본 화면</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">홈 화면에 앱 아이콘을 표시합니다</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">앱 목록에 고정된 앱 바로 가기를 표시합니다.</string>
+    <string name="setting_display_results_bottom_to_top_desc">결과를 아래에서 위로 표시합니다</string>
+    <string name="setting_double_tap_to_lock_screen">두 번 탭하여 잠금</string>
+    <string name="setting_font_weight">글꼴 굵기</string>
+    <string name="setting_gesture_sensitivity">제스처 감도</string>
+    <string name="setting_home_app_label_alignment">홈 화면 앱 이름 정렬</string>
+    <string name="setting_home_screen_columns">홈 화면 열</string>
+    <string name="setting_home_screen_pages">홈 화면 페이지</string>
+    <string name="setting_home_screen_rows">홈 화면 행</string>
+    <string name="setting_home_text_size">홈 화면 글자 크기</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">앱 목록 검색 결과에서 앱 이름의 가로 정렬</string>
+    <string name="setting_icon_corner_radius">아이콘 모서리 둥글기</string>
+    <string name="setting_icon_pack">아이콘 팩</string>
+    <string name="setting_item_spacing">항목 간격</string>
+    <string name="setting_left_swipe_app">왼쪽으로 스와이프로 여는 앱</string>
+    <string name="setting_long_press_in_app_drawer">앱 목록에서 길게 누르기</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">앱을 길게 누르면 옵션 메뉴가 표시됩니다</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">다른 표기 방식과 키보드 레이아웃에 걸쳐 앱 이름을 일치시킵니다(예: 한국 ↔ Hanguk). 오래된 기기에서는 CPU 사용량이 약간 늘어날 수 있습니다.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">홈 화면 격자의 열 수</string>
+    <string name="setting_number_of_home_screen_pages_desc">홈 화면 페이지 수</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">홈 화면 격자의 행 수</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">테마의 글자 색 대신 사용자 지정 색을 사용합니다</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">앱 목록에서 검색창의 위치</string>
+    <string name="setting_return_to_home_after_app">앱 사용 후 홈으로 돌아가기</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">앱을 닫은 후 검색 대신 홈 화면으로 돌아가기</string>
+    <string name="setting_reverse_search_results">검색 결과 뒤집기</string>
+    <string name="setting_right_swipe_app">오른쪽으로 스와이프로 여는 앱</string>
+    <string name="setting_scale_home_apps">홈 화면 앱 크기 조절</string>
+    <string name="setting_screen_orientation">화면 방향</string>
+    <string name="setting_search_aliases">검색 별칭</string>
+    <string name="setting_search_bar_position">검색창 위치</string>
+    <string name="setting_search_results_font_size">검색 결과 글꼴 크기</string>
+    <string name="setting_search_results_use_home_font_size">검색 결과에 홈 화면 글꼴 크기 사용</string>
+    <string name="setting_search_sort_order">검색 결과 정렬 순서</string>
+    <string name="setting_search_type">검색 유형</string>
+    <string name="setting_select_a_custom_font_file_desc">사용자 지정 글꼴 파일 선택</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">테마에 맞춰 검정 또는 흰색 단순한 배경화면 설정</string>
+    <string name="setting_set_plain_wallpaper">단순한 배경화면 설정</string>
+    <string name="setting_show_app_drawer_icons">앱 목록에 아이콘 표시</string>
+    <string name="setting_show_app_icons_in_landscape">가로 모드에서 앱 아이콘 표시</string>
+    <string name="setting_show_app_icons_in_portrait">세로 모드에서 앱 아이콘 표시</string>
+    <string name="setting_show_app_icons_on_home_screen">홈 화면에 앱 아이콘 표시</string>
+    <string name="setting_show_app_names">앱 이름 표시</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">이만큼 입력하면 검색 결과에 앱 이름을 표시합니다. 0으로 설정하면 대신 「앱 이름 표시」 설정이 사용됩니다.</string>
+    <string name="setting_show_hidden_in_search">검색에 숨겨진 앱 표시</string>
+    <string name="setting_show_names_in_search_after">검색에서 이름을 표시하는 글자 수</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">홈 화면 하단에 페이지 점 표시</string>
+    <string name="setting_show_page_indicator">페이지 표시기 표시</string>
+    <string name="setting_show_pinned_shortcuts">고정된 바로 가기 표시</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">일치하는 앱이 없으면 「웹 검색」 버튼 표시</string>
+    <string name="setting_show_status_bar">상태 표시줄 표시</string>
+    <string name="setting_show_web_search_option">웹 검색 옵션 표시</string>
+    <string name="setting_swipe_down_action">아래로 스와이프 동작</string>
+    <string name="setting_swipe_down_app">아래로 스와이프로 여는 앱</string>
+    <string name="setting_swipe_left_action">왼쪽으로 스와이프 동작</string>
+    <string name="setting_swipe_right_action">오른쪽으로 스와이프 동작</string>
+    <string name="setting_swipe_up_action">위로 스와이프 동작</string>
+    <string name="setting_swipe_up_app">위로 스와이프로 여는 앱</string>
+    <string name="setting_tap_to_open_in_app_drawer">앱 목록에서 탭하여 열기</string>
+    <string name="setting_text_color">글자 색</string>
+    <string name="setting_theme">테마</string>
+    <string name="setting_use_custom_text_color">사용자 지정 글자 색 사용</string>
+    <string name="setting_use_dynamic_theme">동적 테마 사용</string>
+    <string name="setting_use_system_font">시스템 글꼴 사용</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">검색 결과에 홈 화면과 같은 글꼴 크기를 사용합니다</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">끄면 앱 목록의 앱을 탭해도 아무 일도 하지 않습니다. 길게 누르기는 여전히 메뉴를 엽니다.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>왼쪽</item>
+        <item>가운데</item>
+        <item>오른쪽</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>시스템</item>
+        <item>밝은 테마</item>
+        <item>어두운 테마</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>홈 화면</item>
+        <item>앱 목록</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>아주 가늘게</item>
+        <item>가늘게</item>
+        <item>보통</item>
+        <item>약간 굵게</item>
+        <item>굵게</item>
+        <item>아주 굵게</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>없음</item>
+        <item>작게</item>
+        <item>중간</item>
+        <item>크게</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>시스템 기본값</item>
+        <item>세로 고정</item>
+        <item>가로 고정</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>꺼짐</item>
+        <item>표기 변환</item>
+        <item>키보드 레이아웃 전환</item>
+        <item>둘 다</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>위</item>
+        <item>아래</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>왼쪽</item>
+        <item>가운데</item>
+        <item>오른쪽</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>알파벳순</item>
+        <item>알파벳 역순</item>
+        <item>최근 실행 순</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>포함</item>
+        <item>비슷한 일치</item>
+        <item>앞부분 일치</item>
+        <item>정확히 일치</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>없음</item>
+        <item>검색</item>
+        <item>알림</item>
+        <item>앱</item>
+        <item>다음 페이지</item>
+        <item>이전 페이지</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>없음</item>
+        <item>검색</item>
+        <item>알림</item>
+        <item>앱</item>
+        <item>다음 페이지</item>
+        <item>이전 페이지</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>없음</item>
+        <item>검색</item>
+        <item>알림</item>
+        <item>앱</item>
+        <item>다음 페이지</item>
+        <item>이전 페이지</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>없음</item>
+        <item>검색</item>
+        <item>알림</item>
+        <item>앱</item>
+        <item>다음 페이지</item>
+        <item>이전 페이지</item>
+    </string-array>
+    <string name="category_general">일반</string>
+    <string name="category_appearance">디자인</string>
+    <string name="category_layout">배치</string>
+    <string name="category_gestures">제스처</string>
+    <string name="category_system">시스템</string>
 </resources>

@@ -141,4 +141,179 @@
     <string name="accessibility_settings_hint">فعّل CCLauncher ضمن إمكانية الوصول > التطبيقات التي نزّلتها (تسمى الخدمات المثبتة على بعض الأجهزة).</string>
     <string name="view_privacy_policy">عرض سياسة الخصوصية</string>
     <string name="agree_and_continue">موافق ومتابعة</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">ضبط مدى سهولة تشغيل إيماءات السحب</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">محاذاة أسماء التطبيقات في الشاشة الرئيسية</string>
+    <string name="setting_app_drawer_results_alignment">محاذاة نتائج درج التطبيقات</string>
+    <string name="setting_auto_open_single_matches">فتح النتيجة الواحدة تلقائيًا</string>
+    <string name="setting_auto_show_keyboard">إظهار لوحة المفاتيح تلقائيًا</string>
+    <string name="setting_auto_update_wallpaper">تحديث الخلفية تلقائيًا</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">تحديث الخلفية العادية تلقائيًا عند تغيير سمة النظام</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">اختيار حزمة أيقونات مخصصة للتطبيقات</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">اختيار الشاشة التي تظهر عند فتح المُشغِّل</string>
+    <string name="setting_custom_font">خط مخصص</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">تخصيص لون النص لرؤية أفضل</string>
+    <string name="setting_default_screen">الشاشة الافتراضية</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">إظهار أيقونات التطبيقات في الشاشة الرئيسية</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">إظهار اختصارات التطبيقات المثبتة في درج التطبيقات.</string>
+    <string name="setting_display_results_bottom_to_top_desc">إظهار النتائج من الأسفل إلى الأعلى</string>
+    <string name="setting_double_tap_to_lock_screen">انقر نقرًا مزدوجًا للقفل</string>
+    <string name="setting_font_weight">سماكة الخط</string>
+    <string name="setting_gesture_sensitivity">حساسية الإيماءات</string>
+    <string name="setting_home_app_label_alignment">محاذاة أسماء التطبيقات في الشاشة الرئيسية</string>
+    <string name="setting_home_screen_columns">أعمدة الشاشة الرئيسية</string>
+    <string name="setting_home_screen_pages">صفحات الشاشة الرئيسية</string>
+    <string name="setting_home_screen_rows">صفوف الشاشة الرئيسية</string>
+    <string name="setting_home_text_size">حجم النص في الشاشة الرئيسية</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">المحاذاة الأفقية لأسماء التطبيقات في نتائج درج التطبيقات</string>
+    <string name="setting_icon_corner_radius">نصف قطر زوايا الأيقونات</string>
+    <string name="setting_icon_pack">حزمة أيقونات</string>
+    <string name="setting_item_spacing">تباعد العناصر</string>
+    <string name="setting_left_swipe_app">تطبيق عند السحب إلى اليسار</string>
+    <string name="setting_long_press_in_app_drawer">الضغط المطوّل في درج التطبيقات</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">الضغط المطوّل على تطبيق يفتح قائمة الخيارات</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">مطابقة أسماء التطبيقات عبر التحويل الحروفي ولوحات المفاتيح (مثل أفريقيا ↔ Afrika). قد تزيد قليلاً من استخدام المعالج على الأجهزة القديمة.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">عدد أعمدة شبكة الشاشة الرئيسية</string>
+    <string name="setting_number_of_home_screen_pages_desc">عدد صفحات الشاشة الرئيسية</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">عدد صفوف شبكة الشاشة الرئيسية</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">تجاوز لون نص السمة بلون مخصص</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">موضع شريط البحث في درج التطبيقات</string>
+    <string name="setting_return_to_home_after_app">العودة إلى الشاشة الرئيسية بعد التطبيق</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">العودة إلى الشاشة الرئيسية بدلًا من البحث بعد إغلاق تطبيق</string>
+    <string name="setting_reverse_search_results">عكس نتائج البحث</string>
+    <string name="setting_right_swipe_app">تطبيق عند السحب إلى اليمين</string>
+    <string name="setting_scale_home_apps">مقياس تطبيقات الشاشة الرئيسية</string>
+    <string name="setting_screen_orientation">اتجاه الشاشة</string>
+    <string name="setting_search_aliases">الأسماء البديلة للبحث</string>
+    <string name="setting_search_bar_position">موضع شريط البحث</string>
+    <string name="setting_search_results_font_size">حجم خط نتائج البحث</string>
+    <string name="setting_search_results_use_home_font_size">استخدام حجم خط الشاشة الرئيسية لنتائج البحث</string>
+    <string name="setting_search_sort_order">ترتيب نتائج البحث</string>
+    <string name="setting_search_type">نوع البحث</string>
+    <string name="setting_select_a_custom_font_file_desc">اختيار ملف خط مخصص</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">تعيين خلفية سوداء أو بيضاء حسب السمة</string>
+    <string name="setting_set_plain_wallpaper">تعيين خلفية عادية</string>
+    <string name="setting_show_app_drawer_icons">إظهار أيقونات درج التطبيقات</string>
+    <string name="setting_show_app_icons_in_landscape">إظهار أيقونات التطبيقات في الوضع الأفقي</string>
+    <string name="setting_show_app_icons_in_portrait">إظهار أيقونات التطبيقات في الوضع الرأسي</string>
+    <string name="setting_show_app_icons_on_home_screen">إظهار أيقونات التطبيقات في الشاشة الرئيسية</string>
+    <string name="setting_show_app_names">إظهار أسماء التطبيقات</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">إظهار أسماء التطبيقات في نتائج البحث بعد كتابة هذا العدد من الأحرف. اضبط على 0 لاستخدام إعداد \'إظهار أسماء التطبيقات\' بدلاً من ذلك.</string>
+    <string name="setting_show_hidden_in_search">إظهار التطبيقات المخفية في البحث</string>
+    <string name="setting_show_names_in_search_after">عدد الأحرف قبل إظهار الأسماء في البحث</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">إظهار نقاط الصفحات أسفل الشاشة الرئيسية</string>
+    <string name="setting_show_page_indicator">إظهار مؤشر الصفحات</string>
+    <string name="setting_show_pinned_shortcuts">إظهار الاختصارات المثبتة</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">إظهار زر \'البحث في الويب\' عند عدم مطابقة أي تطبيق</string>
+    <string name="setting_show_status_bar">إظهار شريط الحالة</string>
+    <string name="setting_show_web_search_option">إظهار خيار البحث في الويب</string>
+    <string name="setting_swipe_down_action">إجراء السحب إلى الأسفل</string>
+    <string name="setting_swipe_down_app">تطبيق عند السحب إلى الأسفل</string>
+    <string name="setting_swipe_left_action">إجراء السحب إلى اليسار</string>
+    <string name="setting_swipe_right_action">إجراء السحب إلى اليمين</string>
+    <string name="setting_swipe_up_action">إجراء السحب إلى الأعلى</string>
+    <string name="setting_swipe_up_app">تطبيق عند السحب إلى الأعلى</string>
+    <string name="setting_tap_to_open_in_app_drawer">النقر في درج التطبيقات يفتح التطبيق</string>
+    <string name="setting_text_color">لون النص</string>
+    <string name="setting_theme">السمة</string>
+    <string name="setting_use_custom_text_color">استخدام لون نص مخصص</string>
+    <string name="setting_use_dynamic_theme">استخدام سمة ديناميكية</string>
+    <string name="setting_use_system_font">استخدام خط النظام</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">استخدام نفس حجم خط الشاشة الرئيسية لنتائج البحث</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">عند تعطيله، لن يؤدي النقر على تطبيق في درج التطبيقات إلى أي شيء. يفتح الضغط المطوّل القائمة على أي حال.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>يسار</item>
+        <item>وسط</item>
+        <item>يمين</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>نظام</item>
+        <item>فاتح</item>
+        <item>داكن</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>الشاشة الرئيسية</item>
+        <item>درج التطبيقات</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>رفيع</item>
+        <item>خفيف</item>
+        <item>عادي</item>
+        <item>متوسط</item>
+        <item>عريض</item>
+        <item>أسود</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>بدون</item>
+        <item>صغير</item>
+        <item>متوسط</item>
+        <item>كبير</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>افتراضي النظام</item>
+        <item>فرض عمودي</item>
+        <item>فرض أفقي</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>إيقاف</item>
+        <item>تحويل حروفي</item>
+        <item>تبديل تخطيط لوحة المفاتيح</item>
+        <item>كلاهما</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>أعلى</item>
+        <item>أسفل</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>يسار</item>
+        <item>وسط</item>
+        <item>يمين</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>أبجدي</item>
+        <item>أبجدي عكسي</item>
+        <item>آخر تشغيل</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>يحتوي على</item>
+        <item>مطابقة تقريبية</item>
+        <item>مطابقة البداية</item>
+        <item>مطابقة تامة</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>لا شيء</item>
+        <item>بحث</item>
+        <item>إشعارات</item>
+        <item>تطبيق</item>
+        <item>الصفحة التالية</item>
+        <item>الصفحة السابقة</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>لا شيء</item>
+        <item>بحث</item>
+        <item>إشعارات</item>
+        <item>تطبيق</item>
+        <item>الصفحة التالية</item>
+        <item>الصفحة السابقة</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>لا شيء</item>
+        <item>بحث</item>
+        <item>إشعارات</item>
+        <item>تطبيق</item>
+        <item>الصفحة التالية</item>
+        <item>الصفحة السابقة</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>لا شيء</item>
+        <item>بحث</item>
+        <item>إشعارات</item>
+        <item>تطبيق</item>
+        <item>الصفحة التالية</item>
+        <item>الصفحة السابقة</item>
+    </string-array>
+    <string name="category_general">عام</string>
+    <string name="category_appearance">المظهر</string>
+    <string name="category_layout">التخطيط</string>
+    <string name="category_gestures">الإيماءات</string>
+    <string name="category_system">النظام</string>
 </resources>

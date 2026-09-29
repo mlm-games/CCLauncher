@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">Ota käyttöön CCLauncher kohdassa Saavutettavuus > Ladatut sovellukset (joillakin laitteilla Asennetut palvelut).</string>
     <string name="view_privacy_policy">Näytä tietosuojakäytäntö</string>
     <string name="agree_and_continue">Hyväksy ja jatka</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Säädä, kuinka helposti pyyhkäisygestet lauketauvat</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Tasaa sovellusten nimet aloitusnäytöllä</string>
+    <string name="setting_app_drawer_results_alignment">Sovelluslistan tulosten tasaus</string>
+    <string name="setting_auto_open_single_matches">Avaa yksittäinen osuma automaattisesti</string>
+    <string name="setting_auto_show_keyboard">Näytä näppäimistö automaattisesti</string>
+    <string name="setting_auto_update_wallpaper">Päivitä taustakuva automaattisesti</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Päivitä yksinkertainen taustakuva automaattisesti, kun järjestelmän teema muuttuu</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Valitse oma ikonipaketti sovelluksille</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Valitse, mikä näyttö avautuu käynnistysohjelmaa avattaessa</string>
+    <string name="setting_custom_font">Oma fontti</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Mukauta tekstiväriä paremman luettavuuden vuoksi</string>
+    <string name="setting_default_screen">Oletusnäyttö</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Näytä sovellusten ikonit aloitusnäytöllä</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Näytä kiinnitettyjä sovelluspikavalintoja sovelluslistassa.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Näytä tulokset alhaalta ylös</string>
+    <string name="setting_double_tap_to_lock_screen">Lukitse kaksoisnapautuksella</string>
+    <string name="setting_font_weight">Fontin paksuus</string>
+    <string name="setting_gesture_sensitivity">Gestien herkkyys</string>
+    <string name="setting_home_app_label_alignment">Sovellusnimikkeiden tasaus aloitusnäytöllä</string>
+    <string name="setting_home_screen_columns">Aloitusnäytön sarakkeet</string>
+    <string name="setting_home_screen_pages">Aloitusnäytön sivut</string>
+    <string name="setting_home_screen_rows">Aloitusnäytön rivit</string>
+    <string name="setting_home_text_size">Tekstin koko aloitusnäytöllä</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Sovellusten nimien vaakatasaus sovelluslistan tuloksissa</string>
+    <string name="setting_icon_corner_radius">Ikonien kulman säde</string>
+    <string name="setting_icon_pack">Ikonipaketti</string>
+    <string name="setting_item_spacing">Kohteiden väli</string>
+    <string name="setting_left_swipe_app">Sovellus vasemmalle pyyhkäistäessä</string>
+    <string name="setting_long_press_in_app_drawer">Pitkä painallus sovelluslistassa</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Sovelluksen pitkä painallus näyttää vaihtoehtovalikon</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Tunnista sovellusten nimet eri kirjoitusasuissa ja näppäimistöasetteluissa (esim. Африка ↔ Afrika). Saattaa hieman lisätä suorittimen käyttöä vanhemmissa laitteissa.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Aloitusnäytön ruudukon sarakkeiden määrä</string>
+    <string name="setting_number_of_home_screen_pages_desc">Aloitusnäytön sivujen määrä</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Aloitusnäytön ruudukon rivien määrä</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Korvaa teeman tekstiväri omalla värillä</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Hakupalkin sijainti sovelluslistassa</string>
+    <string name="setting_return_to_home_after_app">Palaa aloitusnäytölle sovelluksen jälkeen</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Palaa sovelluksen sulkemisen jälkeen aloitusnäytölle hakujen sijaan</string>
+    <string name="setting_reverse_search_results">Käännä hakutulokset</string>
+    <string name="setting_right_swipe_app">Sovellus oikealle pyyhkäistäessä</string>
+    <string name="setting_scale_home_apps">Skaalaa aloitusnäytön sovellukset</string>
+    <string name="setting_screen_orientation">Näytön suunta</string>
+    <string name="setting_search_aliases">Hakujen aliakset</string>
+    <string name="setting_search_bar_position">Hakupalkin sijainti</string>
+    <string name="setting_search_results_font_size">Hakutulosten fontin koko</string>
+    <string name="setting_search_results_use_home_font_size">Käytä hakutuloksissa aloitusnäytön fonttikokoa</string>
+    <string name="setting_search_sort_order">Hakujen lajittelujärjestys</string>
+    <string name="setting_search_type">Hakutapa</string>
+    <string name="setting_select_a_custom_font_file_desc">Valitse oma fonttitiedosto</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Aseta yksinkertainen musta/valkoinen taustakuva teeman mukaan</string>
+    <string name="setting_set_plain_wallpaper">Aseta yksinkertainen taustakuva</string>
+    <string name="setting_show_app_drawer_icons">Näytä sovelluslistan ikonit</string>
+    <string name="setting_show_app_icons_in_landscape">Näytä sovellusten ikonit vaakasuunnassa</string>
+    <string name="setting_show_app_icons_in_portrait">Näytä sovellusten ikonit pystysuunnassa</string>
+    <string name="setting_show_app_icons_on_home_screen">Näytä sovellusten ikonit aloitusnäytöllä</string>
+    <string name="setting_show_app_names">Näytä sovellusten nimet</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Näytä sovellusten nimet hakutuloksissa näiden mäisten merkkien jälkeen. Aseta 0 käyttääksesi sen sijaan asetusta \'Näytä sovellusten nimet\'.</string>
+    <string name="setting_show_hidden_in_search">Näytä piilotetut haussa</string>
+    <string name="setting_show_names_in_search_after">Merkkien määrä ennen nimien näyttämistä haussa</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Näytä sivupisteet aloitusnäytön alalaidassa</string>
+    <string name="setting_show_page_indicator">Näytä sivun ilmaisin</string>
+    <string name="setting_show_pinned_shortcuts">Näytä kiinnitetty pikavalinta</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Näytä \'Etsi internetistä\' -painike, kun mikään sovellus ei sovi</string>
+    <string name="setting_show_status_bar">Näytä tilapalkki</string>
+    <string name="setting_show_web_search_option">Näytä verkkohakuvalinta</string>
+    <string name="setting_swipe_down_action">Toiminto alas pyyhkäistäessä</string>
+    <string name="setting_swipe_down_app">Sovellus alas pyyhkäistäessä</string>
+    <string name="setting_swipe_left_action">Toiminto vasemmalle pyyhkäistäessä</string>
+    <string name="setting_swipe_right_action">Toiminto oikealle pyyhkäistäessä</string>
+    <string name="setting_swipe_up_action">Toiminto ylös pyyhkäistäessä</string>
+    <string name="setting_swipe_up_app">Sovellus ylös pyyhkäistäessä</string>
+    <string name="setting_tap_to_open_in_app_drawer">Napauta avataksesi sovelluslistassa</string>
+    <string name="setting_text_color">Tekstin väri</string>
+    <string name="setting_theme">Teema</string>
+    <string name="setting_use_custom_text_color">Käytä omaa tekstiväriä</string>
+    <string name="setting_use_dynamic_theme">Käytä dynaamista teemaa</string>
+    <string name="setting_use_system_font">Käytä järjestelmäfonttia</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Käytä hakutuloksissa samaa fonttikokoa kuin aloitusnäytöllä</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Kun tämä on pois päältä, sovelluslistan sovelluksen napautus ei tee mitään. Pitkä painallus avaa yhä valikon.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Vasen</item>
+        <item>Keskelle</item>
+        <item>Oikea</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Järjestelmä</item>
+        <item>Vaalea</item>
+        <item>Tumma</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Aloitusnäyttö</item>
+        <item>Sovelluslista</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Ohut</item>
+        <item>Kevyt</item>
+        <item>Normaali</item>
+        <item>Keskitaso</item>
+        <item>Lihava</item>
+        <item>Musta</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Ei</item>
+        <item>Pieni</item>
+        <item>Keskisuuri</item>
+        <item>Suuri</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Järjestelmän oletus</item>
+        <item>Pakota pystyasento</item>
+        <item>Pakota vaaka-asento</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Pois</item>
+        <item>Translitterointi</item>
+        <item>Näppäimistöasetelman vaihto</item>
+        <item>Molemmat</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Ylhäällä</item>
+        <item>Alhaalla</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Vasen</item>
+        <item>Keskelle</item>
+        <item>Oikea</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Aakkosjärjestyksessä</item>
+        <item>Käänteisessä aakkosjärjestyksessä</item>
+        <item>Viimeksi käynnistetty</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Sisältää</item>
+        <item>Sumea osuma</item>
+        <item>Alkaa</item>
+        <item>Tarkka osuma</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Ei mitään</item>
+        <item>Haku</item>
+        <item>Ilmoitukset</item>
+        <item>Sovellus</item>
+        <item>Seuraava sivu</item>
+        <item>Edellinen sivu</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Ei mitään</item>
+        <item>Haku</item>
+        <item>Ilmoitukset</item>
+        <item>Sovellus</item>
+        <item>Seuraava sivu</item>
+        <item>Edellinen sivu</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Ei mitään</item>
+        <item>Haku</item>
+        <item>Ilmoitukset</item>
+        <item>Sovellus</item>
+        <item>Seuraava sivu</item>
+        <item>Edellinen sivu</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Ei mitään</item>
+        <item>Haku</item>
+        <item>Ilmoitukset</item>
+        <item>Sovellus</item>
+        <item>Seuraava sivu</item>
+        <item>Edellinen sivu</item>
+    </string-array>
+    <string name="category_general">Yleiset</string>
+    <string name="category_appearance">Ulkoasu</string>
+    <string name="category_layout">Asettelu</string>
+    <string name="category_gestures">Eleet</string>
+    <string name="category_system">Järjestelmä</string>
 </resources>

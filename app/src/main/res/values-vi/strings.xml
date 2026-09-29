@@ -136,4 +136,179 @@
     <string name="accessibility_settings_hint">Bật CCLauncher trong Trợ năng > Ứng dụng đã tải (gọi là Dịch vụ đã cài trên một số thiết bị).</string>
     <string name="view_privacy_policy">Xem chính sách quyền riêng tư</string>
     <string name="agree_and_continue">Đồng ý và tiếp tục</string>
+    <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Điều chỉnh độ dễ kích hoạt của các thao tác vuốt</string>
+    <string name="setting_align_app_names_on_the_home_screen_desc">Căn chỉnh tên ứng dụng trên màn hình chính</string>
+    <string name="setting_app_drawer_results_alignment">Căn chỉnh kết quả danh sách ứng dụng</string>
+    <string name="setting_auto_open_single_matches">Tự động mở kết quả khớp duy nhất</string>
+    <string name="setting_auto_show_keyboard">Tự động hiển thị bàn phím</string>
+    <string name="setting_auto_update_wallpaper">Tự động cập nhật hình nền</string>
+    <string name="setting_automatically_update_plain_wallpaper_when_system_theme_changes_desc">Tự động cập nhật hình nền đơn giản khi chủ đề hệ thống thay đổi</string>
+    <string name="setting_choose_custom_icon_pack_for_apps_desc">Chọn gói biểu tượng tùy chỉnh cho ứng dụng</string>
+    <string name="setting_choose_which_screen_to_show_when_opening_the_launcher_desc">Chọn màn hình hiển thị khi mở trình khởi chạy</string>
+    <string name="setting_custom_font">Phông chữ tùy chỉnh</string>
+    <string name="setting_customize_text_color_for_better_visibility_desc">Tùy chỉnh màu chữ để dễ đọc hơn</string>
+    <string name="setting_default_screen">Màn hình mặc định</string>
+    <string name="setting_display_app_icons_on_the_home_screen_desc">Hiển thị biểu tượng ứng dụng trên màn hình chính</string>
+    <string name="setting_display_pinned_app_shortcuts_in_the_app_drawer_desc">Hiển thị lối tắt ứng dụng đã ghim trong danh sách ứng dụng.</string>
+    <string name="setting_display_results_bottom_to_top_desc">Hiển thị kết quả từ dưới lên</string>
+    <string name="setting_double_tap_to_lock_screen">Khóa màn hình bằng thao tác nhấn đúp</string>
+    <string name="setting_font_weight">Độ đậm phông chữ</string>
+    <string name="setting_gesture_sensitivity">Độ nhạy cử chỉ</string>
+    <string name="setting_home_app_label_alignment">Căn chỉnh nhãn ứng dụng trên màn hình chính</string>
+    <string name="setting_home_screen_columns">Cột màn hình chính</string>
+    <string name="setting_home_screen_pages">Trang màn hình chính</string>
+    <string name="setting_home_screen_rows">Hàng màn hình chính</string>
+    <string name="setting_home_text_size">Cỡ chữ trên màn hình chính</string>
+    <string name="setting_horizontal_alignment_of_app_names_in_app_drawer_results_desc">Căn chỉnh ngang tên ứng dụng trong kết quả danh sách ứng dụng</string>
+    <string name="setting_icon_corner_radius">Bán kính góc biểu tượng</string>
+    <string name="setting_icon_pack">Gói biểu tượng</string>
+    <string name="setting_item_spacing">Khoảng cách giữa các mục</string>
+    <string name="setting_left_swipe_app">Ứng dụng khi vuốt sang trái</string>
+    <string name="setting_long_press_in_app_drawer">Nhấn giữ trong danh sách ứng dụng</string>
+    <string name="setting_long_press_on_apps_shows_options_menu_desc">Nhấn giữ vào ứng dụng sẽ hiển thị menu tùy chọn</string>
+    <string name="setting_match_app_names_across_transliterations_and_keyboard_layouts_e_g_afrika_may_slightly_increase_cpu_use_on_older_devices_desc">Khớp tên ứng dụng giữa các cách chuyển tự và bố cục bàn phím (ví dụ Африка ↔ Afrika). Có thể làm tăng nhẹ mức dùng CPU trên thiết bị cũ.</string>
+    <string name="setting_number_of_columns_in_the_home_screen_grid_desc">Số cột trong lưới màn hình chính</string>
+    <string name="setting_number_of_home_screen_pages_desc">Số trang màn hình chính</string>
+    <string name="setting_number_of_rows_in_the_home_screen_grid_desc">Số hàng trong lưới màn hình chính</string>
+    <string name="setting_override_theme_text_color_with_custom_color_desc">Ghi đè màu chữ của chủ đề bằng màu tùy chỉnh</string>
+    <string name="setting_position_of_the_search_bar_in_the_app_drawer_desc">Vị trí thanh tìm kiếm trong danh sách ứng dụng</string>
+    <string name="setting_return_to_home_after_app">Quay về màn hình chính sau khi dùng ứng dụng</string>
+    <string name="setting_return_to_home_screen_instead_of_search_after_closing_an_app_desc">Quay về màn hình chính thay vì tìm kiếm sau khi đóng ứng dụng</string>
+    <string name="setting_reverse_search_results">Đảo ngược kết quả tìm kiếm</string>
+    <string name="setting_right_swipe_app">Ứng dụng khi vuốt sang phải</string>
+    <string name="setting_scale_home_apps">Thu phóng ứng dụng màn hình chính</string>
+    <string name="setting_screen_orientation">Hướng màn hình</string>
+    <string name="setting_search_aliases">Bí danh tìm kiếm</string>
+    <string name="setting_search_bar_position">Vị trí thanh tìm kiếm</string>
+    <string name="setting_search_results_font_size">Cỡ chữ kết quả tìm kiếm</string>
+    <string name="setting_search_results_use_home_font_size">Dùng cỡ chữ màn hình chính cho kết quả tìm kiếm</string>
+    <string name="setting_search_sort_order">Thứ tự sắp xếp tìm kiếm</string>
+    <string name="setting_search_type">Loại tìm kiếm</string>
+    <string name="setting_select_a_custom_font_file_desc">Chọn tệp phông chữ tùy chỉnh</string>
+    <string name="setting_set_a_plain_black_white_wallpaper_based_on_theme_desc">Đặt hình nền đen/trắng đơn giản theo chủ đề</string>
+    <string name="setting_set_plain_wallpaper">Đặt hình nền đơn giản</string>
+    <string name="setting_show_app_drawer_icons">Hiển thị biểu tượng danh sách ứng dụng</string>
+    <string name="setting_show_app_icons_in_landscape">Hiển thị biểu tượng ứng dụng theo chiều ngang</string>
+    <string name="setting_show_app_icons_in_portrait">Hiển thị biểu tượng ứng dụng theo chiều dọc</string>
+    <string name="setting_show_app_icons_on_home_screen">Hiển thị biểu tượng ứng dụng trên màn hình chính</string>
+    <string name="setting_show_app_names">Hiển thị tên ứng dụng</string>
+    <string name="setting_show_app_names_in_search_results_after_typing_this_many_characters_set_to_0_to_use_the_show_app_names_setting_instead_desc">Hiển thị tên ứng dụng trong kết quả tìm kiếm sau khi nhập chừng này ký tự. Đặt thành 0 để dùng cài đặt \'Hiển thị tên ứng dụng\'.</string>
+    <string name="setting_show_hidden_in_search">Hiển thị mục ẩn trong tìm kiếm</string>
+    <string name="setting_show_names_in_search_after">Số ký tự trước khi hiển thị tên trong tìm kiếm</string>
+    <string name="setting_show_page_dots_at_the_bottom_of_the_home_screen_desc">Hiển thị chấm trang ở cuối màn hình chính</string>
+    <string name="setting_show_page_indicator">Hiển thị chỉ báo trang</string>
+    <string name="setting_show_pinned_shortcuts">Hiển thị lối tắt đã ghim</string>
+    <string name="setting_show_search_web_button_when_no_apps_match_desc">Hiển thị nút \'Tìm trên web\' khi không có ứng dụng nào khớp</string>
+    <string name="setting_show_status_bar">Hiển thị thanh trạng thái</string>
+    <string name="setting_show_web_search_option">Hiển thị tùy chọn tìm kiếm trên web</string>
+    <string name="setting_swipe_down_action">Hành động khi vuốt xuống</string>
+    <string name="setting_swipe_down_app">Ứng dụng khi vuốt xuống</string>
+    <string name="setting_swipe_left_action">Hành động khi vuốt sang trái</string>
+    <string name="setting_swipe_right_action">Hành động khi vuốt sang phải</string>
+    <string name="setting_swipe_up_action">Hành động khi vuốt lên</string>
+    <string name="setting_swipe_up_app">Ứng dụng khi vuốt lên</string>
+    <string name="setting_tap_to_open_in_app_drawer">Chạm để mở trong danh sách ứng dụng</string>
+    <string name="setting_text_color">Màu chữ</string>
+    <string name="setting_theme">Chủ đề</string>
+    <string name="setting_use_custom_text_color">Dùng màu chữ tùy chỉnh</string>
+    <string name="setting_use_dynamic_theme">Dùng chủ đề động</string>
+    <string name="setting_use_system_font">Dùng phông chữ hệ thống</string>
+    <string name="setting_use_the_same_font_size_for_search_results_as_home_screen_desc">Dùng cùng cỡ chữ với màn hình chính cho kết quả tìm kiếm</string>
+    <string name="setting_when_disabled_tapping_an_app_drawer_app_does_nothing_long_press_still_opens_the_menu_desc">Khi tắt, chạm vào một ứng dụng trong danh sách ứng dụng sẽ không làm gì. Nhấn giữ vẫn mở menu.</string>
+    <string-array name="setting_app_label_alignment_options">
+        <item>Trái</item>
+        <item>Giữa</item>
+        <item>Phải</item>
+    </string-array>
+    <string-array name="setting_apptheme_options">
+        <item>Hệ thống</item>
+        <item>Sáng</item>
+        <item>Tối</item>
+    </string-array>
+    <string-array name="setting_defaultscreen_options">
+        <item>Màn hình chính</item>
+        <item>Danh sách ứng dụng</item>
+    </string-array>
+    <string-array name="setting_fontweight_options">
+        <item>Mảnh</item>
+        <item>Nhẹ</item>
+        <item>Bình thường</item>
+        <item>Trung bình</item>
+        <item>Đậm</item>
+        <item>Đen</item>
+    </string-array>
+    <string-array name="setting_item_spacing_options">
+        <item>Không</item>
+        <item>Nhỏ</item>
+        <item>Trung bình</item>
+        <item>Lớn</item>
+    </string-array>
+    <string-array name="setting_screenorientation_options">
+        <item>Mặc định của hệ thống</item>
+        <item>Buộc theo chiều dọc</item>
+        <item>Buộc theo chiều ngang</item>
+    </string-array>
+    <string-array name="setting_searchaliasesmode_options">
+        <item>Tắt</item>
+        <item>Chuyển tự</item>
+        <item>Hoán đổi bố cục bàn phím</item>
+        <item>Cả hai</item>
+    </string-array>
+    <string-array name="setting_search_bar_position_options">
+        <item>Trên</item>
+        <item>Dưới</item>
+    </string-array>
+    <string-array name="setting_search_results_alignment_options">
+        <item>Trái</item>
+        <item>Giữa</item>
+        <item>Phải</item>
+    </string-array>
+    <string-array name="setting_searchsortorder_options">
+        <item>Theo bảng chữ cái</item>
+        <item>Đảo bảng chữ cái</item>
+        <item>Lần mở gần nhất</item>
+    </string-array>
+    <string-array name="setting_searchtype_options">
+        <item>Chứa</item>
+        <item>Khớp mờ</item>
+        <item>Bắt đầu bằng</item>
+        <item>Khớp chính xác</item>
+    </string-array>
+    <string-array name="setting_swipedownaction_options">
+        <item>Không</item>
+        <item>Tìm kiếm</item>
+        <item>Thông báo</item>
+        <item>Ứng dụng</item>
+        <item>Trang tiếp theo</item>
+        <item>Trang trước</item>
+    </string-array>
+    <string-array name="setting_swipeleftaction_options">
+        <item>Không</item>
+        <item>Tìm kiếm</item>
+        <item>Thông báo</item>
+        <item>Ứng dụng</item>
+        <item>Trang tiếp theo</item>
+        <item>Trang trước</item>
+    </string-array>
+    <string-array name="setting_swiperightaction_options">
+        <item>Không</item>
+        <item>Tìm kiếm</item>
+        <item>Thông báo</item>
+        <item>Ứng dụng</item>
+        <item>Trang tiếp theo</item>
+        <item>Trang trước</item>
+    </string-array>
+    <string-array name="setting_swipeupaction_options">
+        <item>Không</item>
+        <item>Tìm kiếm</item>
+        <item>Thông báo</item>
+        <item>Ứng dụng</item>
+        <item>Trang tiếp theo</item>
+        <item>Trang trước</item>
+    </string-array>
+    <string name="category_general">Chung</string>
+    <string name="category_appearance">Giao diện</string>
+    <string name="category_layout">Bố cục</string>
+    <string name="category_gestures">Cử chỉ</string>
+    <string name="category_system">Hệ thống</string>
 </resources>
