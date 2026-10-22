@@ -1,3 +1,8 @@
+## vv10.7.13
+
+- fix fdroid repro issue
+
+
 ## vv10.7.12
 
 - Translations
