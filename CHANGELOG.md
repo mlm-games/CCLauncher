@@ -1,3 +1,8 @@
+## vv10.7.12
+
+- Translations
+
+
 ## vv10.7.11
 
 - Move to kmp-settings 0.10.3
