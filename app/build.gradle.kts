@@ -1,5 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -14,6 +16,7 @@ kotlin {
     jvmToolchain(21)
 
     compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
         optIn.addAll(
             "androidx.compose.material3.ExperimentalMaterial3Api",
             "androidx.compose.foundation.ExperimentalFoundationApi",
@@ -92,6 +95,10 @@ android {
 
     namespace = "app.cclauncher"
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 
     dependenciesInfo {
         includeInApk = false

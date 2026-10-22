@@ -16,7 +16,7 @@
     <string name="white">أبيض</string>
     <string name="change_default_launcher">تغيير المشغل الافتراضي</string>
     <string name="privacy">خصوصية</string>
-    <string name="share">يشارك</string>
+    <string name="share">مشاركة</string>
     <string name="share_now">يشارك</string>
     <string name="rate">معدل</string>
     <string name="rate_now">معدل</string>
@@ -60,8 +60,8 @@
     <string name="support_clauncher_for_free">ادعم CClauncher مجانًا باستخدام رابط الشراكة التابع لشركة Amazon.</string>
     <string name="support_clauncher_message">في كل مرة تشتري شيئًا باستخدام الرابط الخاص بنا ، نحصل على عمولة صغيرة. يرجى حفظ الرابط واستخدامه في أي وقت تتسوق فيه عبر الإنترنت. شكرًا لك!</string>
     <string name="open">افتح الرابط</string>
-    <string name="copy">ينسخ</string>
-    <string name="close">يغلق</string>
+    <string name="copy">نسخ</string>
+    <string name="close">إغلاق</string>
     <string name="not_now">ليس الآن</string>
     <string name="public_roadmap">خارطة طريق CClauncher العامة</string>
     <string name="instagram">انستغرام</string>
@@ -79,14 +79,14 @@
     <string name="search">يبحث</string>
     <string name="notifications">إشعارات</string>
     <string name="accessibility_disclosure">يرجى تشغيل أو إيقاف تشغيل خدمة الوصول في CClauncher في إعدادات جهازك لتمكين هذه الميزة أو تعطيلها.       يرجى ملاحظة أن هذه الخدمة تُستخدم فقط للسماح لك بإيقاف تشغيل شاشة جهازك باستخدام إيماءة النقر المزدوج. خدمة الوصول لدينا لا تجمع أو تشارك أي بيانات.</string>
-    <string name="accept">يقبل</string>
+    <string name="accept">قبول</string>
     <string name="permission">إذن</string>
     <string name="double_tap_lock">انقر نقرًا مزدوجًا للقفل</string>
     <string name="enable">يُمكَِن</string>
     <string name="disable">إبطال</string>
     <string name="not_working"><u>لا يعمل؟</u></string>
     <string name="info">معلومات</string>
-    <string name="delete">يمسح</string>
+    <string name="delete">حذف</string>
     <string name="text_size">حجم الخط</string>
     <string name="enabled">ممكن</string>
     <string name="disabled">عاجز</string>
