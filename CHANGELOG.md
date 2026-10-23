@@ -1,3 +1,8 @@
+## vv10.7.16
+
+- choreatheme regression fix
+
+
 ## vv10.7.15
 
 - No user-facing changes were mentioned since previous release
