@@ -300,16 +300,23 @@ fun SettingsScreen(
             val field = currentField
             val meta = field?.meta
             if (field != null && meta != null) {
-                val selectedIndex = (field.get(uiState) as? Int) ?: 0
+                val selectedIndex = field.toUiDropdownIndex(uiState)
+                    ?: (field.get(uiState) as? Int) ?: 0
 
                 DropdownSettingDialog(
                     title = meta.resolvedTitle(stringProvider),
-                    options = meta.resolvedOptions(stringProvider),
+                    options = meta.dropdownLabels(field, stringProvider),
                     selectedIndex = selectedIndex,
                     onDismiss = { showingDialog = null },
                     onOptionSelected = { index ->
                         coroutineScope.launch {
-                            viewModel.updateSetting(field.name, index)
+                            val current = field.get(uiState)
+                            if (current is Int) {
+                                viewModel.updateSetting(field.name, index)
+                            } else {
+                                field.fromUiDropdownIndex(index)
+                                    ?.let { viewModel.updateSetting(field.name, it) }
+                            }
                             showingDialog = null
                         }
                     }
@@ -554,8 +561,9 @@ fun SettingsScreen(
 
 
                                         Dropdown::class -> {
-                                            val idx = (field.get(uiState) as? Int) ?: 0
-                                            val options = meta.resolvedOptions(stringProvider)
+                                            val idx = field.toUiDropdownIndex(uiState)
+                                                ?: (field.get(uiState) as? Int) ?: 0
+                                            val options = meta.dropdownLabels(field, stringProvider)
                                             val displayText = options.getOrNull(idx) ?: "Unknown"
 
                                             SettingsItem(
