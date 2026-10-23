@@ -29,7 +29,9 @@ import app.cclauncher.helper.isDarkThemeOn
 import app.cclauncher.helper.isEinkDisplay
 import app.cclauncher.helper.setPlainWallpaper
 import app.cclauncher.helper.setPlainWallpaperLightGrey
+import app.cclauncher.helper.appThemeToCompatDelegate
 import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.AppTheme
 import app.cclauncher.settings.applyAppLocale
 import app.cclauncher.ui.CLauncherNavigation
 import app.cclauncher.ui.UiEvent
@@ -142,10 +144,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
             if (isEinkDisplay()) {
-                settingsRepository.setAppTheme(AppCompatDelegate.MODE_NIGHT_NO)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                settingsRepository.setAppTheme(AppTheme.Light)
+                AppCompatDelegate.setDefaultNightMode(appThemeToCompatDelegate(AppTheme.Light))
             } else {
-                AppCompatDelegate.setDefaultNightMode(settings.appTheme)
+                AppCompatDelegate.setDefaultNightMode(appThemeToCompatDelegate(settings.appTheme))
             }
         }
 
@@ -256,7 +258,7 @@ class MainActivity : AppCompatActivity() {
         super.onConfigurationChanged(newConfig)
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
-            AppCompatDelegate.setDefaultNightMode(settings.appTheme)
+            AppCompatDelegate.setDefaultNightMode(appThemeToCompatDelegate(settings.appTheme))
 
             try {
                 updateStatusBarVisibility(this@MainActivity, settings.statusBar)

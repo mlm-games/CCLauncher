@@ -3,8 +3,8 @@ package app.cclauncher
 import android.app.Activity
 import android.os.Build
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import app.cclauncher.settings.AppTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -216,9 +216,9 @@ fun CLauncherTheme(
 
     val appTheme = settings.appTheme
     val darkTheme = when (appTheme) {
-        AppCompatDelegate.MODE_NIGHT_YES -> true
-        AppCompatDelegate.MODE_NIGHT_NO -> false
-        else -> isSystemInDarkTheme() // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        AppTheme.Dark -> true
+        AppTheme.Light -> false
+        AppTheme.System -> isSystemInDarkTheme()
     }
 
     val dynamicColor = settings.useDynamicTheme

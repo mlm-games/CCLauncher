@@ -1,6 +1,5 @@
 package app.cclauncher.settings
 
-import androidx.appcompat.app.AppCompatDelegate
 import app.cclauncher.data.Constants
 import kotlinx.serialization.Serializable
 import app.cclauncher.data.HomeLayout
@@ -18,6 +17,9 @@ import io.github.mlmgames.settings.core.types.Dropdown
 import io.github.mlmgames.settings.core.types.SettingTypeMarker
 import io.github.mlmgames.settings.core.types.Slider
 import io.github.mlmgames.settings.core.types.Toggle
+
+@Serializable
+enum class AppTheme { System, Light, Dark }
 
 @SchemaVersion(1)
 data class AppSettings(
@@ -167,7 +169,7 @@ data class AppSettings(
         optionsKey = CClauncherSettingsKeys.SETTING_APPTHEME_OPTIONS,
         key = "APP_THEME",
     )
-    val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
+    val appTheme: AppTheme = AppTheme.Dark,
 
     @Setting(
         title = "Home Text Size",

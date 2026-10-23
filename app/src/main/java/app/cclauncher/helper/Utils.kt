@@ -216,11 +216,11 @@ fun setPlainWallpaper(context: Context, color: Int) {
     }
 }
 
-fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
+fun setPlainWallpaperByTheme(context: Context, appTheme: app.cclauncher.settings.AppTheme) {
     when (appTheme) {
-        AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
-        AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaperLightGrey(context)
-        else -> {
+        app.cclauncher.settings.AppTheme.Dark -> setPlainWallpaper(context, android.R.color.black)
+        app.cclauncher.settings.AppTheme.Light -> setPlainWallpaperLightGrey(context)
+        app.cclauncher.settings.AppTheme.System -> {
             if (context.isDarkThemeOn())
                 setPlainWallpaper(context, android.R.color.black)
             else setPlainWallpaperLightGrey(context)
@@ -252,6 +252,21 @@ fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
         }
     }
 }
+
+fun appThemeToCompatDelegate(appTheme: app.cclauncher.settings.AppTheme): Int =
+    when (appTheme) {
+        app.cclauncher.settings.AppTheme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        app.cclauncher.settings.AppTheme.Light -> AppCompatDelegate.MODE_NIGHT_NO
+        app.cclauncher.settings.AppTheme.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+    }
+
+fun compatDelegateToAppTheme(mode: Int): app.cclauncher.settings.AppTheme =
+    when (mode) {
+        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> app.cclauncher.settings.AppTheme.System
+        AppCompatDelegate.MODE_NIGHT_NO -> app.cclauncher.settings.AppTheme.Light
+        AppCompatDelegate.MODE_NIGHT_YES -> app.cclauncher.settings.AppTheme.Dark
+        else -> app.cclauncher.settings.AppTheme.System
+    }
 
 fun openAppInfo(context: Context, app: AppModel) {
     val launcher = context.applicationContext.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps

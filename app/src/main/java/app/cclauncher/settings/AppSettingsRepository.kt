@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import app.cclauncher.data.Constants
 import app.cclauncher.data.HomeLayout
+import app.cclauncher.settings.AppTheme
 import io.github.mlmgames.settings.core.SettingsRepository
 import io.github.mlmgames.settings.core.backup.DeviceInfo
 import io.github.mlmgames.settings.core.backup.ExportResult
@@ -301,7 +302,7 @@ class AppSettingsRepository(private val context: Context) {
     }
 
     suspend fun setFirstOpen(value: Boolean) = repo.set("firstOpen", value)
-    suspend fun setAppTheme(value: Int) = repo.set("appTheme", value)
+    suspend fun setAppTheme(value: AppTheme) = repo.set("appTheme", value)
 
     // Import/Export functionality
     suspend fun exportSettings(): ExportResult {
