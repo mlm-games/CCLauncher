@@ -1,3 +1,8 @@
+## vv10.7.14
+
+- No user-facing changes were mentioned since previous release
+
+
 ## vv10.7.13
 
 - fix fdroid repro issue
