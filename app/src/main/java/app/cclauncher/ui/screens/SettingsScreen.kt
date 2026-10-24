@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +19,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,12 +47,20 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.cclauncher.MainViewModel
 import app.cclauncher.R
@@ -117,6 +132,9 @@ fun SettingsScreen(
 
     val schema = remember { AppSettingsSchema }
 
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+
     // Dialog states (now track a SettingField instead of KProperty/annotations)
     var showingDialog by remember { mutableStateOf<String?>(null) }
     var currentField by remember { mutableStateOf<SettingField<AppSettings, *>?>(null) }
@@ -173,8 +191,13 @@ fun SettingsScreen(
     val refreshTrigger by mainViewModel.refreshTrigger.collectAsState()
 
     BackHandler(onBack = {
-        viewModel.resetUnlockState()
-        onNavigateBack()
+        if (searchOpen) {
+            searchOpen = false
+            searchQuery = ""
+        } else {
+            viewModel.resetUnlockState()
+            onNavigateBack()
+        }
     })
 
     if (showLockDialog) {
@@ -379,13 +402,41 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = {
+                    if (searchOpen) {
+                        SettingsSearchField(
+                            query = searchQuery,
+                            onQueryChange = { searchQuery = it }
+                        )
+                    } else {
+                        Text("Settings")
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(
+                        onClick = {
+                            if (searchOpen) {
+                                searchOpen = false
+                                searchQuery = ""
+                            } else {
+                                onNavigateBack()
+                            }
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    if (!searchOpen && !effectiveLockState) {
+                        IconButton(onClick = { searchOpen = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search settings"
+                            )
+                        }
                     }
                 }
             )
@@ -452,6 +503,30 @@ fun SettingsScreen(
             return@Scaffold
         }
 
+        val searchTerms = searchQuery.trim().lowercase().split(' ').filter { it.isNotBlank() }
+        val matchingFieldNames = remember(searchTerms, schema, stringProvider) {
+            if (searchTerms.isEmpty()) {
+                null
+            } else {
+                schema.fields
+                    .filter { field ->
+                        val meta = field.meta ?: return@filter false
+                        val categoryTitle = schema.categoryTitleKeys[meta.category]
+                            ?.let { stringProvider.getString(it) }
+                            ?: meta.category.simpleName.orEmpty()
+                        val haystack = buildString {
+                            append(meta.resolvedTitle(stringProvider))
+                            append(' ')
+                            append(meta.resolvedDescription(stringProvider))
+                            append(' ')
+                            append(categoryTitle)
+                        }.lowercase()
+                        searchTerms.all { it in haystack }
+                    }
+                    .mapTo(mutableSetOf()) { it.name }
+            }
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -460,8 +535,38 @@ fun SettingsScreen(
             val grouped = schema.groupedByCategory()
             val categories = schema.orderedCategories()
 
+            if (matchingFieldNames != null && matchingFieldNames.isEmpty()) {
+                item(key = "search_empty") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SearchOff,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "No settings found",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Try a different search",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
             for (category: KClass<*> in categories) {
                 val categoryFields = grouped[category].orEmpty()
+                    .filter { matchingFieldNames == null || it.name in matchingFieldNames }
                 if (categoryFields.isEmpty()) continue
 
                 item(key = "cat_${category.qualifiedName ?: category.simpleName}") {
@@ -912,4 +1017,59 @@ fun isAccessServiceEnabled(context: Context): Boolean {
 fun isClauncherDefault(context: Context): Boolean {
     val permissionManager = PermissionManager(context)
     return permissionManager.isDefaultLauncher()
+}
+
+@Composable
+private fun SettingsSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
+    DisposableEffect(Unit) {
+        onDispose { keyboard?.hide() }
+    }
+    BasicTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester),
+        textStyle = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium,
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+        decorationBox = { innerTextField ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.weight(1f)) {
+                    if (query.isEmpty()) {
+                        Text(
+                            text = "Search settings",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    innerTextField()
+                }
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { onQueryChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear search"
+                        )
+                    }
+                }
+            }
+        },
+    )
 }
