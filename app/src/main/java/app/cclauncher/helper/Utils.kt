@@ -40,6 +40,7 @@ import app.cclauncher.data.AppKey
 import app.cclauncher.data.AppModel
 import app.cclauncher.data.Constants
 import app.cclauncher.settings.AppSettingsRepository
+import app.cclauncher.settings.AppTheme
 import app.cclauncher.ui.theme.AnimationConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -216,11 +217,11 @@ fun setPlainWallpaper(context: Context, color: Int) {
     }
 }
 
-fun setPlainWallpaperByTheme(context: Context, appTheme: app.cclauncher.settings.AppTheme) {
+fun setPlainWallpaperByTheme(context: Context, appTheme: AppTheme) {
     when (appTheme) {
-        app.cclauncher.settings.AppTheme.Dark -> setPlainWallpaper(context, android.R.color.black)
-        app.cclauncher.settings.AppTheme.Light -> setPlainWallpaperLightGrey(context)
-        app.cclauncher.settings.AppTheme.System -> {
+        AppTheme.Dark -> setPlainWallpaper(context, android.R.color.black)
+        AppTheme.Light -> setPlainWallpaperLightGrey(context)
+        AppTheme.System -> {
             if (context.isDarkThemeOn())
                 setPlainWallpaper(context, android.R.color.black)
             else setPlainWallpaperLightGrey(context)
@@ -253,19 +254,19 @@ fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
     }
 }
 
-fun appThemeToCompatDelegate(appTheme: app.cclauncher.settings.AppTheme): Int =
+fun appThemeToCompatDelegate(appTheme: AppTheme): Int =
     when (appTheme) {
-        app.cclauncher.settings.AppTheme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        app.cclauncher.settings.AppTheme.Light -> AppCompatDelegate.MODE_NIGHT_NO
-        app.cclauncher.settings.AppTheme.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+        AppTheme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        AppTheme.Light -> AppCompatDelegate.MODE_NIGHT_NO
+        AppTheme.Dark -> AppCompatDelegate.MODE_NIGHT_YES
     }
 
-fun compatDelegateToAppTheme(mode: Int): app.cclauncher.settings.AppTheme =
+fun compatDelegateToAppTheme(mode: Int): AppTheme =
     when (mode) {
-        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> app.cclauncher.settings.AppTheme.System
-        AppCompatDelegate.MODE_NIGHT_NO -> app.cclauncher.settings.AppTheme.Light
-        AppCompatDelegate.MODE_NIGHT_YES -> app.cclauncher.settings.AppTheme.Dark
-        else -> app.cclauncher.settings.AppTheme.System
+        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> AppTheme.System
+        AppCompatDelegate.MODE_NIGHT_NO -> AppTheme.Light
+        AppCompatDelegate.MODE_NIGHT_YES -> AppTheme.Dark
+        else -> AppTheme.System
     }
 
 fun openAppInfo(context: Context, app: AppModel) {

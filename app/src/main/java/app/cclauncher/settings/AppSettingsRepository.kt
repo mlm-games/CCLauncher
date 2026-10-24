@@ -5,9 +5,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import app.cclauncher.data.Constants
 import app.cclauncher.data.HomeLayout
-import app.cclauncher.settings.AppTheme
+import io.github.mlmgames.settings.core.PreferenceKind
 import io.github.mlmgames.settings.core.SettingsRepository
 import io.github.mlmgames.settings.core.backup.DeviceInfo
 import io.github.mlmgames.settings.core.backup.ExportResult
@@ -16,9 +17,11 @@ import io.github.mlmgames.settings.core.backup.ImportResult
 import io.github.mlmgames.settings.core.backup.SettingsBackupManager
 import io.github.mlmgames.settings.core.backup.ValidationResult
 import io.github.mlmgames.settings.core.datastore.createSettingsDataStore
+import io.github.mlmgames.settings.core.managers.MigrationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -36,7 +39,27 @@ class AppSettingsRepository(private val context: Context) {
 
     private val appContext = context.applicationContext
     private val dataStore = createSettingsDataStore(appContext, name = "app.cclauncher.settings")
-    private val repo = SettingsRepository(dataStore, AppSettingsSchema)
+    private val repo = run {
+        runBlocking(Dispatchers.IO) {
+            MigrationManager(dataStore, currentVersion = 1, schema = AppSettingsSchema)
+                .addValueTransform(
+                    fromVersion = 0,
+                    toVersion = 1,
+                    oldKey = "APP_THEME",
+                    oldKind = PreferenceKind.INT,
+                    newField = "appTheme",
+                ) { oldValue ->
+                    when (oldValue as? Int) {
+                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> AppTheme.System.name
+                        AppCompatDelegate.MODE_NIGHT_NO -> AppTheme.Light.name
+                        AppCompatDelegate.MODE_NIGHT_YES -> AppTheme.Dark.name
+                        else -> AppTheme.System.name
+                    }
+                }
+                .migrate()
+        }
+        SettingsRepository(dataStore, AppSettingsSchema)
+    }
 
     private val backupManager by lazy {
         val packageInfo = try {
