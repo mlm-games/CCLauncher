@@ -1,3 +1,8 @@
+## vv10.7.17
+
+- fix prev rel. crash for non-new installs
+
+
 ## vv10.7.16
 
 - choreatheme regression fix

@@ -1,0 +1,1 @@
+- fix prev rel. crash for non-new installs
