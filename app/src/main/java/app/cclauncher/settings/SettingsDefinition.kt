@@ -504,6 +504,20 @@ data class AppSettings(
     val searchResultsAlignment: Int = 0,
 
     @Setting(
+        title = "App Drawer Background Opacity",
+        titleKey = CClauncherSettingsKeys.SETTING_APP_DRAWER_BACKGROUND_OPACITY,
+        description = "Tint the app drawer with the theme background color, from 0% (fully transparent) to 100% (solid)",
+        descriptionKey = CClauncherSettingsKeys.SETTING_APP_DRAWER_BACKGROUND_OPACITY_DESC,
+        category = Appearance::class,
+        type = Slider::class,
+        min = 0f,
+        max = 100f,
+        step = 1f,
+        key = "APP_DRAWER_BACKGROUND_OPACITY",
+    )
+    val appDrawerBackgroundOpacity: Int = 0,
+
+    @Setting(
         title = "Reverse Search Results",
         titleKey = CClauncherSettingsKeys.SETTING_REVERSE_SEARCH_RESULTS,
         description = "Display results bottom-to-top",

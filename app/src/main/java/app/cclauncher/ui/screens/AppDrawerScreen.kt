@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -265,6 +266,7 @@ fun AppDrawerScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background.copy(alpha = settings.appDrawerBackgroundOpacity / 100f))
             .detectSwipeGestures(
                 sensitivity = settings.gestureSensitivity,
                 onSwipeDown = { // General swipe down (anywhere) to trigger onSwipeDown action (e.g., go home)

@@ -173,6 +173,8 @@
     <string name="settings">Settings</string>
     <string name="setting_adjust_how_easily_swipe_gestures_are_triggered_desc">Adjust how easily swipe gestures are triggered</string>
     <string name="setting_align_app_names_on_the_home_screen_desc">Align app names on the home screen</string>
+    <string name="setting_app_drawer_background_opacity">App Drawer Background Opacity</string>
+    <string name="setting_app_drawer_background_opacity_desc">Tint the app drawer with the theme background color, from 0% (fully transparent) to 100% (solid)</string>
     <string name="setting_app_drawer_results_alignment">App Drawer Results Alignment</string>
     <string name="setting_auto_open_single_matches">Auto Open Single Matches</string>
     <string name="setting_auto_show_keyboard">Auto Show Keyboard</string>
