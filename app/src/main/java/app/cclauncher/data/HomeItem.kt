@@ -38,7 +38,34 @@ sealed class HomeItem {
         override val column: Int,
         override val rowSpan: Int,
         override val columnSpan: Int,
-    ) : HomeItem()
+    ) : HomeItem() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Widget) return false
+            return id == other.id &&
+                page == other.page &&
+                appWidgetId == other.appWidgetId &&
+                packageName == other.packageName &&
+                providerClassName == other.providerClassName &&
+                row == other.row &&
+                column == other.column &&
+                rowSpan == other.rowSpan &&
+                columnSpan == other.columnSpan
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + page
+            result = 31 * result + appWidgetId
+            result = 31 * result + packageName.hashCode()
+            result = 31 * result + providerClassName.hashCode()
+            result = 31 * result + row
+            result = 31 * result + column
+            result = 31 * result + rowSpan
+            result = 31 * result + columnSpan
+            return result
+        }
+    }
 }
 
 @Serializable

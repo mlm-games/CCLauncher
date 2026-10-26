@@ -34,6 +34,31 @@ data class AppModel(
         else -> appLabel.compareTo(other.appLabel, ignoreCase = true)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AppModel) return false
+        return appLabel == other.appLabel &&
+            appPackage == other.appPackage &&
+            activityClassName == other.activityClassName &&
+            isHidden == other.isHidden &&
+            userString == other.userString &&
+            isSystemShortcut == other.isSystemShortcut &&
+            systemShortcutId == other.systemShortcutId &&
+            systemShortcutPackage == other.systemShortcutPackage
+    }
+
+    override fun hashCode(): Int {
+        var result = appLabel.hashCode()
+        result = 31 * result + appPackage.hashCode()
+        result = 31 * result + (activityClassName?.hashCode() ?: 0)
+        result = 31 * result + isHidden.hashCode()
+        result = 31 * result + userString.hashCode()
+        result = 31 * result + isSystemShortcut.hashCode()
+        result = 31 * result + (systemShortcutId?.hashCode() ?: 0)
+        result = 31 * result + (systemShortcutPackage?.hashCode() ?: 0)
+        return result
+    }
+
     fun getKey(): String = if (isSystemShortcut) {
         AppKey.shortcutKey(systemShortcutPackage, systemShortcutId, userString)
     } else {
