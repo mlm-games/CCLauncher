@@ -1,3 +1,8 @@
+## vv10.7.19
+
+- fix stale shortcut home layout crash
+
+
 ## vv10.7.18
 
 - Add app drawer opacity
