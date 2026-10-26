@@ -1,0 +1,2 @@
+- Add app drawer opacity
+- Searchable settings

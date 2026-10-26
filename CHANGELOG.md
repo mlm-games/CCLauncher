@@ -1,3 +1,9 @@
+## vv10.7.18
+
+- Add app drawer opacity
+- Searchable settings
+
+
 ## vv10.7.17
 
 - fix prev rel. crash for non-new installs

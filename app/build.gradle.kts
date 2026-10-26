@@ -32,8 +32,8 @@ android {
         applicationId = "app.cclauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1420
-        versionName = "v10.7.17"
+        versionCode = 1430
+        versionName = "v10.7.18"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
