@@ -1,3 +1,8 @@
+## vv10.7.20
+
+- fix widget host inflation and sizing
+
+
 ## vv10.7.19
 
 - fix stale shortcut home layout crash
