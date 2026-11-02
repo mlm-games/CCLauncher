@@ -713,18 +713,17 @@ class MainViewModel(
     private fun addWidgetToLayout(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
-                // getScreenDimensions returns pixels; convert to dp for minWidth/minHeight (dp) math.
                 val density = appContext.resources.displayMetrics.density
                 val (screenWidthPx, screenHeightPx) = getScreenDimensions(context = appContext)
-                val screenWidthDp = screenWidthPx / density
-                val screenHeightDp = screenHeightPx / density
-
                 val currentLayout = _homeLayoutState.value
-                val cellWidthDp = screenWidthDp / currentLayout.columns
-                val cellHeightDp = screenHeightDp / currentLayout.rows
+                val gridPaddingPx = (16 * density).toInt() * 2
+                val cellWidthPx = ((screenWidthPx - gridPaddingPx) / currentLayout.columns).coerceAtLeast(1)
+                val cellHeightPx = ((screenHeightPx - gridPaddingPx) / currentLayout.rows).coerceAtLeast(1)
 
-                val widgetWidthCells = 1.coerceAtLeast(ceil(providerInfo.minWidth.toDouble() / cellWidthDp).toInt())
-                val widgetHeightCells = 1.coerceAtLeast(ceil(providerInfo.minHeight.toDouble() / cellHeightDp).toInt())
+                val widgetWidthCells = ceil(providerInfo.minWidth.toDouble() / cellWidthPx).toInt()
+                    .coerceIn(1, currentLayout.columns)
+                val widgetHeightCells = ceil(providerInfo.minHeight.toDouble() / cellHeightPx).toInt()
+                    .coerceIn(1, currentLayout.rows)
 
                 var targetPage = _currentPage.value
                 var nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells, targetPage)
@@ -763,11 +762,13 @@ class MainViewModel(
                     val newItems = _homeLayoutState.value.items + widgetItem
                     settingsRepository.saveHomeLayout(_homeLayoutState.value.copy(items = newItems))
 
+                    val widgetWidthDp = (cellWidthPx * widgetWidthCells / density).toInt()
+                    val widgetHeightDp = (cellHeightPx * widgetHeightCells / density).toInt()
                     val options = Bundle().apply {
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, providerInfo.minWidth)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, providerInfo.minWidth)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, providerInfo.minHeight)
-                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, providerInfo.minHeight)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, widgetWidthDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, widgetWidthDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, widgetHeightDp)
+                        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, widgetHeightDp)
                     }
                     appWidgetManager.updateAppWidgetOptions(appWidgetId, options)
                     // No triggerHomeLayoutRefresh(): layout was already saved above and icons

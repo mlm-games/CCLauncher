@@ -19,11 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import app.cclauncher.helper.BitmapUtils.drawableToBitmap
+import kotlin.math.roundToInt
 
 data class WidgetListItem(
     val appName: String,
@@ -109,6 +111,7 @@ private fun WidgetInfoItem(
     onClick: () -> Unit
 ) {
     val pm = context.packageManager
+    val density = LocalDensity.current.density
     var previewImage by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(widgetInfo) {
@@ -145,7 +148,7 @@ private fun WidgetInfoItem(
                 maxLines = 1
             )
             Text(
-                text = "${widgetInfo.minWidth}x${widgetInfo.minHeight}dp", // Show min size info
+                text = "${(widgetInfo.minWidth / density).roundToInt()}x${(widgetInfo.minHeight / density).roundToInt()}dp",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

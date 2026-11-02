@@ -42,7 +42,8 @@ fun WidgetHostViewContainer(
     onLongPress: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val widgetManager = AppWidgetManager.getInstance(context)
+    val widgetContext = remember(context) { context.applicationContext }
+    val widgetManager = AppWidgetManager.getInstance(widgetContext)
     var errorLoading by remember { mutableStateOf(false) }
 
     // Track touch state for manual handling
@@ -59,7 +60,7 @@ fun WidgetHostViewContainer(
     // Create the widget view
     val widgetView = remember(appWidgetId) {
         try {
-            appWidgetHost.createView(context, appWidgetId, providerInfo)?.apply {
+            appWidgetHost.createView(widgetContext, appWidgetId, providerInfo)?.apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
