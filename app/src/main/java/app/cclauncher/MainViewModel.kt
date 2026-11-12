@@ -490,7 +490,11 @@ class MainViewModel(
                 } else if (currentLayout.pageCount < MAX_PAGES) {
                     // Adds a new page
                     val newLayout = currentLayout.copy(pageCount = currentLayout.pageCount + 1)
+                    _homeLayoutState.value = newLayout
                     settingsRepository.saveHomeLayout(newLayout)
+                    if (currentLayout.pageCount == 1) {
+                        showHorizontalSwipePausedHintIfNeeded()
+                    }
                     addAppToHomeScreen(appModel, currentLayout.pageCount)
                 } else {
                     snackbarManager.show("No space available on any home screen page.")
@@ -726,6 +730,7 @@ class MainViewModel(
                     .coerceIn(1, currentLayout.rows)
 
                 var targetPage = _currentPage.value
+                var workingLayout = currentLayout
                 var nextPos = findNextAvailableGridPosition(currentLayout, widgetWidthCells, widgetHeightCells, targetPage)
 
                 if (nextPos == null) {
@@ -742,8 +747,11 @@ class MainViewModel(
 
                 if (nextPos == null && currentLayout.pageCount < MAX_PAGES) {
                     targetPage = currentLayout.pageCount
-                    val expandedLayout = currentLayout.copy(pageCount = currentLayout.pageCount + 1)
-                    settingsRepository.saveHomeLayout(expandedLayout)
+                    workingLayout = currentLayout.copy(pageCount = currentLayout.pageCount + 1)
+                    settingsRepository.saveHomeLayout(workingLayout)
+                    if (currentLayout.pageCount == 1) {
+                        showHorizontalSwipePausedHintIfNeeded()
+                    }
                     nextPos = Pair(0, 0)
                 }
 
@@ -759,8 +767,10 @@ class MainViewModel(
                         rowSpan = widgetHeightCells,
                         columnSpan = widgetWidthCells
                     )
-                    val newItems = _homeLayoutState.value.items + widgetItem
-                    settingsRepository.saveHomeLayout(_homeLayoutState.value.copy(items = newItems))
+                    val newItems = workingLayout.items + widgetItem
+                    val updatedLayout = workingLayout.copy(items = newItems)
+                    _homeLayoutState.value = updatedLayout
+                    settingsRepository.saveHomeLayout(updatedLayout)
 
                     val widgetWidthDp = (cellWidthPx * widgetWidthCells / density).toInt()
                     val widgetHeightDp = (cellHeightPx * widgetHeightCells / density).toInt()
@@ -853,6 +863,9 @@ class MainViewModel(
 
             val newLayout = workingLayout.copy(items = updatedItems)
             settingsRepository.saveHomeLayout(newLayout)
+            if (currentLayout.pageCount == 1 && newPageCount > 1) {
+                showHorizontalSwipePausedHintIfNeeded()
+            }
             _currentPage.value = targetPage
         }
     }
@@ -917,14 +930,14 @@ class MainViewModel(
         }
     }
 
-    fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
+    fun moveApp(appItem: HomeItem.App, targetPage: Int, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
 
             if (!validateAndReport(
                     currentLayout,
                     appItem.id,
-                    appItem.page,
+                    targetPage,
                     newRow,
                     newColumn,
                     appItem.rowSpan,
@@ -934,7 +947,7 @@ class MainViewModel(
 
             val updatedItems = currentLayout.items.map { item ->
                 if (item.id == appItem.id && item is HomeItem.App) {
-                    item.copy(row = newRow, column = newColumn)
+                    item.copy(page = targetPage, row = newRow, column = newColumn)
                 } else item
             }
 
@@ -1270,6 +1283,10 @@ class MainViewModel(
             Constants.FLAG_SET_SWIPE_RIGHT_APP -> setSwipeRightApp(appModel)
             Constants.FLAG_SET_SWIPE_UP_APP -> setSwipeUpApp(appModel)
             Constants.FLAG_SET_SWIPE_DOWN_APP -> setSwipeDownApp(appModel)
+            Constants.FLAG_SET_TWO_FINGER_SWIPE_LEFT_APP -> setTwoFingerSwipeLeftApp(appModel)
+            Constants.FLAG_SET_TWO_FINGER_SWIPE_RIGHT_APP -> setTwoFingerSwipeRightApp(appModel)
+            Constants.FLAG_SET_TWO_FINGER_SWIPE_UP_APP -> setTwoFingerSwipeUpApp(appModel)
+            Constants.FLAG_SET_TWO_FINGER_SWIPE_DOWN_APP -> setTwoFingerSwipeDownApp(appModel)
         }
     }
 
@@ -1289,15 +1306,26 @@ class MainViewModel(
                 SwipeDirection.RIGHT -> settingsRepository.setSwipeRightApp(appPreference)
                 SwipeDirection.UP -> settingsRepository.setSwipeUpApp(appPreference)
                 SwipeDirection.DOWN -> settingsRepository.setSwipeDownApp(appPreference)
+                SwipeDirection.TWO_FINGER_LEFT -> settingsRepository.setTwoFingerSwipeLeftApp(appPreference)
+                SwipeDirection.TWO_FINGER_RIGHT -> settingsRepository.setTwoFingerSwipeRightApp(appPreference)
+                SwipeDirection.TWO_FINGER_UP -> settingsRepository.setTwoFingerSwipeUpApp(appPreference)
+                SwipeDirection.TWO_FINGER_DOWN -> settingsRepository.setTwoFingerSwipeDownApp(appPreference)
             }
         }
     }
 
-    private enum class SwipeDirection { LEFT, RIGHT, UP, DOWN }
+    private enum class SwipeDirection {
+        LEFT, RIGHT, UP, DOWN,
+        TWO_FINGER_LEFT, TWO_FINGER_RIGHT, TWO_FINGER_UP, TWO_FINGER_DOWN
+    }
 
     private fun setSwipeLeftApp(app: AppModel) = setSwipeApp(app, SwipeDirection.LEFT)
 
     private fun setSwipeRightApp(app: AppModel) = setSwipeApp(app, SwipeDirection.RIGHT)
+
+    private fun setTwoFingerSwipeLeftApp(app: AppModel) = setSwipeApp(app, SwipeDirection.TWO_FINGER_LEFT)
+
+    private fun setTwoFingerSwipeRightApp(app: AppModel) = setSwipeApp(app, SwipeDirection.TWO_FINGER_RIGHT)
 
     private fun launchSwipeApp(pref: AppPreference) {
         if (pref.packageName.isEmpty()) return
@@ -1340,9 +1368,56 @@ class MainViewModel(
         }
     }
 
+    fun launchTwoFingerSwipeUpApp() {
+        viewModelScope.launch {
+            launchSwipeApp(settingsRepository.settings.first().twoFingerSwipeUpApp)
+        }
+    }
+
+    fun launchTwoFingerSwipeDownApp() {
+        viewModelScope.launch {
+            launchSwipeApp(settingsRepository.settings.first().twoFingerSwipeDownApp)
+        }
+    }
+
+    fun launchTwoFingerSwipeLeftApp() {
+        viewModelScope.launch {
+            launchSwipeApp(settingsRepository.settings.first().twoFingerSwipeLeftApp)
+        }
+    }
+
+    fun launchTwoFingerSwipeRightApp() {
+        viewModelScope.launch {
+            launchSwipeApp(settingsRepository.settings.first().twoFingerSwipeRightApp)
+        }
+    }
+
     private fun setSwipeUpApp(app: AppModel) = setSwipeApp(app, SwipeDirection.UP)
 
     private fun setSwipeDownApp(app: AppModel) = setSwipeApp(app, SwipeDirection.DOWN)
+
+    private fun setTwoFingerSwipeUpApp(app: AppModel) = setSwipeApp(app, SwipeDirection.TWO_FINGER_UP)
+
+    private fun setTwoFingerSwipeDownApp(app: AppModel) = setSwipeApp(app, SwipeDirection.TWO_FINGER_DOWN)
+
+    private suspend fun showHorizontalSwipePausedHintIfNeeded() {
+        try {
+            val settings = settingsRepository.settings.first()
+            val horizontalActions = listOf(settings.swipeLeftAction, settings.swipeRightAction)
+            val hasShortcut = horizontalActions.any {
+                it == Constants.SwipeAction.SEARCH ||
+                    it == Constants.SwipeAction.NOTIFICATIONS ||
+                    it == Constants.SwipeAction.APP
+            }
+            if (hasShortcut) {
+                snackbarManager.show(appContext.getString(R.string.swipe_pages_paused_hint))
+            }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w("MainViewModel", "Could not show swipe hint", e)
+        }
+    }
 
     fun setCurrentPage(page: Int) {
         val layout = _homeLayoutState.value
@@ -1518,14 +1593,14 @@ class MainViewModel(
         )
     }
 
-    fun moveWidget(widgetItem: HomeItem.Widget, newRow: Int, newColumn: Int) {
+    fun moveWidget(widgetItem: HomeItem.Widget, targetPage: Int, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
 
             if (!validateAndReport(
                     currentLayout,
                     widgetItem.id,
-                    widgetItem.page,
+                    targetPage,
                     newRow,
                     newColumn,
                     widgetItem.rowSpan,
@@ -1535,7 +1610,7 @@ class MainViewModel(
 
             val updatedItems = currentLayout.items.map { item ->
                 if (item.id == widgetItem.id && item is HomeItem.Widget) {
-                    item.copy(row = newRow, column = newColumn)
+                    item.copy(page = targetPage, row = newRow, column = newColumn)
                 } else item
             }
 

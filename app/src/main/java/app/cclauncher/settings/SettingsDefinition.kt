@@ -567,6 +567,8 @@ data class AppSettings(
         category = Gestures::class,
         type = AppPicker::class,
         key = "SWIPE_DOWN_APP_JSON",
+        dependsOn = "swipeDownAction",
+        dependsOnValue = "3",
     )
     @Serialized
     val swipeDownApp: AppPreference = AppPreference(),
@@ -587,6 +589,8 @@ data class AppSettings(
         category = Gestures::class,
         type = AppPicker::class,
         key = "SWIPE_UP_APP_JSON",
+        dependsOn = "swipeUpAction",
+        dependsOnValue = "3",
     )
     @Serialized
     val swipeUpApp: AppPreference = AppPreference(),
@@ -607,6 +611,8 @@ data class AppSettings(
         category = Gestures::class,
         type = AppPicker::class,
         key = "SWIPE_LEFT_APP_JSON",
+        dependsOn = "swipeLeftAction",
+        dependsOnValue = "3",
     )
     @Serialized
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
@@ -627,9 +633,99 @@ data class AppSettings(
         category = Gestures::class,
         type = AppPicker::class,
         key = "SWIPE_RIGHT_APP_JSON",
+        dependsOn = "swipeRightAction",
+        dependsOnValue = "3",
     )
     @Serialized
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Two-Finger Swipe Up Action",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_UP_ACTION,
+        category = Gestures::class,
+        type = Dropdown::class,
+        optionsKey = CClauncherSettingsKeys.SETTING_SWIPEUPACTION_OPTIONS,
+        key = "TWO_FINGER_SWIPE_UP_ACTION",
+    )
+    val twoFingerSwipeUpAction: Int = Constants.SwipeAction.NULL,
+
+    @Setting(
+        title = "Two-Finger Swipe Up App",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_UP_APP,
+        category = Gestures::class,
+        type = AppPicker::class,
+        key = "TWO_FINGER_SWIPE_UP_APP_JSON",
+        dependsOn = "twoFingerSwipeUpAction",
+        dependsOnValue = "3",
+    )
+    @Serialized
+    val twoFingerSwipeUpApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Two-Finger Swipe Down Action",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_DOWN_ACTION,
+        category = Gestures::class,
+        type = Dropdown::class,
+        optionsKey = CClauncherSettingsKeys.SETTING_SWIPEDOWNACTION_OPTIONS,
+        key = "TWO_FINGER_SWIPE_DOWN_ACTION",
+    )
+    val twoFingerSwipeDownAction: Int = Constants.SwipeAction.NULL,
+
+    @Setting(
+        title = "Two-Finger Swipe Down App",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_DOWN_APP,
+        category = Gestures::class,
+        type = AppPicker::class,
+        key = "TWO_FINGER_SWIPE_DOWN_APP_JSON",
+        dependsOn = "twoFingerSwipeDownAction",
+        dependsOnValue = "3",
+    )
+    @Serialized
+    val twoFingerSwipeDownApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Two-Finger Swipe Left Action",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_LEFT_ACTION,
+        category = Gestures::class,
+        type = Dropdown::class,
+        optionsKey = CClauncherSettingsKeys.SETTING_SWIPELEFTACTION_OPTIONS,
+        key = "TWO_FINGER_SWIPE_LEFT_ACTION",
+    )
+    val twoFingerSwipeLeftAction: Int = Constants.SwipeAction.NULL,
+
+    @Setting(
+        title = "Two-Finger Swipe Left App",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_LEFT_APP,
+        category = Gestures::class,
+        type = AppPicker::class,
+        key = "TWO_FINGER_SWIPE_LEFT_APP_JSON",
+        dependsOn = "twoFingerSwipeLeftAction",
+        dependsOnValue = "3",
+    )
+    @Serialized
+    val twoFingerSwipeLeftApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Two-Finger Swipe Right Action",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_RIGHT_ACTION,
+        category = Gestures::class,
+        type = Dropdown::class,
+        optionsKey = CClauncherSettingsKeys.SETTING_SWIPERIGHTACTION_OPTIONS,
+        key = "TWO_FINGER_SWIPE_RIGHT_ACTION",
+    )
+    val twoFingerSwipeRightAction: Int = Constants.SwipeAction.NULL,
+
+    @Setting(
+        title = "Two-Finger Swipe Right App",
+        titleKey = CClauncherSettingsKeys.SETTING_TWO_FINGER_SWIPE_RIGHT_APP,
+        category = Gestures::class,
+        type = AppPicker::class,
+        key = "TWO_FINGER_SWIPE_RIGHT_APP_JSON",
+        dependsOn = "twoFingerSwipeRightAction",
+        dependsOnValue = "3",
+    )
+    @Serialized
+    val twoFingerSwipeRightApp: AppPreference = AppPreference(),
 
     @Persisted(key = "FIRST_OPEN") val firstOpen: Boolean = true,
     @Persisted(key = "FIRST_OPEN_TIME") val firstOpenTime: Long = 0L,

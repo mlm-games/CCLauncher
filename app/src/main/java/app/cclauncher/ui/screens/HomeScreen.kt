@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +71,8 @@ import app.cclauncher.ui.composables.HomeAppItem
 import app.cclauncher.ui.composables.WidgetHostViewContainer
 import app.cclauncher.ui.composables.WidgetSizeData
 import app.cclauncher.ui.dialogs.ResizeDialog
+import app.cclauncher.ui.util.SwipeDirection
+import app.cclauncher.ui.util.SwipeGesture
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -106,17 +109,19 @@ fun HomeScreen(
     }
 
     fun goToNextPage() {
-        if (pagerState.currentPage < homeLayoutState.pageCount - 1) {
+        val from = pagerState.targetPage
+        if (from < homeLayoutState.pageCount - 1) {
             coroutineScope.launch {
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                pagerState.animateScrollToPage(from + 1)
             }
         }
     }
 
     fun goToPreviousPage() {
-        if (pagerState.currentPage > 0) {
+        val from = pagerState.targetPage
+        if (from > 0) {
             coroutineScope.launch {
-                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                pagerState.animateScrollToPage(from - 1)
             }
         }
     }
@@ -132,17 +137,50 @@ fun HomeScreen(
         }
     }
 
-    val onSwipeUp: () -> Unit = {
-        handleSwipeAction(settings.swipeUpAction) { viewModel.launchSwipeUpApp() }
-    }
-    val onSwipeDown: () -> Unit = {
-        handleSwipeAction(settings.swipeDownAction) { viewModel.launchSwipeDownApp() }
-    }
-    val onSwipeLeft: () -> Unit = {
-        handleSwipeAction(settings.swipeLeftAction) { viewModel.launchSwipeLeftApp() }
-    }
-    val onSwipeRight: () -> Unit = {
-        handleSwipeAction(settings.swipeRightAction) { viewModel.launchSwipeRightApp() }
+    val onSwipe: (SwipeGesture) -> Unit = { gesture ->
+        if (gesture.fingers >= 2) {
+            when (gesture.direction) {
+                SwipeDirection.Up -> handleSwipeAction(settings.twoFingerSwipeUpAction) {
+                    viewModel.launchTwoFingerSwipeUpApp()
+                }
+                SwipeDirection.Down -> handleSwipeAction(settings.twoFingerSwipeDownAction) {
+                    viewModel.launchTwoFingerSwipeDownApp()
+                }
+                SwipeDirection.Left -> handleSwipeAction(settings.twoFingerSwipeLeftAction) {
+                    viewModel.launchTwoFingerSwipeLeftApp()
+                }
+                SwipeDirection.Right -> handleSwipeAction(settings.twoFingerSwipeRightAction) {
+                    viewModel.launchTwoFingerSwipeRightApp()
+                }
+            }
+        } else {
+            when (gesture.direction) {
+                SwipeDirection.Up -> handleSwipeAction(settings.swipeUpAction) {
+                    viewModel.launchSwipeUpApp()
+                }
+                SwipeDirection.Down -> handleSwipeAction(settings.swipeDownAction) {
+                    viewModel.launchSwipeDownApp()
+                }
+                SwipeDirection.Left -> {
+                    if (homeLayoutState.pageCount > 1) {
+                        goToNextPage()
+                    } else {
+                        handleSwipeAction(settings.swipeLeftAction) {
+                            viewModel.launchSwipeLeftApp()
+                        }
+                    }
+                }
+                SwipeDirection.Right -> {
+                    if (homeLayoutState.pageCount > 1) {
+                        goToPreviousPage()
+                    } else {
+                        handleSwipeAction(settings.swipeRightAction) {
+                            viewModel.launchSwipeRightApp()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     var showAppContextMenu by remember { mutableStateOf<HomeItem.App?>(null) }
@@ -168,19 +206,19 @@ fun HomeScreen(
                 if (event.type == KeyEventType.KeyDown) {
                     when (event.key) {
                         Key.DirectionUp -> {
-                            onSwipeDown()
+                            onSwipe(SwipeGesture(SwipeDirection.Down, 1))
                             true
                         }
                         Key.DirectionDown -> {
-                            onSwipeUp()
+                            onSwipe(SwipeGesture(SwipeDirection.Up, 1))
                             true
                         }
                         Key.DirectionLeft -> {
-                            onSwipeLeft()
+                            onSwipe(SwipeGesture(SwipeDirection.Left, 1))
                             true
                         }
                         Key.DirectionRight -> {
-                            onSwipeRight()
+                            onSwipe(SwipeGesture(SwipeDirection.Right, 1))
                             true
                         }
                         Key.DirectionCenter, Key.Enter -> {
@@ -215,19 +253,16 @@ fun HomeScreen(
                 onDoubleTap = {
                     viewModel.lockScreen()
                 },
-                onSwipeUp = onSwipeUp,
-                onSwipeDown = onSwipeDown,
-                onSwipeLeft = onSwipeLeft,
-                onSwipeRight = onSwipeRight,
+                onSwipe = onSwipe,
                 gestureSensitivity = settings.gestureSensitivity,
-                onMoveToPosition = { item, row, col ->
+                onMoveToPosition = { item, page, row, col ->
                     when (item) {
                         is HomeItem.Widget -> {
-                            viewModel.moveWidget(item, row, col)
+                            viewModel.moveWidget(item, page, row, col)
                             widgetBeingMoved = null
                         }
                         is HomeItem.App -> {
-                            viewModel.moveApp(item, row, col)
+                            viewModel.moveApp(item, page, row, col)
                             appBeingMoved = null
                         }
                     }
@@ -364,12 +399,9 @@ private fun HomeScreenPage(
     onWidgetLongPress: (HomeItem.Widget) -> Unit,
     onEmptyLongPress: () -> Unit,
     onDoubleTap: () -> Unit,
-    onSwipeUp: () -> Unit,
-    onSwipeDown: () -> Unit,
-    onSwipeLeft: () -> Unit,
-    onSwipeRight: () -> Unit,
+    onSwipe: (SwipeGesture) -> Unit,
     gestureSensitivity: Float,
-    onMoveToPosition: (HomeItem, Int, Int) -> Unit,
+    onMoveToPosition: (HomeItem, Int, Int, Int) -> Unit,
     onCancelMovement: () -> Unit
 ) {
     val pageItems = remember(homeLayout.items, page) {
@@ -377,16 +409,17 @@ private fun HomeScreenPage(
     }
 
     val isMoving = widgetBeingMoved != null || appBeingMoved != null
+    val latestOnSwipe = rememberUpdatedState(onSwipe)
+    val stableOnSwipe = remember {
+        { gesture: SwipeGesture -> latestOnSwipe.value(gesture) }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .detectSwipeGestures(
                 sensitivity = gestureSensitivity,
-                onSwipeUp = onSwipeUp,
-                onSwipeDown = onSwipeDown,
-                onSwipeLeft = onSwipeLeft,
-                onSwipeRight = onSwipeRight
+                onSwipe = stableOnSwipe
             )
             .pointerInput(widgetBeingMoved, appBeingMoved) {
                 detectTapGestures(
@@ -416,7 +449,9 @@ private fun HomeScreenPage(
                             val gridPosition = calculateGridPosition(offset, homeLayout, size)
                             if (gridPosition != null) {
                                 val item: HomeItem? = widgetBeingMoved ?: appBeingMoved
-                                item?.let { onMoveToPosition(it, gridPosition.first, gridPosition.second) }
+                                item?.let {
+                                    onMoveToPosition(it, page, gridPosition.first, gridPosition.second)
+                                }
                             }
                         }
                     }

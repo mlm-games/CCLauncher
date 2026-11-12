@@ -228,6 +228,10 @@ fun CLauncherNavigation(
                         AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
                         AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                         AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+                        AppSelectionType.TWO_FINGER_SWIPE_UP_APP -> "Select Two-Finger Swipe Up App"
+                        AppSelectionType.TWO_FINGER_SWIPE_DOWN_APP -> "Select Two-Finger Swipe Down App"
+                        AppSelectionType.TWO_FINGER_SWIPE_LEFT_APP -> "Select Two-Finger Swipe Left App"
+                        AppSelectionType.TWO_FINGER_SWIPE_RIGHT_APP -> "Select Two-Finger Swipe Right App"
                         null -> ""
                     },
                     onSwipeDown = { navigateTo(LauncherDestination.Home) },
@@ -238,6 +242,10 @@ fun CLauncherNavigation(
                                 AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
                                 AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
                                 AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                AppSelectionType.TWO_FINGER_SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWO_FINGER_SWIPE_UP_APP)
+                                AppSelectionType.TWO_FINGER_SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWO_FINGER_SWIPE_DOWN_APP)
+                                AppSelectionType.TWO_FINGER_SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWO_FINGER_SWIPE_LEFT_APP)
+                                AppSelectionType.TWO_FINGER_SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWO_FINGER_SWIPE_RIGHT_APP)
                                 else -> {}
                             }
                             currentSelectionType = null

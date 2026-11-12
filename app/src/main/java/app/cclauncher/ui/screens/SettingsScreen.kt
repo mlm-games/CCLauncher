@@ -113,6 +113,25 @@ import java.util.Date
 import java.util.Locale
 import kotlin.reflect.KClass
 
+private val horizontalSwipeShortcutFields = setOf(
+    "swipeLeftAction",
+    "swipeLeftApp",
+    "swipeRightAction",
+    "swipeRightApp",
+)
+
+private fun appSelectionTypeFor(fieldName: String): AppSelectionType? = when (fieldName) {
+    "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
+    "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+    "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
+    "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+    "twoFingerSwipeLeftApp" -> AppSelectionType.TWO_FINGER_SWIPE_LEFT_APP
+    "twoFingerSwipeRightApp" -> AppSelectionType.TWO_FINGER_SWIPE_RIGHT_APP
+    "twoFingerSwipeUpApp" -> AppSelectionType.TWO_FINGER_SWIPE_UP_APP
+    "twoFingerSwipeDownApp" -> AppSelectionType.TWO_FINGER_SWIPE_DOWN_APP
+    else -> null
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("NonObservableLocale")
 @Composable
@@ -578,7 +597,11 @@ fun SettingsScreen(
                         categoryFields.forEach { field ->
                             key(field.name) {
                                 val meta = field.meta
-                                val isEnabled = if (meta != null) schema.isEnabled(uiState, field) else false
+                                val pagesPaused = uiState.homeLayout.pageCount > 1 &&
+                                    field.name in horizontalSwipeShortcutFields
+                                val isEnabled = if (meta != null) {
+                                    schema.isEnabled(uiState, field) && !pagesPaused
+                                } else false
 
                                 if (meta != null) {
                                     when (meta.type) {
@@ -674,7 +697,11 @@ fun SettingsScreen(
                                             SettingsItem(
                                                 title = meta.resolvedTitle(stringProvider),
                                                 subtitle = displayText,
-                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
+                                                description = if (pagesPaused) {
+                                                    context.getString(R.string.setting_swipe_paused_pages)
+                                                } else {
+                                                    meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() }
+                                                },
                                                 enabled = isEnabled,
                                                 onClick = {
                                                     currentField = field
@@ -701,16 +728,14 @@ fun SettingsScreen(
                                             SettingsItem(
                                                 title = meta.resolvedTitle(stringProvider),
                                                 subtitle = pref.label.ifBlank { "Not set" },
-                                                description = meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() },
+                                                description = if (pagesPaused) {
+                                                    context.getString(R.string.setting_swipe_paused_pages)
+                                                } else {
+                                                    meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() }
+                                                },
                                                 enabled = isEnabled,
                                                 onClick = {
-                                                    val selectionType = when (field.name) {
-                                                        "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
-                                                        "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
-                                                        "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
-                                                        "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
-                                                        else -> null
-                                                    }
+                                                    val selectionType = appSelectionTypeFor(field.name)
 
                                                     selectionType?.let {
                                                         coroutineScope.launch {

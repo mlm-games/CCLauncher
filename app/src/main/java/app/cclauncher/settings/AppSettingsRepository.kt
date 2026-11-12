@@ -117,6 +117,14 @@ class AppSettingsRepository(private val context: Context) {
 
     suspend fun setSwipeDownApp(app: AppPreference) { repo.update { it.copy(swipeDownApp = app) } }
 
+    suspend fun setTwoFingerSwipeLeftApp(app: AppPreference) { repo.update { it.copy(twoFingerSwipeLeftApp = app) } }
+
+    suspend fun setTwoFingerSwipeRightApp(app: AppPreference) { repo.update { it.copy(twoFingerSwipeRightApp = app) } }
+
+    suspend fun setTwoFingerSwipeUpApp(app: AppPreference) { repo.update { it.copy(twoFingerSwipeUpApp = app) } }
+
+    suspend fun setTwoFingerSwipeDownApp(app: AppPreference) { repo.update { it.copy(twoFingerSwipeDownApp = app) } }
+
     suspend fun getSwipeLeftApp(): AppPreference = settings.first().swipeLeftApp
     suspend fun getSwipeRightApp(): AppPreference = settings.first().swipeRightApp
 

@@ -54,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -84,6 +85,8 @@ import app.cclauncher.ui.components.AppListItem
 import app.cclauncher.ui.components.PrivateSpaceIndicator
 import app.cclauncher.ui.components.PrivateSpaceToggle
 import app.cclauncher.ui.theme.AnimationConfig
+import app.cclauncher.ui.util.SwipeDirection
+import app.cclauncher.ui.util.SwipeGesture
 import app.cclauncher.ui.util.detectSwipeGestures
 import app.cclauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
@@ -263,16 +266,11 @@ fun AppDrawerScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = settings.appDrawerBackgroundOpacity / 100f))
-            .detectSwipeGestures(
-                sensitivity = settings.gestureSensitivity,
-                onSwipeDown = { // General swipe down (anywhere) to trigger onSwipeDown action (e.g., go home)
-                    onSwipeDown()
-                },
-                onSwipeUp = {
+    val handleSwipeGesture: (SwipeGesture) -> Unit = { gesture ->
+        if (gesture.fingers == 1) {
+            when (gesture.direction) {
+                SwipeDirection.Down -> onSwipeDown()
+                SwipeDirection.Up -> {
                     val atStart = if (reverseLayout) {
                         scrollState.layoutInfo.totalItemsCount > 0 &&
                         scrollState.firstVisibleItemIndex == 0 &&
@@ -284,6 +282,22 @@ fun AppDrawerScreen(
                         onSwipeDown()
                     }
                 }
+                SwipeDirection.Left, SwipeDirection.Right -> Unit
+            }
+        }
+    }
+    val latestSwipeGesture = rememberUpdatedState(handleSwipeGesture)
+    val stableSwipeGesture = remember {
+        { gesture: SwipeGesture -> latestSwipeGesture.value(gesture) }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background.copy(alpha = settings.appDrawerBackgroundOpacity / 100f))
+            .detectSwipeGestures(
+                sensitivity = settings.gestureSensitivity,
+                onSwipe = stableSwipeGesture
             )
             .statusBarsPadding()
     ) {
