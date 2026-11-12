@@ -320,4 +320,14 @@
     <string name="category_layout">Розкладка</string>
     <string name="category_gestures">Жести</string>
     <string name="category_system">Система</string>
+    <string name="setting_two_finger_swipe_up_action">Дія під час свайпу двома пальцями вгору</string>
+    <string name="setting_two_finger_swipe_up_app">Додаток для свайпу двома пальцями вгору</string>
+    <string name="setting_two_finger_swipe_down_action">Дія під час свайпу двома пальцями вниз</string>
+    <string name="setting_two_finger_swipe_down_app">Додаток для свайпу двома пальцями вниз</string>
+    <string name="setting_two_finger_swipe_left_action">Дія під час свайпу двома пальцями ліворуч</string>
+    <string name="setting_two_finger_swipe_left_app">Додаток для свайпу двома пальцями ліворуч</string>
+    <string name="setting_two_finger_swipe_right_action">Дія під час свайпу двома пальцями праворуч</string>
+    <string name="setting_two_finger_swipe_right_app">Додаток для свайпу двома пальцями праворуч</string>
+    <string name="setting_swipe_paused_pages">Призупинено, поки у вас більше однієї сторінки головного екрана</string>
+    <string name="swipe_pages_paused_hint">Свайпи ліворуч і праворуч тепер перемикають сторінки. Горизонтальні ярлики призупинено.</string>
 </resources>

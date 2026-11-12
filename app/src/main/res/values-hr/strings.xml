@@ -318,4 +318,14 @@
     <string name="category_layout">Raspored</string>
     <string name="category_gestures">Geste</string>
     <string name="category_system">Sustav</string>
+    <string name="setting_two_finger_swipe_up_action">Radnja pri povlačenju s dva prsta prema gore</string>
+    <string name="setting_two_finger_swipe_up_app">Aplikacija pri povlačenju s dva prsta prema gore</string>
+    <string name="setting_two_finger_swipe_down_action">Radnja pri povlačenju s dva prsta prema dolje</string>
+    <string name="setting_two_finger_swipe_down_app">Aplikacija pri povlačenju s dva prsta prema dolje</string>
+    <string name="setting_two_finger_swipe_left_action">Radnja pri povlačenju s dva prsta ulijevo</string>
+    <string name="setting_two_finger_swipe_left_app">Aplikacija pri povlačenju s dva prsta ulijevo</string>
+    <string name="setting_two_finger_swipe_right_action">Radnja pri povlačenju s dva prsta udesno</string>
+    <string name="setting_two_finger_swipe_right_app">Aplikacija pri povlačenju s dva prsta udesno</string>
+    <string name="setting_swipe_paused_pages">Pauzirano dok imate više od jedne početne stranice</string>
+    <string name="swipe_pages_paused_hint">Povlačenje ulijevo i udesno sada mijenja stranice. Vodoravni prečaci su pauzirani.</string>
 </resources>

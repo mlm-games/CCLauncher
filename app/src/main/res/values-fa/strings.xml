@@ -311,4 +311,14 @@
     <string name="category_layout">چیدمان</string>
     <string name="category_gestures">اشاره‌ها</string>
     <string name="category_system">سیستم</string>
+    <string name="setting_two_finger_swipe_up_action">کنش هنگام کشیدن با دو انگشت به بالا</string>
+    <string name="setting_two_finger_swipe_up_app">برنامه هنگام کشیدن با دو انگشت به بالا</string>
+    <string name="setting_two_finger_swipe_down_action">کنش هنگام کشیدن با دو انگشت به پایین</string>
+    <string name="setting_two_finger_swipe_down_app">برنامه هنگام کشیدن با دو انگشت به پایین</string>
+    <string name="setting_two_finger_swipe_left_action">کنش هنگام کشیدن با دو انگشت به چپ</string>
+    <string name="setting_two_finger_swipe_left_app">برنامه هنگام کشیدن با دو انگشت به چپ</string>
+    <string name="setting_two_finger_swipe_right_action">کنش هنگام کشیدن با دو انگشت به راست</string>
+    <string name="setting_two_finger_swipe_right_app">برنامه هنگام کشیدن با دو انگشت به راست</string>
+    <string name="setting_swipe_paused_pages">در حالت مکث است چون بیش از یک صفحهٔ اصلی دارید</string>
+    <string name="swipe_pages_paused_hint">کشیدن به چپ و راست اکنون صفحه را عوض می‌کند. میان‌برهای افقی در حالت مکث هستند.</string>
 </resources>

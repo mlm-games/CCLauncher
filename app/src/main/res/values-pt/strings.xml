@@ -319,4 +319,14 @@
     <string name="category_layout">Disposição</string>
     <string name="category_gestures">Gestos</string>
     <string name="category_system">Sistema</string>
+    <string name="setting_two_finger_swipe_up_action">Ação ao deslizar com dois dedos para cima</string>
+    <string name="setting_two_finger_swipe_up_app">Aplicativo ao deslizar com dois dedos para cima</string>
+    <string name="setting_two_finger_swipe_down_action">Ação ao deslizar com dois dedos para baixo</string>
+    <string name="setting_two_finger_swipe_down_app">Aplicativo ao deslizar com dois dedos para baixo</string>
+    <string name="setting_two_finger_swipe_left_action">Ação ao deslizar com dois dedos para a esquerda</string>
+    <string name="setting_two_finger_swipe_left_app">Aplicativo ao deslizar com dois dedos para a esquerda</string>
+    <string name="setting_two_finger_swipe_right_action">Ação ao deslizar com dois dedos para a direita</string>
+    <string name="setting_two_finger_swipe_right_app">Aplicativo ao deslizar com dois dedos para a direita</string>
+    <string name="setting_swipe_paused_pages">Em pausa enquanto você tem mais de uma página inicial</string>
+    <string name="swipe_pages_paused_hint">Deslizar para a esquerda e para a direita agora muda de página. Os atalhos horizontais estão em pausa.</string>
 </resources>

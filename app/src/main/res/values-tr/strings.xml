@@ -320,4 +320,14 @@
     <string name="category_layout">Yerleşim</string>
     <string name="category_gestures">Hareketler</string>
     <string name="category_system">Sistem</string>
+    <string name="setting_two_finger_swipe_up_action">İki parmakla yukarı kaydırma eylemi</string>
+    <string name="setting_two_finger_swipe_up_app">İki parmakla yukarı kaydırıldığında açılacak uygulama</string>
+    <string name="setting_two_finger_swipe_down_action">İki parmakla aşağı kaydırma eylemi</string>
+    <string name="setting_two_finger_swipe_down_app">İki parmakla aşağı kaydırıldığında açılacak uygulama</string>
+    <string name="setting_two_finger_swipe_left_action">İki parmakla sola kaydırma eylemi</string>
+    <string name="setting_two_finger_swipe_left_app">İki parmakla sola kaydırıldığında açılacak uygulama</string>
+    <string name="setting_two_finger_swipe_right_action">İki parmakla sağa kaydırma eylemi</string>
+    <string name="setting_two_finger_swipe_right_app">İki parmakla sağa kaydırıldığında açılacak uygulama</string>
+    <string name="setting_swipe_paused_pages">Birden fazla ana ekran sayfanız olduğu için duraklatıldı</string>
+    <string name="swipe_pages_paused_hint">Sola ve sağa kaydırma artık sayfaları değiştiriyor. Yatay kısayollar duraklatıldı.</string>
 </resources>

@@ -320,4 +320,14 @@
     <string name="category_layout">Disposizione</string>
     <string name="category_gestures">Gesti</string>
     <string name="category_system">Sistema</string>
+    <string name="setting_two_finger_swipe_up_action">Azione dello scorrimento con due dita verso l\'alto</string>
+    <string name="setting_two_finger_swipe_up_app">App da aprire scorrendo con due dita verso l\'alto</string>
+    <string name="setting_two_finger_swipe_down_action">Azione dello scorrimento con due dita verso il basso</string>
+    <string name="setting_two_finger_swipe_down_app">App da aprire scorrendo con due dita verso il basso</string>
+    <string name="setting_two_finger_swipe_left_action">Azione dello scorrimento con due dita a sinistra</string>
+    <string name="setting_two_finger_swipe_left_app">App da aprire scorrendo con due dita a sinistra</string>
+    <string name="setting_two_finger_swipe_right_action">Azione dello scorrimento con due dita a destra</string>
+    <string name="setting_two_finger_swipe_right_app">App da aprire scorrendo con due dita a destra</string>
+    <string name="setting_swipe_paused_pages">In pausa finché hai più di una pagina della schermata principale</string>
+    <string name="swipe_pages_paused_hint">Lo scorrimento a sinistra e a destra ora cambia pagina. Le scorciatoie orizzontali sono in pausa.</string>
 </resources>

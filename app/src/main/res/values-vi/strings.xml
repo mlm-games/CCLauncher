@@ -311,4 +311,14 @@
     <string name="category_layout">Bố cục</string>
     <string name="category_gestures">Cử chỉ</string>
     <string name="category_system">Hệ thống</string>
+    <string name="setting_two_finger_swipe_up_action">Hành động khi vuốt hai ngón lên</string>
+    <string name="setting_two_finger_swipe_up_app">Ứng dụng khi vuốt hai ngón lên</string>
+    <string name="setting_two_finger_swipe_down_action">Hành động khi vuốt hai ngón xuống</string>
+    <string name="setting_two_finger_swipe_down_app">Ứng dụng khi vuốt hai ngón xuống</string>
+    <string name="setting_two_finger_swipe_left_action">Hành động khi vuốt hai ngón sang trái</string>
+    <string name="setting_two_finger_swipe_left_app">Ứng dụng khi vuốt hai ngón sang trái</string>
+    <string name="setting_two_finger_swipe_right_action">Hành động khi vuốt hai ngón sang phải</string>
+    <string name="setting_two_finger_swipe_right_app">Ứng dụng khi vuốt hai ngón sang phải</string>
+    <string name="setting_swipe_paused_pages">Tạm dừng khi bạn có nhiều hơn một trang màn hình chính</string>
+    <string name="swipe_pages_paused_hint">Vuốt sang trái và phải giờ sẽ chuyển trang. Các phím tắt ngang đang tạm dừng.</string>
 </resources>

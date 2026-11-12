@@ -320,4 +320,14 @@
     <string name="category_layout">Layout</string>
     <string name="category_gestures">Gesten</string>
     <string name="category_system">System</string>
+    <string name="setting_two_finger_swipe_up_action">Aktion beim Zwei-Finger-Wischen nach oben</string>
+    <string name="setting_two_finger_swipe_up_app">App beim Zwei-Finger-Wischen nach oben</string>
+    <string name="setting_two_finger_swipe_down_action">Aktion beim Zwei-Finger-Wischen nach unten</string>
+    <string name="setting_two_finger_swipe_down_app">App beim Zwei-Finger-Wischen nach unten</string>
+    <string name="setting_two_finger_swipe_left_action">Aktion beim Zwei-Finger-Wischen nach links</string>
+    <string name="setting_two_finger_swipe_left_app">App beim Zwei-Finger-Wischen nach links</string>
+    <string name="setting_two_finger_swipe_right_action">Aktion beim Zwei-Finger-Wischen nach rechts</string>
+    <string name="setting_two_finger_swipe_right_app">App beim Zwei-Finger-Wischen nach rechts</string>
+    <string name="setting_swipe_paused_pages">Pausiert, solange Sie mehr als eine Startseite haben</string>
+    <string name="swipe_pages_paused_hint">Wischen nach links und rechts wechselt jetzt die Seiten. Horizontale Verknüpfungen sind pausiert.</string>
 </resources>

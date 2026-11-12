@@ -317,4 +317,14 @@
     <string name="category_layout">Distribución</string>
     <string name="category_gestures">Gestos</string>
     <string name="category_system">Sistema</string>
+    <string name="setting_two_finger_swipe_up_action">Acción al deslizar con dos dedos hacia arriba</string>
+    <string name="setting_two_finger_swipe_up_app">Aplicación al deslizar con dos dedos hacia arriba</string>
+    <string name="setting_two_finger_swipe_down_action">Acción al deslizar con dos dedos hacia abajo</string>
+    <string name="setting_two_finger_swipe_down_app">Aplicación al deslizar con dos dedos hacia abajo</string>
+    <string name="setting_two_finger_swipe_left_action">Acción al deslizar con dos dedos a la izquierda</string>
+    <string name="setting_two_finger_swipe_left_app">Aplicación al deslizar con dos dedos a la izquierda</string>
+    <string name="setting_two_finger_swipe_right_action">Acción al deslizar con dos dedos a la derecha</string>
+    <string name="setting_two_finger_swipe_right_app">Aplicación al deslizar con dos dedos a la derecha</string>
+    <string name="setting_swipe_paused_pages">En pausa mientras tenga más de una página de inicio</string>
+    <string name="swipe_pages_paused_hint">Deslizar a izquierda y derecha ahora cambia de página. Los atajos horizontales están en pausa.</string>
 </resources>

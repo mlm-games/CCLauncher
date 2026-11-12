@@ -316,4 +316,14 @@
     <string name="category_layout">التخطيط</string>
     <string name="category_gestures">الإيماءات</string>
     <string name="category_system">النظام</string>
+    <string name="setting_two_finger_swipe_up_action">إجراء السحب إلى الأعلى بإصبعين</string>
+    <string name="setting_two_finger_swipe_up_app">تطبيق عند السحب إلى الأعلى بإصبعين</string>
+    <string name="setting_two_finger_swipe_down_action">إجراء السحب إلى الأسفل بإصبعين</string>
+    <string name="setting_two_finger_swipe_down_app">تطبيق عند السحب إلى الأسفل بإصبعين</string>
+    <string name="setting_two_finger_swipe_left_action">إجراء السحب إلى اليسار بإصبعين</string>
+    <string name="setting_two_finger_swipe_left_app">تطبيق عند السحب إلى اليسار بإصبعين</string>
+    <string name="setting_two_finger_swipe_right_action">إجراء السحب إلى اليمين بإصبعين</string>
+    <string name="setting_two_finger_swipe_right_app">تطبيق عند السحب إلى اليمين بإصبعين</string>
+    <string name="setting_swipe_paused_pages">متوقف مؤقتًا لأن لديك أكثر من صفحة رئيسية واحدة</string>
+    <string name="swipe_pages_paused_hint">أصبح السحب إلى اليسار واليمين يغيّر الصفحات. الاختصارات الأفقية متوقفة مؤقتًا.</string>
 </resources>

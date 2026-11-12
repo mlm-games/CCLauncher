@@ -311,4 +311,14 @@
     <string name="category_layout">פריסה</string>
     <string name="category_gestures">מחוות</string>
     <string name="category_system">מערכת</string>
+    <string name="setting_two_finger_swipe_up_action">פעולה בהחלקה בשתי אצבעות למעלה</string>
+    <string name="setting_two_finger_swipe_up_app">אפליקציה בהחלקה בשתי אצבעות למעלה</string>
+    <string name="setting_two_finger_swipe_down_action">פעולה בהחלקה בשתי אצבעות למטה</string>
+    <string name="setting_two_finger_swipe_down_app">אפליקציה בהחלקה בשתי אצבעות למטה</string>
+    <string name="setting_two_finger_swipe_left_action">פעולה בהחלקה בשתי אצבעות שמאלה</string>
+    <string name="setting_two_finger_swipe_left_app">אפליקציה בהחלקה בשתי אצבעות שמאלה</string>
+    <string name="setting_two_finger_swipe_right_action">פעולה בהחלקה בשתי אצבעות ימינה</string>
+    <string name="setting_two_finger_swipe_right_app">אפליקציה בהחלקה בשתי אצבעות ימינה</string>
+    <string name="setting_swipe_paused_pages">מושהה כל עוד יש יותר מעמוד בית אחד</string>
+    <string name="swipe_pages_paused_hint">החלקה שמאלה וימינה משנה כעת עמודים. קיצורי הדרך האופקיים מושהים.</string>
 </resources>

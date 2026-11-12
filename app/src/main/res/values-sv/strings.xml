@@ -319,4 +319,14 @@
     <string name="category_layout">Layout</string>
     <string name="category_gestures">Gester</string>
     <string name="category_system">System</string>
+    <string name="setting_two_finger_swipe_up_action">Åtgärd vid svep uppåt med två fingrar</string>
+    <string name="setting_two_finger_swipe_up_app">App vid svep uppåt med två fingrar</string>
+    <string name="setting_two_finger_swipe_down_action">Åtgärd vid svep nedåt med två fingrar</string>
+    <string name="setting_two_finger_swipe_down_app">App vid svep nedåt med två fingrar</string>
+    <string name="setting_two_finger_swipe_left_action">Åtgärd vid svep åt vänster med två fingrar</string>
+    <string name="setting_two_finger_swipe_left_app">App vid svep åt vänster med två fingrar</string>
+    <string name="setting_two_finger_swipe_right_action">Åtgärd vid svep åt höger med två fingrar</string>
+    <string name="setting_two_finger_swipe_right_app">App vid svep åt höger med två fingrar</string>
+    <string name="setting_swipe_paused_pages">Pausat så länge du har mer än en startskärmssida</string>
+    <string name="swipe_pages_paused_hint">Svep åt vänster och höger byter nu sida. Horisontella genvägar är pausade.</string>
 </resources>

@@ -311,4 +311,14 @@
     <string name="category_layout">Διάταξη</string>
     <string name="category_gestures">Χειρονομίες</string>
     <string name="category_system">Σύστημα</string>
+    <string name="setting_two_finger_swipe_up_action">Ενέργεια κατά το σύρσιμο με δύο δάχτυλα προς τα πάνω</string>
+    <string name="setting_two_finger_swipe_up_app">Εφαρμογή κατά το σύρσιμο με δύο δάχτυλα προς τα πάνω</string>
+    <string name="setting_two_finger_swipe_down_action">Ενέργεια κατά το σύρσιμο με δύο δάχτυλα προς τα κάτω</string>
+    <string name="setting_two_finger_swipe_down_app">Εφαρμογή κατά το σύρσιμο με δύο δάχτυλα προς τα κάτω</string>
+    <string name="setting_two_finger_swipe_left_action">Ενέργεια κατά το σύρσιμο με δύο δάχτυλα αριστερά</string>
+    <string name="setting_two_finger_swipe_left_app">Εφαρμογή κατά το σύρσιμο με δύο δάχτυλα αριστερά</string>
+    <string name="setting_two_finger_swipe_right_action">Ενέργεια κατά το σύρσιμο με δύο δάχτυλα δεξιά</string>
+    <string name="setting_two_finger_swipe_right_app">Εφαρμογή κατά το σύρσιμο με δύο δάχτυλα δεξιά</string>
+    <string name="setting_swipe_paused_pages">Σε παύση όταν έχετε περισσότερες από μία σελίδες αρχικής οθόνης</string>
+    <string name="swipe_pages_paused_hint">Το σύρσιμο αριστερά και δεξιά αλλάζει πλέον σελίδες. Οι οριζόντιες συντομεύσεις είναι σε παύση.</string>
 </resources>

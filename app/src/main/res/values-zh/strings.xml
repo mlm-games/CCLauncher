@@ -320,4 +320,14 @@
     <string name="category_layout">布局</string>
     <string name="category_gestures">手势</string>
     <string name="category_system">系统</string>
+    <string name="setting_two_finger_swipe_up_action">双指向上滑动时的操作</string>
+    <string name="setting_two_finger_swipe_up_app">双指向上滑动打开的应用</string>
+    <string name="setting_two_finger_swipe_down_action">双指向下滑动时的操作</string>
+    <string name="setting_two_finger_swipe_down_app">双指向下滑动打开的应用</string>
+    <string name="setting_two_finger_swipe_left_action">双指向左滑动时的操作</string>
+    <string name="setting_two_finger_swipe_left_app">双指向左滑动打开的应用</string>
+    <string name="setting_two_finger_swipe_right_action">双指向右滑动时的操作</string>
+    <string name="setting_two_finger_swipe_right_app">双指向右滑动打开的应用</string>
+    <string name="setting_swipe_paused_pages">当您有多个主屏幕页面时暂停</string>
+    <string name="swipe_pages_paused_hint">左右滑动现在会切换页面。水平快捷方式已暂停。</string>
 </resources>

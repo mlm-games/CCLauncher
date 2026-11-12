@@ -318,4 +318,14 @@
     <string name="category_layout">レイアウト</string>
     <string name="category_gestures">ジェスチャー</string>
     <string name="category_system">システム</string>
+    <string name="setting_two_finger_swipe_up_action">2本指の上スワイプ時の動作</string>
+    <string name="setting_two_finger_swipe_up_app">2本指の上スワイプで開くアプリ</string>
+    <string name="setting_two_finger_swipe_down_action">2本指の下スワイプ時の動作</string>
+    <string name="setting_two_finger_swipe_down_app">2本指の下スワイプで開くアプリ</string>
+    <string name="setting_two_finger_swipe_left_action">2本指の左スワイプ時の動作</string>
+    <string name="setting_two_finger_swipe_left_app">2本指の左スワイプで開くアプリ</string>
+    <string name="setting_two_finger_swipe_right_action">2本指の右スワイプ時の動作</string>
+    <string name="setting_two_finger_swipe_right_app">2本指の右スワイプで開くアプリ</string>
+    <string name="setting_swipe_paused_pages">ホーム画面が複数あるため一時停止中</string>
+    <string name="swipe_pages_paused_hint">左右のスワイプでページが切り替わります。横方向のショートカットは一時停止中です。</string>
 </resources>

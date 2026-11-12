@@ -311,4 +311,14 @@
     <string name="category_layout">Rozvržení</string>
     <string name="category_gestures">Gesta</string>
     <string name="category_system">Systém</string>
+    <string name="setting_two_finger_swipe_up_action">Akce při přejetí dvěma prsty nahoru</string>
+    <string name="setting_two_finger_swipe_up_app">Aplikace při přejetí dvěma prsty nahoru</string>
+    <string name="setting_two_finger_swipe_down_action">Akce při přejetí dvěma prsty dolů</string>
+    <string name="setting_two_finger_swipe_down_app">Aplikace při přejetí dvěma prsty dolů</string>
+    <string name="setting_two_finger_swipe_left_action">Akce při přejetí dvěma prsty doleva</string>
+    <string name="setting_two_finger_swipe_left_app">Aplikace při přejetí dvěma prsty doleva</string>
+    <string name="setting_two_finger_swipe_right_action">Akce při přejetí dvěma prsty doprava</string>
+    <string name="setting_two_finger_swipe_right_app">Aplikace při přejetí dvěma prsty doprava</string>
+    <string name="setting_swipe_paused_pages">Pozastaveno, protože máte více než jednu domovskou stránku</string>
+    <string name="swipe_pages_paused_hint">Přejetím doleva a doprava nyní měníte stránky. Vodorovné zkratky jsou pozastaveny.</string>
 </resources>

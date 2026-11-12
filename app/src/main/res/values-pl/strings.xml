@@ -318,4 +318,14 @@
     <string name="category_layout">Układ</string>
     <string name="category_gestures">Gesty</string>
     <string name="category_system">System</string>
+    <string name="setting_two_finger_swipe_up_action">Akcja przy przesunięciu dwoma palcami w górę</string>
+    <string name="setting_two_finger_swipe_up_app">Aplikacja przy przesunięciu dwoma palcami w górę</string>
+    <string name="setting_two_finger_swipe_down_action">Akcja przy przesunięciu dwoma palcami w dół</string>
+    <string name="setting_two_finger_swipe_down_app">Aplikacja przy przesunięciu dwoma palcami w dół</string>
+    <string name="setting_two_finger_swipe_left_action">Akcja przy przesunięciu dwoma palcami w lewo</string>
+    <string name="setting_two_finger_swipe_left_app">Aplikacja przy przesunięciu dwoma palcami w lewo</string>
+    <string name="setting_two_finger_swipe_right_action">Akcja przy przesunięciu dwoma palcami w prawo</string>
+    <string name="setting_two_finger_swipe_right_app">Aplikacja przy przesunięciu dwoma palcami w prawo</string>
+    <string name="setting_swipe_paused_pages">Wstrzymane, gdy masz więcej niż jedną stronę ekranu głównego</string>
+    <string name="swipe_pages_paused_hint">Przesunięcie w lewo i w prawo zmienia teraz strony. Skróty poziome są wstrzymane.</string>
 </resources>

@@ -311,4 +311,14 @@
     <string name="category_layout">Asettelu</string>
     <string name="category_gestures">Eleet</string>
     <string name="category_system">Järjestelmä</string>
+    <string name="setting_two_finger_swipe_up_action">Toiminto ylös kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_up_app">Sovellus ylös kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_down_action">Toiminto alas kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_down_app">Sovellus alas kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_left_action">Toiminto vasemmalle kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_left_app">Sovellus vasemmalle kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_right_action">Toiminto oikealle kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_two_finger_swipe_right_app">Sovellus oikealle kahdella sormella pyyhkäistäessä</string>
+    <string name="setting_swipe_paused_pages">Keskeytetty, kun aloitusnäytöllä on useampi kuin yksi sivu</string>
+    <string name="swipe_pages_paused_hint">Vasemmalle ja oikealle pyyhkäisy vaihtaa nyt sivua. Vaakasuuntaiset pikavalinnat on keskeytetty.</string>
 </resources>

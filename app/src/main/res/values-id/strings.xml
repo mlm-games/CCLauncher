@@ -317,4 +317,14 @@
     <string name="category_layout">Tata letak</string>
     <string name="category_gestures">Gerakan</string>
     <string name="category_system">Sistem</string>
+    <string name="setting_two_finger_swipe_up_action">Tindakan saat usap dua jari ke atas</string>
+    <string name="setting_two_finger_swipe_up_app">Aplikasi saat usap dua jari ke atas</string>
+    <string name="setting_two_finger_swipe_down_action">Tindakan saat usap dua jari ke bawah</string>
+    <string name="setting_two_finger_swipe_down_app">Aplikasi saat usap dua jari ke bawah</string>
+    <string name="setting_two_finger_swipe_left_action">Tindakan saat usap dua jari ke kiri</string>
+    <string name="setting_two_finger_swipe_left_app">Aplikasi saat usap dua jari ke kiri</string>
+    <string name="setting_two_finger_swipe_right_action">Tindakan saat usap dua jari ke kanan</string>
+    <string name="setting_two_finger_swipe_right_app">Aplikasi saat usap dua jari ke kanan</string>
+    <string name="setting_swipe_paused_pages">Dijeda selama Anda memiliki lebih dari satu halaman beranda</string>
+    <string name="swipe_pages_paused_hint">Usap ke kiri dan kanan sekarang mengganti halaman. Pintasan horizontal dijeda.</string>
 </resources>

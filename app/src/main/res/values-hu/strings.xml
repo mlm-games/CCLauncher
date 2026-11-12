@@ -321,4 +321,14 @@
     <string name="category_layout">Elrendezés</string>
     <string name="category_gestures">Mozdulatok</string>
     <string name="category_system">Rendszer</string>
+    <string name="setting_two_finger_swipe_up_action">Művelet kétujjas felfelé simításkor</string>
+    <string name="setting_two_finger_swipe_up_app">Alkalmazás kétujjas felfelé simításkor</string>
+    <string name="setting_two_finger_swipe_down_action">Művelet kétujjas lefelé simításkor</string>
+    <string name="setting_two_finger_swipe_down_app">Alkalmazás kétujjas lefelé simításkor</string>
+    <string name="setting_two_finger_swipe_left_action">Művelet kétujjas balra simításkor</string>
+    <string name="setting_two_finger_swipe_left_app">Alkalmazás kétujjas balra simításkor</string>
+    <string name="setting_two_finger_swipe_right_action">Művelet kétujjas jobbra simításkor</string>
+    <string name="setting_two_finger_swipe_right_app">Alkalmazás kétujjas jobbra simításkor</string>
+    <string name="setting_swipe_paused_pages">Szüneteltetve, amíg egynél több kezdőképernyő-oldal van</string>
+    <string name="swipe_pages_paused_hint">A balra és jobbra simítás most oldalt vált. A vízszintes gyorsparancsok szünetelve vannak.</string>
 </resources>

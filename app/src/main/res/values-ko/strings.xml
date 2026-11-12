@@ -311,4 +311,14 @@
     <string name="category_layout">배치</string>
     <string name="category_gestures">제스처</string>
     <string name="category_system">시스템</string>
+    <string name="setting_two_finger_swipe_up_action">두 손가락 위로 스와이프 동작</string>
+    <string name="setting_two_finger_swipe_up_app">두 손가락 위로 스와이프로 여는 앱</string>
+    <string name="setting_two_finger_swipe_down_action">두 손가락 아래로 스와이프 동작</string>
+    <string name="setting_two_finger_swipe_down_app">두 손가락 아래로 스와이프로 여는 앱</string>
+    <string name="setting_two_finger_swipe_left_action">두 손가락 왼쪽으로 스와이프 동작</string>
+    <string name="setting_two_finger_swipe_left_app">두 손가락 왼쪽으로 스와이프로 여는 앱</string>
+    <string name="setting_two_finger_swipe_right_action">두 손가락 오른쪽으로 스와이프 동작</string>
+    <string name="setting_two_finger_swipe_right_app">두 손가락 오른쪽으로 스와이프로 여는 앱</string>
+    <string name="setting_swipe_paused_pages">홈 화면이 두 개 이상이라 일시중지됨</string>
+    <string name="swipe_pages_paused_hint">이제 왼쪽/오른쪽 스와이프로 페이지가 전환됩니다. 가로 방향 단축키는 일시중지되었습니다.</string>
 </resources>
