@@ -698,7 +698,7 @@ fun SettingsScreen(
                                                 title = meta.resolvedTitle(stringProvider),
                                                 subtitle = displayText,
                                                 description = if (pagesPaused) {
-                                                    context.getString(R.string.setting_swipe_paused_pages)
+                                                    stringResource(R.string.setting_swipe_paused_pages)
                                                 } else {
                                                     meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() }
                                                 },
@@ -729,7 +729,7 @@ fun SettingsScreen(
                                                 title = meta.resolvedTitle(stringProvider),
                                                 subtitle = pref.label.ifBlank { "Not set" },
                                                 description = if (pagesPaused) {
-                                                    context.getString(R.string.setting_swipe_paused_pages)
+                                                    stringResource(R.string.setting_swipe_paused_pages)
                                                 } else {
                                                     meta.resolvedDescription(stringProvider).takeIf { it.isNotBlank() }
                                                 },
