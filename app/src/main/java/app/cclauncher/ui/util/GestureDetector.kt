@@ -5,7 +5,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.positionChangedIgnoreConsumed
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -37,7 +37,7 @@ fun Modifier.detectSwipeGestures(
                 val pressed = event.changes.filter { it.pressed }
                 if (pressed.isEmpty()) break
 
-                if (event.changes.any { it.isConsumed && it.positionChanged() }) {
+                if (event.changes.any { it.isConsumed && it.positionChangedIgnoreConsumed() }) {
                     return@awaitEachGesture
                 }
 
